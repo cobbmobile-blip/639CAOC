@@ -1,0 +1,618 @@
+<title>Combined AOD Builder</title>
+<style>
+/* Layout concept: a kneeboard clipboard — a status strip (cycle, phase, swing)
+   pinned above two stacked panels (Part 1 Effects / Part 2 Guidance) built from
+   repeatable row-groups, a side rail of saved cycles, and a sticky action bar. */
+:root{
+  --bg:#f3efe2; --surface:#fffdf7; --surface-2:#ece6d4; --border:#d8cfb4;
+  --fg:#211d14; --fg-muted:#6b6450; --accent:#8a5a14; --accent-ink:#fffdf7;
+  --accent-2:#3f6a52; --danger:#a13c2d; --good:#3f6a52;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --disp: "Oswald", var(--body);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13160f; --surface:#1a1e15; --surface-2:#20251a; --border:#343b2a;
+    --fg:#e9e4d2; --fg-muted:#9a9c84; --accent:#d19a3d; --accent-ink:#1a1e15;
+    --accent-2:#6fa389; --danger:#d4715f; --good:#6fa389;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13160f; --surface:#1a1e15; --surface-2:#20251a; --border:#343b2a;
+  --fg:#e9e4d2; --fg-muted:#9a9c84; --accent:#d19a3d; --accent-ink:#1a1e15;
+  --accent-2:#6fa389; --danger:#d4715f; --good:#6fa389;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--fg); font-family:var(--body); margin:0; padding-inline:16px; padding-block:20px 48px;}
+h1,h2,h3{font-family:var(--disp); font-weight:600; text-wrap:balance; margin:0}
+.eyebrow{font-family:var(--mono); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--fg-muted)}
+.wrap{max-width:980px; margin-inline:auto; display:flex; flex-direction:column; gap:18px}
+.topbar{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:10px; border-bottom:2px solid var(--border); padding-bottom:12px}
+.topbar h1{font-size:clamp(1.4rem,4vw,1.9rem); letter-spacing:.01em}
+.themebtn{font-family:var(--mono); font-size:.72rem; background:none; border:1px solid var(--border); color:var(--fg-muted); border-radius:4px; padding:5px 9px; cursor:pointer}
+.themebtn:hover{color:var(--fg); border-color:var(--fg-muted)}
+
+.statusbar{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:8px; overflow:hidden}
+.statcell{background:var(--surface); padding:10px 14px; min-width:0}
+.statcell label{display:block; font-family:var(--mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--fg-muted); margin-bottom:4px}
+.statcell input, .statcell select{width:100%; background:none; border:none; color:var(--fg); font-family:var(--mono); font-size:1rem; padding:0; font-variant-numeric:tabular-nums}
+.statcell input:focus, .statcell select:focus{outline:none}
+.statcell select{appearance:none; cursor:pointer}
+
+.phaseref{display:flex; gap:10px; align-items:flex-start; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:.86rem; color:var(--fg-muted)}
+.phaseref strong{color:var(--fg); font-weight:600}
+.phaseref .tag{font-family:var(--mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; background:var(--accent); color:var(--accent-ink); border-radius:3px; padding:2px 6px; flex:none}
+
+section.panel{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 18px 20px}
+.panelhead{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:8px}
+.panelhead h2{font-size:1.15rem}
+
+.field{margin-bottom:16px}
+.field > label{display:block; font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--fg-muted); margin-bottom:6px}
+.field textarea, .field input[type=text]{width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--fg); font-family:var(--body); font-size:.92rem; padding:9px 11px; resize:vertical}
+.field textarea{min-height:64px; line-height:1.45}
+.hint{font-size:.78rem; color:var(--fg-muted); margin-top:5px}
+
+.rows{display:flex; flex-direction:column; gap:8px}
+.rowgrid{display:grid; gap:8px; align-items:start}
+.rowgrid input, .rowgrid select{background:var(--surface-2); border:1px solid var(--border); border-radius:5px; color:var(--fg); font-family:var(--body); font-size:.85rem; padding:7px 9px; width:100%; min-width:0}
+.rowgrid input[data-num]{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.rmrow{background:none; border:1px solid var(--border); color:var(--fg-muted); border-radius:5px; width:30px; height:30px; flex:none; cursor:pointer; font-size:1rem; line-height:1}
+.rmrow:hover{color:var(--danger); border-color:var(--danger)}
+.addrow{align-self:flex-start; font-family:var(--mono); font-size:.76rem; letter-spacing:.04em; background:none; border:1px dashed var(--border); color:var(--accent); border-radius:6px; padding:7px 12px; cursor:pointer; margin-top:4px}
+.addrow:hover{border-color:var(--accent); background:var(--surface-2)}
+.colhead{display:grid; gap:8px; font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--fg-muted); padding-inline:1px}
+
+.apportfoot{display:flex; align-items:center; gap:8px; margin-top:8px; font-family:var(--mono); font-size:.8rem}
+.apportfoot .pill{border-radius:20px; padding:3px 11px; border:1px solid var(--border); color:var(--fg-muted)}
+.apportfoot .pill.ok{color:var(--good); border-color:var(--good)}
+.apportfoot .pill.bad{color:var(--danger); border-color:var(--danger)}
+.swingnote{color:var(--danger); font-size:.78rem; margin-top:4px}
+
+.actionbar{position:sticky; bottom:12px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 16px; box-shadow:0 8px 24px -8px rgba(0,0,0,.4)}
+.btn{font-family:var(--mono); font-size:.82rem; letter-spacing:.03em; border-radius:6px; padding:9px 16px; cursor:pointer; border:1px solid var(--border); background:var(--surface-2); color:var(--fg)}
+.btn:hover{border-color:var(--fg-muted)}
+.btn.primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:600}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.5; cursor:not-allowed}
+.savemsg{font-family:var(--mono); font-size:.78rem; color:var(--good); margin-left:auto}
+.savemsg.err{color:var(--danger)}
+
+.rail{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px}
+.rail h3{font-size:.95rem; margin-bottom:10px}
+.cyclelist{display:flex; flex-direction:column; gap:6px; max-height:260px; overflow-y:auto}
+.cycleitem{display:flex; justify-content:space-between; gap:8px; align-items:baseline; width:100%; text-align:left; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:8px 10px; cursor:pointer; font-family:var(--mono); font-size:.8rem; color:var(--fg)}
+.cycleitem:hover{border-color:var(--accent)}
+.cycleitem .sub{color:var(--fg-muted); font-size:.72rem}
+.railempty{color:var(--fg-muted); font-size:.84rem}
+
+.copyout{display:none}
+.toast{position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:var(--fg); color:var(--bg); font-family:var(--mono); font-size:.8rem; padding:8px 16px; border-radius:20px; opacity:0; pointer-events:none; transition:opacity .2s}
+.toast.show{opacity:1}
+
+@media (min-width:760px){
+  .statusbar{grid-template-columns:1fr 1fr 2fr}
+  .apportrow{grid-template-columns:2fr 1fr 2fr auto}
+  .alrrow{grid-template-columns:1.4fr 1fr 2fr auto}
+  .pirrow{grid-template-columns:2fr 1.4fr 1fr auto}
+  .reqrow{grid-template-columns:1.6fr 1fr 1.6fr 1fr 1.6fr auto}
+  .tstrow{grid-template-columns:1.4fr 1.4fr 1fr auto}
+  .dprow{grid-template-columns:1.6fr 1.6fr 1fr auto}
+  .forcerow{grid-template-columns:1fr 1.4fr 1fr 1.6fr auto}
+}
+@media (max-width:759px){
+  .apportrow,.alrrow,.pirrow,.reqrow,.tstrow,.dprow,.forcerow{grid-template-columns:1fr; border:1px solid var(--border); border-radius:6px; padding:8px; background:var(--surface-2)}
+  .rowgrid input,.rowgrid select{background:var(--surface)}
+  .colhead{display:none}
+}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">639 CAOC &middot; TTP 1-2 fillable form</div>
+      <h1>Combined Air Operations Directive</h1>
+    </div>
+    <button class="themebtn" id="themeToggle" type="button">Theme: System</button>
+  </div>
+
+  <div class="statusbar">
+    <div class="statcell">
+      <label for="f-cycle">Cycle #</label>
+      <input id="f-cycle" type="text" inputmode="numeric" placeholder="7">
+    </div>
+    <div class="statcell">
+      <label for="f-date">Date</label>
+      <input id="f-date" type="date">
+    </div>
+    <div class="statcell">
+      <label for="f-phase">Current air phase</label>
+      <select id="f-phase">
+        <option value="1">1 — Air Superiority (contested)</option>
+        <option value="2">2 — LOC Interdiction</option>
+        <option value="3">3 — C2 Targeting</option>
+        <option value="4">4 — Rear Echelon Attrition</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="phaseref" id="phaseRef"></div>
+
+  <!-- PART 1 -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Part 1 — Effects</h2>
+      <span class="eyebrow">TTP 1-1 &sect;5, Annex A</span>
+    </div>
+
+    <div class="field">
+      <label for="f-changed">What changed since last cycle</label>
+      <textarea id="f-changed" placeholder="Combined BDA / status update across all participating groups: what got confirmed destroyed, what is still active, what is new."></textarea>
+    </div>
+
+    <div class="field">
+      <label for="f-objective">This cycle's objective</label>
+      <textarea id="f-objective" placeholder="[effect verb] + [enemy function] + [purpose] + [time]. Every nominated target traces to this sentence."></textarea>
+      <div class="hint">Effect verbs: Destroy &middot; Degrade &middot; Neutralize &middot; Disrupt &middot; Deny &middot; Attrit &middot; Harass &middot; Prevent (TTP 1-1 &sect;5.1)</div>
+    </div>
+
+    <div class="field">
+      <label>PIRs for this cycle</label>
+      <div class="colhead pirrow"><span>PIR — what we need to know</span><span>Asset / method tasked</span><span>Due by</span><span></span></div>
+      <div class="rows" id="pirRows"></div>
+      <button class="addrow" type="button" data-add="pir">+ add PIR</button>
+    </div>
+
+    <div class="field">
+      <label>Approved cross-group requirements (Combined JIPTL)</label>
+      <div class="colhead reqrow"><span>Requirement</span><span>Task / grade (A&ndash;D)</span><span>Effect it produces</span><span>Claimed by</span><span>MOE &mdash; how we'll know</span><span></span></div>
+      <div class="rows" id="reqRows"></div>
+      <button class="addrow" type="button" data-add="req">+ add requirement</button>
+    </div>
+
+    <div class="field">
+      <label for="f-notthiscycle">Explicitly not this cycle</label>
+      <textarea id="f-notthiscycle" placeholder="Anything tempting but deliberately deferred, and why."></textarea>
+    </div>
+  </section>
+
+  <!-- PART 2 -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Part 2 — Guidance to Component JFACCs</h2>
+      <span class="eyebrow">TTP 1-1 &sect;5, Annex A/E</span>
+    </div>
+
+    <div class="field">
+      <label>Apportionment by group</label>
+      <div class="hint" style="margin-top:0;margin-bottom:8px">Starts from the current air phase's standing split above. Swing threshold: <span id="swingHintVal">15</span> points from an individual group's prior-cycle share &mdash; a larger swing needs the CFC.</div>
+      <div class="colhead apportrow"><span>Group</span><span>This cycle %</span><span>Reason if changed (&gt;15 pts)</span><span></span></div>
+      <div class="rows" id="apportRows"></div>
+      <button class="addrow" type="button" data-add="apport">+ add group</button>
+      <div class="apportfoot">
+        <span class="pill" id="apportTotal">total: 0%</span>
+        <span id="apportNote"></span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>ALR and ROE (coalition floor)</label>
+      <div class="colhead alrrow"><span>Function</span><span>ALR</span><span>Weapons status / restrictions</span><span></span></div>
+      <div class="rows" id="alrRows"></div>
+      <button class="addrow" type="button" data-add="alr">+ add function</button>
+    </div>
+
+    <div class="field">
+      <label>TST matrix</label>
+      <div class="colhead tstrow"><span>Target type</span><span>Desired effect</span><span>Accepted risk</span><span></span></div>
+      <div class="rows" id="tstRows"></div>
+      <button class="addrow" type="button" data-add="tst">+ add TST line</button>
+    </div>
+
+    <div class="field">
+      <label for="f-restrictions">Restrictions (NSL / RTL changes)</label>
+      <textarea id="f-restrictions" placeholder="No-Strike List / Restricted Target List changes this cycle."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Decision points and CCIRs</label>
+      <div class="colhead dprow"><span>Trigger</span><span>Decision</span><span>LTIOV</span><span></span></div>
+      <div class="rows" id="dpRows"></div>
+      <button class="addrow" type="button" data-add="dp">+ add decision point</button>
+    </div>
+
+    <div class="field">
+      <label>Forces available by group</label>
+      <div class="colhead forcerow"><span>Group</span><span>Airframe / role</span><span>Aircrew signed up</span><span>Tanker / AWACS / notes</span><span></span></div>
+      <div class="rows" id="forceRows"></div>
+      <button class="addrow" type="button" data-add="force">+ add group</button>
+    </div>
+
+    <div class="field">
+      <label for="f-dialsheet">Dial sheet line</label>
+      <textarea id="f-dialsheet" placeholder="ROE / collateral sensitivity and other dials, if different from the Theater Bible baseline. Note changes here — do not edit the Bible."></textarea>
+    </div>
+  </section>
+
+  <div class="actionbar">
+    <button class="btn primary" id="btnSave" type="button">Save cycle</button>
+    <button class="btn" id="btnCopy" type="button">Copy as AOD text</button>
+    <button class="btn" id="btnReset" type="button">Clear form</button>
+    <span class="savemsg" id="saveMsg"></span>
+  </div>
+
+  <div class="rail">
+    <h3>Saved cycles <span class="eyebrow" id="railStatus"></span></h3>
+    <div class="cyclelist" id="cycleList"><div class="railempty">No saved cycles yet — fill in a cycle above and Save.</div></div>
+  </div>
+
+  <textarea class="copyout" id="copyOut" readonly></textarea>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Fallback defaults (TTP 1-1 Annex E.5) — used only until a Combined Campaign
+  // Intent (TTP 1-0) has been published. Once one exists, INTENT_PHASES below
+  // overrides these per-phase, and intentSwing overrides the swing threshold text.
+  var PHASES = {
+    "1": {name:"Air Superiority (contested)", weight:"CAP/Sweep 45% • SEAD 30% • Strike (airfields/IADS) 20% • CAS/Other 5%", alr:"SEAD HIGH; strikers MEDIUM"},
+    "2": {name:"LOC Interdiction", weight:"Strike (LOCs) 45% • CAP (maintain) 25% • SEAD (residual/reactive) 15% • CAS 15%", alr:"MEDIUM"},
+    "3": {name:"C2 Targeting", weight:"Strike (C2) 40% • CAP 20% • SEAD 15% • CAS 25%", alr:"MEDIUM"},
+    "4": {name:"Rear Echelon Attrition", weight:"Strike (rear echelon) 40% • CAS 30% • CAP 20% • SEAD 10%", alr:"MEDIUM; HIGH for A-grade"}
+  };
+  var INTENT_PHASES = null;   // {phaseNum: {name, weight, alr}} from the published Intent, once loaded
+  var intentMeta = null;      // {rev, campaign, swing}
+
+  function getPhaseInfo(num){
+    var fromIntent = INTENT_PHASES && INTENT_PHASES[num];
+    var fromDefault = PHASES[num] || {name:"", weight:"", alr:""};
+    if(!fromIntent) return fromDefault;
+    return {
+      name: fromIntent.name || fromDefault.name,
+      weight: fromIntent.weight || fromDefault.weight,
+      alr: fromIntent.alr || fromDefault.alr
+    };
+  }
+  function swingThreshold(){
+    return (intentMeta && intentMeta.swing) ? intentMeta.swing : "15";
+  }
+
+  var TABLES = {
+    pir:   {rowClass:"pirrow",   fields:["pir","asset","due"],              ph:["Has the SA-11 moved?","Two-ship TGP recon","T-4d"]},
+    req:   {rowClass:"reqrow",   fields:["req","grade","effect","claimed","moe"], ph:["Comm relay XX4455","A","Destroy SA-11 cueing link","Group B","Tower gone (Tacview)"]},
+    apport:{rowClass:"apportrow",fields:["group","pct","reason"],          ph:["Group A","40",""], numFields:["pct"]},
+    alr:   {rowClass:"alrrow",   fields:["func","alr","status"],           ph:["SEAD","HIGH","Fully effective SEAD required before WEZ entry"]},
+    tst:   {rowClass:"tstrow",   fields:["type","effect","risk"],          ph:["Mobile SA-11 TELAR","Neutralize","HIGH"]},
+    dp:    {rowClass:"dprow",    fields:["trigger","decision","ltiov"],    ph:["Battery beyond Site CHARLIE","Retarget; drop EWR to grade C","T-4d"]},
+    force: {rowClass:"forcerow", fields:["group","role","aircrew","notes"],ph:["Group A","4x strike","8","Tanker track Alpha"]}
+  };
+
+  var state = {
+    cycle:"", date:"", phase:"1",
+    changed:"", objective:"", notThisCycle:"", restrictions:"", dialSheet:"",
+    pir: [], req: [], apport: [], alr: [], tst: [], dp: [], force: []
+  };
+
+  function seedDefaults(){
+    state.pir = [{}]; state.req = [{}];
+    state.apport = [{group:"Group A"},{group:"Group B"},{group:"Group C"}];
+    state.alr = [{func:"SEAD"},{func:"Strikers"},{func:"Tankers/AWACS"}];
+    state.tst = [{}]; state.dp = [{}]; state.force = [{}];
+  }
+  seedDefaults();
+
+  function $(id){ return document.getElementById(id); }
+
+  // ---- theme toggle (per-viewer only) ----
+  var themeBtn = $("themeToggle");
+  function applyTheme(t){
+    if(t==="system"){ document.documentElement.removeAttribute("data-theme"); }
+    else { document.documentElement.setAttribute("data-theme", t); }
+    themeBtn.textContent = "Theme: " + t.charAt(0).toUpperCase()+t.slice(1);
+    try{ localStorage.setItem("aod-theme", t); }catch(e){}
+  }
+  (function initTheme(){
+    var saved = "system";
+    try{ saved = localStorage.getItem("aod-theme") || "system"; }catch(e){}
+    applyTheme(saved);
+  })();
+  themeBtn.addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme") || "system";
+    var next = cur==="system" ? "dark" : (cur==="dark" ? "light" : "system");
+    applyTheme(next);
+  });
+
+  // ---- phase reference ----
+  function renderPhaseRef(){
+    var p = getPhaseInfo(state.phase);
+    var src = (INTENT_PHASES && INTENT_PHASES[state.phase])
+      ? ('Combined Campaign Intent' + (intentMeta && intentMeta.rev ? ' rev '+intentMeta.rev : '') + (intentMeta && intentMeta.campaign ? ' — '+intentMeta.campaign : ''))
+      : 'TTP 1-1 Annex E.5 default — no published Intent yet';
+    $("phaseRef").innerHTML =
+      '<span class="tag">Phase '+state.phase+'</span>'+
+      '<span><strong>'+p.name+'</strong> standing weight of effort: '+p.weight+
+      '. Default ALR: '+p.alr+'. <span style="color:var(--fg-muted)">('+src+')</span></span>';
+  }
+
+  // ---- generic row rendering ----
+  function rowHTML(tableKey, idx, data){
+    var t = TABLES[tableKey];
+    var cells = t.fields.map(function(f,i){
+      var val = (data[f]||"").toString().replace(/"/g,"&quot;");
+      var isNum = t.numFields && t.numFields.indexOf(f)>-1;
+      return '<input type="text" '+(isNum?'inputmode="numeric" data-num':'')+' data-field="'+f+'" value="'+val+'" placeholder="'+(t.ph[i]||"")+'">';
+    }).join("");
+    return '<div class="rowgrid '+t.rowClass+'" data-idx="'+idx+'">'+cells+
+      '<button class="rmrow" type="button" title="remove row">&times;</button></div>';
+  }
+
+  function renderTable(tableKey, containerId){
+    var el = $(containerId);
+    var rows = state[tableKey];
+    el.innerHTML = rows.map(function(r,i){ return rowHTML(tableKey,i,r); }).join("");
+    Array.prototype.forEach.call(el.querySelectorAll(".rowgrid"), function(rowEl){
+      var idx = +rowEl.getAttribute("data-idx");
+      Array.prototype.forEach.call(rowEl.querySelectorAll("input"), function(inp){
+        inp.addEventListener("input", function(){
+          state[tableKey][idx][inp.getAttribute("data-field")] = inp.value;
+          if(tableKey==="apport") renderApportFoot();
+        });
+      });
+      rowEl.querySelector(".rmrow").addEventListener("click", function(){
+        state[tableKey].splice(idx,1);
+        renderTable(tableKey, containerId);
+        if(tableKey==="apport") renderApportFoot();
+      });
+    });
+  }
+
+  function renderApportFoot(){
+    var total = state.apport.reduce(function(sum,r){ return sum + (parseFloat(r.pct)||0); },0);
+    var pill = $("apportTotal");
+    pill.textContent = "total: " + total + "%";
+    pill.className = "pill " + (total===100 ? "ok" : (state.apport.length ? "bad" : ""));
+    var swung = state.apport.filter(function(r){ return r.reason && r.reason.trim(); });
+    $("apportNote").textContent = "";
+  }
+
+  var ALL_TABLES = [
+    ["pir","pirRows"],["req","reqRows"],["apport","apportRows"],
+    ["alr","alrRows"],["tst","tstRows"],["dp","dpRows"],["force","forceRows"]
+  ];
+  function renderAllTables(){
+    ALL_TABLES.forEach(function(t){ renderTable(t[0], t[1]); });
+    renderApportFoot();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-add]"), function(btn){
+    btn.addEventListener("click", function(){
+      var key = btn.getAttribute("data-add");
+      var containerId = ALL_TABLES.filter(function(t){return t[0]===key;})[0][1];
+      state[key].push({});
+      renderTable(key, containerId);
+      if(key==="apport") renderApportFoot();
+    });
+  });
+
+  // ---- simple fields ----
+  var SIMPLE = ["cycle","date","phase","changed","objective","notThisCycle","restrictions","dialSheet"];
+  var IDMAP = {cycle:"f-cycle",date:"f-date",phase:"f-phase",changed:"f-changed",objective:"f-objective",
+    notThisCycle:"f-notthiscycle",restrictions:"f-restrictions",dialSheet:"f-dialsheet"};
+  function bindSimple(){
+    SIMPLE.forEach(function(k){
+      var el = $(IDMAP[k]);
+      el.value = state[k] || "";
+      el.addEventListener("input", function(){
+        state[k] = el.value;
+        if(k==="phase") renderPhaseRef();
+      });
+      el.addEventListener("change", function(){
+        state[k] = el.value;
+        if(k==="phase") renderPhaseRef();
+      });
+    });
+  }
+
+  function loadState(s){
+    Object.keys(s).forEach(function(k){ if(k in state) state[k] = s[k]; });
+    ["pir","req","apport","alr","tst","dp","force"].forEach(function(k){
+      if(!Array.isArray(state[k]) || !state[k].length) state[k] = [{}];
+    });
+    SIMPLE.forEach(function(k){ var el=$(IDMAP[k]); if(el) el.value = state[k]||""; });
+    renderPhaseRef();
+    renderAllTables();
+  }
+
+  // ---- toast ----
+  var toastT;
+  function toast(msg){
+    var el = $("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(function(){ el.classList.remove("show"); }, 2200);
+  }
+
+  // ---- copy as AOD text ----
+  function buildAODText(){
+    var p = getPhaseInfo(state.phase);
+    var lines = [];
+    lines.push("639 CAOC COMBINED AIR OPERATIONS DIRECTIVE");
+    lines.push("Cycle #: " + (state.cycle||"—") + "   Date: " + (state.date||"—") + "   Air Phase: " + state.phase + " (" + p.name + ")");
+    lines.push("");
+    lines.push("PART 1: EFFECTS");
+    lines.push("What changed since last cycle:");
+    lines.push(state.changed || "—");
+    lines.push("");
+    lines.push("This cycle's objective:");
+    lines.push(state.objective || "—");
+    lines.push("");
+    lines.push("PIRs:");
+    state.pir.forEach(function(r){ if(r.pir) lines.push("  - " + r.pir + " | asset: " + (r.asset||"—") + " | due: " + (r.due||"—")); });
+    lines.push("");
+    lines.push("Approved cross-group requirements (Combined JIPTL):");
+    state.req.forEach(function(r){ if(r.req) lines.push("  - " + r.req + " [grade " + (r.grade||"?") + "] effect: " + (r.effect||"—") + " | claimed by: " + (r.claimed||"—") + " | MOE: " + (r.moe||"—")); });
+    lines.push("");
+    lines.push("Explicitly not this cycle:");
+    lines.push(state.notThisCycle || "—");
+    lines.push("");
+    lines.push("PART 2: GUIDANCE TO COMPONENT JFACCs");
+    lines.push("Apportionment by group (Air Phase " + state.phase + " standing split: " + p.weight + "):");
+    state.apport.forEach(function(r){ if(r.group) lines.push("  - " + r.group + ": " + (r.pct||"0") + "%" + (r.reason? " (reason: "+r.reason+")":"")); });
+    lines.push("");
+    lines.push("ALR and ROE (coalition floor):");
+    state.alr.forEach(function(r){ if(r.func) lines.push("  - " + r.func + ": " + (r.alr||"—") + " | " + (r.status||"—")); });
+    lines.push("");
+    lines.push("TST matrix:");
+    state.tst.forEach(function(r){ if(r.type) lines.push("  - " + r.type + " -> " + (r.effect||"—") + " | accepted risk: " + (r.risk||"—")); });
+    lines.push("");
+    lines.push("Restrictions (NSL/RTL changes):");
+    lines.push(state.restrictions || "—");
+    lines.push("");
+    lines.push("Decision points and CCIRs:");
+    state.dp.forEach(function(r){ if(r.trigger) lines.push("  - IF " + r.trigger + " THEN " + (r.decision||"—") + " | LTIOV: " + (r.ltiov||"—")); });
+    lines.push("");
+    lines.push("Forces available by group:");
+    state.force.forEach(function(r){ if(r.group) lines.push("  - " + r.group + ": " + (r.role||"—") + " | aircrew: " + (r.aircrew||"—") + " | " + (r.notes||"—")); });
+    lines.push("");
+    lines.push("Dial sheet line:");
+    lines.push(state.dialSheet || "— (unchanged from Theater Bible baseline)");
+    return lines.join("\n");
+  }
+
+  $("btnCopy").addEventListener("click", function(){
+    var text = buildAODText();
+    function fallback(){
+      var ta = $("copyOut");
+      ta.style.display = "block";
+      ta.value = text;
+      ta.select();
+      try{ document.execCommand("copy"); toast("Copied (fallback) — AOD text ready to paste"); }
+      catch(e){ toast("Select the text below and copy manually"); }
+      ta.style.display = "none";
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        toast("Copied — paste into Discord / DKS");
+      }).catch(fallback);
+    } else { fallback(); }
+  });
+
+  $("btnReset").addEventListener("click", function(){
+    state = {cycle:"",date:"",phase:"1",changed:"",objective:"",notThisCycle:"",restrictions:"",dialSheet:"",pir:[],req:[],apport:[],alr:[],tst:[],dp:[],force:[]};
+    seedDefaults();
+    loadState(state);
+  });
+
+  // ---- persistence via db capability ----
+  var db = null, userCap = null, unsubList = null;
+
+  function cycleKey(){
+    var c = (state.cycle||"").trim().replace(/[^a-zA-Z0-9_\-]/g,"");
+    return c ? "cycle-"+c : null;
+  }
+
+  function setSaveMsg(msg, isErr){
+    var el = $("saveMsg");
+    el.textContent = msg;
+    el.className = "savemsg" + (isErr?" err":"");
+  }
+
+  $("btnSave").addEventListener("click", function(){
+    var key = cycleKey();
+    if(!key){ setSaveMsg("Enter a cycle # before saving", true); return; }
+    if(!db){ setSaveMsg("Shared save isn't available in this view — use Copy as AOD text instead", true); return; }
+    var body = JSON.parse(JSON.stringify(state));
+    body.cycleNum = parseInt((state.cycle||"0").replace(/\D/g,""),10) || 0;
+    body.savedAt = new Date().toISOString();
+    var ref = db.collection("aods").doc(key);
+    $("btnSave").disabled = true;
+    ref.set(body).then(function(){
+      setSaveMsg("Saved cycle " + state.cycle + " ✓");
+      $("btnSave").disabled = false;
+    }).catch(function(err){
+      setSaveMsg("Save failed: " + (err && err.code || "unknown"), true);
+      $("btnSave").disabled = false;
+    });
+  });
+
+  function renderCycleList(snap){
+    var list = $("cycleList");
+    if(!snap || snap.empty){
+      list.innerHTML = '<div class="railempty">No saved cycles yet — fill in a cycle above and Save.</div>';
+      return;
+    }
+    var docs = snap.docs.slice().sort(function(a,b){
+      return (b.data().cycleNum||0) - (a.data().cycleNum||0);
+    });
+    list.innerHTML = docs.map(function(d){
+      var v = d.data();
+      var p = getPhaseInfo(v.phase) || PHASES["1"];
+      return '<button class="cycleitem" type="button" data-id="'+d.id+'">'+
+        '<span>Cycle '+(v.cycle||"?")+'<div class="sub">'+(v.date||"no date")+' &middot; Phase '+ (v.phase||"1") +'</div></span>'+
+        '<span class="sub">'+(v.objective ? (v.objective.slice(0,28) + (v.objective.length>28?"…":"")) : "")+'</span>'+
+      '</button>';
+    }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll(".cycleitem"), function(btn){
+      btn.addEventListener("click", function(){
+        var doc = docs.filter(function(d){ return d.id===btn.getAttribute("data-id"); })[0];
+        if(doc){ loadState(doc.data()); toast("Loaded cycle " + doc.data().cycle); }
+      });
+    });
+  }
+
+  function applyIntentSnapshot(snap){
+    if(!snap || snap.empty) return;
+    var d = snap.docs[0].data();
+    INTENT_PHASES = {};
+    (d.phase||[]).forEach(function(p){ if(p.phase) INTENT_PHASES[p.phase] = {name:p.maineffort, weight:p.weight, alr:p.alr}; });
+    intentMeta = {rev: d.rev, campaign: d.campaign, swing: d.swing};
+    var swingEl = $("swingHintVal");
+    if(swingEl) swingEl.textContent = swingThreshold();
+    renderPhaseRef();
+  }
+
+  function initCapabilities(){
+    if(!window.claude || !window.claude.use){ $("railStatus").textContent="(local only)"; return; }
+    Promise.all([window.claude.use("db"), window.claude.use("user")]).then(function(res){
+      db = res[0]; userCap = res[1];
+      if(!db){ $("railStatus").textContent="(local only)"; return; }
+      $("railStatus").textContent = "(live)";
+      try{
+        unsubList = db.collection("aods").orderBy("cycleNum","desc").limit(30).onSnapshot(
+          function(snap){ renderCycleList(snap); },
+          function(err){ $("railStatus").textContent="(unavailable)"; }
+        );
+      }catch(e){ $("railStatus").textContent="(unavailable)"; }
+      try{
+        db.collection("intent").orderBy("revNum","desc").limit(1).onSnapshot(
+          function(snap){ applyIntentSnapshot(snap); },
+          function(err){ /* no published Intent yet, or unavailable — fall back to TTP 1-1 defaults silently */ }
+        );
+      }catch(e){}
+    }).catch(function(){ $("railStatus").textContent="(local only)"; });
+  }
+
+  // ---- boot ----
+  function start(data){
+    if(data && Object.keys(data).length) loadState(Object.assign({}, state, data));
+    bindSimple();
+    renderPhaseRef();
+    renderAllTables();
+    initCapabilities();
+  }
+  if(window.claude && window.claude.hot && window.claude.hot.ready){
+    window.claude.hot.ready(start);
+  } else {
+    start(window.claude && window.claude.hot ? window.claude.hot.data : null);
+  }
+})();
+</script>

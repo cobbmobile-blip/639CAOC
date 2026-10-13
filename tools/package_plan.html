@@ -1,0 +1,601 @@
+<title>Package Plan Builder</title>
+<style>
+/* Layout concept: a flight-planning board — a package header strip, a
+   composition table that reads like a formation diagram (role-tagged rows),
+   then the four supporting blocks (target, control, tanker, EW) as cards,
+   with a JIPTL-pull drawer and a saved-packages rail, matching the AOD tool. */
+:root{
+  --bg:#f3efe2; --surface:#fffdf7; --surface-2:#ece6d4; --border:#d8cfb4;
+  --fg:#211d14; --fg-muted:#6b6450; --accent:#8a5a14; --accent-ink:#fffdf7;
+  --accent-2:#3f6a52; --danger:#a13c2d; --good:#3f6a52;
+  --role-strike:#a13c2d; --role-sead:#8a5a14; --role-escort:#3f6a52; --role-support:#4a5a74;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --disp: "Oswald", var(--body);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13160f; --surface:#1a1e15; --surface-2:#20251a; --border:#343b2a;
+    --fg:#e9e4d2; --fg-muted:#9a9c84; --accent:#d19a3d; --accent-ink:#1a1e15;
+    --accent-2:#6fa389; --danger:#d4715f; --good:#6fa389;
+    --role-strike:#d4715f; --role-sead:#d19a3d; --role-escort:#6fa389; --role-support:#8aa0c2;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13160f; --surface:#1a1e15; --surface-2:#20251a; --border:#343b2a;
+  --fg:#e9e4d2; --fg-muted:#9a9c84; --accent:#d19a3d; --accent-ink:#1a1e15;
+  --accent-2:#6fa389; --danger:#d4715f; --good:#6fa389;
+  --role-strike:#d4715f; --role-sead:#d19a3d; --role-escort:#6fa389; --role-support:#8aa0c2;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--fg); font-family:var(--body); margin:0; padding-inline:16px; padding-block:20px 48px;}
+h1,h2,h3{font-family:var(--disp); font-weight:600; text-wrap:balance; margin:0}
+.eyebrow{font-family:var(--mono); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--fg-muted)}
+.wrap{max-width:1020px; margin-inline:auto; display:flex; flex-direction:column; gap:18px}
+.topbar{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:10px; border-bottom:2px solid var(--border); padding-bottom:12px}
+.topbar h1{font-size:clamp(1.4rem,4vw,1.9rem); letter-spacing:.01em}
+.themebtn{font-family:var(--mono); font-size:.72rem; background:none; border:1px solid var(--border); color:var(--fg-muted); border-radius:4px; padding:5px 9px; cursor:pointer}
+.themebtn:hover{color:var(--fg); border-color:var(--fg-muted)}
+
+.statusbar{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:8px; overflow:hidden}
+.statcell{background:var(--surface); padding:10px 14px; min-width:0}
+.statcell label{display:block; font-family:var(--mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--fg-muted); margin-bottom:4px}
+.statcell input{width:100%; background:none; border:none; color:var(--fg); font-family:var(--mono); font-size:1rem; padding:0; font-variant-numeric:tabular-nums}
+.statcell input:focus{outline:none}
+
+/* JIPTL pull drawer */
+.pulldrawer{background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:12px 14px}
+.pullrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.pullrow input{width:90px; background:var(--surface); border:1px solid var(--border); border-radius:5px; color:var(--fg); font-family:var(--mono); padding:7px 9px}
+.pullrow .btn{padding:7px 12px}
+.jiptllist{display:flex; flex-direction:column; gap:6px; margin-top:10px}
+.jiptlitem{display:flex; justify-content:space-between; gap:8px; align-items:baseline; background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:7px 10px; cursor:pointer; font-size:.84rem}
+.jiptlitem:hover{border-color:var(--accent)}
+.jiptlitem .grade{font-family:var(--mono); font-size:.7rem; color:var(--accent); flex:none}
+.pullmsg{font-family:var(--mono); font-size:.78rem; color:var(--fg-muted); margin-top:6px}
+
+section.panel{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 18px 20px}
+.panelhead{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:8px}
+.panelhead h2{font-size:1.15rem}
+
+.field{margin-bottom:16px}
+.field > label{display:block; font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--fg-muted); margin-bottom:6px}
+.field textarea, .field input[type=text]{width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--fg); font-family:var(--body); font-size:.92rem; padding:9px 11px; resize:vertical}
+.field textarea{min-height:56px; line-height:1.45}
+.hint{font-size:.78rem; color:var(--fg-muted); margin-top:5px}
+
+.rows{display:flex; flex-direction:column; gap:8px}
+.rowgrid{display:grid; gap:8px; align-items:start}
+.rowgrid input, .rowgrid select{background:var(--surface-2); border:1px solid var(--border); border-radius:5px; color:var(--fg); font-family:var(--body); font-size:.85rem; padding:7px 9px; width:100%; min-width:0}
+.rowgrid select[data-field="role"]{font-family:var(--mono); font-weight:600; font-size:.78rem}
+.rmrow{background:none; border:1px solid var(--border); color:var(--fg-muted); border-radius:5px; width:30px; height:30px; flex:none; cursor:pointer; font-size:1rem; line-height:1}
+.rmrow:hover{color:var(--danger); border-color:var(--danger)}
+.addrow{align-self:flex-start; font-family:var(--mono); font-size:.76rem; letter-spacing:.04em; background:none; border:1px dashed var(--border); color:var(--accent); border-radius:6px; padding:7px 12px; cursor:pointer; margin-top:4px}
+.addrow:hover{border-color:var(--accent); background:var(--surface-2)}
+.colhead{display:grid; gap:8px; font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--fg-muted); padding-inline:1px}
+.roleflag{border-left:3px solid var(--border); padding-left:9px; border-radius:2px}
+
+.twogrid{display:grid; gap:14px}
+.optoggle{display:flex; align-items:center; gap:8px; margin-bottom:10px}
+.optoggle input{accent-color:var(--accent)}
+.optoggle label{font-family:var(--mono); font-size:.78rem; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.05em}
+.optblock{display:none}
+.optblock.on{display:block}
+
+.actionbar{position:sticky; bottom:12px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 16px; box-shadow:0 8px 24px -8px rgba(0,0,0,.4)}
+.btn{font-family:var(--mono); font-size:.82rem; letter-spacing:.03em; border-radius:6px; padding:9px 16px; cursor:pointer; border:1px solid var(--border); background:var(--surface-2); color:var(--fg)}
+.btn:hover{border-color:var(--fg-muted)}
+.btn.primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:600}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.5; cursor:not-allowed}
+.savemsg{font-family:var(--mono); font-size:.78rem; color:var(--good); margin-left:auto}
+.savemsg.err{color:var(--danger)}
+
+.rail{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px}
+.rail h3{font-size:.95rem; margin-bottom:10px}
+.pkglist{display:flex; flex-direction:column; gap:6px; max-height:280px; overflow-y:auto}
+.pkgitem{display:flex; justify-content:space-between; gap:8px; align-items:baseline; width:100%; text-align:left; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:8px 10px; cursor:pointer; font-family:var(--mono); font-size:.8rem; color:var(--fg)}
+.pkgitem:hover{border-color:var(--accent)}
+.pkgitem .sub{color:var(--fg-muted); font-size:.72rem}
+.railempty{color:var(--fg-muted); font-size:.84rem}
+
+.copyout{display:none}
+.toast{position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:var(--fg); color:var(--bg); font-family:var(--mono); font-size:.8rem; padding:8px 16px; border-radius:20px; opacity:0; pointer-events:none; transition:opacity .2s}
+.toast.show{opacity:1}
+
+@media (min-width:760px){
+  .statusbar{grid-template-columns:1fr 1fr 2fr}
+  .twogrid{grid-template-columns:1fr 1fr}
+  .comprow{grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr 1fr auto}
+  .tgtrow{grid-template-columns:1fr 1fr 1fr 1fr}
+  .ctrlrow{grid-template-columns:1.4fr 1.2fr 1.2fr}
+  .tankrow{grid-template-columns:1.4fr 1.4fr 1fr 1fr}
+  .ewrow{grid-template-columns:1.2fr 1fr 1.4fr}
+}
+@media (max-width:759px){
+  .comprow,.tgtrow,.ctrlrow,.tankrow,.ewrow{grid-template-columns:1fr; border:1px solid var(--border); border-radius:6px; padding:8px; background:var(--surface-2)}
+  .rowgrid input,.rowgrid select{background:var(--surface)}
+  .colhead{display:none}
+}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">639 CAOC &middot; TTP 1-3 fillable form</div>
+      <h1>Package Plan Builder</h1>
+    </div>
+    <button class="themebtn" id="themeToggle" type="button">Theme: System</button>
+  </div>
+
+  <div class="statusbar">
+    <div class="statcell">
+      <label for="f-cycle">Cycle #</label>
+      <input id="f-cycle" type="text" inputmode="numeric" placeholder="7">
+    </div>
+    <div class="statcell">
+      <label for="f-pkgid">Package ID</label>
+      <input id="f-pkgid" type="text" placeholder="B-01">
+    </div>
+    <div class="statcell">
+      <label for="f-period">Effective period (date, Zulu, game time)</label>
+      <input id="f-period" type="text" placeholder="Sat, 1900Z / 1400 game time">
+    </div>
+  </div>
+
+  <div class="pulldrawer">
+    <div class="eyebrow" style="margin-bottom:8px">Pull from a saved Combined AOD cycle</div>
+    <div class="pullrow">
+      <input id="pullCycle" type="text" inputmode="numeric" placeholder="cycle #">
+      <button class="btn" id="btnPull" type="button">Load JIPTL requirements</button>
+      <span class="pullmsg" id="pullMsg"></span>
+    </div>
+    <div class="jiptllist" id="jiptlList"></div>
+  </div>
+
+  <!-- HEADER / LINKED REQUIREMENTS -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Linked Requirement(s)</h2>
+      <span class="eyebrow">TTP 1-3 &sect;Header</span>
+    </div>
+    <div class="field">
+      <label for="f-linked">Combined JIPTL requirement(s) this package serves</label>
+      <textarea id="f-linked" placeholder="Click a requirement above to add it, or type directly."></textarea>
+      <div class="hint">A package with no linked requirement isn't a package yet &mdash; it's an idea.</div>
+    </div>
+  </section>
+
+  <!-- COMPOSITION -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Composition</h2>
+      <span class="eyebrow">TTP 1-1 &sect;9.2, SCL codes</span>
+    </div>
+    <div class="hint" style="margin-top:0;margin-bottom:8px">One row per flight &mdash; a multi-ship element flying under one callsign. The Group field is the squadron supplying it (Group A/B/C), not the flight itself.</div>
+    <div class="colhead comprow"><span>Role</span><span>Group</span><span>Callsign</span><span># / type</span><span>Mission type</span><span>Loadout / SCL</span><span>Alert status</span><span></span></div>
+    <div class="rows" id="compRows"></div>
+    <button class="addrow" type="button" data-add="comp">+ add flight</button>
+    <div class="hint">SCL: air-to-air X + long/med/short-range + tanks (e.g. X6201) &middot; air-to-ground count + weapon code + tanks (e.g. 682H3, 2A652)</div>
+  </section>
+
+  <!-- TARGET / LOCATION -->
+  <section class="panel">
+    <div class="panelhead"><h2>Target / Location</h2></div>
+    <div class="colhead tgtrow"><span>TOT / TOFF</span><span>Target ID and type</span><span>DMPI</span><span>Air support request #</span></div>
+    <div class="rowgrid tgtrow" id="tgtRow">
+      <input type="text" data-field="tot" placeholder="1905Z on target">
+      <input type="text" data-field="targetid" placeholder="XX4455, comm relay">
+      <input type="text" data-field="dmpi" placeholder="per target folder">
+      <input type="text" data-field="asr" placeholder="&mdash;">
+    </div>
+  </section>
+
+  <!-- CONTROL -->
+  <section class="panel">
+    <div class="panelhead"><h2>Control</h2></div>
+    <div class="colhead ctrlrow"><span>Controlling agency callsign</span><span>Primary / secondary freq</span><span>Report-in point</span></div>
+    <div class="rowgrid ctrlrow" id="ctrlRow">
+      <input type="text" data-field="agency" placeholder="SENTRY 1 (AWACS)">
+      <input type="text" data-field="freq" placeholder="251.0 / guard">
+      <input type="text" data-field="reportin" placeholder="Corridor BLUE entry point">
+    </div>
+  </section>
+
+  <!-- AIR REFUELING -->
+  <section class="panel">
+    <div class="panelhead"><h2>Air Refueling</h2></div>
+    <div class="optoggle"><input type="checkbox" id="tankOn"><label for="tankOn">Package uses a tanker</label></div>
+    <div class="optblock" id="tankBlock">
+      <div class="colhead tankrow"><span>Tanker callsign / track</span><span>Refuel control point / time</span><span>Altitude</span><span>Planned offload</span></div>
+      <div class="rowgrid tankrow" id="tankRow">
+        <input type="text" data-field="callsign" placeholder="SHELL 2 / track Alpha">
+        <input type="text" data-field="point" placeholder="RCP Bravo, 1850Z">
+        <input type="text" data-field="alt" placeholder="FL220">
+        <input type="text" data-field="offload" placeholder="6k lbs">
+      </div>
+    </div>
+  </section>
+
+  <!-- ELECTRONIC COMBAT -->
+  <section class="panel">
+    <div class="panelhead"><h2>Electronic Combat</h2></div>
+    <div class="optoggle"><input type="checkbox" id="ewOn"><label for="ewOn">Package uses dedicated EW</label></div>
+    <div class="optblock" id="ewBlock">
+      <div class="colhead ewrow"><span>Callsign</span><span>Station time</span><span>Frequencies</span></div>
+      <div class="rowgrid ewrow" id="ewRow">
+        <input type="text" data-field="callsign" placeholder="RAVEN 1">
+        <input type="text" data-field="station" placeholder="1855&ndash;1915Z">
+        <input type="text" data-field="freq" placeholder="jamming band / coord">
+      </div>
+    </div>
+  </section>
+
+  <!-- DECONFLICTION -->
+  <section class="panel">
+    <div class="panelhead"><h2>Deconfliction Notes</h2></div>
+    <div class="field">
+      <label for="f-deconf">Time / space / effect against other packages this cycle</label>
+      <textarea id="f-deconf" placeholder="e.g. SEAD suppresses before strike crosses the WEZ; shares tanker track Alpha with Group C's package &mdash; confirmed with their LNO before lock."></textarea>
+    </div>
+  </section>
+
+  <div class="actionbar">
+    <button class="btn primary" id="btnSave" type="button">Save package</button>
+    <button class="btn" id="btnCopy" type="button">Copy as package brief</button>
+    <button class="btn" id="btnReset" type="button">Clear form</button>
+    <span class="savemsg" id="saveMsg"></span>
+  </div>
+
+  <div class="rail">
+    <h3>Saved packages <span class="eyebrow" id="railStatus"></span></h3>
+    <div class="pkglist" id="pkgList"><div class="railempty">No saved packages yet &mdash; fill one in above and Save.</div></div>
+  </div>
+
+  <textarea class="copyout" id="copyOut" readonly></textarea>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var ROLES = ["Strike","SEAD","Escort","Tanker","AWACS","EW","Other"];
+  var ROLE_VAR = {Strike:"--role-strike",SEAD:"--role-sead",Escort:"--role-escort",Tanker:"--role-support",AWACS:"--role-support",EW:"--role-support",Other:"--role-support"};
+
+  var state = {
+    cycle:"", pkgid:"", period:"", linked:"",
+    comp: [],
+    tgt: {tot:"",targetid:"",dmpi:"",asr:""},
+    ctrl: {agency:"",freq:"",reportin:""},
+    tankOn:false, tank: {callsign:"",point:"",alt:"",offload:""},
+    ewOn:false, ew: {callsign:"",station:"",freq:""},
+    deconf:""
+  };
+
+  function seedDefaults(){ state.comp = [{role:"Strike"},{role:"SEAD"}]; }
+  seedDefaults();
+
+  function $(id){ return document.getElementById(id); }
+
+  // ---- theme ----
+  var themeBtn = $("themeToggle");
+  function applyTheme(t){
+    if(t==="system"){ document.documentElement.removeAttribute("data-theme"); }
+    else { document.documentElement.setAttribute("data-theme", t); }
+    themeBtn.textContent = "Theme: " + t.charAt(0).toUpperCase()+t.slice(1);
+    try{ localStorage.setItem("pkg-theme", t); }catch(e){}
+  }
+  (function initTheme(){
+    var saved = "system";
+    try{ saved = localStorage.getItem("pkg-theme") || "system"; }catch(e){}
+    applyTheme(saved);
+  })();
+  themeBtn.addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme") || "system";
+    var next = cur==="system" ? "dark" : (cur==="dark" ? "light" : "system");
+    applyTheme(next);
+  });
+
+  // ---- composition rows ----
+  function compRowHTML(idx, data){
+    var role = data.role || "Strike";
+    var opts = ROLES.map(function(r){ return '<option value="'+r+'"'+(r===role?" selected":"")+'>'+r+'</option>'; }).join("");
+    var f = function(key,ph){ var v=(data[key]||"").toString().replace(/"/g,"&quot;"); return '<input type="text" data-field="'+key+'" value="'+v+'" placeholder="'+ph+'">'; };
+    return '<div class="rowgrid comprow roleflag" data-idx="'+idx+'" style="border-color:var('+ROLE_VAR[role]+')">'+
+      '<select data-field="role">'+opts+'</select>'+
+      f("group","Group B")+ f("callsign","VIPER 1")+ f("qty","2x F-16C")+
+      f("msntype","Destroy (relay)")+ f("scl","2A652")+ f("alert","N/A")+
+      '<button class="rmrow" type="button" title="remove row">&times;</button></div>';
+  }
+  function renderComp(){
+    var el = $("compRows");
+    el.innerHTML = state.comp.map(function(r,i){ return compRowHTML(i,r); }).join("");
+    Array.prototype.forEach.call(el.querySelectorAll(".rowgrid"), function(rowEl){
+      var idx = +rowEl.getAttribute("data-idx");
+      Array.prototype.forEach.call(rowEl.querySelectorAll("input,select"), function(inp){
+        inp.addEventListener("input", function(){
+          state.comp[idx][inp.getAttribute("data-field")] = inp.value;
+          if(inp.getAttribute("data-field")==="role"){
+            rowEl.style.borderColor = "var("+(ROLE_VAR[inp.value]||"--border")+")";
+          }
+        });
+        inp.addEventListener("change", function(){
+          state.comp[idx][inp.getAttribute("data-field")] = inp.value;
+        });
+      });
+      rowEl.querySelector(".rmrow").addEventListener("click", function(){
+        state.comp.splice(idx,1);
+        renderComp();
+      });
+    });
+  }
+  document.querySelector('[data-add="comp"]').addEventListener("click", function(){
+    state.comp.push({role:"Strike"});
+    renderComp();
+  });
+
+  // ---- single-row blocks (target, control, tanker, ew) ----
+  function bindSingleRow(containerId, stateKey){
+    var el = $(containerId);
+    Array.prototype.forEach.call(el.querySelectorAll("input"), function(inp){
+      inp.value = state[stateKey][inp.getAttribute("data-field")] || "";
+      inp.addEventListener("input", function(){
+        state[stateKey][inp.getAttribute("data-field")] = inp.value;
+      });
+    });
+  }
+
+  // ---- toggles ----
+  function bindToggle(checkboxId, blockId, stateKey){
+    var cb = $(checkboxId), block = $(blockId);
+    cb.checked = !!state[stateKey];
+    block.classList.toggle("on", cb.checked);
+    cb.addEventListener("change", function(){
+      state[stateKey] = cb.checked;
+      block.classList.toggle("on", cb.checked);
+    });
+  }
+
+  // ---- simple top fields ----
+  var SIMPLE = ["cycle","pkgid","period","linked","deconf"];
+  var IDMAP = {cycle:"f-cycle",pkgid:"f-pkgid",period:"f-period",linked:"f-linked",deconf:"f-deconf"};
+  function bindSimple(){
+    SIMPLE.forEach(function(k){
+      var el = $(IDMAP[k]);
+      el.value = state[k] || "";
+      el.addEventListener("input", function(){ state[k] = el.value; });
+    });
+  }
+
+  function loadState(s){
+    Object.keys(s).forEach(function(k){ if(k in state) state[k] = s[k]; });
+    if(!Array.isArray(state.comp) || !state.comp.length) state.comp = [{role:"Strike"}];
+    state.tgt = Object.assign({tot:"",targetid:"",dmpi:"",asr:""}, state.tgt||{});
+    state.ctrl = Object.assign({agency:"",freq:"",reportin:""}, state.ctrl||{});
+    state.tank = Object.assign({callsign:"",point:"",alt:"",offload:""}, state.tank||{});
+    state.ew = Object.assign({callsign:"",station:"",freq:""}, state.ew||{});
+    SIMPLE.forEach(function(k){ var el=$(IDMAP[k]); if(el) el.value = state[k]||""; });
+    renderComp();
+    bindSingleRow("tgtRow","tgt");
+    bindSingleRow("ctrlRow","ctrl");
+    bindSingleRow("tankRow","tank");
+    bindSingleRow("ewRow","ew");
+    $("tankOn").checked = !!state.tankOn; $("tankBlock").classList.toggle("on", !!state.tankOn);
+    $("ewOn").checked = !!state.ewOn; $("ewBlock").classList.toggle("on", !!state.ewOn);
+  }
+
+  // ---- toast ----
+  var toastT;
+  function toast(msg){
+    var el = $("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(function(){ el.classList.remove("show"); }, 2200);
+  }
+
+  // ---- copy as package brief ----
+  function buildBriefText(){
+    var lines = [];
+    lines.push("639 CAOC PACKAGE PLAN");
+    lines.push("Cycle #: " + (state.cycle||"—") + "   Package ID: " + (state.pkgid||"—"));
+    lines.push("Effective period: " + (state.period||"—"));
+    lines.push("");
+    lines.push("Linked requirement(s):");
+    lines.push(state.linked || "—");
+    lines.push("");
+    lines.push("COMPOSITION");
+    state.comp.forEach(function(r){
+      if(!r.callsign && !r.group) return;
+      lines.push("  [" + (r.role||"?").toUpperCase() + "] " + (r.group||"—") + " " + (r.callsign||"—") +
+        " | " + (r.qty||"—") + " | " + (r.msntype||"—") + " | SCL " + (r.scl||"—") + " | alert " + (r.alert||"—"));
+    });
+    lines.push("");
+    lines.push("TARGET / LOCATION");
+    lines.push("  TOT/TOFF: " + (state.tgt.tot||"—"));
+    lines.push("  Target ID/type: " + (state.tgt.targetid||"—"));
+    lines.push("  DMPI: " + (state.tgt.dmpi||"—"));
+    lines.push("  ASR #: " + (state.tgt.asr||"—"));
+    lines.push("");
+    lines.push("CONTROL");
+    lines.push("  Agency: " + (state.ctrl.agency||"—") + " | freq: " + (state.ctrl.freq||"—") + " | report-in: " + (state.ctrl.reportin||"—"));
+    if(state.tankOn){
+      lines.push("");
+      lines.push("AIR REFUELING");
+      lines.push("  " + (state.tank.callsign||"—") + " | RCP: " + (state.tank.point||"—") + " | alt: " + (state.tank.alt||"—") + " | offload: " + (state.tank.offload||"—"));
+    }
+    if(state.ewOn){
+      lines.push("");
+      lines.push("ELECTRONIC COMBAT");
+      lines.push("  " + (state.ew.callsign||"—") + " | station: " + (state.ew.station||"—") + " | freq: " + (state.ew.freq||"—"));
+    }
+    lines.push("");
+    lines.push("DECONFLICTION NOTES");
+    lines.push(state.deconf || "—");
+    return lines.join("\n");
+  }
+
+  $("btnCopy").addEventListener("click", function(){
+    var text = buildBriefText();
+    function fallback(){
+      var ta = $("copyOut");
+      ta.style.display = "block";
+      ta.value = text;
+      ta.select();
+      try{ document.execCommand("copy"); toast("Copied (fallback) — brief ready to paste"); }
+      catch(e){ toast("Select the text below and copy manually"); }
+      ta.style.display = "none";
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ toast("Copied — paste into Discord / DKS"); }).catch(fallback);
+    } else { fallback(); }
+  });
+
+  $("btnReset").addEventListener("click", function(){
+    state = {cycle:"",pkgid:"",period:"",linked:"",comp:[],tgt:{tot:"",targetid:"",dmpi:"",asr:""},
+      ctrl:{agency:"",freq:"",reportin:""}, tankOn:false, tank:{callsign:"",point:"",alt:"",offload:""},
+      ewOn:false, ew:{callsign:"",station:"",freq:""}, deconf:""};
+    seedDefaults();
+    loadState(state);
+  });
+
+  bindToggle("tankOn","tankBlock","tankOn");
+  bindToggle("ewOn","ewBlock","ewOn");
+
+  // ---- db capability ----
+  var db = null;
+
+  function pkgKey(){
+    var c = (state.cycle||"").trim().replace(/[^a-zA-Z0-9_\-]/g,"");
+    var p = (state.pkgid||"").trim().replace(/[^a-zA-Z0-9_\-]/g,"");
+    return (c && p) ? ("cycle-"+c+"__pkg-"+p) : null;
+  }
+
+  function setSaveMsg(msg, isErr){
+    var el = $("saveMsg");
+    el.textContent = msg;
+    el.className = "savemsg" + (isErr?" err":"");
+  }
+
+  $("btnSave").addEventListener("click", function(){
+    var key = pkgKey();
+    if(!key){ setSaveMsg("Enter a cycle # and Package ID before saving", true); return; }
+    if(!db){ setSaveMsg("Shared save isn't available in this view — use Copy as package brief instead", true); return; }
+    var body = JSON.parse(JSON.stringify(state));
+    body.cycleNum = parseInt((state.cycle||"0").replace(/\D/g,""),10) || 0;
+    body.savedAt = new Date().toISOString();
+    var ref = db.collection("packages").doc(key);
+    $("btnSave").disabled = true;
+    ref.set(body).then(function(){
+      setSaveMsg("Saved package " + state.pkgid + " ✓");
+      $("btnSave").disabled = false;
+    }).catch(function(err){
+      setSaveMsg("Save failed: " + (err && err.code || "unknown"), true);
+      $("btnSave").disabled = false;
+    });
+  });
+
+  function renderPkgList(snap){
+    var list = $("pkgList");
+    if(!snap || snap.empty){
+      list.innerHTML = '<div class="railempty">No saved packages yet — fill one in above and Save.</div>';
+      return;
+    }
+    var docs = snap.docs.slice().sort(function(a,b){
+      var av=a.data(), bv=b.data();
+      return (bv.cycleNum||0)-(av.cycleNum||0) || (a.id<b.id?-1:1);
+    });
+    list.innerHTML = docs.map(function(d){
+      var v = d.data();
+      return '<button class="pkgitem" type="button" data-id="'+d.id+'">'+
+        '<span>Cycle '+(v.cycle||"?")+' &middot; '+(v.pkgid||"?")+'<div class="sub">'+(v.period||"no period set")+'</div></span>'+
+        '<span class="sub">'+( (v.comp&&v.comp.length) ? v.comp.length+" elem" : "")+'</span>'+
+      '</button>';
+    }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll(".pkgitem"), function(btn){
+      btn.addEventListener("click", function(){
+        var doc = docs.filter(function(d){ return d.id===btn.getAttribute("data-id"); })[0];
+        if(doc){ loadState(doc.data()); toast("Loaded " + doc.data().pkgid); }
+      });
+    });
+  }
+
+  function renderJiptlList(reqs, cycleNum){
+    var el = $("jiptlList");
+    if(!reqs || !reqs.length){
+      el.innerHTML = "";
+      return;
+    }
+    el.innerHTML = reqs.map(function(r,i){
+      if(!r.req) return "";
+      return '<div class="jiptlitem" data-i="'+i+'"><span>'+r.req+' &mdash; '+(r.effect||"")+'</span><span class="grade">grade '+(r.grade||"?")+'</span></div>';
+    }).join("");
+    Array.prototype.forEach.call(el.querySelectorAll(".jiptlitem"), function(item){
+      item.addEventListener("click", function(){
+        var r = reqs[+item.getAttribute("data-i")];
+        var line = r.req + (r.grade?" (grade "+r.grade+")":"") + (r.effect?" — "+r.effect:"");
+        var ta = $("f-linked");
+        ta.value = ta.value ? (ta.value + "\n" + line) : line;
+        state.linked = ta.value;
+        if(!state.cycle){ state.cycle = String(cycleNum); $("f-cycle").value = state.cycle; }
+        toast("Added requirement to this package");
+      });
+    });
+  }
+
+  $("btnPull").addEventListener("click", function(){
+    var n = ($("pullCycle").value||"").trim().replace(/\D/g,"");
+    var msg = $("pullMsg");
+    if(!n){ msg.textContent = "Enter a cycle number first"; return; }
+    if(!db){ msg.textContent = "Shared data isn't available in this view"; return; }
+    msg.textContent = "Loading…";
+    db.collection("aods").doc("cycle-"+n).get().then(function(snap){
+      if(!snap.exists){ msg.textContent = "No saved AOD for cycle " + n; renderJiptlList([]); return; }
+      var v = snap.data();
+      var reqs = (v.req||[]).filter(function(r){ return r.req; });
+      if(!reqs.length){ msg.textContent = "Cycle " + n + " has no approved requirements listed"; renderJiptlList([]); return; }
+      msg.textContent = "Cycle " + n + " — click a requirement to add it";
+      renderJiptlList(reqs, n);
+    }).catch(function(err){
+      msg.textContent = "Couldn't load: " + (err && err.code || "unknown");
+    });
+  });
+
+  function initCapabilities(){
+    if(!window.claude || !window.claude.use){ $("railStatus").textContent="(local only)"; return; }
+    Promise.all([window.claude.use("db"), window.claude.use("user")]).then(function(res){
+      db = res[0];
+      if(!db){ $("railStatus").textContent="(local only)"; return; }
+      $("railStatus").textContent = "(live)";
+      try{
+        db.collection("packages").orderBy("savedAt","desc").limit(40).onSnapshot(
+          function(snap){ renderPkgList(snap); },
+          function(err){ $("railStatus").textContent="(unavailable)"; }
+        );
+      }catch(e){ $("railStatus").textContent="(unavailable)"; }
+    }).catch(function(){ $("railStatus").textContent="(local only)"; });
+  }
+
+  // ---- boot ----
+  function start(data){
+    bindSimple();
+    renderComp();
+    bindSingleRow("tgtRow","tgt");
+    bindSingleRow("ctrlRow","ctrl");
+    bindSingleRow("tankRow","tank");
+    bindSingleRow("ewRow","ew");
+    if(data && Object.keys(data).length) loadState(Object.assign({}, state, data));
+    initCapabilities();
+  }
+  if(window.claude && window.claude.hot && window.claude.hot.ready){
+    window.claude.hot.ready(start);
+  } else {
+    start(window.claude && window.claude.hot ? window.claude.hot.data : null);
+  }
+})();
+</script>

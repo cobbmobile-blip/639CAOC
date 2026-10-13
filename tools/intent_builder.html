@@ -1,0 +1,573 @@
+<title>Combined Campaign Intent Builder</title>
+<style>
+/* Same kneeboard-clipboard concept as the AOD/Package Plan tools: a status strip,
+   stacked panels built from repeatable row-groups, a side rail of saved revisions,
+   a sticky action bar. This tool sits ABOVE those two — it has no "pull from" rail,
+   it IS what they pull from. */
+:root{
+  --bg:#f3efe2; --surface:#fffdf7; --surface-2:#ece6d4; --border:#d8cfb4;
+  --fg:#211d14; --fg-muted:#6b6450; --accent:#8a5a14; --accent-ink:#fffdf7;
+  --accent-2:#3f6a52; --danger:#a13c2d; --good:#3f6a52;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --disp: "Oswald", var(--body);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13160f; --surface:#1a1e15; --surface-2:#20251a; --border:#343b2a;
+    --fg:#e9e4d2; --fg-muted:#9a9c84; --accent:#d19a3d; --accent-ink:#1a1e15;
+    --accent-2:#6fa389; --danger:#d4715f; --good:#6fa389;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13160f; --surface:#1a1e15; --surface-2:#20251a; --border:#343b2a;
+  --fg:#e9e4d2; --fg-muted:#9a9c84; --accent:#d19a3d; --accent-ink:#1a1e15;
+  --accent-2:#6fa389; --danger:#d4715f; --good:#6fa389;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--fg); font-family:var(--body); margin:0; padding-inline:16px; padding-block:20px 48px;}
+h1,h2,h3{font-family:var(--disp); font-weight:600; text-wrap:balance; margin:0}
+.eyebrow{font-family:var(--mono); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--fg-muted)}
+.wrap{max-width:980px; margin-inline:auto; display:flex; flex-direction:column; gap:18px}
+.topbar{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:10px; border-bottom:2px solid var(--border); padding-bottom:12px}
+.topbar h1{font-size:clamp(1.4rem,4vw,1.9rem); letter-spacing:.01em}
+.themebtn{font-family:var(--mono); font-size:.72rem; background:none; border:1px solid var(--border); color:var(--fg-muted); border-radius:4px; padding:5px 9px; cursor:pointer}
+.themebtn:hover{color:var(--fg); border-color:var(--fg-muted)}
+
+.banner{display:flex; gap:10px; align-items:flex-start; background:var(--surface-2); border:1px solid var(--accent); border-radius:8px; padding:10px 14px; font-size:.86rem; color:var(--fg)}
+.banner .tag{font-family:var(--mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; background:var(--accent); color:var(--accent-ink); border-radius:3px; padding:2px 6px; flex:none}
+
+.statusbar{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:8px; overflow:hidden}
+.statcell{background:var(--surface); padding:10px 14px; min-width:0}
+.statcell label{display:block; font-family:var(--mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--fg-muted); margin-bottom:4px}
+.statcell input, .statcell select{width:100%; background:none; border:none; color:var(--fg); font-family:var(--mono); font-size:1rem; padding:0; font-variant-numeric:tabular-nums}
+.statcell input:focus, .statcell select:focus{outline:none}
+.statcell select{appearance:none; cursor:pointer}
+
+section.panel{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 18px 20px}
+.panelhead{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:8px}
+.panelhead h2{font-size:1.15rem}
+
+.field{margin-bottom:16px}
+.field > label{display:block; font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--fg-muted); margin-bottom:6px}
+.field textarea, .field input[type=text]{width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--fg); font-family:var(--body); font-size:.92rem; padding:9px 11px; resize:vertical}
+.field textarea{min-height:64px; line-height:1.45}
+.hint{font-size:.78rem; color:var(--fg-muted); margin-top:5px}
+
+.rows{display:flex; flex-direction:column; gap:8px}
+.rowgrid{display:grid; gap:8px; align-items:start}
+.rowgrid input, .rowgrid select, .rowgrid textarea{background:var(--surface-2); border:1px solid var(--border); border-radius:5px; color:var(--fg); font-family:var(--body); font-size:.85rem; padding:7px 9px; width:100%; min-width:0; resize:vertical}
+.rowgrid input[data-num]{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.rmrow{background:none; border:1px solid var(--border); color:var(--fg-muted); border-radius:5px; width:30px; height:30px; flex:none; cursor:pointer; font-size:1rem; line-height:1}
+.rmrow:hover{color:var(--danger); border-color:var(--danger)}
+.addrow{align-self:flex-start; font-family:var(--mono); font-size:.76rem; letter-spacing:.04em; background:none; border:1px dashed var(--border); color:var(--accent); border-radius:6px; padding:7px 12px; cursor:pointer; margin-top:4px}
+.addrow:hover{border-color:var(--accent); background:var(--surface-2)}
+.colhead{display:grid; gap:8px; font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--fg-muted); padding-inline:1px}
+
+.ktrow{display:grid; grid-template-columns:28px 1fr 2px; gap:8px; align-items:start; margin-bottom:8px}
+.ktnum{font-family:var(--mono); font-weight:600; color:var(--accent); padding-top:8px; text-align:center}
+.ktbody{display:grid; gap:6px}
+.ktbody .ktlabel{font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.05em; color:var(--fg-muted)}
+.ktfloor{font-family:var(--mono); font-size:.68rem; color:var(--accent-2); margin-top:2px}
+
+.optrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
+.optbtn{font-family:var(--mono); font-size:.78rem; border:1px solid var(--border); background:var(--surface-2); color:var(--fg-muted); border-radius:20px; padding:6px 13px; cursor:pointer}
+.optbtn.sel{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:600}
+
+.actionbar{position:sticky; bottom:12px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 16px; box-shadow:0 8px 24px -8px rgba(0,0,0,.4)}
+.btn{font-family:var(--mono); font-size:.82rem; letter-spacing:.03em; border-radius:6px; padding:9px 16px; cursor:pointer; border:1px solid var(--border); background:var(--surface-2); color:var(--fg)}
+.btn:hover{border-color:var(--fg-muted)}
+.btn.primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:600}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.5; cursor:not-allowed}
+.savemsg{font-family:var(--mono); font-size:.78rem; color:var(--good); margin-left:auto}
+.savemsg.err{color:var(--danger)}
+
+.rail{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px}
+.rail h3{font-size:.95rem; margin-bottom:10px}
+.cyclelist{display:flex; flex-direction:column; gap:6px; max-height:260px; overflow-y:auto}
+.cycleitem{display:flex; justify-content:space-between; gap:8px; align-items:baseline; width:100%; text-align:left; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:8px 10px; cursor:pointer; font-family:var(--mono); font-size:.8rem; color:var(--fg)}
+.cycleitem.cur{border-color:var(--accent)}
+.cycleitem:hover{border-color:var(--accent)}
+.cycleitem .sub{color:var(--fg-muted); font-size:.72rem}
+.railempty{color:var(--fg-muted); font-size:.84rem}
+
+.copyout{display:none}
+.toast{position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:var(--fg); color:var(--bg); font-family:var(--mono); font-size:.8rem; padding:8px 16px; border-radius:20px; opacity:0; pointer-events:none; transition:opacity .2s}
+.toast.show{opacity:1}
+
+@media (min-width:760px){
+  .statusbar{grid-template-columns:1.6fr 1fr 1fr 1fr}
+  .phaserow{grid-template-columns:.7fr 1.6fr 1.8fr 1fr 1.8fr auto}
+  .transrow{grid-template-columns:1.6fr 1.8fr 1.8fr auto}
+  .constrow{grid-template-columns:1.6fr 2.4fr auto}
+}
+@media (max-width:759px){
+  .phaserow,.transrow,.constrow{grid-template-columns:1fr; border:1px solid var(--border); border-radius:6px; padding:8px; background:var(--surface-2)}
+  .rowgrid input,.rowgrid select,.rowgrid textarea{background:var(--surface)}
+  .colhead{display:none}
+}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">639 CAOC &middot; TTP 1-0 fillable form</div>
+      <h1>Combined Campaign Intent</h1>
+    </div>
+    <button class="themebtn" id="themeToggle" type="button">Theme: System</button>
+  </div>
+
+  <div class="banner"><span class="tag">Drives downstream</span><span>This is the Intent the AOD Builder (TTP 1-2) and Package Plan Builder (TTP 1-3) read their standing defaults from &mdash; main effort, weight of effort, default ALR, swing threshold, exit criteria. Publish a revision here first; those tools pick it up on their next open.</span></div>
+
+  <div class="statusbar">
+    <div class="statcell">
+      <label for="f-campaign">Campaign name</label>
+      <input id="f-campaign" type="text" placeholder="Corridor BLUE">
+    </div>
+    <div class="statcell">
+      <label for="f-cfc">CFC</label>
+      <input id="f-cfc" type="text" placeholder="Webb">
+    </div>
+    <div class="statcell">
+      <label for="f-cfacc">CFACC</label>
+      <input id="f-cfacc" type="text" placeholder="(cycle CFACC)">
+    </div>
+    <div class="statcell">
+      <label for="f-rev">Revision</label>
+      <input id="f-rev" type="text" inputmode="numeric" placeholder="1">
+    </div>
+  </div>
+
+  <!-- END STATE -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>1. End State</h2>
+      <span class="eyebrow">TTP 1-0 &sect;3</span>
+    </div>
+    <div class="field">
+      <label for="f-endstate">End State (2&ndash;3 sentences)</label>
+      <textarea id="f-endstate" placeholder="What 'done' looks like for this campaign. Every Key Task, every AOD objective, every package should trace back to this."></textarea>
+    </div>
+  </section>
+
+  <!-- KEY TASKS -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>2. Key Tasks</h2>
+      <span class="eyebrow">Standing &mdash; not re-ranked week to week</span>
+    </div>
+    <div id="ktRows"></div>
+  </section>
+
+  <!-- AIR PHASES -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>3. Air Phases and Exit Criteria</h2>
+      <span class="eyebrow">TTP 1-1 Annex E.5 &mdash; standing weight of effort</span>
+    </div>
+
+    <div class="field">
+      <label>Exit-criteria option (picked once, for the whole campaign)</label>
+      <div class="optrow" id="exitOptRow"></div>
+      <div class="hint">Switching options mid-campaign makes air phases incomparable to each other &mdash; avoid it.</div>
+    </div>
+
+    <div class="field">
+      <label>Phase table</label>
+      <div class="colhead phaserow"><span>Phase</span><span>Main effort (Key Task)</span><span>Default weight of effort</span><span>Default ALR</span><span>Exit criteria</span><span></span></div>
+      <div class="rows" id="phaseRows"></div>
+      <button class="addrow" type="button" data-add="phase">+ add phase</button>
+    </div>
+
+    <div class="field">
+      <label for="f-swing">Swing threshold</label>
+      <input id="f-swing" type="text" inputmode="numeric" placeholder="15" style="max-width:120px">
+      <div class="hint">Points an individual group's apportionment share can move cycle-to-cycle before the CFACC needs CFC sign-off (TTP 1-1 default: 15). This is the number the AOD Builder checks against.</div>
+    </div>
+  </section>
+
+  <!-- TRANSITION / REVERSION -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>4. Transition and Reversion Rules</h2>
+    </div>
+    <div class="field">
+      <div class="colhead transrow"><span>From &rarr; To</span><span>Trigger</span><span>Reversion condition</span><span></span></div>
+      <div class="rows" id="transRows"></div>
+      <button class="addrow" type="button" data-add="trans">+ add rule</button>
+    </div>
+  </section>
+
+  <!-- CONSTRAINTS -->
+  <section class="panel">
+    <div class="panelhead">
+      <h2>5. Constraints and Campaign Mechanics</h2>
+    </div>
+    <div class="field">
+      <div class="colhead constrow"><span>Field</span><span>Value</span><span></span></div>
+      <div class="rows" id="constRows"></div>
+      <button class="addrow" type="button" data-add="const">+ add field</button>
+    </div>
+
+    <div class="field" style="margin-top:4px">
+      <label for="f-ack">Acknowledged by</label>
+      <input id="f-ack" type="text" placeholder="CFACC, Group A/B/C leads">
+    </div>
+  </section>
+
+  <div class="actionbar">
+    <button class="btn primary" id="btnSave" type="button">Publish revision</button>
+    <button class="btn" id="btnCopy" type="button">Copy as Intent text</button>
+    <button class="btn" id="btnReset" type="button">Clear form</button>
+    <span class="savemsg" id="saveMsg"></span>
+  </div>
+
+  <div class="rail">
+    <h3>Published revisions <span class="eyebrow" id="railStatus"></span></h3>
+    <div class="cyclelist" id="revList"><div class="railempty">No published revisions yet &mdash; fill in the Intent above and Publish.</div></div>
+  </div>
+
+  <textarea class="copyout" id="copyOut" readonly></textarea>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var KEY_TASKS = [
+    {n:1, label:"Protect / standing floor task", floor:"Never drops to zero weight, even outside its main-effort phase."},
+    {n:2, label:"Key Task 2"},
+    {n:3, label:"Key Task 3"},
+    {n:4, label:"Standing (air superiority / similar)"},
+    {n:5, label:"Continuous CAS", floor:"No target tier &mdash; apportioned as alert/standby capacity, not nominated targets."}
+  ];
+
+  var EXIT_OPTIONS = [
+    {id:"pct", label:"Percent-of-baseline"},
+    {id:"named", label:"Named-effects"},
+    {id:"time", label:"Time-boxed"}
+  ];
+
+  var TABLES = {
+    phase: {rowClass:"phaserow", fields:["phase","maineffort","weight","alr","exit"],
+      ph:["1","Task 4 — air superiority","60% air-to-air / 40% other","LOW","Airspace contested-but-controlled"]},
+    trans: {rowClass:"transrow", fields:["from","trigger","reversion"],
+      ph:["Phase 1 → 2","Exit criteria met for 2 consecutive cycles","Reconstitution detected — revert"]},
+    const: {rowClass:"constrow", fields:["field","value"],
+      ph:["Loss tripwire / definition of a loss","A flight loses a member who cannot immediately respawn and rejoin"]}
+  };
+
+  var state = {
+    campaign:"", cfc:"", cfacc:"", rev:"1", ack:"",
+    endState:"", swing:"15", exitOption:"named",
+    keyTaskNotes: {}, // {1: "notes text"}
+    phase: [], trans: [], const: []
+  };
+
+  function seedDefaults(){
+    state.phase = [
+      {phase:"1", maineffort:"", weight:"", alr:"", exit:""},
+      {phase:"2", maineffort:"", weight:"", alr:"", exit:""},
+      {phase:"3", maineffort:"", weight:"", alr:"", exit:""},
+      {phase:"4", maineffort:"", weight:"", alr:"", exit:""}
+    ];
+    state.trans = [{}];
+    state.const = [
+      {field:"Loss tripwire / definition of a loss", value:""},
+      {field:"Persistence method", value:""},
+      {field:"Frozen baseline target list", value:""},
+      {field:"Respawn rules", value:""},
+      {field:"Task 5 apportionment", value:""}
+    ];
+  }
+  seedDefaults();
+
+  function $(id){ return document.getElementById(id); }
+
+  // ---- theme toggle (per-viewer only) ----
+  var themeBtn = $("themeToggle");
+  function applyTheme(t){
+    if(t==="system"){ document.documentElement.removeAttribute("data-theme"); }
+    else { document.documentElement.setAttribute("data-theme", t); }
+    themeBtn.textContent = "Theme: " + t.charAt(0).toUpperCase()+t.slice(1);
+    try{ localStorage.setItem("intent-theme", t); }catch(e){}
+  }
+  (function initTheme(){
+    var saved = "system";
+    try{ saved = localStorage.getItem("intent-theme") || "system"; }catch(e){}
+    applyTheme(saved);
+  })();
+  themeBtn.addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme") || "system";
+    var next = cur==="system" ? "dark" : (cur==="dark" ? "light" : "system");
+    applyTheme(next);
+  });
+
+  // ---- key tasks (fixed 1-5, not addable/removable) ----
+  function renderKeyTasks(){
+    $("ktRows").innerHTML = KEY_TASKS.map(function(kt){
+      var val = (state.keyTaskNotes[kt.n] || "").replace(/"/g,"&quot;");
+      return '<div class="ktrow">' +
+        '<div class="ktnum">'+kt.n+'</div>' +
+        '<div class="ktbody">' +
+          '<span class="ktlabel">'+kt.label+'</span>' +
+          '<textarea data-kt="'+kt.n+'" placeholder="What this Key Task is, for this campaign" style="min-height:48px">'+val+'</textarea>' +
+          (kt.floor ? '<span class="ktfloor">'+kt.floor+'</span>' : '') +
+        '</div><div></div></div>';
+    }).join("");
+    Array.prototype.forEach.call($("ktRows").querySelectorAll("[data-kt]"), function(ta){
+      ta.addEventListener("input", function(){ state.keyTaskNotes[ta.getAttribute("data-kt")] = ta.value; });
+    });
+  }
+
+  // ---- exit option pills ----
+  function renderExitOptions(){
+    $("exitOptRow").innerHTML = EXIT_OPTIONS.map(function(o){
+      return '<button type="button" class="optbtn'+(state.exitOption===o.id?' sel':'')+'" data-opt="'+o.id+'">'+o.label+'</button>';
+    }).join("");
+    Array.prototype.forEach.call($("exitOptRow").querySelectorAll(".optbtn"), function(btn){
+      btn.addEventListener("click", function(){
+        state.exitOption = btn.getAttribute("data-opt");
+        renderExitOptions();
+      });
+    });
+  }
+
+  // ---- generic row rendering (phase / trans / const) ----
+  function rowHTML(tableKey, idx, data){
+    var t = TABLES[tableKey];
+    var cells = t.fields.map(function(f,i){
+      var val = (data[f]||"").toString().replace(/"/g,"&quot;");
+      return '<input type="text" data-field="'+f+'" value="'+val+'" placeholder="'+(t.ph[i]||"")+'">';
+    }).join("");
+    return '<div class="rowgrid '+t.rowClass+'" data-idx="'+idx+'">'+cells+
+      '<button class="rmrow" type="button" title="remove row">&times;</button></div>';
+  }
+
+  function renderTable(tableKey, containerId){
+    var el = $(containerId);
+    var rows = state[tableKey];
+    el.innerHTML = rows.map(function(r,i){ return rowHTML(tableKey,i,r); }).join("");
+    Array.prototype.forEach.call(el.querySelectorAll(".rowgrid"), function(rowEl){
+      var idx = +rowEl.getAttribute("data-idx");
+      Array.prototype.forEach.call(rowEl.querySelectorAll("input"), function(inp){
+        inp.addEventListener("input", function(){
+          state[tableKey][idx][inp.getAttribute("data-field")] = inp.value;
+        });
+      });
+      rowEl.querySelector(".rmrow").addEventListener("click", function(){
+        state[tableKey].splice(idx,1);
+        renderTable(tableKey, containerId);
+      });
+    });
+  }
+
+  var ALL_TABLES = [["phase","phaseRows"],["trans","transRows"],["const","constRows"]];
+  function renderAllTables(){
+    ALL_TABLES.forEach(function(t){ renderTable(t[0], t[1]); });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-add]"), function(btn){
+    btn.addEventListener("click", function(){
+      var key = btn.getAttribute("data-add");
+      var containerId = ALL_TABLES.filter(function(t){return t[0]===key;})[0][1];
+      state[key].push({});
+      renderTable(key, containerId);
+    });
+  });
+
+  // ---- simple fields ----
+  var SIMPLE = ["campaign","cfc","cfacc","rev","ack","endState","swing"];
+  var IDMAP = {campaign:"f-campaign",cfc:"f-cfc",cfacc:"f-cfacc",rev:"f-rev",ack:"f-ack",
+    endState:"f-endstate",swing:"f-swing"};
+  function bindSimple(){
+    SIMPLE.forEach(function(k){
+      var el = $(IDMAP[k]);
+      el.value = state[k] || "";
+      el.addEventListener("input", function(){ state[k] = el.value; });
+    });
+  }
+
+  function loadState(s){
+    Object.keys(s).forEach(function(k){ if(k in state) state[k] = s[k]; });
+    if(!state.keyTaskNotes || typeof state.keyTaskNotes!=="object") state.keyTaskNotes = {};
+    ["phase","trans","const"].forEach(function(k){
+      if(!Array.isArray(state[k]) || !state[k].length) state[k] = [{}];
+    });
+    SIMPLE.forEach(function(k){ var el=$(IDMAP[k]); if(el) el.value = state[k]||""; });
+    renderKeyTasks();
+    renderExitOptions();
+    renderAllTables();
+  }
+
+  // ---- toast ----
+  var toastT;
+  function toast(msg){
+    var el = $("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(function(){ el.classList.remove("show"); }, 2200);
+  }
+
+  // ---- copy as Intent text ----
+  function exitLabel(){
+    var o = EXIT_OPTIONS.filter(function(o){return o.id===state.exitOption;})[0];
+    return o ? o.label : state.exitOption;
+  }
+
+  function buildIntentText(){
+    var lines = [];
+    lines.push("639 CAOC COMBINED CAMPAIGN INTENT");
+    lines.push("Campaign: " + (state.campaign||"—") + "   CFC: " + (state.cfc||"—") + "   CFACC: " + (state.cfacc||"—") + "   Rev " + (state.rev||"1"));
+    lines.push("");
+    lines.push("1. END STATE");
+    lines.push(state.endState || "—");
+    lines.push("");
+    lines.push("2. KEY TASKS");
+    KEY_TASKS.forEach(function(kt){
+      lines.push("  " + kt.n + ". " + (state.keyTaskNotes[kt.n] || "—"));
+    });
+    lines.push("");
+    lines.push("3. AIR PHASES AND EXIT CRITERIA");
+    lines.push("Exit-criteria option: " + exitLabel());
+    state.phase.forEach(function(r){
+      if(r.phase) lines.push("  Phase " + r.phase + " — main effort: " + (r.maineffort||"—") + " | weight: " + (r.weight||"—") + " | ALR: " + (r.alr||"—") + " | exit: " + (r.exit||"—"));
+    });
+    lines.push("Swing threshold: " + (state.swing||"15") + " points");
+    lines.push("");
+    lines.push("4. TRANSITION AND REVERSION RULES");
+    state.trans.forEach(function(r){
+      if(r.from) lines.push("  " + r.from + " | trigger: " + (r.trigger||"—") + " | reversion: " + (r.reversion||"—"));
+    });
+    lines.push("");
+    lines.push("5. CONSTRAINTS AND CAMPAIGN MECHANICS");
+    state.const.forEach(function(r){
+      if(r.field) lines.push("  " + r.field + ": " + (r.value||"—"));
+    });
+    lines.push("");
+    lines.push("Acknowledged by: " + (state.ack || "—"));
+    return lines.join("\n");
+  }
+
+  $("btnCopy").addEventListener("click", function(){
+    var text = buildIntentText();
+    function fallback(){
+      var ta = $("copyOut");
+      ta.style.display = "block";
+      ta.value = text;
+      ta.select();
+      try{ document.execCommand("copy"); toast("Copied (fallback) — Intent text ready to paste"); }
+      catch(e){ toast("Select the text below and copy manually"); }
+      ta.style.display = "none";
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        toast("Copied — paste into Discord / DKS");
+      }).catch(fallback);
+    } else { fallback(); }
+  });
+
+  $("btnReset").addEventListener("click", function(){
+    state = {campaign:"",cfc:"",cfacc:"",rev:"1",ack:"",endState:"",swing:"15",exitOption:"named",keyTaskNotes:{},phase:[],trans:[],const:[]};
+    seedDefaults();
+    loadState(state);
+  });
+
+  // ---- persistence via db capability ----
+  // Collection "intent": one doc per published revision, id "rev-<n>", field revNum for ordering.
+  // Downstream tools (AOD Builder, Package Plan Builder) read the highest revNum doc as "current".
+  var db = null, userCap = null, unsubList = null;
+
+  function revKey(){
+    var r = (state.rev||"").trim().replace(/[^a-zA-Z0-9_\-]/g,"");
+    return r ? "rev-"+r : null;
+  }
+
+  function setSaveMsg(msg, isErr){
+    var el = $("saveMsg");
+    el.textContent = msg;
+    el.className = "savemsg" + (isErr?" err":"");
+  }
+
+  $("btnSave").addEventListener("click", function(){
+    var key = revKey();
+    if(!key){ setSaveMsg("Enter a revision number before publishing", true); return; }
+    if(!db){ setSaveMsg("Shared save isn't available in this view — use Copy as Intent text instead", true); return; }
+    var body = JSON.parse(JSON.stringify(state));
+    body.revNum = parseInt((state.rev||"0").replace(/\D/g,""),10) || 0;
+    body.publishedAt = new Date().toISOString();
+    var ref = db.collection("intent").doc(key);
+    $("btnSave").disabled = true;
+    ref.set(body).then(function(){
+      setSaveMsg("Published rev " + state.rev + " ✓");
+      $("btnSave").disabled = false;
+    }).catch(function(err){
+      setSaveMsg("Publish failed: " + (err && err.code || "unknown"), true);
+      $("btnSave").disabled = false;
+    });
+  });
+
+  function renderRevList(snap){
+    var list = $("revList");
+    if(!snap || snap.empty){
+      list.innerHTML = '<div class="railempty">No published revisions yet — fill in the Intent above and Publish.</div>';
+      return;
+    }
+    var docs = snap.docs.slice().sort(function(a,b){
+      return (b.data().revNum||0) - (a.data().revNum||0);
+    });
+    var curNum = docs.length ? (docs[0].data().revNum||0) : null;
+    list.innerHTML = docs.map(function(d){
+      var v = d.data();
+      var isCur = v.revNum === curNum;
+      return '<button class="cycleitem'+(isCur?' cur':'')+'" type="button" data-id="'+d.id+'">'+
+        '<span>Rev '+(v.rev||"?")+(isCur?' — current':'')+'<div class="sub">'+(v.campaign||"")+' &middot; '+(v.publishedAt? v.publishedAt.slice(0,10):"")+'</div></span>'+
+        '<span class="sub">'+(v.cfc ? "CFC: "+v.cfc : "")+'</span>'+
+      '</button>';
+    }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll(".cycleitem"), function(btn){
+      btn.addEventListener("click", function(){
+        var doc = docs.filter(function(d){ return d.id===btn.getAttribute("data-id"); })[0];
+        if(doc){ loadState(doc.data()); toast("Loaded rev " + doc.data().rev); }
+      });
+    });
+  }
+
+  function initCapabilities(){
+    if(!window.claude || !window.claude.use){ $("railStatus").textContent="(local only)"; return; }
+    Promise.all([window.claude.use("db"), window.claude.use("user")]).then(function(res){
+      db = res[0]; userCap = res[1];
+      if(!db){ $("railStatus").textContent="(local only)"; return; }
+      $("railStatus").textContent = "(live)";
+      try{
+        unsubList = db.collection("intent").orderBy("revNum","desc").limit(30).onSnapshot(
+          function(snap){ renderRevList(snap); },
+          function(err){ $("railStatus").textContent="(unavailable)"; }
+        );
+      }catch(e){ $("railStatus").textContent="(unavailable)"; }
+    }).catch(function(){ $("railStatus").textContent="(local only)"; });
+  }
+
+  // ---- boot ----
+  function start(data){
+    if(data && Object.keys(data).length) loadState(Object.assign({}, state, data));
+    bindSimple();
+    renderKeyTasks();
+    renderExitOptions();
+    renderAllTables();
+    initCapabilities();
+  }
+  if(window.claude && window.claude.hot && window.claude.hot.ready){
+    window.claude.hot.ready(start);
+  } else {
+    start(window.claude && window.claude.hot ? window.claude.hot.data : null);
+  }
+})();
+</script>

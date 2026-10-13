@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Theater Comm Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3efe2; --surface:#fffdf7; --surface-2:#ece6d4; --border:#d8cfb4;
+  --fg:#211d14; --fg-muted:#6b6450; --accent:#8a5a14; --accent-ink:#fffdf7;
+  --accent-2:#3f6a52; --danger:#a13c2d; --good:#3f6a52;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --disp: "Oswald", var(--body);
+  /* net-category colors (light) */
+  --cat-tacadmin-bg:#ffffff; --cat-tacadmin-fg:#211d14; --cat-tacadmin-border:#c9c2aa;
+  --cat-tankers-bg:#d9e6f2; --cat-tankers-fg:#1c3a52; --cat-tankers-border:#aecbe3;
+  --cat-tactical-bg:#f5e9ad; --cat-tactical-fg:#4a3c06; --cat-tactical-border:#e0cd6e;
+  --cat-caw7-bg:#d8ead9; --cat-caw7-fg:#214a28; --cat-caw7-border:#a9cfae;
+  --cat-tacops-bg:#e5daf0; --cat-tacops-fg:#3c2660; --cat-tacops-border:#c6afdd;
+  --cat-sfcwar-bg:#f2d6d1; --cat-sfcwar-fg:#6b1f14; --cat-sfcwar-border:#e0a99f;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13160f; --surface:#1a1e15; --surface-2:#20251a; --border:#343b2a;
+    --fg:#e9e4d2; --fg-muted:#9a9c84; --accent:#d19a3d; --accent-ink:#1a1e15;
+    --accent-2:#6fa389; --danger:#d4715f; --good:#6fa389;
+    color-scheme: dark;
+    --cat-tacadmin-bg:#2a2d22; --cat-tacadmin-fg:#e9e4d2; --cat-tacadmin-border:#454a38;
+    --cat-tankers-bg:#1c2c3a; --cat-tankers-fg:#aecbe3; --cat-tankers-border:#2e4a5f;
+    --cat-tactical-bg:#3a3414; --cat-tactical-fg:#e0cd6e; --cat-tactical-border:#564c1e;
+    --cat-caw7-bg:#1c3220; --cat-caw7-fg:#a9cfae; --cat-caw7-border:#2e4e34;
+    --cat-tacops-bg:#2a1f3a; --cat-tacops-fg:#c6afdd; --cat-tacops-border:#453163;
+    --cat-sfcwar-bg:#3a1f1c; --cat-sfcwar-fg:#e0a99f; --cat-sfcwar-border:#5c2e27;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13160f; --surface:#1a1e15; --surface-2:#20251a; --border:#343b2a;
+  --fg:#e9e4d2; --fg-muted:#9a9c84; --accent:#d19a3d; --accent-ink:#1a1e15;
+  --accent-2:#6fa389; --danger:#d4715f; --good:#6fa389;
+  color-scheme: dark;
+  --cat-tacadmin-bg:#2a2d22; --cat-tacadmin-fg:#e9e4d2; --cat-tacadmin-border:#454a38;
+  --cat-tankers-bg:#1c2c3a; --cat-tankers-fg:#aecbe3; --cat-tankers-border:#2e4a5f;
+  --cat-tactical-bg:#3a3414; --cat-tactical-fg:#e0cd6e; --cat-tactical-border:#564c1e;
+  --cat-caw7-bg:#1c3220; --cat-caw7-fg:#a9cfae; --cat-caw7-border:#2e4e34;
+  --cat-tacops-bg:#2a1f3a; --cat-tacops-fg:#c6afdd; --cat-tacops-border:#453163;
+  --cat-sfcwar-bg:#3a1f1c; --cat-sfcwar-fg:#e0a99f; --cat-sfcwar-border:#5c2e27;
+}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--body); line-height:1.45;}
+.wrap{max-width:1180px; margin:0 auto; padding:28px 20px 80px;}
+header.top{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px; flex-wrap:wrap;}
+h1{font-family:var(--disp); font-weight:700; font-size:1.7rem; margin:0 0 4px; letter-spacing:.01em;}
+.sub{color:var(--fg-muted); font-size:.92rem; max-width:680px;}
+.themebtn{background:var(--surface); border:1px solid var(--border); color:var(--fg); font-family:var(--mono); font-size:.78rem; padding:6px 10px; border-radius:6px; cursor:pointer;}
+.themebtn:hover{border-color:var(--accent);}
+
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin-bottom:20px;}
+.panelhead{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;}
+.panelhead h2{font-family:var(--disp); font-size:1.05rem; margin:0; font-weight:600;}
+.meta-row{display:flex; gap:18px; flex-wrap:wrap; font-size:.85rem; color:var(--fg-muted);}
+.meta-row label{display:flex; flex-direction:column; gap:4px; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--fg-muted);}
+.meta-row input{font-family:var(--mono); font-size:.92rem; background:var(--surface-2); border:1px solid var(--border); color:var(--fg); border-radius:6px; padding:6px 8px; min-width:150px;}
+
+.btn{font-family:var(--body); font-size:.85rem; font-weight:600; padding:8px 14px; border-radius:7px; border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); cursor:pointer;}
+.btn.secondary{background:transparent; color:var(--fg); border-color:var(--border);}
+.btn.danger{background:transparent; color:var(--danger); border-color:var(--danger);}
+.btn:hover{filter:brightness(1.05);}
+.toolbar{display:flex; gap:8px; flex-wrap:wrap;}
+
+table.grid{width:100%; border-collapse:collapse; table-layout:fixed;}
+table.grid th, table.grid td{border:1px solid var(--border); padding:0; vertical-align:top;}
+table.grid thead th{background:var(--surface-2); font-family:var(--disp); font-size:.82rem; letter-spacing:.03em; text-transform:uppercase; padding:9px 8px; text-align:center; font-weight:600;}
+table.grid thead th.rownum-col{width:38px; background:transparent; border:none;}
+table.grid tbody td.rownum{background:var(--surface-2); text-align:center; font-family:var(--mono); font-weight:600; color:var(--fg-muted); font-size:.85rem; width:38px;}
+table.grid tbody td.catcell{padding:6px;}
+
+.cell-fields{display:flex; flex-direction:column; gap:3px;}
+.cell-fields input{width:100%; border:none; background:transparent; font-size:.82rem; padding:3px 4px; border-radius:4px; color:inherit; font-family:var(--body);}
+.cell-fields input.net{font-weight:600; font-family:var(--disp); letter-spacing:.02em;}
+.cell-fields input.callsign{font-family:var(--mono); font-size:.8rem;}
+.cell-fields input.freq{font-family:var(--mono); font-size:.8rem;}
+.cell-fields input::placeholder{color:inherit; opacity:.38;}
+.cell-fields input:focus{outline:2px solid var(--accent); outline-offset:-1px; background:rgba(255,255,255,.25);}
+
+td.cat-tacadmin{background:var(--cat-tacadmin-bg); color:var(--cat-tacadmin-fg);}
+td.cat-tankers{background:var(--cat-tankers-bg); color:var(--cat-tankers-fg);}
+td.cat-tactical{background:var(--cat-tactical-bg); color:var(--cat-tactical-fg);}
+td.cat-caw7{background:var(--cat-caw7-bg); color:var(--cat-caw7-fg);}
+td.cat-tacops{background:var(--cat-tacops-bg); color:var(--cat-tacops-fg);}
+td.cat-sfcwar{background:var(--cat-sfcwar-bg); color:var(--cat-sfcwar-fg);}
+
+.rowbtns{display:flex; justify-content:center; padding:4px 0;}
+.rowbtns button{background:none; border:none; color:var(--fg-muted); font-size:.75rem; cursor:pointer; font-family:var(--mono);}
+.rowbtns button:hover{color:var(--danger);}
+.addrow{margin-top:10px;}
+
+.legend{display:flex; gap:10px; flex-wrap:wrap; font-size:.78rem; color:var(--fg-muted); margin-top:14px;}
+.legend span{display:inline-flex; align-items:center; gap:5px;}
+.legend .sw{width:12px; height:12px; border-radius:3px; display:inline-block; border:1px solid var(--border);}
+
+.status{font-size:.8rem; color:var(--fg-muted); font-family:var(--mono);}
+.status.ok{color:var(--good);}
+.status.err{color:var(--danger);}
+
+.footerlinks{display:flex; gap:14px; flex-wrap:wrap; font-size:.85rem; margin-top:8px;}
+.footerlinks a{color:var(--accent); text-decoration:none; font-weight:600;}
+.footerlinks a:hover{text-decoration:underline;}
+
+.helpnote{font-size:.82rem; color:var(--fg-muted); margin-top:4px;}
+.copyarea{width:100%; min-height:220px; font-family:var(--mono); font-size:.8rem; background:var(--surface-2); border:1px solid var(--border); color:var(--fg); border-radius:7px; padding:10px; white-space:pre; overflow:auto;}
+
+@media (max-width: 860px){
+  table.grid, table.grid thead, table.grid tbody, table.grid tr, table.grid th, table.grid td{display:block;}
+  table.grid thead{display:none;}
+  table.grid tbody tr{border:1px solid var(--border); border-radius:8px; margin-bottom:12px; overflow:hidden;}
+  table.grid td.catcell{border:none; border-bottom:1px solid var(--border);}
+  table.grid td.catcell::before{content attr(data-label); display:block; font-size:.68rem; text-transform:uppercase; letter-spacing:.04em; opacity:.6; padding:4px 6px 0;}
+  td.rownum{display:flex; align-items:center; justify-content:flex-start; padding:6px 10px; font-size:.9rem;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Theater Comm Plan</h1>
+      <div class="sub">The campaign-wide net/frequency matrix built once by the MAAP cell (Combat Plans) before Cycle 1. Standard channel categories keep comms deconflicted across every group flying the campaign; frequencies are close to arbitrary &mdash; what matters is everyone sharing the same grid.</div>
+    </div>
+    <button class="themebtn" id="themeBtn" type="button">Theme: System</button>
+  </header>
+
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Campaign</h2>
+    </div>
+    <div class="meta-row">
+      <label>Campaign name <input type="text" id="campaignName" placeholder="e.g. Corridor BLUE"></label>
+      <label>CFC / CFACC <input type="text" id="campaignOwner" placeholder="e.g. Col. ..."></label>
+      <label>Built <input type="text" id="campaignDate" placeholder="e.g. T-6d"></label>
+      <label>Revision note <input type="text" id="campaignNote" placeholder="normally left blank — rare revision"></label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Net / Frequency Grid</h2>
+      <div class="toolbar">
+        <button class="btn secondary" id="addRowBtn" type="button">+ Add row</button>
+        <button class="btn secondary" id="copyBtn" type="button">Copy as text</button>
+        <button class="btn" id="saveBtn" type="button">Save comm plan</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="grid" id="gridTable">
+        <thead>
+          <tr>
+            <th class="rownum-col"></th>
+            <th class="cat-tacadmin" style="background:var(--cat-tacadmin-bg); color:var(--cat-tacadmin-fg);">Tac Admin</th>
+            <th style="background:var(--cat-tankers-bg); color:var(--cat-tankers-fg);">Tankers</th>
+            <th style="background:var(--cat-tactical-bg); color:var(--cat-tactical-fg);">Tactical</th>
+            <th style="background:var(--cat-caw7-bg); color:var(--cat-caw7-fg);">CAW-7</th>
+            <th style="background:var(--cat-tacops-bg); color:var(--cat-tacops-fg);">Tac Ops</th>
+            <th style="background:var(--cat-sfcwar-bg); color:var(--cat-sfcwar-fg);">Sfc Warfare</th>
+            <th class="rownum-col"></th>
+          </tr>
+        </thead>
+        <tbody id="gridBody"></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span><span class="sw" style="background:var(--cat-tacadmin-bg);"></span>Tac Admin</span>
+      <span><span class="sw" style="background:var(--cat-tankers-bg);"></span>Tankers</span>
+      <span><span class="sw" style="background:var(--cat-tactical-bg);"></span>Tactical</span>
+      <span><span class="sw" style="background:var(--cat-caw7-bg);"></span>CAW-7</span>
+      <span><span class="sw" style="background:var(--cat-tacops-bg);"></span>Tac Ops</span>
+      <span><span class="sw" style="background:var(--cat-sfcwar-bg);"></span>Sfc Warfare</span>
+    </div>
+    <div class="helpnote">Each cell holds a net name, callsign, and frequency. Standard channels (TAC COORD, ASOC, STRIKE, SEAD, and similar) are pre-seeded in row 1 under Tactical/Tac Ops &mdash; rename, retune, or clear any cell as needed for the campaign.</div>
+    <div id="statusLine" class="status" style="margin-top:10px;"></div>
+  </section>
+
+  <section class="panel" id="exportPanel" style="display:none;">
+    <div class="panelhead">
+      <h2>Comm Plan Text</h2>
+      <button class="btn secondary" id="closeExportBtn" type="button">Close</button>
+    </div>
+    <textarea class="copyarea" id="exportArea" readonly></textarea>
+  </section>
+
+  <div class="footerlinks">
+    <a href="https://claude.ai/artifact/1EFXxDWjbTGFBPqhhCcqFi">&larr; The 639 CAOC Process</a>
+    <a href="https://claude.ai/artifact/SqhPRCX7kEFhj2X3qSeSaw">AOD Builder</a>
+    <a href="https://claude.ai/artifact/8Fr8aCnTGiseYWf8WZw6DE">Package Plan Builder</a>
+    <a href="https://claude.ai/artifact/T1McQ5z9AJwnMirFHMeWUo">Intent Builder</a>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  // ---------- theme ----------
+  var themeBtn = document.getElementById('themeBtn');
+  var themeOrder = ['system','dark','light'];
+  function applyTheme(t){
+    if(t==='system'){ document.documentElement.removeAttribute('data-theme'); }
+    else { document.documentElement.setAttribute('data-theme', t); }
+    themeBtn.textContent = 'Theme: ' + t.charAt(0).toUpperCase() + t.slice(1);
+  }
+  var savedTheme = 'system';
+  try{ savedTheme = localStorage.getItem('commgrid_theme') || 'system'; }catch(e){}
+  applyTheme(savedTheme);
+  themeBtn.addEventListener('click', function(){
+    var idx = themeOrder.indexOf(savedTheme);
+    savedTheme = themeOrder[(idx+1) % themeOrder.length];
+    applyTheme(savedTheme);
+    try{ localStorage.setItem('commgrid_theme', savedTheme); }catch(e){}
+  });
+
+  // ---------- categories ----------
+  var CATS = [
+    {key:'tacadmin', label:'Tac Admin', cls:'cat-tacadmin'},
+    {key:'tankers',  label:'Tankers',   cls:'cat-tankers'},
+    {key:'tactical', label:'Tactical',  cls:'cat-tactical'},
+    {key:'caw7',     label:'CAW-7',     cls:'cat-caw7'},
+    {key:'tacops',   label:'Tac Ops',   cls:'cat-tacops'},
+    {key:'sfcwar',   label:'Sfc Warfare', cls:'cat-sfcwar'}
+  ];
+
+  function emptyCell(){ return {net:'', callsign:'', freq:''}; }
+  function emptyRow(){
+    var row = {};
+    CATS.forEach(function(c){ row[c.key] = emptyCell(); });
+    return row;
+  }
+
+  // default seed: standard deconfliction channels pre-populated
+  function defaultRows(){
+    var r1 = emptyRow();
+    r1.tactical = {net:'TAC COORD', callsign:'', freq:''};
+    r1.tacops   = {net:'ASOC', callsign:'', freq:''};
+    var r2 = emptyRow();
+    r2.tactical = {net:'STRIKE', callsign:'', freq:''};
+    r2.tacops   = {net:'SEAD', callsign:'', freq:''};
+    var r3 = emptyRow();
+    return [r1, r2, r3];
+  }
+
+  var state = {
+    campaignName:'', campaignOwner:'', campaignDate:'', campaignNote:'',
+    rows: defaultRows()
+  };
+
+  // ---------- render ----------
+  var gridBody = document.getElementById('gridBody');
+
+  function renderGrid(){
+    gridBody.innerHTML = '';
+    state.rows.forEach(function(row, idx){
+      var tr = document.createElement('tr');
+
+      var tdNum = document.createElement('td');
+      tdNum.className = 'rownum';
+      tdNum.textContent = (idx+1);
+      tr.appendChild(tdNum);
+
+      CATS.forEach(function(cat){
+        var td = document.createElement('td');
+        td.className = 'catcell ' + cat.cls;
+        td.setAttribute('data-label', cat.label);
+        var wrap = document.createElement('div');
+        wrap.className = 'cell-fields';
+
+        var netInput = document.createElement('input');
+        netInput.type = 'text'; netInput.className = 'net';
+        netInput.placeholder = 'Net name';
+        netInput.value = row[cat.key].net || '';
+        netInput.addEventListener('input', function(){ row[cat.key].net = netInput.value; markDirty(); });
+
+        var csInput = document.createElement('input');
+        csInput.type = 'text'; csInput.className = 'callsign';
+        csInput.placeholder = 'Callsign';
+        csInput.value = row[cat.key].callsign || '';
+        csInput.addEventListener('input', function(){ row[cat.key].callsign = csInput.value; markDirty(); });
+
+        var freqInput = document.createElement('input');
+        freqInput.type = 'text'; freqInput.className = 'freq';
+        freqInput.placeholder = 'Freq (e.g. 293.500)';
+        freqInput.value = row[cat.key].freq || '';
+        freqInput.addEventListener('input', function(){ row[cat.key].freq = freqInput.value; markDirty(); });
+
+        wrap.appendChild(netInput);
+        wrap.appendChild(csInput);
+        wrap.appendChild(freqInput);
+        td.appendChild(wrap);
+        tr.appendChild(td);
+      });
+
+      var tdDel = document.createElement('td');
+      tdDel.className = 'rownum';
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.textContent = '✕';
+      delBtn.title = 'Remove row';
+      delBtn.style.background = 'none';
+      delBtn.style.border = 'none';
+      delBtn.style.color = 'var(--fg-muted)';
+      delBtn.style.cursor = 'pointer';
+      delBtn.addEventListener('click', function(){
+        if(state.rows.length <= 1) return;
+        state.rows.splice(idx,1);
+        renderGrid();
+        markDirty();
+      });
+      tdDel.appendChild(delBtn);
+      tr.appendChild(tdDel);
+
+      gridBody.appendChild(tr);
+    });
+  }
+
+  document.getElementById('addRowBtn').addEventListener('click', function(){
+    state.rows.push(emptyRow());
+    renderGrid();
+    markDirty();
+  });
+
+  // ---------- meta fields ----------
+  ['campaignName','campaignOwner','campaignDate','campaignNote'].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener('input', function(){ state[id] = el.value; markDirty(); });
+  });
+
+  // ---------- status / dirty ----------
+  var statusLine = document.getElementById('statusLine');
+  var dirty = false;
+  function markDirty(){
+    dirty = true;
+    statusLine.textContent = 'Unsaved changes';
+    statusLine.className = 'status';
+  }
+  function markSaved(){
+    dirty = false;
+    var now = new Date();
+    statusLine.textContent = 'Saved ' + now.toLocaleString();
+    statusLine.className = 'status ok';
+  }
+  function markError(msg){
+    statusLine.textContent = msg;
+    statusLine.className = 'status err';
+  }
+
+  // ---------- export text ----------
+  function buildExportText(){
+    var lines = [];
+    lines.push('THEATER COMM PLAN');
+    if(state.campaignName) lines.push('Campaign: ' + state.campaignName);
+    if(state.campaignOwner) lines.push('CFC/CFACC: ' + state.campaignOwner);
+    if(state.campaignDate) lines.push('Built: ' + state.campaignDate);
+    if(state.campaignNote) lines.push('Revision note: ' + state.campaignNote);
+    lines.push('');
+    var header = ['Row'].concat(CATS.map(function(c){return c.label;}));
+    lines.push(header.join(' | '));
+    state.rows.forEach(function(row, idx){
+      var cells = CATS.map(function(c){
+        var cell = row[c.key];
+        var parts = [];
+        if(cell.net) parts.push(cell.net);
+        if(cell.callsign) parts.push('"'+cell.callsign+'"');
+        if(cell.freq) parts.push(cell.freq);
+        return parts.length ? parts.join(' / ') : '—';
+      });
+      lines.push(String(idx+1).concat(' | ').concat(cells.join(' | ')));
+    });
+    return lines.join('\n');
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    var text = buildExportText();
+    var panel = document.getElementById('exportPanel');
+    var area = document.getElementById('exportArea');
+    area.value = text;
+    panel.style.display = '';
+    try{
+      navigator.clipboard.writeText(text);
+    }catch(e){}
+    area.focus();
+    area.select();
+  });
+  document.getElementById('closeExportBtn').addEventListener('click', function(){
+    document.getElementById('exportPanel').style.display = 'none';
+  });
+
+  // ---------- persistence (db capability, single standing doc) ----------
+  var db = null;
+  var unsub = null;
+  var applyingRemote = false;
+
+  function applyState(data){
+    applyingRemote = true;
+    state.campaignName = data.campaignName || '';
+    state.campaignOwner = data.campaignOwner || '';
+    state.campaignDate = data.campaignDate || '';
+    state.campaignNote = data.campaignNote || '';
+    state.rows = (data.rows && data.rows.length) ? data.rows.map(function(r){
+      var row = emptyRow();
+      CATS.forEach(function(c){
+        if(r[c.key]) row[c.key] = {net:r[c.key].net||'', callsign:r[c.key].callsign||'', freq:r[c.key].freq||''};
+      });
+      return row;
+    }) : defaultRows();
+
+    document.getElementById('campaignName').value = state.campaignName;
+    document.getElementById('campaignOwner').value = state.campaignOwner;
+    document.getElementById('campaignDate').value = state.campaignDate;
+    document.getElementById('campaignNote').value = state.campaignNote;
+    renderGrid();
+    applyingRemote = false;
+  }
+
+  function initCapabilities(){
+    try{
+      if(window.claude && window.claude.use){
+        db = window.claude.use('db');
+        if(db){
+          unsub = db.collection('commplan').doc('current').onSnapshot(function(snap){
+            if(snap && snap.exists && snap.data){
+              var data = snap.data();
+              if(!dirty || applyingRemote){
+                applyState(data);
+                markSaved();
+              }
+            }
+          }, function(err){
+            // no-op; local-only fallback
+          });
+        }
+      }
+    }catch(e){
+      db = null;
+    }
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', function(){
+    if(!db){
+      markError('Saving isn\'t available in this view — use "Copy as text" to export.');
+      return;
+    }
+    try{
+      db.collection('commplan').doc('current').set({
+        campaignName: state.campaignName,
+        campaignOwner: state.campaignOwner,
+        campaignDate: state.campaignDate,
+        campaignNote: state.campaignNote,
+        rows: state.rows,
+        savedAt: Date.now()
+      }).then(function(){
+        markSaved();
+      }).catch(function(err){
+        markError('Save failed — try again.');
+      });
+    }catch(e){
+      markError('Save failed — try again.');
+    }
+  });
+
+  // ---------- init ----------
+  renderGrid();
+  initCapabilities();
+})();
+</script>
+</body>
+</html>
