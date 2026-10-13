@@ -6,7 +6,8 @@ Documentation and web tools for the 639th Combined Air Operations Center (CAOC):
 
 | File | What it is |
 |---|---|
-| `Combined_AOC_Charter_v0.7.md` | The charter — command structure, governing principles, the Buy/Pass requirements process, and all annexes |
+| `Combined_AOC_Charter_v0.8.md` | The charter — command structure, governing principles, the Buy/Pass requirements process, and all annexes |
+| `639CAOC_Command_Function_Summary.md` | Plain-language companion to the Charter's Section 5/Annex D: the 3-person staff (CFC, Chief of Staff, CFACC), the AOC Board, and who quick-checks each stage of the process |
 | `639CAOC_TTP-1-1_Thinking_Like_a_CFACC.md` | The CFACC's working TTP — the Combined AOD, ALR/ROE, the three-question targeting test, and forms |
 | `639CAOC_Combined_Campaign_Intent.md` | A filled-out example Combined Campaign Intent |
 | `639CAOC_Combined_Campaign_Intent_Template.md` | The blank one-page Intent template |
