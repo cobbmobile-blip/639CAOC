@@ -25,8 +25,9 @@ These are static HTML snapshots of the live, interactive web tools. Each one is 
 | AOD Builder | https://claude.ai/artifact/SqhPRCX7kEFhj2X3qSeSaw |
 | Package Plan Builder (MAAP) | https://claude.ai/artifact/8Fr8aCnTGiseYWf8WZw6DE |
 | Intent Builder | https://claude.ai/artifact/T1McQ5z9AJwnMirFHMeWUo |
+| Campaign Board (per-cycle front end: objective, JIPTL, apportionment, targeting, participants, and unit doc uploads) | https://claude.ai/artifact/PTTEXkmEhu6xAurJtB9UsP |
 
-If you're integrating these into a site, the HTML files in `/tools` are a good starting point for layout and styling — but swap in your own data backend if you need live, shared state, since the copies here don't connect to the Claude-hosted database the live versions use.
+If you're integrating these into a site, the HTML files in `/tools` are a good starting point for layout and styling — but swap in your own data backend if you need live, shared state, since the copies here don't connect to the Claude-hosted database the live versions use. The Campaign Board's static copy also loses its Unit Submissions upload panel outside the live artifact, since that depends on the Claude app.
 
 ## Process overview
 

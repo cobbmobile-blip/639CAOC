@@ -1,0 +1,590 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>639 CAOC Campaign Board</title>
+<style>
+/* Layout concept: a fixed ops-board header (campaign identity + cycle clock) over a
+   single scrolling column of briefing sections, each styled like a status-board panel. */
+:root {
+  --bg: #eef1ea;
+  --surface: #ffffff;
+  --surface-2: #e4e8dd;
+  --ink: #16200f;
+  --ink-dim: #4b5542;
+  --line: #c6cdb9;
+  --accent: #3a6b35;
+  --accent-ink: #f3f7ee;
+  --amber: #946a1a;
+  --amber-bg: #faecce;
+  --green: #2f7d4f;
+  --green-bg: #e2f1e6;
+  --slate: #5a6472;
+  --slate-bg: #e7eaee;
+  --red: #a23b2e;
+  --red-bg: #f7e4df;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --head: 'Barlow Semi Condensed', var(--sans);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1410;
+    --surface: #161d14;
+    --surface-2: #1c241a;
+    --ink: #e7ede1;
+    --ink-dim: #a3ad98;
+    --line: #2d3728;
+    --accent: #7fb86f;
+    --accent-ink: #0f1410;
+    --amber: #d9a441;
+    --amber-bg: #2e260f;
+    --green: #6fbf8c;
+    --green-bg: #152a1d;
+    --slate: #9aa6ab;
+    --slate-bg: #1c2522;
+    --red: #e08070;
+    --red-bg: #2e1813;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1410;
+  --surface: #161d14;
+  --surface-2: #1c241a;
+  --ink: #e7ede1;
+  --ink-dim: #a3ad98;
+  --line: #2d3728;
+  --accent: #7fb86f;
+  --accent-ink: #0f1410;
+  --amber: #d9a441;
+  --amber-bg: #2e260f;
+  --green: #6fbf8c;
+  --green-bg: #152a1d;
+  --slate: #9aa6ab;
+  --slate-bg: #1c2522;
+  --red: #e08070;
+  --red-bg: #2e1813;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+  line-height: 1.5;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+
+h1, h2, h3 { font-family: var(--head); font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; margin: 0; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-dim); }
+code, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* Top bar */
+header.board {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  padding: 12px max(16px, env(safe-area-inset-left, 0px)) 12px max(16px, env(safe-area-inset-right, 0px));
+}
+.board-inner { max-width: 1040px; margin: 0 auto; }
+.board-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.board-id { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.board-id .unit { font-family: var(--mono); font-size: 12px; color: var(--ink-dim); letter-spacing: 0.08em; }
+.board-id .campaign { font-family: var(--head); font-size: 22px; font-weight: 700; }
+.board-host { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+.board-host b { color: var(--ink); font-weight: 600; }
+.next-vul { flex: none; text-align: right; }
+.next-vul .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--ink-dim); }
+.next-vul .when { font-family: var(--head); font-size: 17px; font-weight: 700; }
+.next-vul .tz { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); }
+.board-stats { display: flex; gap: 18px; font-family: var(--mono); font-size: 12px; color: var(--ink-dim); flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.board-stats > span { display: inline-flex; align-items: center; gap: 6px; }
+.board-stats b { color: var(--ink); font-weight: 600; }
+.msg-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px;
+  padding: 2px 9px 2px 7px; font-family: var(--mono); font-size: 10px; color: var(--ink-dim);
+  cursor: pointer;
+}
+.msg-btn:hover { border-color: var(--accent); color: var(--accent); }
+.msg-btn svg { width: 11px; height: 11px; flex: none; }
+
+.quick-links { display: flex; gap: 10px; flex-wrap: wrap; margin: 22px 0 36px; }
+.link-btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 11px 18px; border-radius: 8px; font-family: var(--sans); font-weight: 600; font-size: 13px;
+  text-decoration: none; border: 1px solid transparent; min-width: 0;
+}
+.link-btn svg { width: 16px; height: 16px; flex: none; }
+.link-btn.primary { background: var(--accent); color: var(--accent-ink); }
+.link-btn.secondary { background: var(--surface); color: var(--ink); border-color: var(--line); }
+.link-btn:hover { opacity: 0.9; }
+
+.submit-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.submit-row select {
+  font-family: var(--sans); font-size: 13px; padding: 9px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.upload-btn { cursor: pointer; padding: 9px 16px; }
+
+main { padding-top: 28px; padding-bottom: 56px; }
+section { margin-bottom: 40px; }
+section > .eyebrow { margin-bottom: 6px; }
+section > h2 { font-size: 22px; margin-bottom: 14px; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+/* Hero / objective */
+.hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .hero { grid-template-columns: 1fr; } }
+.hero .objective p { max-width: 62ch; color: var(--ink); }
+.hero .objective .eyebrow { margin-bottom: 8px; }
+.phase-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 14px; font-family: var(--mono); font-size: 12px;
+  margin-bottom: 14px;
+}
+.phase-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.stat-grid .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+.stat-grid .stat .k { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); }
+.stat-grid .stat .v { font-family: var(--mono); font-size: 16px; font-weight: 600; margin-top: 2px; }
+
+/* Key tasks strip */
+.tasks { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+@media (max-width: 760px) { .tasks { grid-template-columns: repeat(2, 1fr); } }
+.task { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; min-width: 0; }
+.task.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.task .num { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); }
+.task .name { font-weight: 600; font-size: 13px; margin-top: 2px; }
+
+/* JIPTL table */
+.table-scroll { overflow-x: auto; }
+table.jiptl { width: 100%; border-collapse: collapse; min-width: 640px; font-size: 13px; }
+table.jiptl th { text-align: left; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-dim); padding: 8px 10px; border-bottom: 1px solid var(--line); }
+table.jiptl td { padding: 10px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.jiptl tr:last-child td { border-bottom: none; }
+.status-pill { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.status-draft { background: var(--slate-bg); color: var(--slate); }
+.status-posted { background: var(--slate-bg); color: var(--slate); }
+.status-claimed { background: var(--amber-bg); color: var(--amber); }
+.status-confirmed { background: var(--green-bg); color: var(--green); }
+.status-published { background: var(--green-bg); color: var(--green); }
+
+/* Apportionment */
+.appor { display: flex; flex-direction: column; gap: 12px; }
+.appor-row { display: grid; grid-template-columns: 140px 1fr 90px; align-items: center; gap: 12px; }
+@media (max-width: 560px) { .appor-row { grid-template-columns: 90px 1fr 70px; } }
+.appor-row .label { font-size: 13px; font-weight: 600; min-width: 0; }
+.appor-row .label .sub { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-dim); font-weight: 400; }
+.bar-track { background: var(--surface-2); border-radius: 6px; height: 18px; overflow: hidden; border: 1px solid var(--line); }
+.bar-fill { height: 100%; background: var(--accent); }
+.appor-row .pct { font-family: var(--mono); font-size: 13px; text-align: right; }
+
+/* ALR/ROE grid */
+.floor-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 760px) { .floor-grid { grid-template-columns: repeat(2, 1fr); } }
+.floor-card { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 12px; min-width: 0; }
+.floor-card .k { font-family: var(--mono); font-size: 10px; text-transform: uppercase; color: var(--ink-dim); letter-spacing: 0.06em; }
+.floor-card .v { font-weight: 600; margin-top: 4px; font-size: 14px; }
+.lvl { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
+.lvl-high { background: var(--red-bg); color: var(--red); }
+.lvl-medium { background: var(--amber-bg); color: var(--amber); }
+.lvl-low { background: var(--green-bg); color: var(--green); }
+
+/* Downloads */
+.downloads { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (max-width: 680px) { .downloads { grid-template-columns: 1fr; } }
+.doc-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 14px 16px; text-decoration: none; color: inherit; min-width: 0;
+  transition: border-color 0.15s ease;
+}
+.doc-card:hover { border-color: var(--accent); }
+.doc-card .glyph {
+  flex: none; width: 38px; height: 38px; border-radius: 8px;
+  background: var(--surface-2); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+}
+.doc-card .meta { min-width: 0; }
+.doc-card .title { font-weight: 600; font-size: 14px; }
+.doc-card .sub { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+.doc-card .go { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink-dim); flex: none; }
+
+/* Timeline */
+.timeline { display: flex; align-items: center; gap: 0; }
+.tl-node { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; position: relative; }
+.tl-node .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--line); z-index: 1; }
+.tl-node.done .dot { background: var(--accent); border-color: var(--accent); }
+.tl-node.now .dot { background: var(--amber); border-color: var(--amber); box-shadow: 0 0 0 4px var(--amber-bg); }
+.tl-node .line { position: absolute; top: 6px; left: 50%; width: 100%; height: 2px; background: var(--line); z-index: 0; }
+.tl-node.done .line { background: var(--accent); }
+.tl-node:last-child .line { display: none; }
+.tl-node .mark { font-family: var(--mono); font-size: 12px; font-weight: 700; margin-top: 8px; }
+.tl-node .what { font-size: 11px; color: var(--ink-dim); text-align: center; margin-top: 2px; padding: 0 4px; }
+
+/* Groups */
+.groups { display: flex; flex-direction: column; gap: 10px; }
+.group-chip { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+.group-chip .avatar { flex: none; width: 36px; height: 36px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 13px; font-weight: 700; }
+.group-chip .meta { min-width: 0; flex: 1; }
+.group-chip .sqn { font-weight: 600; font-size: 14px; }
+.group-chip .sqn .nick { color: var(--ink-dim); font-weight: 400; }
+.group-chip .role { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); margin-top: 2px; letter-spacing: 0.04em; }
+.group-chip .loadout { flex: none; display: flex; align-items: center; gap: 8px; }
+.group-chip .aircraft { font-family: var(--mono); font-size: 12px; font-weight: 700; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 5px 9px; }
+.group-chip .ships { font-family: var(--mono); font-size: 12px; color: var(--ink-dim); white-space: nowrap; }
+@media (max-width: 460px) {
+  .group-chip { flex-wrap: wrap; }
+  .group-chip .loadout { margin-left: 50px; }
+}
+
+footer { padding: 24px max(16px, env(safe-area-inset-left, 0px)) max(32px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-right, 0px)); border-top: 1px solid var(--line); }
+footer .wrap { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+
+<header class="board">
+  <div class="board-inner">
+    <div class="board-top">
+      <div>
+        <div class="board-id">
+          <span class="campaign">Dagger's Edge</span>
+        </div>
+        <div class="board-host">HOSTED BY <b>34th Virtual Fighter Squadron "Rattlesnakes"</b></div>
+      </div>
+      <div class="next-vul">
+        <div class="k">NEXT VUL</div>
+        <div class="when">Sat, Oct 18 · 1900</div>
+        <div class="tz">CT / 0000Z</div>
+      </div>
+    </div>
+    <div class="board-stats">
+      <span>CYCLE <b>3</b></span>
+      <span>CFACC <b>Lt Col Okafor</b><button class="msg-btn" type="button" aria-label="Message CFACC on Discord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>Message</button></span>
+      <span>JFACC <b>Maj. Haines</b><button class="msg-btn" type="button" aria-label="Message JFACC on Discord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>Message</button></span>
+      <span>FREEZE <b>T‑72h</b></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="quick-links">
+    <a class="link-btn primary" href="#" aria-label="Open the mission planning coordination space">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path><path d="M3 21v-1a6 6 0 0 1 6-6h0a6 6 0 0 1 6 6v1"></path><path d="M16 3.5a4 4 0 0 1 0 7.8"></path><path d="M21 21v-1a6 6 0 0 0-4.5-5.8"></path></svg>
+      Coordination Space
+    </a>
+    <a class="link-btn secondary" href="#" aria-label="Open the CAOC briefing room">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 9l3 2-3 2V9z"></path></svg>
+      CAOC Briefing Room
+    </a>
+  </div>
+
+  <section>
+    <div class="hero">
+      <div class="panel objective">
+        <div class="phase-pill"><span class="dot"></span>AIR PHASE 1 — AIR SUPERIORITY (CONTESTED) · EXIT OPTION 2, NAMED EFFECTS</div>
+        <div class="eyebrow">This cycle's objective</div>
+        <p>Destroy the relocated SA‑11 battery so it cannot engage packages in the Task 1 strike corridor, and hold the corridor once open. Task 2 stays on hold until the SAM is confirmed dead.</p>
+      </div>
+      <div class="panel">
+        <div class="eyebrow" style="margin-bottom:10px;">Cycle status</div>
+        <div class="stat-grid">
+          <div class="stat"><div class="k">Packages registered</div><div class="v">3</div></div>
+          <div class="stat"><div class="k">JIPTL lines</div><div class="v">3</div></div>
+          <div class="stat"><div class="k">Open PIRs</div><div class="v">3, due T‑4d</div></div>
+          <div class="stat"><div class="k">Loss tripwire</div><div class="v">&lt; 30%</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Cycle timeline</h2>
+    <div class="panel">
+      <div class="timeline">
+        <div class="tl-node done"><span class="line"></span><div class="dot"></div><div class="mark">T‑5d</div><div class="what">AOD build</div></div>
+        <div class="tl-node done"><span class="line"></span><div class="dot"></div><div class="mark">T‑4d</div><div class="what">Board review &amp; approval</div></div>
+        <div class="tl-node now"><span class="line"></span><div class="dot"></div><div class="mark">T‑72h</div><div class="what">ATO release · Buy/Pass</div></div>
+        <div class="tl-node"><span class="line"></span><div class="dot"></div><div class="mark">T‑48h</div><div class="what">Unfilled‑line flag</div></div>
+        <div class="tl-node"><span class="line"></span><div class="dot"></div><div class="mark">T‑24h</div><div class="what">Execution planning</div></div>
+        <div class="tl-node"><div class="dot"></div><div class="mark">T0</div><div class="what">Force execution</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Key Tasks</h2>
+    <div class="tasks">
+      <div class="task active"><div class="num">TASK 1</div><div class="name">Air Superiority</div></div>
+      <div class="task"><div class="num">TASK 2</div><div class="name">Interdict LOCs</div></div>
+      <div class="task"><div class="num">TASK 3</div><div class="name">Destroy C2</div></div>
+      <div class="task"><div class="num">TASK 4</div><div class="name">Attrit Rear Echelon</div></div>
+      <div class="task"><div class="num">TASK 5</div><div class="name">Assist Front Line</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Apportionment</h2>
+    <div class="panel">
+      <div class="appor">
+        <div class="appor-row">
+          <div class="label">OCA / DCA</div>
+          <div class="bar-track"><div class="bar-fill" style="width:45%"></div></div>
+          <div class="pct">45%</div>
+        </div>
+        <div class="appor-row">
+          <div class="label">SEAD</div>
+          <div class="bar-track"><div class="bar-fill" style="width:35%"></div></div>
+          <div class="pct">35% <span style="color:var(--green)">▲5</span></div>
+        </div>
+        <div class="appor-row">
+          <div class="label">Strike</div>
+          <div class="bar-track"><div class="bar-fill" style="width:15%"></div></div>
+          <div class="pct">15% <span style="color:var(--red)">▼5</span></div>
+        </div>
+        <div class="appor-row">
+          <div class="label">CAS / Other</div>
+          <div class="bar-track"><div class="bar-fill" style="width:5%"></div></div>
+          <div class="pct">5%</div>
+        </div>
+      </div>
+      <p style="margin:14px 0 0; font-size:12px; color:var(--ink-dim); max-width:60ch;">+5 to SEAD / −5 to Strike this cycle: additional suppression needed to hunt the relocated SA‑11 before any strike package re-enters the corridor. 5‑point swing, under the 15‑point threshold — no CFC sign‑off required.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>JIPTL</h2>
+    <div class="panel table-scroll">
+      <table class="jiptl">
+        <thead><tr><th>Requirement</th><th>Task / Grade</th><th>Claimed by</th><th>MOE</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>SA‑11 battery (relocated; grid pending ISR) — <em>conditional on PIR&nbsp;1</em></td>
+            <td class="mono">1 / A</td>
+            <td>Package B</td>
+            <td>Battery gone, or no launches on the package</td>
+            <td><span class="status-pill status-claimed">Claimed</span></td>
+          </tr>
+          <tr>
+            <td>Northvale Airbase CAP — standing OCA/DCA</td>
+            <td class="mono">1 / B</td>
+            <td>Package A</td>
+            <td>No Red fighter reaches the corridor</td>
+            <td><span class="status-pill status-confirmed">Confirmed</span></td>
+          </tr>
+          <tr>
+            <td>Corridor SEAD escort — Package 3‑07</td>
+            <td class="mono">1 / A</td>
+            <td>Package C</td>
+            <td>No SAM‑caused loss</td>
+            <td><span class="status-pill status-claimed">Claimed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Standing TST</h2>
+    <div class="panel">
+      <p style="margin:0; max-width:60ch;">Mobile SA‑11 launcher, if located — <strong>Neutralize</strong>, ALR HIGH. Takes precedence over briefed tasking the moment it's located.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>ALR</h2>
+    <div class="floor-grid">
+      <div class="floor-card"><div class="k">SEAD ALR</div><div class="v"><span class="lvl lvl-high">HIGH</span></div></div>
+      <div class="floor-card"><div class="k">Strikers ALR</div><div class="v"><span class="lvl lvl-medium">MEDIUM</span></div></div>
+      <div class="floor-card"><div class="k">Tankers / AWACS</div><div class="v"><span class="lvl lvl-low">LOW</span></div></div>
+      <div class="floor-card"><div class="k">TIC CAS (Task 5)</div><div class="v"><span class="lvl lvl-high">HIGH</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>ROE</h2>
+    <div class="panel">
+      <p style="margin:0; max-width:60ch;">Default <strong>WEAPONS FREE</strong> in the AO. <strong>TIGHT</strong> over international waters and friendly territory. No override this cycle.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Participants</h2>
+    <div class="groups">
+      <div class="group-chip">
+        <span class="avatar">A</span>
+        <span class="meta">
+          <span class="sqn">34th Virtual Fighter Squadron <span class="nick">"Rattlesnakes"</span></span>
+          <span class="role">PACKAGE A · OCA</span>
+        </span>
+        <span class="loadout"><span class="aircraft">F‑16C</span><span class="ships">4 ships</span></span>
+      </div>
+      <div class="group-chip">
+        <span class="avatar">B</span>
+        <span class="meta">
+          <span class="sqn">75th Virtual Attack Squadron <span class="nick">"Boneyard"</span></span>
+          <span class="role">PACKAGE B · SEAD / STRIKE</span>
+        </span>
+        <span class="loadout"><span class="aircraft">A‑10C</span><span class="ships">2 ships</span></span>
+      </div>
+      <div class="group-chip">
+        <span class="avatar">C</span>
+        <span class="meta">
+          <span class="sqn">492nd Virtual Fighter Squadron <span class="nick">"Madhatters"</span></span>
+          <span class="role">PACKAGE C · STRIKE / CAS</span>
+        </span>
+        <span class="loadout"><span class="aircraft">F‑15E</span><span class="ships">4 ships</span></span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Downloads for this cycle</h2>
+    <div class="downloads">
+      <a class="doc-card" href="docs/combined-aod.md" target="_blank" rel="noopener">
+        <span class="glyph">AOD</span>
+        <span class="meta"><span class="title">Combined AOD — Cycle 3</span><span class="sub">Parts 1 &amp; 2 · updated T‑4d</span></span>
+        <span class="go">↓</span>
+      </a>
+      <a class="doc-card" href="docs/targeting.md" target="_blank" rel="noopener">
+        <span class="glyph">TGT</span>
+        <span class="meta"><span class="title">Targeting</span><span class="sub">3 target packages · Cycle 3</span></span>
+        <span class="go">↓</span>
+      </a>
+      <a class="doc-card" href="docs/spins.md" target="_blank" rel="noopener">
+        <span class="glyph">SPI</span>
+        <span class="meta"><span class="title">SPINS</span><span class="sub">Standing for the campaign</span></span>
+        <span class="go">↓</span>
+      </a>
+      <a class="doc-card" href="docs/comm-plan.md" target="_blank" rel="noopener">
+        <span class="glyph">COM</span>
+        <span class="meta"><span class="title">Communications Plan</span><span class="sub">Nets, freqs &amp; IFF blocks</span></span>
+        <span class="go">↓</span>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Unit Submissions</h2>
+    <div class="panel">
+      <div id="submitForm" class="submit-row" hidden>
+        <select id="submitPkg">
+          <option>Package A</option>
+          <option>Package B</option>
+          <option>Package C</option>
+          <option>Other</option>
+        </select>
+        <label class="link-btn secondary upload-btn" for="submitFile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"></path><path d="M6 10l6-6 6 6"></path><path d="M4 20h16"></path></svg>
+          Upload file
+        </label>
+        <input type="file" id="submitFile" hidden>
+        <span id="submitStatus" class="mono" style="font-size:12px; color:var(--ink-dim);"></span>
+      </div>
+      <p id="submitHint" style="margin:0 0 14px; font-size:12px; color:var(--ink-dim);">Mission briefs, kneeboards, or anything else your package wants the rest of the coalition to see — posts alongside the CAOC products above.</p>
+      <div id="submissionList" class="downloads"></div>
+      <p id="submitEmpty" style="margin:10px 0 0; font-size:13px; color:var(--ink-dim);">No unit documents uploaded yet.</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  async function init() {
+    var claudeApi = window.claude;
+    var assets = null, db = null;
+    try { assets = await claudeApi.use('assets'); } catch (e) {}
+    try { db = await claudeApi.use('db'); } catch (e) {}
+
+    var formEl = document.getElementById('submitForm');
+    var hintEl = document.getElementById('submitHint');
+    var listEl = document.getElementById('submissionList');
+    var emptyEl = document.getElementById('submitEmpty');
+    var statusEl = document.getElementById('submitStatus');
+    var fileInput = document.getElementById('submitFile');
+    var pkgSelect = document.getElementById('submitPkg');
+
+    if (!assets || !db) {
+      hintEl.textContent = 'Unit uploads are available when this page is open in the Claude app, signed in.';
+      return;
+    }
+    formEl.hidden = false;
+
+    function render(docs) {
+      var items = Object.keys(docs || {}).map(function (k) { return docs[k]; });
+      listEl.innerHTML = '';
+      if (!items.length) { emptyEl.hidden = false; return; }
+      emptyEl.hidden = true;
+      items.sort(function (a, b) { return (b.uploadedAt || 0) - (a.uploadedAt || 0); });
+      items.forEach(function (d) {
+        var a = document.createElement('a');
+        a.className = 'doc-card';
+        a.href = d.assetUrl; a.target = '_blank'; a.rel = 'noopener';
+        var initial = (d.pkg || 'U').slice(-1).toUpperCase();
+        a.innerHTML =
+          '<span class="glyph">' + escapeHtml(initial) + '</span>' +
+          '<span class="meta"><span class="title">' + escapeHtml(d.fileName) + '</span>' +
+          '<span class="sub">' + escapeHtml(d.pkg) + ' &middot; ' + escapeHtml(new Date(d.uploadedAt).toLocaleString()) + '</span></span>' +
+          '<span class="go">&#8595;</span>';
+        listEl.appendChild(a);
+      });
+    }
+
+    try { db.collection('submissions').onSnapshot(render); } catch (e) {}
+
+    fileInput.addEventListener('change', async function () {
+      var file = fileInput.files[0];
+      if (!file) return;
+      statusEl.textContent = 'Uploading…';
+      try {
+        var res = await assets.upload(file);
+        var id = 'submissions/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+        await db.doc(id).set({
+          fileName: file.name,
+          pkg: pkgSelect.value,
+          assetId: res.id,
+          assetUrl: res.url,
+          contentType: res.contentType,
+          sizeBytes: res.sizeBytes,
+          uploadedAt: Date.now()
+        });
+        statusEl.textContent = 'Uploaded.';
+      } catch (e) {
+        statusEl.textContent = 'Upload failed — try again.';
+      }
+      fileInput.value = '';
+      setTimeout(function () { statusEl.textContent = ''; }, 3000);
+    });
+  }
+
+  if (window.claude) { init(); }
+  else { window.addEventListener('load', function () { if (window.claude) init(); }); }
+})();
+</script>
+
+<footer>
+  <div class="wrap">
+    <span>639 CAOC — Dagger's Edge, Cycle 3</span>
+    <span>Sample campaign for demonstration · all grids, callsigns &amp; results notional</span>
+  </div>
+</footer>
