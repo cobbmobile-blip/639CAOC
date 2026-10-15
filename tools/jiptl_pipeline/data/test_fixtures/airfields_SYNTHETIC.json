@@ -1,0 +1,4 @@
+[
+  {"id": 1, "name": "TEST FIELD ALPHA (synthetic, not real DCS data)", "coalition": "red", "lat": 34.30, "lon": 38.95},
+  {"id": 2, "name": "TEST FIELD BRAVO (synthetic, not real DCS data)", "coalition": "red", "lat": 34.50, "lon": 39.20}
+]

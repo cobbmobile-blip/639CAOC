@@ -1,0 +1,426 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>639 CAOC JIPTL Review</title>
+<style>
+/* Design system copied verbatim from tools/campaign_board.html and tools/campaign_intake.html
+   so this page sits alongside them as the same product, not a one-off. */
+:root {
+  --bg: #eef1ea;
+  --surface: #ffffff;
+  --surface-2: #e4e8dd;
+  --ink: #16200f;
+  --ink-dim: #4b5542;
+  --line: #c6cdb9;
+  --accent: #3a6b35;
+  --accent-ink: #f3f7ee;
+  --amber: #946a1a;
+  --amber-bg: #faecce;
+  --green: #2f7d4f;
+  --green-bg: #e2f1e6;
+  --slate: #5a6472;
+  --slate-bg: #e7eaee;
+  --red: #a23b2e;
+  --red-bg: #f7e4df;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --head: 'Barlow Semi Condensed', var(--sans);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1410; --surface: #161d14; --surface-2: #1c241a; --ink: #e7ede1; --ink-dim: #a3ad98;
+    --line: #2d3728; --accent: #7fb86f; --accent-ink: #0f1410; --amber: #d9a441; --amber-bg: #2e260f;
+    --green: #6fbf8c; --green-bg: #152a1d; --slate: #9aa6ab; --slate-bg: #1c2522; --red: #e08070; --red-bg: #2e1813;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1410; --surface: #161d14; --surface-2: #1c241a; --ink: #e7ede1; --ink-dim: #a3ad98;
+  --line: #2d3728; --accent: #7fb86f; --accent-ink: #0f1410; --amber: #d9a441; --amber-bg: #2e260f;
+  --green: #6fbf8c; --green-bg: #152a1d; --slate: #9aa6ab; --slate-bg: #1c2522; --red: #e08070; --red-bg: #2e1813;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--sans);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0; line-height: 1.5; margin: 0;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--head); font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; margin: 0; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-dim); }
+code, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+p.lede { color: var(--ink-dim); max-width: 62ch; margin: 6px 0 0; }
+
+header.board {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+  padding: 12px max(16px, env(safe-area-inset-left, 0px)) 12px max(16px, env(safe-area-inset-right, 0px));
+}
+.board-inner { max-width: 1040px; margin: 0 auto; }
+.board-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.board-id { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.board-id .unit { font-family: var(--mono); font-size: 12px; color: var(--ink-dim); letter-spacing: 0.08em; }
+.board-id .campaign { font-family: var(--head); font-size: 22px; font-weight: 700; }
+.board-host { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+.board-host b { color: var(--ink); font-weight: 600; }
+.next-vul { flex: none; text-align: right; }
+.next-vul .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--ink-dim); }
+.next-vul .when { font-family: var(--head); font-size: 17px; font-weight: 700; }
+.next-vul .tz { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); }
+.board-stats { display: flex; gap: 18px; font-family: var(--mono); font-size: 12px; color: var(--ink-dim); flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.board-stats > span { display: inline-flex; align-items: center; gap: 6px; }
+.board-stats b { color: var(--ink); font-weight: 600; }
+
+main { padding-top: 28px; padding-bottom: 56px; }
+section { margin-bottom: 40px; }
+section > .eyebrow { margin-bottom: 6px; }
+section > h2 { font-size: 22px; margin-bottom: 14px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 760px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+.stat-grid .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+.stat-grid .stat .k { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); }
+.stat-grid .stat .v { font-family: var(--mono); font-size: 16px; font-weight: 600; margin-top: 2px; }
+
+.status-pill { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.status-pending { background: var(--slate-bg); color: var(--slate); }
+.status-approved { background: var(--green-bg); color: var(--green); }
+.status-disapproved { background: var(--red-bg); color: var(--red); }
+.status-watch { background: var(--amber-bg); color: var(--amber); }
+.status-info { background: var(--slate-bg); color: var(--slate); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  padding: 8px 14px; border-radius: 7px; font-family: var(--sans); font-weight: 600; font-size: 12.5px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.secondary { background: var(--surface); color: var(--ink); border-color: var(--line); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--ink-dim); padding: 6px 8px; }
+.btn:hover { opacity: 0.88; }
+.btn.on-approve { background: var(--green); border-color: var(--green); color: #fff; }
+.btn.on-disapprove { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* Sub-card: same vocabulary as the Campaign Intake review queue, repurposed for one JIPTL line. */
+.sub-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+.sub-card.is-approved { border-color: var(--green); }
+.sub-card.is-disapproved { border-color: var(--red); }
+.sub-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sub-top .ttl { min-width: 0; }
+.sub-top .tgt { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.06em; font-weight: 700; }
+.sub-top .name { font-family: var(--head); font-size: 18px; font-weight: 600; margin-top: 1px; }
+.sub-top .pills { flex: none; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.sub-body { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-dim); }
+.chip { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; font-family: var(--mono); font-size: 11.5px; }
+.sub-meta { font-family: var(--mono); font-size: 11.5px; color: var(--ink-dim); display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+.sub-actions { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+.sub-note { margin-top: 10px; display: none; }
+.sub-note.open { display: block; }
+.sub-note textarea {
+  width: 100%; min-height: 56px; resize: vertical; font-family: var(--sans); font-size: 13px;
+  border: 1px solid var(--line); border-radius: 7px; background: var(--surface-2); color: var(--ink); padding: 8px 10px;
+}
+.sub-note .save-row { display: flex; justify-content: flex-end; margin-top: 6px; }
+
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.filter-row .chipbtn {
+  font-family: var(--mono); font-size: 11.5px; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-dim); cursor: pointer;
+}
+.filter-row .chipbtn.active { border-color: var(--accent); color: var(--accent); background: var(--surface-2); }
+
+details.appendix { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+details.appendix > summary {
+  cursor: pointer; padding: 14px 18px; font-family: var(--head); font-size: 16px; font-weight: 600;
+  display: flex; align-items: center; justify-content: space-between;
+}
+details.appendix > summary::-webkit-details-marker { display: none; }
+details.appendix > summary .n { font-family: var(--mono); font-size: 12px; color: var(--ink-dim); font-weight: 400; }
+details.appendix .appendix-body { padding: 0 18px 18px; }
+table.plain { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.plain th { text-align: left; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-dim); padding: 8px 10px; border-bottom: 1px solid var(--line); }
+table.plain td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.plain tr:last-child td { border-bottom: none; }
+.table-scroll { overflow-x: auto; }
+
+footer { padding: 24px max(16px, env(safe-area-inset-left, 0px)) max(32px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-right, 0px)); border-top: 1px solid var(--line); }
+footer .wrap { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+
+<header class="board">
+  <div class="board-inner">
+    <div class="board-top">
+      <div>
+        <div class="board-id">
+          <span class="unit">JIPTL REVIEW</span>
+          <span class="campaign" id="campaignName">—</span>
+        </div>
+        <div class="board-host">CYCLE <b id="cycleName">—</b> &middot; GENERATED <b id="genDate">—</b></div>
+      </div>
+      <div class="next-vul">
+        <div class="k">CFACC DECISION</div>
+        <div class="when" id="decisionSummary">0 / 0</div>
+        <div class="tz">approved so far</div>
+      </div>
+    </div>
+    <div class="board-stats" id="boardStats"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="eyebrow">Battle Management Area</div>
+    <div class="panel">
+      <p class="lede" id="bmaNote" style="margin:0;"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Candidate Targets</div>
+    <h2>JIPTL — pending CFACC approval</h2>
+    <p class="lede">Ranked by task priority and tier. Approve or disapprove each line; disapproved targets drop out of the ATO build, approved ones carry their target number forward.</p>
+    <div class="filter-row" id="filterRow"></div>
+    <div id="jiptlList"></div>
+  </section>
+
+  <section>
+    <details class="appendix">
+      <summary>Watchlist (over the per-task cap) <span class="n" id="watchCount"></span></summary>
+      <div class="appendix-body">
+        <p class="lede">Held back only because the task's cap is full this cycle — same scoring, not yet on the JIPTL. Promote one here if an approved line above gets disapproved.</p>
+        <div class="table-scroll">
+          <table class="plain">
+            <thead><tr><th>Tgt #</th><th>Target</th><th>Task / Grade</th><th>Score</th><th>Units</th></tr></thead>
+            <tbody id="watchBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <details class="appendix">
+      <summary>Outside the BMA <span class="n" id="oobCount"></span></summary>
+      <div class="appendix-body">
+        <p class="lede">Classified contacts that fall outside the current Battle Management Area — informational only, not actionable this cycle.</p>
+        <div class="table-scroll">
+          <table class="plain">
+            <thead><tr><th>Tgt #</th><th>Target</th><th>Category</th><th>Tier</th><th>Units</th></tr></thead>
+            <tbody id="oobBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span id="footerCampaign">639 CAOC — JIPTL Review</span>
+    <span>Approve/disapprove decisions are stored in this browser only (no shared backend yet) &middot; see tools/README for the live-artifact pattern</span>
+  </div>
+</footer>
+
+<script>
+var DATA = {"cycle": {"_comment": "Cycle config for OP_VENOM_MOCHA v1.2 (Persian Gulf). BMA below is a WIDE placeholder sized to cover every red contact in this mission file, not a real Battle Management Area -- set center_lat/center_lon/radius_nm to your actual cycle's BMA before this list is used for real ATO work, or the per-task caps below will be fighting the whole theater instead of your actual AO.", "cycle": "OP_VENOM_MOCHA-v1.2-PREVIEW", "campaign": "OP VENOM MOCHA", "generated": "2026-10-15", "key_tasks": {"1": {"name": "Achieve and maintain air superiority", "weight": 100}, "2": {"name": "Interdict lines of communication", "weight": 80}, "3": {"name": "Destroy command and control nodes", "weight": 60}, "4": {"name": "Attrit rear echelon elements", "weight": 40}, "5": {"name": "Assist front-line units (CAS/TST) -- continuous, no target tier, excluded from JIPTL ranking", "weight": 0}}, "tier_weight": {"HIGH": 30, "MEDIUM": 20, "LOW": 10, "IGNORE": 0}, "default_grade_by_tier": {"HIGH": "A", "MEDIUM": "B", "LOW": "C"}, "battle_management_area": {"_comment": "PLACEHOLDER -- wide enough to include every contact in this mission file (roughly the Strait of Hormuz / southern Iran coast). Replace with your real cycle BMA.", "shape": "circle", "center_lat": 27.8, "center_lon": 55.3, "radius_nm": 180, "polygon": []}, "max_targets_per_task": {"1": 15, "2": 10, "3": 10, "4": 10}}, "jiptl": [{"group": "SAM BANDAR ABBAS 1", "unit_name": "MIM-23 Hawk Track Radar", "category": "SAM - Medium Range (Hawk)", "task": 1, "tier": "HIGH", "lat": 28.031157575757575, "lon": 56.06097121212122, "unit_count": 11, "composition": {"Hawk pcp": 1, "Hawk sr": 1, "Hawk cwar": 1, "Hawk tr": 2, "Hawk ln": 6}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10001", "id": "t1-sam-bandar-abbas-1"}, {"group": "SAM BANDAR ABBAS 2", "unit_name": "MIM-23 Hawk Track Radar", "category": "SAM - Medium Range (Hawk)", "task": 1, "tier": "HIGH", "lat": 28.07006212121212, "lon": 56.10100454545454, "unit_count": 11, "composition": {"Hawk pcp": 1, "Hawk sr": 1, "Hawk cwar": 1, "Hawk tr": 2, "Hawk ln": 6}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10002", "id": "t1-sam-bandar-abbas-2"}, {"group": "[TGT] SAM BANDAR JASK", "unit_name": "9A310 Buk (SA-11) TEL", "category": "SAM - Medium Range (SA-11 TEL)", "task": 1, "tier": "HIGH", "lat": 26.473004166666666, "lon": 57.47880625, "unit_count": 8, "composition": {"SA-11 Buk SR 9S18M1": 1, "SA-11 Buk LN 9A310M1": 4, "SA-11 Buk CC 9S470M1": 1, "Land_Rover_109_S3": 2}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10003", "id": "t1-tgt-sam-bandar-jask"}, {"group": "SAM LAR", "unit_name": "9A310 Buk (SA-11) TEL", "category": "SAM - Medium Range (SA-11 TEL)", "task": 1, "tier": "HIGH", "lat": 28.487725, "lon": 54.066910416666666, "unit_count": 8, "composition": {"SA-11 Buk SR 9S18M1": 1, "SA-11 Buk LN 9A310M1": 4, "SA-11 Buk CC 9S470M1": 1, "Land_Rover_109_S3": 2}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10004", "id": "t1-sam-lar"}, {"group": "[TGT]SAM BANDAR JASK-1", "unit_name": "9A310 Buk (SA-11) TEL", "category": "SAM - Medium Range (SA-11 TEL)", "task": 1, "tier": "HIGH", "lat": 27.37878125, "lon": 56.804325, "unit_count": 8, "composition": {"SA-11 Buk SR 9S18M1": 1, "SA-11 Buk LN 9A310M1": 4, "SA-11 Buk CC 9S470M1": 1, "Land_Rover_109_S3": 2}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10005", "id": "t1-tgt-sam-bandar-jask-1"}, {"group": "SAM SA-5", "unit_name": "S-200 (SA-5) Tracking Radar", "category": "SAM - Strategic (SA-5 TR)", "task": 1, "tier": "HIGH", "lat": 30.474521212121214, "lon": 55.52180454545455, "unit_count": 11, "composition": {"RPC_5N62V": 1, "p-19 s-125 sr": 1, "S-200_Launcher": 6, "Ural-375": 2, "Tor 9A331": 1}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10006", "id": "t1-sam-sa-5"}, {"group": "[TGT] SAM AL TUNB 1-8", "unit_name": "MIM-23 Hawk Track Radar", "category": "SAM - Medium Range (Hawk)", "task": 1, "tier": "HIGH", "lat": 26.576287878787877, "lon": 57.48332424242424, "unit_count": 11, "composition": {"Hawk pcp": 1, "Hawk sr": 1, "Hawk cwar": 1, "Hawk tr": 2, "Hawk ln": 6}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10007", "id": "t1-tgt-sam-al-tunb-1-8"}, {"group": "[TGT] AL TUNB SCUDS", "unit_name": "Scud-B TEL", "category": "SSM - Theater Ballistic Missile", "task": 1, "tier": "HIGH", "lat": 26.574938333333336, "lon": 57.488508333333336, "unit_count": 10, "composition": {"Scud_B": 10}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10008", "id": "t1-tgt-al-tunb-scuds"}, {"group": "SAM BANDAR JASK-8", "unit_name": "9K330 Tor (SA-15) TEL", "category": "SAM - Short Range (SA-15 Tor)", "task": 1, "tier": "HIGH", "lat": 27.343616666666666, "lon": 56.80703333333334, "unit_count": 1, "composition": {"Tor 9A331": 1}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10009", "id": "t1-sam-bandar-jask-8"}, {"group": "SAM BANDAR JASK-14", "unit_name": "9K330 Tor (SA-15) TEL", "category": "SAM - Short Range (SA-15 Tor)", "task": 1, "tier": "HIGH", "lat": 27.50465, "lon": 55.59036666666667, "unit_count": 1, "composition": {"Tor 9A331": 1}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10010", "id": "t1-sam-bandar-jask-14"}, {"group": "SAM BANDAR JASK-16", "unit_name": "Scud-B TEL", "category": "SSM - Theater Ballistic Missile", "task": 1, "tier": "HIGH", "lat": 27.50603787878788, "lon": 55.590746969696966, "unit_count": 11, "composition": {"Scud_B": 11}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10011", "id": "t1-sam-bandar-jask-16"}, {"group": "SAM BANDAR JASK-17", "unit_name": "S-300PS (SA-10) Tracking Radar", "category": "SAM - Strategic (SA-10 TR)", "task": 1, "tier": "HIGH", "lat": 29.58146388888889, "lon": 57.421552777777784, "unit_count": 18, "composition": {"S-300PS 40B6M tr": 1, "S-300PS 40B6MD sr": 1, "S-300PS 54K6 cp": 1, "S-300PS 64H6E sr": 1, "S-300PS 5P85C ln": 2, "S-300PS 5P85D ln": 4, "generator_5i57": 2, "Land_Rover_109_S3": 1, "Land_Rover_101_FC": 1, "KrAZ6322": 1, "ZIL-135": 2, "Ural-375": 1}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10012", "id": "t1-sam-bandar-jask-17"}, {"group": "SAM BANDAR JASK-18", "unit_name": "S-300PS (SA-10) Tracking Radar", "category": "SAM - Strategic (SA-10 TR)", "task": 1, "tier": "HIGH", "lat": 30.19466759259259, "lon": 53.63726944444445, "unit_count": 18, "composition": {"S-300PS 40B6M tr": 1, "S-300PS 40B6MD sr": 1, "S-300PS 54K6 cp": 1, "S-300PS 64H6E sr": 1, "S-300PS 5P85C ln": 2, "S-300PS 5P85D ln": 4, "generator_5i57": 2, "Land_Rover_109_S3": 1, "Land_Rover_101_FC": 1, "KrAZ6322": 1, "ZIL-135": 2, "Ural-375": 1}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10013", "id": "t1-sam-bandar-jask-18"}, {"group": "[TGT]SAM BANDAR JASK-19", "unit_name": "9A310 Buk (SA-11) TEL", "category": "SAM - Medium Range (SA-11 TEL)", "task": 1, "tier": "HIGH", "lat": 27.984014583333334, "lon": 56.842431250000004, "unit_count": 8, "composition": {"SA-11 Buk SR 9S18M1": 1, "SA-11 Buk LN 9A310M1": 4, "SA-11 Buk CC 9S470M1": 1, "Land_Rover_109_S3": 2}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10014", "id": "t1-tgt-sam-bandar-jask-19"}, {"group": "[TGT] BEJ ASCM", "unit_name": "HY-2 Silkworm Launcher", "category": "AShM - Coastal Defense (Silkworm)", "task": 1, "tier": "HIGH", "lat": 26.4949375, "lon": 57.49371666666667, "unit_count": 8, "composition": {"hy_launcher": 8}, "source_file": "red_ground1.csv", "task_name": "Achieve and maintain air superiority", "score": 130, "grade": "A", "target_number": "T10015", "id": "t1-tgt-bej-ascm"}, {"group": "Iranian Subs", "unit_name": "Kilo-class Submarine", "category": "Naval - Submarine", "task": 2, "tier": "HIGH", "lat": 27.903470833333333, "lon": 55.87567083333333, "unit_count": 4, "composition": {"KILO": 4}, "source_file": "red_ground1.csv", "task_name": "Interdict lines of communication", "score": 110, "grade": "A", "target_number": "T10016", "id": "t2-iranian-subs"}, {"group": "[TGT]FRIGATE1", "unit_name": "La Combattante II Missile Boat", "category": "Naval - Surface Combatant (missile boat)", "task": 2, "tier": "MEDIUM", "lat": 26.476883333333333, "lon": 57.47965, "unit_count": 1, "composition": {"La_Combattante_II": 1}, "source_file": "red_ground1.csv", "task_name": "Interdict lines of communication", "score": 100, "grade": "B", "target_number": "T10017", "id": "t2-tgt-frigate1"}, {"group": "[TGT]FRIGATE2", "unit_name": "La Combattante II Missile Boat", "category": "Naval - Surface Combatant (missile boat)", "task": 2, "tier": "MEDIUM", "lat": 26.4772, "lon": 57.48093333333333, "unit_count": 1, "composition": {"La_Combattante_II": 1}, "source_file": "red_ground1.csv", "task_name": "Interdict lines of communication", "score": 100, "grade": "B", "target_number": "T10018", "id": "t2-tgt-frigate2"}, {"group": "[TGT]FRIGATE3", "unit_name": "La Combattante II Missile Boat", "category": "Naval - Surface Combatant (missile boat)", "task": 2, "tier": "MEDIUM", "lat": 26.4767, "lon": 57.48148333333334, "unit_count": 1, "composition": {"La_Combattante_II": 1}, "source_file": "red_ground1.csv", "task_name": "Interdict lines of communication", "score": 100, "grade": "B", "target_number": "T10019", "id": "t2-tgt-frigate3"}, {"group": "SAM AL TUNB 1-1", "unit_name": "BTR-80 APC", "category": "Ground - Armor (APC, lightly armed)", "task": 2, "tier": "LOW", "lat": 26.574066666666667, "lon": 57.487233333333336, "unit_count": 1, "composition": {"BTR-80": 1}, "source_file": "red_ground1.csv", "task_name": "Interdict lines of communication", "score": 90, "grade": "C", "target_number": "T10020", "id": "t2-sam-al-tunb-1-1"}, {"group": "SAM AL TUNB 1-2", "unit_name": "BTR-80 APC", "category": "Ground - Armor (APC, lightly armed)", "task": 2, "tier": "LOW", "lat": 26.574133333333332, "lon": 57.48755, "unit_count": 1, "composition": {"BTR-80": 1}, "source_file": "red_ground1.csv", "task_name": "Interdict lines of communication", "score": 90, "grade": "C", "target_number": "T10021", "id": "t2-sam-al-tunb-1-2"}, {"group": "SAM AL TUNB 1-3", "unit_name": "BTR-80 APC", "category": "Ground - Armor (APC, lightly armed)", "task": 2, "tier": "LOW", "lat": 26.574116666666665, "lon": 57.487233333333336, "unit_count": 1, "composition": {"BTR-80": 1}, "source_file": "red_ground1.csv", "task_name": "Interdict lines of communication", "score": 90, "grade": "C", "target_number": "T10022", "id": "t2-sam-al-tunb-1-3"}, {"group": "SAM AL TUNB 1-4", "unit_name": "BTR-80 APC", "category": "Ground - Armor (APC, lightly armed)", "task": 2, "tier": "LOW", "lat": 26.574166666666667, "lon": 57.487516666666664, "unit_count": 1, "composition": {"BTR-80": 1}, "source_file": "red_ground1.csv", "task_name": "Interdict lines of communication", "score": 90, "grade": "C", "target_number": "T10023", "id": "t2-sam-al-tunb-1-4"}, {"group": "SAM AL TUNB 1-5", "unit_name": "BTR-80 APC", "category": "Ground - Armor (APC, lightly armed)", "task": 2, "tier": "LOW", "lat": 26.5742, "lon": 57.48748333333333, "unit_count": 1, "composition": {"BTR-80": 1}, "source_file": "red_ground1.csv", "task_name": "Interdict lines of communication", "score": 90, "grade": "C", "target_number": "T10024", "id": "t2-sam-al-tunb-1-5"}, {"group": "[TGT]Static Military staff-1", "unit_name": "Command Post Building", "category": "C2 - Command Building", "task": 3, "tier": "MEDIUM", "lat": 27.34425, "lon": 56.806533333333334, "unit_count": 1, "composition": {"Military staff": 1}, "source_file": "red_static.csv", "task_name": "Destroy command and control nodes", "score": 80, "grade": "B", "target_number": "T10025", "id": "t3-tgt-static-military-staff-1"}, {"group": "Static Military staff-2", "unit_name": "Command Post Building", "category": "C2 - Command Building", "task": 3, "tier": "MEDIUM", "lat": 27.505283333333335, "lon": 55.58991666666667, "unit_count": 1, "composition": {"Military staff": 1}, "source_file": "red_static.csv", "task_name": "Destroy command and control nodes", "score": 80, "grade": "B", "target_number": "T10026", "id": "t3-static-military-staff-2"}, {"group": "Static Comms tower M-1", "unit_name": "Communications Tower", "category": "C2 - Communications Node", "task": 3, "tier": "MEDIUM", "lat": 30.14405, "lon": 53.68301666666667, "unit_count": 1, "composition": {"Comms tower M": 1}, "source_file": "red_static.csv", "task_name": "Destroy command and control nodes", "score": 80, "grade": "B", "target_number": "T10027", "id": "t3-static-comms-tower-m-1"}, {"group": "Static Watch tower armed-1", "unit_name": "Armed Watchtower", "category": "Fortification - Watchtower (armed)", "task": 3, "tier": "LOW", "lat": 26.5741, "lon": 57.48761666666667, "unit_count": 1, "composition": {"house2arm": 1}, "source_file": "red_static.csv", "task_name": "Destroy command and control nodes", "score": 70, "grade": "C", "target_number": "T10028", "id": "t3-static-watch-tower-armed-1"}, {"group": "Static Watch tower armed-2", "unit_name": "Armed Watchtower", "category": "Fortification - Watchtower (armed)", "task": 3, "tier": "LOW", "lat": 26.574033333333333, "lon": 57.4872, "unit_count": 1, "composition": {"house2arm": 1}, "source_file": "red_static.csv", "task_name": "Destroy command and control nodes", "score": 70, "grade": "C", "target_number": "T10029", "id": "t3-static-watch-tower-armed-2"}, {"group": "Static Road outpost_L-1", "unit_name": "Road Outpost", "category": "Fortification - Road Outpost", "task": 3, "tier": "LOW", "lat": 26.574016666666665, "lon": 57.48725, "unit_count": 1, "composition": {"outpost_road_l": 1}, "source_file": "red_static.csv", "task_name": "Destroy command and control nodes", "score": 70, "grade": "C", "target_number": "T10030", "id": "t3-static-road-outpost-l-1"}, {"group": "Static Road outpost_L-2", "unit_name": "Road Outpost", "category": "Fortification - Road Outpost", "task": 3, "tier": "LOW", "lat": 26.57405, "lon": 57.48758333333333, "unit_count": 1, "composition": {"outpost_road_l": 1}, "source_file": "red_static.csv", "task_name": "Destroy command and control nodes", "score": 70, "grade": "C", "target_number": "T10031", "id": "t3-static-road-outpost-l-2"}, {"group": "[TGT]TOWER1", "unit_name": "Broadcast Tower", "category": "Infrastructure - Comms/Broadcast Tower", "task": 3, "tier": "LOW", "lat": 26.476283333333335, "lon": 57.480183333333336, "unit_count": 1, "composition": {"TV tower": 1}, "source_file": "red_static.csv", "task_name": "Destroy command and control nodes", "score": 70, "grade": "C", "target_number": "T10032", "id": "t3-tgt-tower1"}, {"group": "Static Watch tower armed-3", "unit_name": "Armed Watchtower", "category": "Fortification - Watchtower (armed)", "task": 3, "tier": "LOW", "lat": 27.40325, "lon": 55.02916666666667, "unit_count": 1, "composition": {"house2arm": 1}, "source_file": "red_static.csv", "task_name": "Destroy command and control nodes", "score": 70, "grade": "C", "target_number": "T10033", "id": "t3-static-watch-tower-armed-3"}, {"group": "Static Watch tower armed-4", "unit_name": "Armed Watchtower", "category": "Fortification - Watchtower (armed)", "task": 3, "tier": "LOW", "lat": 27.403233333333333, "lon": 55.02761666666667, "unit_count": 1, "composition": {"house2arm": 1}, "source_file": "red_static.csv", "task_name": "Destroy command and control nodes", "score": 70, "grade": "C", "target_number": "T10034", "id": "t3-static-watch-tower-armed-4"}, {"group": "Static ERO Ammunition Bunker B-1", "unit_name": "Ammunition Bunker", "category": "Ground - Ammunition Bunker (ERO mod pack)", "task": 4, "tier": "MEDIUM", "lat": 30.21515, "lon": 53.63406666666667, "unit_count": 1, "composition": {"ERO Ammunition Bunker B": 1}, "source_file": "red_static.csv", "task_name": "Attrit rear echelon elements", "score": 60, "grade": "B", "target_number": "T10035", "id": "t4-static-ero-ammunition-bunker-b-1"}, {"group": "Static ERO Ammunition Bunker B-2", "unit_name": "Ammunition Bunker", "category": "Ground - Ammunition Bunker (ERO mod pack)", "task": 4, "tier": "MEDIUM", "lat": 30.214866666666666, "lon": 53.634, "unit_count": 1, "composition": {"ERO Ammunition Bunker B": 1}, "source_file": "red_static.csv", "task_name": "Attrit rear echelon elements", "score": 60, "grade": "B", "target_number": "T10036", "id": "t4-static-ero-ammunition-bunker-b-2"}, {"group": "Static ERO Ammunition Bunker B-3", "unit_name": "Ammunition Bunker", "category": "Ground - Ammunition Bunker (ERO mod pack)", "task": 4, "tier": "MEDIUM", "lat": 30.215116666666667, "lon": 53.6344, "unit_count": 1, "composition": {"ERO Ammunition Bunker B": 1}, "source_file": "red_static.csv", "task_name": "Attrit rear echelon elements", "score": 60, "grade": "B", "target_number": "T10037", "id": "t4-static-ero-ammunition-bunker-b-3"}, {"group": "Static ERO Ammunition Bunker B-4", "unit_name": "Ammunition Bunker", "category": "Ground - Ammunition Bunker (ERO mod pack)", "task": 4, "tier": "MEDIUM", "lat": 30.214833333333335, "lon": 53.6343, "unit_count": 1, "composition": {"ERO Ammunition Bunker B": 1}, "source_file": "red_static.csv", "task_name": "Attrit rear echelon elements", "score": 60, "grade": "B", "target_number": "T10038", "id": "t4-static-ero-ammunition-bunker-b-4"}, {"group": "Static ERO Ammunition Bunker B-5", "unit_name": "Ammunition Bunker", "category": "Ground - Ammunition Bunker (ERO mod pack)", "task": 4, "tier": "MEDIUM", "lat": 27.40325, "lon": 55.027966666666664, "unit_count": 1, "composition": {"ERO Ammunition Bunker B": 1}, "source_file": "red_static.csv", "task_name": "Attrit rear echelon elements", "score": 60, "grade": "B", "target_number": "T10039", "id": "t4-static-ero-ammunition-bunker-b-5"}, {"group": "Static ERO Ammunition Bunker B-6", "unit_name": "Ammunition Bunker", "category": "Ground - Ammunition Bunker (ERO mod pack)", "task": 4, "tier": "MEDIUM", "lat": 27.403266666666667, "lon": 55.02823333333333, "unit_count": 1, "composition": {"ERO Ammunition Bunker B": 1}, "source_file": "red_static.csv", "task_name": "Attrit rear echelon elements", "score": 60, "grade": "B", "target_number": "T10040", "id": "t4-static-ero-ammunition-bunker-b-6"}, {"group": "Static ERO Ammunition Bunker B-7", "unit_name": "Ammunition Bunker", "category": "Ground - Ammunition Bunker (ERO mod pack)", "task": 4, "tier": "MEDIUM", "lat": 27.40325, "lon": 55.02876666666667, "unit_count": 1, "composition": {"ERO Ammunition Bunker B": 1}, "source_file": "red_static.csv", "task_name": "Attrit rear echelon elements", "score": 60, "grade": "B", "target_number": "T10041", "id": "t4-static-ero-ammunition-bunker-b-7"}, {"group": "Static ERO Ammunition Bunker B-8", "unit_name": "Ammunition Bunker", "category": "Ground - Ammunition Bunker (ERO mod pack)", "task": 4, "tier": "MEDIUM", "lat": 27.403266666666667, "lon": 55.0285, "unit_count": 1, "composition": {"ERO Ammunition Bunker B": 1}, "source_file": "red_static.csv", "task_name": "Attrit rear echelon elements", "score": 60, "grade": "B", "target_number": "T10042", "id": "t4-static-ero-ammunition-bunker-b-8"}, {"group": "Static ERO Ammunition Bunker B-9", "unit_name": "Ammunition Bunker", "category": "Ground - Ammunition Bunker (ERO mod pack)", "task": 4, "tier": "MEDIUM", "lat": 27.40355, "lon": 55.02798333333333, "unit_count": 1, "composition": {"ERO Ammunition Bunker B": 1}, "source_file": "red_static.csv", "task_name": "Attrit rear echelon elements", "score": 60, "grade": "B", "target_number": "T10043", "id": "t4-static-ero-ammunition-bunker-b-9"}, {"group": "Static ERO Ammunition Bunker B-10", "unit_name": "Ammunition Bunker", "category": "Ground - Ammunition Bunker (ERO mod pack)", "task": 4, "tier": "MEDIUM", "lat": 27.40355, "lon": 55.02823333333333, "unit_count": 1, "composition": {"ERO Ammunition Bunker B": 1}, "source_file": "red_static.csv", "task_name": "Attrit rear echelon elements", "score": 60, "grade": "B", "target_number": "T10044", "id": "t4-static-ero-ammunition-bunker-b-10"}], "watchlist": [{"target_number": "T10045", "group": "[TGT] BEJ ASCM RDR", "unit_name": "Silkworm Target Acquisition Radar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "AShM - Coastal Defense Radar (Silkworm)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Silkworm_SR x1", "lat": "26.49491666666667", "lon": "57.49368333333334", "source_file": "red_ground1.csv"}, {"target_number": "T10046", "group": "[TGT]Static Shelter-1", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "26.574816666666667", "lon": "57.48628333333333", "source_file": "red_static.csv"}, {"target_number": "T10047", "group": "[TGT]Static Shelter-2", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "26.5748", "lon": "57.48681666666667", "source_file": "red_static.csv"}, {"target_number": "T10048", "group": "[TGT]Static Shelter-3", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "26.574783333333333", "lon": "57.48736666666667", "source_file": "red_static.csv"}, {"target_number": "T10049", "group": "[TGT]Static Shelter-4", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "26.575216666666666", "lon": "57.4879", "source_file": "red_static.csv"}, {"target_number": "T10050", "group": "[TGT]Static Shelter-5", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "26.574783333333333", "lon": "57.48791666666666", "source_file": "red_static.csv"}, {"target_number": "T10051", "group": "[TGT]Static Shelter-6", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "26.575633333333332", "lon": "57.48735", "source_file": "red_static.csv"}, {"target_number": "T10052", "group": "[TGT]Static Shelter-7", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "26.575616666666665", "lon": "57.48786666666667", "source_file": "red_static.csv"}, {"target_number": "T10053", "group": "[TGT]Static Shelter-8", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "26.575233333333333", "lon": "57.4863", "source_file": "red_static.csv"}, {"target_number": "T10054", "group": "[TGT]Static Shelter-9", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "26.575233333333333", "lon": "57.48681666666667", "source_file": "red_static.csv"}, {"target_number": "T10055", "group": "[TGT]Static Shelter-10", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "26.575233333333333", "lon": "57.48735", "source_file": "red_static.csv"}, {"target_number": "T10056", "group": "Static Shelter-11", "unit_name": "Hardened Aircraft Shelter", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Aircraft Shelter (HAS)", "tier": "HIGH", "score": "130", "unit_count": "1", "composition": "Shelter x1", "lat": "30.144", "lon": "53.682633333333335", "source_file": "red_static.csv"}, {"target_number": "T10057", "group": "BANDAR ABBAS MIG-29", "unit_name": "MiG-29A Fulcrum", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Fighter/Attack (default)", "tier": "HIGH", "score": "130", "unit_count": "4", "composition": "MiG-29A x4", "lat": "28.060175", "lon": "56.08157083333333", "source_file": "red_aircraft.csv"}, {"target_number": "T10058", "group": "BANDAR ABBAS MIG-1", "unit_name": "MiG-29A Fulcrum", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Fighter/Attack (default)", "tier": "HIGH", "score": "130", "unit_count": "4", "composition": "MiG-29A x4", "lat": "27.9850375", "lon": "55.85865", "source_file": "red_aircraft.csv"}, {"target_number": "T10059", "group": "BANDAR ABBAS MIG-2", "unit_name": "MiG-29A Fulcrum", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Fighter/Attack (default)", "tier": "HIGH", "score": "130", "unit_count": "4", "composition": "MiG-29A x4", "lat": "27.5823125", "lon": "55.59269166666667", "source_file": "red_aircraft.csv"}, {"target_number": "T10060", "group": "BANDAR ABBAS MIG-5", "unit_name": "MiG-29A Fulcrum", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "A", "category": "Air - Fighter/Attack (default)", "tier": "HIGH", "score": "130", "unit_count": "4", "composition": "MiG-29A x4", "lat": "28.24205", "lon": "57.98892083333333", "source_file": "red_aircraft.csv"}, {"target_number": "T10061", "group": "SAM HAVADAYRA", "unit_name": "SA-2 Fire Control Radar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "9", "composition": "SNR_75V x1; S_75M_Volhov x6; Land_Rover_109_S3 x1; Land_Rover_101_FC x1", "lat": "27.974677777777778", "lon": "55.890433333333334", "source_file": "red_ground1.csv"}, {"target_number": "T10062", "group": "Ground-3", "unit_name": "SA-2 Fire Control Radar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "9", "composition": "SNR_75V x1; S_75M_Volhov x6; Land_Rover_109_S3 x1; Land_Rover_101_FC x1", "lat": "27.580805555555557", "lon": "55.5827537037037", "source_file": "red_ground1.csv"}, {"target_number": "T10063", "group": "SAM BANDAR LEGEH", "unit_name": "SA-2 Fire Control Radar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "9", "composition": "SNR_75V x1; S_75M_Volhov x6; Land_Rover_109_S3 x1; Land_Rover_101_FC x1", "lat": "27.36299074074074", "lon": "54.51410925925926", "source_file": "red_ground1.csv"}, {"target_number": "T10064", "group": "SAM AL TUNB 1", "unit_name": "SA-2 Fire Control Radar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "9", "composition": "SNR_75V x1; S_75M_Volhov x6; Land_Rover_109_S3 x1; Land_Rover_101_FC x1", "lat": "27.078488888888888", "lon": "54.98907037037037", "source_file": "red_ground1.csv"}, {"target_number": "T10065", "group": "Ground-9", "unit_name": "2K12 Kub (SA-6) Target Radar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "9", "composition": "Kub 1S91 str x1; Kub 2P25 ln x4; BTR-80 x2; Land_Rover_101_FC x2", "lat": "27.594485185185185", "lon": "55.602031481481475", "source_file": "red_ground1.csv"}, {"target_number": "T10066", "group": "SAM KISH", "unit_name": "2K12 Kub (SA-6) Target Radar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "9", "composition": "Kub 1S91 str x1; Kub 2P25 ln x4; BTR-80 x2; Land_Rover_101_FC x2", "lat": "27.360075925925926", "lon": "53.661559259259256", "source_file": "red_ground1.csv"}, {"target_number": "T10067", "group": "SAM SA-6 JIROFT", "unit_name": "2K12 Kub (SA-6) Target Radar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "9", "composition": "Kub 1S91 str x1; Kub 2P25 ln x4; BTR-80 x2; Land_Rover_101_FC x2", "lat": "29.560566666666666", "lon": "57.38252777777778", "source_file": "red_ground1.csv"}, {"target_number": "T10068", "group": "[TGT] SAM AL TUNB 1-7", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "26.573448484848484", "lon": "57.48916060606061", "source_file": "red_ground1.csv"}, {"target_number": "T10069", "group": "[TGT] SAM AL TUNB 1-6", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "26.574893939393938", "lon": "57.49103181818182", "source_file": "red_ground1.csv"}, {"target_number": "T10070", "group": "Ground-1", "unit_name": "2K12 Kub (SA-6) Target Radar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "9", "composition": "Kub 1S91 str x1; Kub 2P25 ln x4; BTR-80 x2; Land_Rover_101_FC x2", "lat": "30.21283148148148", "lon": "53.63271851851852", "source_file": "red_ground1.csv"}, {"target_number": "T10071", "group": "SAM AL TUNB 1-10", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "26.706886363636364", "lon": "54.72483181818182", "source_file": "red_ground1.csv"}, {"target_number": "T10072", "group": "SAM AL TUNB 1-11", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "26.69486515151515", "lon": "54.73193333333333", "source_file": "red_ground1.csv"}, {"target_number": "T10073", "group": "SAM AL TUNB 1-12", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "26.71874242424242", "lon": "54.23437121212121", "source_file": "red_ground1.csv"}, {"target_number": "T10074", "group": "SAM AL TUNB 1-13", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "26.748407575757575", "lon": "54.23100909090909", "source_file": "red_ground1.csv"}, {"target_number": "T10075", "group": "SAM AL TUNB 1-14", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.358989393939396", "lon": "53.67618787878787", "source_file": "red_ground1.csv"}, {"target_number": "T10076", "group": "SAM AL TUNB 1-15", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.63797121212121", "lon": "53.02489848484848", "source_file": "red_ground1.csv"}, {"target_number": "T10077", "group": "SAM AL TUNB 1-16", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.63135606060606", "lon": "53.041471212121216", "source_file": "red_ground1.csv"}, {"target_number": "T10078", "group": "SAM AL TUNB 1-17", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "28.504140909090907", "lon": "54.05514848484848", "source_file": "red_ground1.csv"}, {"target_number": "T10079", "group": "SAM AL TUNB 1-18", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "28.508533333333332", "lon": "54.07950151515151", "source_file": "red_ground1.csv"}, {"target_number": "T10080", "group": "SAM AL TUNB 1-19", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.08605909090909", "lon": "54.99223484848485", "source_file": "red_ground1.csv"}, {"target_number": "T10081", "group": "SAM AL TUNB 1-20", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.104142424242422", "lon": "55.00891818181819", "source_file": "red_ground1.csv"}, {"target_number": "T10082", "group": "SAM AL TUNB 1-21", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.069322727272723", "lon": "54.83603333333333", "source_file": "red_ground1.csv"}, {"target_number": "T10083", "group": "SAM AL TUNB 1-22", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.348707575757576", "lon": "54.53086363636364", "source_file": "red_ground1.csv"}, {"target_number": "T10084", "group": "SAM AL TUNB 1-23", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.407910606060604", "lon": "55.02126212121212", "source_file": "red_ground1.csv"}, {"target_number": "T10085", "group": "SAM AL TUNB 1-24", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.40655909090909", "lon": "55.03956212121213", "source_file": "red_ground1.csv"}, {"target_number": "T10086", "group": "SAM AL TUNB 1-25", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.400431818181815", "lon": "55.03556515151515", "source_file": "red_ground1.csv"}, {"target_number": "T10087", "group": "SAM AL TUNB 1-26", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.394024242424244", "lon": "55.01703181818182", "source_file": "red_ground1.csv"}, {"target_number": "T10088", "group": "SAM AL TUNB 1-27", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.500134848484848", "lon": "55.59048181818182", "source_file": "red_ground1.csv"}, {"target_number": "T10089", "group": "SAM AL TUNB 1-28", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.572927272727274", "lon": "55.606565151515156", "source_file": "red_ground1.csv"}, {"target_number": "T10090", "group": "SAM AL TUNB 1-29", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.980277272727275", "lon": "55.89060606060605", "source_file": "red_ground1.csv"}, {"target_number": "T10091", "group": "SAM AL TUNB 1-30", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "28.000507575757577", "lon": "55.85187272727273", "source_file": "red_ground1.csv"}, {"target_number": "T10092", "group": "SAM AL TUNB 1-31", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "28.035342424242423", "lon": "56.08775", "source_file": "red_ground1.csv"}, {"target_number": "T10093", "group": "[TGT] SAM AL TUNB 1-32", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.983656060606062", "lon": "56.85360757575757", "source_file": "red_ground1.csv"}, {"target_number": "T10094", "group": "[TGT] SAM AL TUNB 1-33", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.98497121212121", "lon": "56.799557575757575", "source_file": "red_ground1.csv"}, {"target_number": "T10095", "group": "[TGT] SAM AL TUNB 1-34", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "27.31026515151515", "lon": "56.82907424242424", "source_file": "red_ground1.csv"}, {"target_number": "T10096", "group": "[TGT] SAM AL TUNB 1-35", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "26.503534848484847", "lon": "57.54158333333333", "source_file": "red_ground1.csv"}, {"target_number": "T10097", "group": "[TGT] SAM AL TUNB 1-36", "unit_name": "Rapier SAM Launcher", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "SAM (generic)", "tier": "MEDIUM", "score": "120", "unit_count": "11", "composition": "rapier_fsa_blindfire_radar x1; rapier_fsa_optical_tracker_unit x1; rapier_fsa_launcher x3; Land_Rover_109_S3 x3; Land_Rover_101_FC x3", "lat": "26.582557575757576", "lon": "57.49005", "source_file": "red_ground1.csv"}, {"target_number": "T10098", "group": "[TGT]StaticTechHangarA1", "unit_name": "Maintenance Hangar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "Air - Maintenance Hangar", "tier": "MEDIUM", "score": "120", "unit_count": "1", "composition": "Tech hangar A x1", "lat": "26.47685", "lon": "57.48056666666667", "source_file": "red_static.csv"}, {"target_number": "T10099", "group": "[TGT]StaticTechHangarA2", "unit_name": "Maintenance Hangar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "Air - Maintenance Hangar", "tier": "MEDIUM", "score": "120", "unit_count": "1", "composition": "Tech hangar A x1", "lat": "26.47671666666667", "lon": "57.4807", "source_file": "red_static.csv"}, {"target_number": "T10100", "group": "[TGT]StaticTechHangarA3", "unit_name": "Maintenance Hangar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "Air - Maintenance Hangar", "tier": "MEDIUM", "score": "120", "unit_count": "1", "composition": "Tech hangar A x1", "lat": "26.4764", "lon": "57.48116666666667", "source_file": "red_static.csv"}, {"target_number": "T10101", "group": "[TGT]StaticTechHangerA4", "unit_name": "Maintenance Hangar", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "B", "category": "Air - Maintenance Hangar", "tier": "MEDIUM", "score": "120", "unit_count": "1", "composition": "Tech hangar A x1", "lat": "26.476233333333333", "lon": "57.481316666666665", "source_file": "red_static.csv"}, {"target_number": "T10102", "group": "SAM BANDAR JASK-2", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.344516666666667", "lon": "56.80615", "source_file": "red_ground1.csv"}, {"target_number": "T10103", "group": "SAM BANDAR JASK-3", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.344116666666668", "lon": "56.80635", "source_file": "red_ground1.csv"}, {"target_number": "T10104", "group": "SAM BANDAR JASK-4", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.343766666666667", "lon": "56.806533333333334", "source_file": "red_ground1.csv"}, {"target_number": "T10105", "group": "SAM BANDAR JASK-5", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.343716666666666", "lon": "56.807633333333335", "source_file": "red_ground1.csv"}, {"target_number": "T10106", "group": "SAM BANDAR JASK-6", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.3439", "lon": "56.808233333333334", "source_file": "red_ground1.csv"}, {"target_number": "T10107", "group": "SAM BANDAR JASK-7", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.344166666666666", "lon": "56.808733333333336", "source_file": "red_ground1.csv"}, {"target_number": "T10108", "group": "SAM BANDAR JASK-9", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.505033333333333", "lon": "55.59121666666667", "source_file": "red_ground1.csv"}, {"target_number": "T10109", "group": "SAM BANDAR JASK-10", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.50495", "lon": "55.591566666666665", "source_file": "red_ground1.csv"}, {"target_number": "T10110", "group": "SAM BANDAR JASK-11", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.50555", "lon": "55.59155", "source_file": "red_ground1.csv"}, {"target_number": "T10111", "group": "SAM BANDAR JASK-12", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.505216666666666", "lon": "55.59206666666667", "source_file": "red_ground1.csv"}, {"target_number": "T10112", "group": "SAM BANDAR JASK-13", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.5048", "lon": "55.589866666666666", "source_file": "red_ground1.csv"}, {"target_number": "T10113", "group": "SAM BANDAR JASK-15", "unit_name": "KS-19 100mm AAA", "task": "1", "task_name": "Achieve and maintain air superiority", "grade": "C", "category": "Ground - AAA", "tier": "LOW", "score": "110", "unit_count": "1", "composition": "KS-19 x1", "lat": "27.50475", "lon": "55.59096666666667", "source_file": "red_ground1.csv"}, {"target_number": "T10114", "group": "Static Watch tower armed-5", "unit_name": "Armed Watchtower", "task": "3", "task_name": "Destroy command and control nodes", "grade": "C", "category": "Fortification - Watchtower (armed)", "tier": "LOW", "score": "70", "unit_count": "1", "composition": "house2arm x1", "lat": "27.404283333333332", "lon": "55.02908333333333", "source_file": "red_static.csv"}, {"target_number": "T10115", "group": "Static Watch tower armed-6", "unit_name": "Armed Watchtower", "task": "3", "task_name": "Destroy command and control nodes", "grade": "C", "category": "Fortification - Watchtower (armed)", "tier": "LOW", "score": "70", "unit_count": "1", "composition": "house2arm x1", "lat": "27.404233333333334", "lon": "55.027633333333334", "source_file": "red_static.csv"}, {"target_number": "T10116", "group": "Static ERO Ammunition Bunker B-11", "unit_name": "Ammunition Bunker", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "B", "category": "Ground - Ammunition Bunker (ERO mod pack)", "tier": "MEDIUM", "score": "60", "unit_count": "1", "composition": "ERO Ammunition Bunker B x1", "lat": "27.403566666666666", "lon": "55.02851666666667", "source_file": "red_static.csv"}, {"target_number": "T10117", "group": "Static ERO Ammunition Bunker B-12", "unit_name": "Ammunition Bunker", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "B", "category": "Ground - Ammunition Bunker (ERO mod pack)", "tier": "MEDIUM", "score": "60", "unit_count": "1", "composition": "ERO Ammunition Bunker B x1", "lat": "27.403566666666666", "lon": "55.02876666666667", "source_file": "red_static.csv"}, {"target_number": "T10118", "group": "Static Ammunition depot-1", "unit_name": "Ammunition Depot", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "B", "category": "Ground - Ammunition Depot", "tier": "MEDIUM", "score": "60", "unit_count": "1", "composition": ".Ammunition depot x1", "lat": "27.404016666666667", "lon": "55.02838333333333", "source_file": "red_static.csv"}, {"target_number": "T10119", "group": "[TGT]Static Workshop A-1", "unit_name": "Maintenance Workshop", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Maintenance Workshop", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "Workshop A x1", "lat": "27.345333333333333", "lon": "56.80775", "source_file": "red_static.csv"}, {"target_number": "T10120", "group": "[TGT]Static Workshop A-2", "unit_name": "Maintenance Workshop", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Maintenance Workshop", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "Workshop A x1", "lat": "27.344916666666666", "lon": "56.806983333333335", "source_file": "red_static.csv"}, {"target_number": "T10121", "group": "[TGT]Static Workshop A-3", "unit_name": "Maintenance Workshop", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Maintenance Workshop", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "Workshop A x1", "lat": "27.344266666666666", "lon": "56.80735", "source_file": "red_static.csv"}, {"target_number": "T10122", "group": "[TGT]Static Workshop A-4", "unit_name": "Maintenance Workshop", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Maintenance Workshop", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "Workshop A x1", "lat": "27.34465", "lon": "56.80813333333333", "source_file": "red_static.csv"}, {"target_number": "T10123", "group": "Static Workshop A-5", "unit_name": "Maintenance Workshop", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Maintenance Workshop", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "Workshop A x1", "lat": "30.2151", "lon": "53.63235", "source_file": "red_static.csv"}, {"target_number": "T10124", "group": "Static Ammo-1", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.403333333333332", "lon": "55.02895", "source_file": "red_static.csv"}, {"target_number": "T10125", "group": "Static Ammo-2", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.4033", "lon": "55.0289", "source_file": "red_static.csv"}, {"target_number": "T10126", "group": "Static Ammo-3", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.40335", "lon": "55.02888333333333", "source_file": "red_static.csv"}, {"target_number": "T10127", "group": "Static Ammo-4", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.403366666666667", "lon": "55.028933333333335", "source_file": "red_static.csv"}, {"target_number": "T10128", "group": "Static Ammo-5", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.403383333333334", "lon": "55.02888333333333", "source_file": "red_static.csv"}, {"target_number": "T10129", "group": "Static Ammo-6", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.403316666666665", "lon": "55.028866666666666", "source_file": "red_static.csv"}, {"target_number": "T10130", "group": "Static Ammo-7", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.403283333333334", "lon": "55.02895", "source_file": "red_static.csv"}, {"target_number": "T10131", "group": "Static Ammo-8", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.40325", "lon": "55.02891666666667", "source_file": "red_static.csv"}, {"target_number": "T10132", "group": "Static Ammo-9", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.403316666666665", "lon": "55.0289", "source_file": "red_static.csv"}, {"target_number": "T10133", "group": "Static Ammo-10", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.4034", "lon": "55.02891666666667", "source_file": "red_static.csv"}, {"target_number": "T10134", "group": "Static Ammo-11", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.403366666666667", "lon": "55.02896666666667", "source_file": "red_static.csv"}, {"target_number": "T10135", "group": "Static Ammo-12", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.403316666666665", "lon": "55.02896666666667", "source_file": "red_static.csv"}, {"target_number": "T10136", "group": "Static Ammo-13", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.403266666666667", "lon": "55.02896666666667", "source_file": "red_static.csv"}, {"target_number": "T10137", "group": "Static Ammo-14", "unit_name": "Ammunition Stack", "task": "4", "task_name": "Attrit rear echelon elements", "grade": "C", "category": "Ground - Ammunition Stack", "tier": "LOW", "score": "50", "unit_count": "1", "composition": "ammo_cargo x1", "lat": "27.40325", "lon": "55.02888333333333", "source_file": "red_static.csv"}], "out_of_bma": [{"target_number": "T10138", "group": "Ground-2", "unit_name": "2K12 Kub (SA-6) Target Radar", "category": "SAM (generic)", "tier": "MEDIUM", "unit_count": "9", "composition": "Kub 1S91 str x1; Kub 2P25 ln x4; BTR-80 x2; Land_Rover_101_FC x2", "lat": "30.340394444444446", "lon": "52.29937592592593", "source_file": "red_ground1.csv"}, {"target_number": "T10139", "group": "BANDAR ABBAS MIG-3", "unit_name": "MiG-29A Fulcrum", "category": "Air - Fighter/Attack (default)", "tier": "HIGH", "unit_count": "4", "composition": "MiG-29A x4", "lat": "31.113633333333333", "lon": "56.646233333333335", "source_file": "red_aircraft.csv"}, {"target_number": "T10140", "group": "BANDAR ABBAS MIG-4", "unit_name": "MiG-29A Fulcrum", "category": "Air - Fighter/Attack (default)", "tier": "HIGH", "unit_count": "4", "composition": "MiG-29A x4", "lat": "30.360279166666665", "lon": "52.253483333333335", "source_file": "red_aircraft.csv"}]};
+
+var STORE_KEY = 'jiptl_review_decisions_' + (DATA.cycle.cycle || 'default');
+function loadDecisions() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch (e) { return {}; }
+}
+function saveDecisions(d) {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch (e) {}
+}
+var decisions = loadDecisions();
+
+var NOTE_KEY = STORE_KEY + '_notes';
+function loadNotes() {
+  try { return JSON.parse(localStorage.getItem(NOTE_KEY) || '{}'); } catch (e) { return {}; }
+}
+function saveNotes(n) {
+  try { localStorage.setItem(NOTE_KEY, JSON.stringify(n)); } catch (e) {}
+}
+var notes = loadNotes();
+
+function fmtNum(v) {
+  var n = parseFloat(v);
+  return isNaN(n) ? v : n.toFixed(4);
+}
+function fmtComposition(c) {
+  if (!c) return '';
+  if (typeof c === 'string') return c;
+  var parts = [];
+  for (var k in c) { if (c.hasOwnProperty(k)) parts.push(k + ' x' + c[k]); }
+  return parts.join('; ');
+}
+
+function gradePillClass(grade) {
+  return 'status-pill status-info';
+}
+
+document.getElementById('campaignName').textContent = DATA.cycle.campaign || 'Campaign';
+document.getElementById('cycleName').textContent = DATA.cycle.cycle || '—';
+document.getElementById('genDate').textContent = DATA.cycle.generated || '—';
+document.getElementById('footerCampaign').textContent = '639 CAOC — ' + (DATA.cycle.campaign || 'JIPTL') + ' Review';
+
+var bma = DATA.cycle.battle_management_area || {};
+document.getElementById('bmaNote').textContent =
+  (bma._comment ? bma._comment + ' ' : '') +
+  'Center ' + bma.center_lat + ', ' + bma.center_lon + ' — radius ' + bma.radius_nm + ' nm.';
+
+function renderBoardStats() {
+  var el = document.getElementById('boardStats');
+  el.innerHTML =
+    '<span>JIPTL LINES <b>' + DATA.jiptl.length + '</b></span>' +
+    '<span>WATCHLIST <b>' + DATA.watchlist.length + '</b></span>' +
+    '<span>OUTSIDE BMA <b>' + DATA.out_of_bma.length + '</b></span>';
+}
+
+var currentFilter = 'all';
+function renderFilters() {
+  var row = document.getElementById('filterRow');
+  var labels = [
+    ['all', 'All'],
+    ['pending', 'Pending'],
+    ['approved', 'Approved'],
+    ['disapproved', 'Disapproved']
+  ];
+  row.innerHTML = '';
+  labels.forEach(function (pair) {
+    var b = document.createElement('button');
+    b.className = 'chipbtn' + (currentFilter === pair[0] ? ' active' : '');
+    b.textContent = pair[1];
+    b.onclick = function () { currentFilter = pair[0]; renderAll(); };
+    row.appendChild(b);
+  });
+}
+
+function decisionStatus(id) { return (decisions[id] && decisions[id].status) || 'pending'; }
+
+function renderJiptl() {
+  var list = document.getElementById('jiptlList');
+  list.innerHTML = '';
+  var approvedCount = 0;
+  DATA.jiptl.forEach(function (row) {
+    if (decisionStatus(row.id) === 'approved') approvedCount++;
+  });
+  document.getElementById('decisionSummary').textContent = approvedCount + ' / ' + DATA.jiptl.length;
+
+  DATA.jiptl.forEach(function (row) {
+    var status = decisionStatus(row.id);
+    if (currentFilter !== 'all' && status !== currentFilter) return;
+
+    var card = document.createElement('div');
+    card.className = 'sub-card' + (status === 'approved' ? ' is-approved' : status === 'disapproved' ? ' is-disapproved' : '');
+
+    var statusPillClass = status === 'approved' ? 'status-pill status-approved'
+      : status === 'disapproved' ? 'status-pill status-disapproved'
+      : 'status-pill status-pending';
+    var statusLabel = status === 'approved' ? 'Approved' : status === 'disapproved' ? 'Disapproved' : 'Pending';
+
+    card.innerHTML =
+      '<div class="sub-top">' +
+        '<div class="ttl">' +
+          '<div class="tgt">TARGET ' + row.target_number + '</div>' +
+          '<div class="name">' + (row.unit_name || row.group) + '</div>' +
+          '<div class="sub-meta" style="margin-top:2px;">' + row.group + '</div>' +
+        '</div>' +
+        '<div class="pills">' +
+          '<span class="status-pill status-info">TASK ' + row.task + ' / ' + row.grade + '</span>' +
+          '<span class="' + statusPillClass + '">' + statusLabel + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sub-body">' +
+        '<span class="chip">' + row.category + '</span>' +
+        '<span class="chip">' + fmtComposition(row.composition) + '</span>' +
+      '</div>' +
+      '<div class="sub-meta">' +
+        '<span>SCORE <b style="color:var(--ink)">' + row.score + '</b></span>' +
+        '<span>POSITION ' + fmtNum(row.lat) + ', ' + fmtNum(row.lon) + '</span>' +
+      '</div>' +
+      '<div class="sub-actions">' +
+        '<button class="btn ' + (status === 'approved' ? 'on-approve' : 'secondary') + ' act-approve">Approve</button>' +
+        '<button class="btn ' + (status === 'disapproved' ? 'on-disapprove' : 'secondary') + ' act-disapprove">Disapprove</button>' +
+        '<button class="btn ghost act-note">Remarks</button>' +
+      '</div>' +
+      '<div class="sub-note"><textarea placeholder="Remarks for the ATO cell...">' + (notes[row.id] || '') + '</textarea>' +
+        '<div class="save-row"><button class="btn secondary act-save-note">Save remark</button></div></div>';
+
+    card.querySelector('.act-approve').onclick = function () {
+      decisions[row.id] = { status: status === 'approved' ? 'pending' : 'approved' };
+      saveDecisions(decisions);
+      renderAll();
+    };
+    card.querySelector('.act-disapprove').onclick = function () {
+      decisions[row.id] = { status: status === 'disapproved' ? 'pending' : 'disapproved' };
+      saveDecisions(decisions);
+      renderAll();
+    };
+    var noteBox = card.querySelector('.sub-note');
+    card.querySelector('.act-note').onclick = function () {
+      noteBox.classList.toggle('open');
+    };
+    card.querySelector('.act-save-note').onclick = function () {
+      var ta = noteBox.querySelector('textarea');
+      notes[row.id] = ta.value;
+      saveNotes(notes);
+    };
+
+    list.appendChild(card);
+  });
+
+  if (list.children.length === 0) {
+    list.innerHTML = '<p class="lede">No targets match this filter.</p>';
+  }
+}
+
+function renderWatchlist() {
+  document.getElementById('watchCount').textContent = DATA.watchlist.length + ' lines';
+  var body = document.getElementById('watchBody');
+  body.innerHTML = '';
+  DATA.watchlist.forEach(function (row) {
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="mono">' + row.target_number + '</td>' +
+      '<td>' + (row.unit_name || row.group) + '<div class="sub-meta" style="margin-top:2px;">' + row.group + ' &middot; ' + row.category + '</div></td>' +
+      '<td class="mono">' + row.task + ' / ' + row.grade + '</td>' +
+      '<td class="mono">' + row.score + '</td>' +
+      '<td class="mono">' + row.unit_count + '</td>';
+    body.appendChild(tr);
+  });
+}
+
+function renderOutOfBma() {
+  document.getElementById('oobCount').textContent = DATA.out_of_bma.length + ' lines';
+  var body = document.getElementById('oobBody');
+  body.innerHTML = '';
+  DATA.out_of_bma.forEach(function (row) {
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="mono">' + row.target_number + '</td>' +
+      '<td>' + (row.unit_name || row.group) + '<div class="sub-meta" style="margin-top:2px;">' + row.group + '</div></td>' +
+      '<td>' + row.category + '</td>' +
+      '<td class="mono">' + row.tier + '</td>' +
+      '<td class="mono">' + row.unit_count + '</td>';
+    body.appendChild(tr);
+  });
+}
+
+function renderAll() {
+  renderBoardStats();
+  renderFilters();
+  renderJiptl();
+}
+
+renderAll();
+renderWatchlist();
+renderOutOfBma();
+</script>

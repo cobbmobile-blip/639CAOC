@@ -1,0 +1,45 @@
+{
+  "_comment": "Per-cycle settings. This is the file the CFACC/board edits every cycle -- unit_classification.json rarely changes, this one does. Matches the 639 CAOC Campaign Intent / TTP 1-1 Key Task structure.",
+
+  "cycle": "EXAMPLE-CYCLE-01",
+  "campaign": "EXAMPLE CAMPAIGN",
+  "generated": "2026-10-15",
+
+  "key_tasks": {
+    "1": { "name": "Achieve and maintain air superiority", "weight": 100 },
+    "2": { "name": "Interdict lines of communication", "weight": 80 },
+    "3": { "name": "Destroy command and control nodes", "weight": 60 },
+    "4": { "name": "Attrit rear echelon elements", "weight": 40 },
+    "5": { "name": "Assist front-line units (CAS/TST) -- continuous, no target tier, excluded from JIPTL ranking", "weight": 0 }
+  },
+
+  "tier_weight": {
+    "HIGH": 30,
+    "MEDIUM": 20,
+    "LOW": 10,
+    "IGNORE": 0
+  },
+
+  "default_grade_by_tier": {
+    "_comment": "Starting-point priority grade (TTP 1-1 Annex E / OPAR SPINS 5.3) by value tier, before human review. The AOC board should re-grade individual JIPTL lines, this just seeds a reasonable default so the list isn't un-graded.",
+    "HIGH": "A",
+    "MEDIUM": "B",
+    "LOW": "C"
+  },
+
+  "battle_management_area": {
+    "_comment": "Center + radius circle is simplest; set shape to 'polygon' and fill 'polygon' (list of [lat, lon] pairs, decimal degrees) instead if the BMA isn't roughly circular.",
+    "shape": "circle",
+    "center_lat": 34.30,
+    "center_lon": 38.95,
+    "radius_nm": 40,
+    "polygon": []
+  },
+
+  "max_targets_per_task": {
+    "1": 10,
+    "2": 8,
+    "3": 6,
+    "4": 6
+  }
+}

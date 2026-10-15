@@ -1,0 +1,3371 @@
+{
+  "_comment": "Authoritative DCS unit type catalog, pulled live from the DCS MCP server's list_unit_types tool (backed by pydcs) on 2026-10-15. This is every unit type DCS/pydcs knows about across vehicle, plane, helicopter, and ship -- covers both coalitions, since pydcs does not tag units by country. Re-run export_catalog.py after a DCS update to pick up new units (new modules add new types from time to time).",
+  "_source": "mcp__remote-devices__dcs-mcp__list_unit_types (categories: vehicle, plane, helicopter, ship)",
+  "_pulled": "2026-10-15",
+  "vehicle": [
+    {
+      "id": "1L13 EWR",
+      "name": "EWR 1L13"
+    },
+    {
+      "id": "2B11 mortar",
+      "name": "Mortar 2B11 120mm"
+    },
+    {
+      "id": "2S6 Tunguska",
+      "name": "SAM SA-19 Tunguska \"Grison\" "
+    },
+    {
+      "id": "55G6 EWR",
+      "name": "EWR 55G6"
+    },
+    {
+      "id": "5p73 s-125 ln",
+      "name": "SAM SA-3 S-125 \"Goa\" LN"
+    },
+    {
+      "id": "AA8",
+      "name": "Firefighter Vehicle AA-7.2/60"
+    },
+    {
+      "id": "AAV7",
+      "name": "APC AAV-7 Amphibious"
+    },
+    {
+      "id": "ATMZ-5",
+      "name": "Refueler ATMZ-5"
+    },
+    {
+      "id": "ATZ-10",
+      "name": "Refueler ATZ-10"
+    },
+    {
+      "id": "ATZ-5",
+      "name": "Refueler ATZ-5"
+    },
+    {
+      "id": "ATZ-60_Maz",
+      "name": "Refueler ATZ-60 Tractor (MAZ-7410)"
+    },
+    {
+      "id": "Allies_Director",
+      "name": "Allies Rangefinder (DRT)"
+    },
+    {
+      "id": "B600_drivable",
+      "name": "M92 B600 drivable"
+    },
+    {
+      "id": "BMD-1",
+      "name": "IFV BMD-1"
+    },
+    {
+      "id": "BMP-1",
+      "name": "IFV BMP-1"
+    },
+    {
+      "id": "BMP-2",
+      "name": "IFV BMP-2"
+    },
+    {
+      "id": "BMP-3",
+      "name": "IFV BMP-3"
+    },
+    {
+      "id": "BRDM-2",
+      "name": "Scout BRDM-2"
+    },
+    {
+      "id": "BRDM-2_malyutka",
+      "name": "ATGM AT-3 Sagger 9P133"
+    },
+    {
+      "id": "BTR-60",
+      "name": "APC BTR-60"
+    },
+    {
+      "id": "BTR-70",
+      "name": "APC BTR-70"
+    },
+    {
+      "id": "BTR-80",
+      "name": "APC BTR-80"
+    },
+    {
+      "id": "BTR-82A",
+      "name": "IFV BTR-82A"
+    },
+    {
+      "id": "BTR_D",
+      "name": "APC BTR-RD"
+    },
+    {
+      "id": "Bedford_MWD",
+      "name": "Truck Bedford"
+    },
+    {
+      "id": "Blitz_36-6700A",
+      "name": "Truck Opel Blitz"
+    },
+    {
+      "id": "Boxcartrinity",
+      "name": "Rwy. Flat Car"
+    },
+    {
+      "id": "Bunker",
+      "name": "Bunker 2"
+    },
+    {
+      "id": "CCKW_353",
+      "name": "Truck GMC \"Jimmy\" 6x6"
+    },
+    {
+      "id": "CHAP_9K720_Cluster",
+      "name": "SRBM 9K720 Iskander CM [CH]"
+    },
+    {
+      "id": "CHAP_9K720_HE",
+      "name": "SRBM 9K720 Iskander HE [CH]"
+    },
+    {
+      "id": "CHAP_BMPT",
+      "name": "IFV BMPT Terminator [CH]"
+    },
+    {
+      "id": "CHAP_FV101",
+      "name": "LT FV101 Scorpion [CH]"
+    },
+    {
+      "id": "CHAP_FV107",
+      "name": "Scout FV107 Scimitar [CH]"
+    },
+    {
+      "id": "CHAP_IRISTSLM_CP",
+      "name": "SAM IRIS-T SLM C2 [CH]"
+    },
+    {
+      "id": "CHAP_IRISTSLM_LN",
+      "name": "SAM IRIS-T SLM LN [CH]"
+    },
+    {
+      "id": "CHAP_IRISTSLM_STR",
+      "name": "SAM IRIS-T SLM STR [CH]"
+    },
+    {
+      "id": "CHAP_M1083",
+      "name": "Truck M1083 A1P2 MTV [CH]"
+    },
+    {
+      "id": "CHAP_M1130",
+      "name": "IFV M1130 Stryker CV [CH]"
+    },
+    {
+      "id": "CHAP_M142_ATACMS_M39A1",
+      "name": "MLRS M142 HIMARS ATACMS CM [CH]"
+    },
+    {
+      "id": "CHAP_M142_ATACMS_M48",
+      "name": "MLRS M142 HIMARS ATACMS HE [CH]"
+    },
+    {
+      "id": "CHAP_M142_GMLRS_M30",
+      "name": "MLRS M142 HIMARS GMLRS CM [CH]"
+    },
+    {
+      "id": "CHAP_M142_GMLRS_M31",
+      "name": "MLRS M142 HIMARS GMLRS HE [CH]"
+    },
+    {
+      "id": "CHAP_MATV",
+      "name": "APC MRAP M-ATV [CH]"
+    },
+    {
+      "id": "CHAP_PantsirS1",
+      "name": "SAM SA-22 Pantsir-S1 \"Greyhound\" [CH]"
+    },
+    {
+      "id": "CHAP_T64BV",
+      "name": "MBT T-64BV Type 2017 [CH]"
+    },
+    {
+      "id": "CHAP_T84OplotM",
+      "name": "MBT T-84 Oplot-M [CH]"
+    },
+    {
+      "id": "CHAP_T90M",
+      "name": "MBT T-90M [CH]"
+    },
+    {
+      "id": "CHAP_TOS1A",
+      "name": "MLRS TOS-1A Solntsepyok [CH]"
+    },
+    {
+      "id": "CHAP_TorM2",
+      "name": "SAM SA-15 Tor M2 \"Gauntlet\" [CH]"
+    },
+    {
+      "id": "Centaur_IV",
+      "name": "Tk Centaur IV CS"
+    },
+    {
+      "id": "Challenger2",
+      "name": "MBT Challenger II"
+    },
+    {
+      "id": "Chieftain_mk3",
+      "name": "MBT Chieftain Mk.3"
+    },
+    {
+      "id": "Churchill_VII",
+      "name": "Tk Churchill VII"
+    },
+    {
+      "id": "Coach a passenger",
+      "name": "Rwy. Passenger Car"
+    },
+    {
+      "id": "Coach a platform",
+      "name": "Rwy. Coach Platform"
+    },
+    {
+      "id": "Coach a tank blue",
+      "name": "Rwy. Tank Car blue"
+    },
+    {
+      "id": "Coach a tank yellow",
+      "name": "Rwy. Tank Car yellow"
+    },
+    {
+      "id": "Coach cargo",
+      "name": "Rwy. Freight Van"
+    },
+    {
+      "id": "Coach cargo open",
+      "name": "Rwy. Open Wagon"
+    },
+    {
+      "id": "Cobra",
+      "name": "Scout Cobra"
+    },
+    {
+      "id": "Cromwell_IV",
+      "name": "Tk Cromwell IV"
+    },
+    {
+      "id": "DRG_Class_86",
+      "name": "Rwy. Loco DRG Class 86 (Germany, WWII)"
+    },
+    {
+      "id": "DR_50Ton_Flat_Wagon",
+      "name": "DR 50-ton flat wagon"
+    },
+    {
+      "id": "Daimler_AC",
+      "name": "Car Daimler Armored"
+    },
+    {
+      "id": "Dog Ear radar",
+      "name": "MCC-SR Sborka \"Dog Ear\" SR"
+    },
+    {
+      "id": "ES44AH",
+      "name": "Rwy. Loco ES44AH"
+    },
+    {
+      "id": "Electric locomotive",
+      "name": "Rwy. Loco VL80 Electric"
+    },
+    {
+      "id": "Elefant_SdKfz_184",
+      "name": "SPG Elefant TD"
+    },
+    {
+      "id": "FPS-117",
+      "name": "EWR AN/FPS-117 Radar"
+    },
+    {
+      "id": "FPS-117 Dome",
+      "name": "EWR AN/FPS-117 Radar (domed)"
+    },
+    {
+      "id": "FPS-117 ECS",
+      "name": "EWR AN/FPS-117 ECS"
+    },
+    {
+      "id": "Flakscheinwerfer_37",
+      "name": "SL Flakscheinwerfer 37"
+    },
+    {
+      "id": "FuMG-401",
+      "name": "EWR FuMG-401 Freya LZ"
+    },
+    {
+      "id": "FuSe-65",
+      "name": "EWR FuSe-65 W\u00fcrzburg-Riese"
+    },
+    {
+      "id": "GAZ-3307",
+      "name": "Truck GAZ-3307"
+    },
+    {
+      "id": "GAZ-3308",
+      "name": "Truck GAZ-3308"
+    },
+    {
+      "id": "GAZ-66",
+      "name": "Truck GAZ-66"
+    },
+    {
+      "id": "GD-20",
+      "name": "GD-20 Lift Truck"
+    },
+    {
+      "id": "GPS_Spoofer_Blue",
+      "name": "GPS Spoofer NATO"
+    },
+    {
+      "id": "GPS_Spoofer_Red",
+      "name": "GPS Spoofer RF"
+    },
+    {
+      "id": "Gepard",
+      "name": "SPAAA Gepard"
+    },
+    {
+      "id": "German_covered_wagon_G10",
+      "name": "Rwy. Wagon G10 (Germany, WWII)"
+    },
+    {
+      "id": "German_tank_wagon",
+      "name": "Rwy. Tank Car (Germany, WWII)"
+    },
+    {
+      "id": "Grad-URAL",
+      "name": "MLRS BM-21 Grad 122mm"
+    },
+    {
+      "id": "Grad_FDDM",
+      "name": "Grad MRL FDDM (FC)"
+    },
+    {
+      "id": "HEMTT TFFT",
+      "name": "Firefighter HEMMT TFFT"
+    },
+    {
+      "id": "HEMTT_C-RAM_Phalanx",
+      "name": "LPWS C-RAM"
+    },
+    {
+      "id": "HL_B8M1",
+      "name": "MLRS HL with B8M1 80mm"
+    },
+    {
+      "id": "HL_DSHK",
+      "name": "Scout HL with DSHK 12.7mm"
+    },
+    {
+      "id": "HL_KORD",
+      "name": "Scout HL with KORD 12.7mm"
+    },
+    {
+      "id": "HL_ZU-23",
+      "name": "SPAAA HL with ZU-23"
+    },
+    {
+      "id": "HQ-7_LN_P",
+      "name": "HQ-7 SHORAD TELAR (Player)"
+    },
+    {
+      "id": "HQ-7_LN_SP",
+      "name": "HQ-7B SHORAD TELAR"
+    },
+    {
+      "id": "HQ-7_STR_SP",
+      "name": "HQ-7B SHORAD SR"
+    },
+    {
+      "id": "Hawk cwar",
+      "name": "SAM Hawk CWAR AN/MPQ-55"
+    },
+    {
+      "id": "Hawk ln",
+      "name": "SAM Hawk LN M192"
+    },
+    {
+      "id": "Hawk pcp",
+      "name": "SAM Hawk Platoon Command Post (PCP)"
+    },
+    {
+      "id": "Hawk sr",
+      "name": "SAM Hawk SR (AN/MPQ-50)"
+    },
+    {
+      "id": "Hawk tr",
+      "name": "SAM Hawk TR (AN/MPQ-46)"
+    },
+    {
+      "id": "Horch_901_typ_40_kfz_21",
+      "name": "LUV Horch 901 Staff Car"
+    },
+    {
+      "id": "Hummer",
+      "name": "LUV HMMWV Jeep"
+    },
+    {
+      "id": "IKARUS Bus",
+      "name": "Bus IKARUS-280"
+    },
+    {
+      "id": "Igla manpad INS",
+      "name": "MANPADS SA-18 Igla \"Grouse\" Ins"
+    },
+    {
+      "id": "Infantry AK",
+      "name": "Infantry AK-74 Rus ver1"
+    },
+    {
+      "id": "Infantry AK Ins",
+      "name": "Insurgent AKM"
+    },
+    {
+      "id": "Infantry AK ver2",
+      "name": "Infantry AK-74 Rus ver2"
+    },
+    {
+      "id": "Infantry AK ver3",
+      "name": "Infantry AK-74 Rus ver3"
+    },
+    {
+      "id": "JTAC",
+      "name": "JTAC"
+    },
+    {
+      "id": "JagdPz_IV",
+      "name": "SPG Jagdpanzer IV TD"
+    },
+    {
+      "id": "Jagdpanther_G1",
+      "name": "SPG Jagdpanther TD"
+    },
+    {
+      "id": "KAMAZ Truck",
+      "name": "Truck KAMAZ 43101"
+    },
+    {
+      "id": "KDO_Mod40",
+      "name": "AAA Kdo.G.40"
+    },
+    {
+      "id": "KS-19",
+      "name": "AAA KS-19 100mm"
+    },
+    {
+      "id": "KrAZ6322",
+      "name": "Truck KrAZ-6322 6x6"
+    },
+    {
+      "id": "Kub 1S91 str",
+      "name": "SAM SA-6 Kub \"Straight Flush\" STR"
+    },
+    {
+      "id": "Kub 2P25 ln",
+      "name": "SAM SA-6 Kub \"Gainful\" TEL"
+    },
+    {
+      "id": "Kubelwagen_82",
+      "name": "LUV Kubelwagen Jeep"
+    },
+    {
+      "id": "L118_Unit",
+      "name": "L118 Light Artillery Gun"
+    },
+    {
+      "id": "LARC-V",
+      "name": "Truck LARC-V"
+    },
+    {
+      "id": "LAV-25",
+      "name": "IFV LAV-25"
+    },
+    {
+      "id": "LAZ Bus",
+      "name": "Bus LAZ-695"
+    },
+    {
+      "id": "Land_Rover_101_FC",
+      "name": "Truck Land Rover 101 FC"
+    },
+    {
+      "id": "Land_Rover_109_S3",
+      "name": "LUV Land Rover 109"
+    },
+    {
+      "id": "LeFH_18-40-105",
+      "name": "FH LeFH-18 105mm"
+    },
+    {
+      "id": "Leclerc",
+      "name": "MBT Leclerc"
+    },
+    {
+      "id": "Leopard-2",
+      "name": "MBT Leopard-2A6M"
+    },
+    {
+      "id": "Leopard-2A5",
+      "name": "MBT Leopard-2A5"
+    },
+    {
+      "id": "Leopard1A3",
+      "name": "MBT Leopard 1A3"
+    },
+    {
+      "id": "LiAZ Bus",
+      "name": "Bus LiAZ-677"
+    },
+    {
+      "id": "Locomotive",
+      "name": "Rwy. Loco CHME3T"
+    },
+    {
+      "id": "M 818",
+      "name": "Truck M939 Heavy"
+    },
+    {
+      "id": "M-1 Abrams",
+      "name": "MBT M1A2 Abrams"
+    },
+    {
+      "id": "M-109",
+      "name": "SPH M109 Paladin 155mm"
+    },
+    {
+      "id": "M-113",
+      "name": "APC M113"
+    },
+    {
+      "id": "M-2 Bradley",
+      "name": "IFV M2A2 Bradley"
+    },
+    {
+      "id": "M-60",
+      "name": "MBT M60A3 Patton"
+    },
+    {
+      "id": "M1043 HMMWV Armament",
+      "name": "Scout HMMWV"
+    },
+    {
+      "id": "M1045 HMMWV TOW",
+      "name": "ATGM HMMWV"
+    },
+    {
+      "id": "M1097 Avenger",
+      "name": "SAM Avenger (Stinger)"
+    },
+    {
+      "id": "M1126 Stryker ICV",
+      "name": "IFV M1126 Stryker ICV"
+    },
+    {
+      "id": "M1128 Stryker MGS",
+      "name": "SPG Stryker MGS"
+    },
+    {
+      "id": "M1134 Stryker ATGM",
+      "name": "ATGM Stryker"
+    },
+    {
+      "id": "M12_GMC",
+      "name": "SPH M12 GMC 155mm"
+    },
+    {
+      "id": "M1A2C_SEP_V3",
+      "name": "MBT M1A2C SEP v3 Abrams"
+    },
+    {
+      "id": "M1_37mm",
+      "name": "AAA M1 37mm"
+    },
+    {
+      "id": "M2A1-105",
+      "name": "FH M2A1 105mm"
+    },
+    {
+      "id": "M2A1_halftrack",
+      "name": "APC M2A1 Halftrack"
+    },
+    {
+      "id": "M30_CC",
+      "name": "Ammo M30 Cargo Carrier"
+    },
+    {
+      "id": "M45_Quadmount",
+      "name": "AAA M45 Quadmount HB 12.7mm"
+    },
+    {
+      "id": "M48 Chaparral",
+      "name": "SAM Chaparral M48"
+    },
+    {
+      "id": "M4A4_Sherman_FF",
+      "name": "Tk M4A4 Sherman Firefly"
+    },
+    {
+      "id": "M4_Sherman",
+      "name": "Tk M4 Sherman"
+    },
+    {
+      "id": "M4_Tractor",
+      "name": "Tractor M4 High Speed"
+    },
+    {
+      "id": "M6 Linebacker",
+      "name": "SAM Linebacker - Bradley M6"
+    },
+    {
+      "id": "M8_Greyhound",
+      "name": "Scout M8 Greyhound AC"
+    },
+    {
+      "id": "M978 HEMTT Tanker",
+      "name": "Refueler M978 HEMTT"
+    },
+    {
+      "id": "MAZ-6303",
+      "name": "Truck MAZ-6303"
+    },
+    {
+      "id": "MCV-80",
+      "name": "IFV Warrior "
+    },
+    {
+      "id": "MJ-1_drivable",
+      "name": "M92 MJ-1 drivable"
+    },
+    {
+      "id": "MLRS",
+      "name": "MLRS M270 227mm"
+    },
+    {
+      "id": "MLRS FDDM",
+      "name": "MRLS FDDM (FC)"
+    },
+    {
+      "id": "MTLB",
+      "name": "APC MTLB"
+    },
+    {
+      "id": "Marder",
+      "name": "IFV Marder"
+    },
+    {
+      "id": "Maschinensatz_33",
+      "name": "Maschinensatz 33 Gen"
+    },
+    {
+      "id": "MaxxPro_MRAP",
+      "name": "APC MRAP MaxxPro"
+    },
+    {
+      "id": "Merkava_Mk4",
+      "name": "MBT Merkava IV"
+    },
+    {
+      "id": "NASAMS_Command_Post",
+      "name": "SAM NASAMS C2"
+    },
+    {
+      "id": "NASAMS_LN_B",
+      "name": "SAM NASAMS LN AIM-120B"
+    },
+    {
+      "id": "NASAMS_LN_C",
+      "name": "SAM NASAMS LN AIM-120C"
+    },
+    {
+      "id": "NASAMS_Radar_MPQ64F1",
+      "name": "SAM NASAMS SR MPQ64F1"
+    },
+    {
+      "id": "Osa 9A33 ln",
+      "name": "SAM SA-8 Osa \"Gecko\" TEL"
+    },
+    {
+      "id": "P14_SR",
+      "name": "SAM SA-5 S-200 P-14 'Tall king' SR"
+    },
+    {
+      "id": "P20_drivable",
+      "name": "M92 P20 drivable"
+    },
+    {
+      "id": "PL5EII Loadout",
+      "name": "Payload PL-5EII"
+    },
+    {
+      "id": "PL8 Loadout",
+      "name": "Payload PL-8"
+    },
+    {
+      "id": "PLZ05",
+      "name": "PLZ-05"
+    },
+    {
+      "id": "PT_76",
+      "name": "LT PT-76"
+    },
+    {
+      "id": "Pak40",
+      "name": "FH Pak 40 75mm"
+    },
+    {
+      "id": "Paratrooper AKS-74",
+      "name": "Paratrooper AKS"
+    },
+    {
+      "id": "Paratrooper RPG-16",
+      "name": "Paratrooper RPG-16"
+    },
+    {
+      "id": "Patriot AMG",
+      "name": "SAM Patriot CR (AMG AN/MRC-137)"
+    },
+    {
+      "id": "Patriot ECS",
+      "name": "SAM Patriot ECS"
+    },
+    {
+      "id": "Patriot EPP",
+      "name": "SAM Patriot EPP-III"
+    },
+    {
+      "id": "Patriot cp",
+      "name": "SAM Patriot C2 ICC"
+    },
+    {
+      "id": "Patriot ln",
+      "name": "SAM Patriot LN"
+    },
+    {
+      "id": "Patriot str",
+      "name": "SAM Patriot STR"
+    },
+    {
+      "id": "Predator GCS",
+      "name": "MCC Predator UAV CP & GCS"
+    },
+    {
+      "id": "Predator TrojanSpirit",
+      "name": "MCC-COMM Predator UAV CL"
+    },
+    {
+      "id": "Pz_IV_H",
+      "name": "Tk PzIV H"
+    },
+    {
+      "id": "Pz_V_Panther_G",
+      "name": "Tk Panther G (Pz V)"
+    },
+    {
+      "id": "QF_37_AA",
+      "name": "AAA QF 3.7\""
+    },
+    {
+      "id": "RD_75",
+      "name": "SAM SA-2 S-75 RD-75 Amazonka RF"
+    },
+    {
+      "id": "RLS_19J6",
+      "name": "SAM SA-5 S-200 ST-68U \"Tin Shield\" SR"
+    },
+    {
+      "id": "RPC_5N62V",
+      "name": "SAM SA-5 S-200 \"Square Pair\" TR"
+    },
+    {
+      "id": "Roland ADS",
+      "name": "SAM Roland ADS"
+    },
+    {
+      "id": "Roland Radar",
+      "name": "SAM Roland EWR"
+    },
+    {
+      "id": "S-200_Launcher",
+      "name": "SAM SA-5 S-200 \"Gammon\" LN"
+    },
+    {
+      "id": "S-300PS 40B6M tr",
+      "name": "SAM SA-10 S-300 \"Grumble\" Flap Lid-A TR"
+    },
+    {
+      "id": "S-300PS 40B6MD sr",
+      "name": "SAM SA-10 S-300 \"Grumble\" Clam Shell SR"
+    },
+    {
+      "id": "S-300PS 40B6MD sr_19J6",
+      "name": "SAM SA-10 S-300 \"Grumble\" Tin Shield SR"
+    },
+    {
+      "id": "S-300PS 54K6 cp",
+      "name": "SAM SA-10 S-300 \"Grumble\" C2"
+    },
+    {
+      "id": "S-300PS 5H63C 30H6_tr",
+      "name": "SAM SA-10 S-300 \"Grumble\" Flap Lid-B TR"
+    },
+    {
+      "id": "S-300PS 5P85C ln",
+      "name": "SAM SA-10 S-300 \"Grumble\" TEL C"
+    },
+    {
+      "id": "S-300PS 5P85D ln",
+      "name": "SAM SA-10 S-300 \"Grumble\" TEL D"
+    },
+    {
+      "id": "S-300PS 64H6E sr",
+      "name": "SAM SA-10 S-300 \"Grumble\" Big Bird SR"
+    },
+    {
+      "id": "S-60_Type59_Artillery",
+      "name": "AAA S-60 57mm"
+    },
+    {
+      "id": "SA-11 Buk CC 9S470M1",
+      "name": "SAM SA-11 Buk \"Gadfly\" C2 "
+    },
+    {
+      "id": "SA-11 Buk LN 9A310M1",
+      "name": "SAM SA-11 Buk \"Gadfly\" Fire Dome TEL"
+    },
+    {
+      "id": "SA-11 Buk SR 9S18M1",
+      "name": "SAM SA-11 Buk \"Gadfly\" Snow Drift SR"
+    },
+    {
+      "id": "SA-18 Igla comm",
+      "name": "MANPADS SA-18 Igla \"Grouse\" C2"
+    },
+    {
+      "id": "SA-18 Igla manpad",
+      "name": "MANPADS SA-18 Igla \"Grouse\""
+    },
+    {
+      "id": "SA-18 Igla-S comm",
+      "name": "MANPADS SA-18 Igla-S \"Grouse\" C2"
+    },
+    {
+      "id": "SA-18 Igla-S manpad",
+      "name": "MANPADS SA-18 Igla-S \"Grouse\""
+    },
+    {
+      "id": "SAU 2-C9",
+      "name": "SPM 2S9 Nona 120mm M"
+    },
+    {
+      "id": "SAU Akatsia",
+      "name": "SPH 2S3 Akatsia 152mm"
+    },
+    {
+      "id": "SAU Gvozdika",
+      "name": "SPH 2S1 Gvozdika 122mm"
+    },
+    {
+      "id": "SAU Msta",
+      "name": "SPH 2S19 Msta 152mm"
+    },
+    {
+      "id": "SD10 Loadout",
+      "name": "Payload SD-10"
+    },
+    {
+      "id": "SKP-11",
+      "name": "Truck SKP-11 Mobile ATC"
+    },
+    {
+      "id": "SK_C_28_naval_gun",
+      "name": "Gun 15cm SK C/28 Naval in Bunker"
+    },
+    {
+      "id": "SNR_75V",
+      "name": "SAM SA-2 S-75 \"Fan Song\" TR"
+    },
+    {
+      "id": "SON_9",
+      "name": "AAA Fire Can SON-9"
+    },
+    {
+      "id": "S_75M_Volhov",
+      "name": "SAM SA-2 S-75 \"Guideline\" LN"
+    },
+    {
+      "id": "S_75_ZIL",
+      "name": "S-75 Tractor (ZIL-131)"
+    },
+    {
+      "id": "Sandbox",
+      "name": "Bunker 1"
+    },
+    {
+      "id": "Scud_B",
+      "name": "SSM SS-1C Scud-B"
+    },
+    {
+      "id": "Sd_Kfz_2",
+      "name": "LUV Kettenrad"
+    },
+    {
+      "id": "Sd_Kfz_234_2_Puma",
+      "name": "Scout Puma AC"
+    },
+    {
+      "id": "Sd_Kfz_251",
+      "name": "APC Sd.Kfz.251 Halftrack"
+    },
+    {
+      "id": "Sd_Kfz_7",
+      "name": "Tractor Sd.Kfz.7 Art'y Tractor"
+    },
+    {
+      "id": "Silkworm_SR",
+      "name": "AShM Silkworm SR"
+    },
+    {
+      "id": "Smerch",
+      "name": "MLRS 9A52 Smerch CM 300mm"
+    },
+    {
+      "id": "Smerch_HE",
+      "name": "MLRS 9A52 Smerch HE 300mm"
+    },
+    {
+      "id": "Soldier AK",
+      "name": "Infantry AK-74"
+    },
+    {
+      "id": "Soldier M249",
+      "name": "Infantry M249"
+    },
+    {
+      "id": "Soldier M4",
+      "name": "Infantry M4"
+    },
+    {
+      "id": "Soldier M4 GRG",
+      "name": "Infantry M4 Georgia"
+    },
+    {
+      "id": "Soldier RPG",
+      "name": "Infantry RPG"
+    },
+    {
+      "id": "Soldier stinger",
+      "name": "MANPADS Stinger"
+    },
+    {
+      "id": "SpGH_Dana",
+      "name": "SPH Dana vz77 152mm"
+    },
+    {
+      "id": "Stinger comm",
+      "name": "MANPADS Stinger C2"
+    },
+    {
+      "id": "Stinger comm dsr",
+      "name": "MANPADS Stinger C2 Desert"
+    },
+    {
+      "id": "Strela-1 9P31",
+      "name": "SAM SA-9 Strela 1 \"Gaskin\" TEL"
+    },
+    {
+      "id": "Strela-10M3",
+      "name": "SAM SA-13 Strela 10M3 \"Gopher\" TEL"
+    },
+    {
+      "id": "Stug_III",
+      "name": "SPG StuG III G AG"
+    },
+    {
+      "id": "Stug_IV",
+      "name": "SPG StuG IV AG"
+    },
+    {
+      "id": "SturmPzIV",
+      "name": "SPG Brummbaer AG"
+    },
+    {
+      "id": "Suidae",
+      "name": "Suidae"
+    },
+    {
+      "id": "T-34-85",
+      "name": "Tk T-34-85"
+    },
+    {
+      "id": "T-55",
+      "name": "MBT T-55"
+    },
+    {
+      "id": "T-72B",
+      "name": "MBT T-72B"
+    },
+    {
+      "id": "T-72B3",
+      "name": "MBT T-72B3"
+    },
+    {
+      "id": "T-80B",
+      "name": "MBT T-80B"
+    },
+    {
+      "id": "T-80UD",
+      "name": "MBT T-80U"
+    },
+    {
+      "id": "T-90",
+      "name": "MBT T-90A [CH]"
+    },
+    {
+      "id": "T155_Firtina",
+      "name": "SPH T155 Firtina 155mm"
+    },
+    {
+      "id": "T62M",
+      "name": "MBT T-62M"
+    },
+    {
+      "id": "TACAN_beacon",
+      "name": "Beacon TACAN Portable TTS 3030"
+    },
+    {
+      "id": "TPZ",
+      "name": "APC TPz Fuchs "
+    },
+    {
+      "id": "TYPE-59",
+      "name": "MT Type 59"
+    },
+    {
+      "id": "TZ-22_KrAZ",
+      "name": "Refueler TZ-22 Tractor (KrAZ-258B1)"
+    },
+    {
+      "id": "Tankcartrinity",
+      "name": "Rwy. Tank Cartrinity"
+    },
+    {
+      "id": "Tetrarch",
+      "name": "Tk Tetrach"
+    },
+    {
+      "id": "Tiger_I",
+      "name": "Tk Tiger 1"
+    },
+    {
+      "id": "Tiger_II_H",
+      "name": "Tk Tiger II"
+    },
+    {
+      "id": "Tigr_233036",
+      "name": "LUV Tigr"
+    },
+    {
+      "id": "Tor 9A331",
+      "name": "SAM SA-15 Tor \"Gauntlet\""
+    },
+    {
+      "id": "Trolley bus",
+      "name": "ZIU-9 Trolley"
+    },
+    {
+      "id": "TugHarlan_drivable",
+      "name": "M92 Tug Harlan drivable"
+    },
+    {
+      "id": "Type_3_80mm_AA",
+      "name": "AAA 80mm Type 3 Flak"
+    },
+    {
+      "id": "Type_88_75mm_AA",
+      "name": "AAA 75mm Type 88 Flak"
+    },
+    {
+      "id": "Type_89_I_Go",
+      "name": "Tk Type 89 I Go"
+    },
+    {
+      "id": "Type_94_25mm_AA_Truck",
+      "name": "AAA 25mm x 2 Type 94 Truck"
+    },
+    {
+      "id": "Type_94_Truck",
+      "name": "Truck Type 94"
+    },
+    {
+      "id": "Type_96_25mm_AA",
+      "name": "AAA 25mm x 2 Type 96"
+    },
+    {
+      "id": "Type_98_Ke_Ni",
+      "name": "Tk Type 98 Ke Ni"
+    },
+    {
+      "id": "Type_98_So_Da",
+      "name": "APC Type 98 So Da"
+    },
+    {
+      "id": "UAZ-469",
+      "name": "LUV UAZ-469 Jeep"
+    },
+    {
+      "id": "Uragan_BM-27",
+      "name": "MLRS 9K57 Uragan BM-27 220mm"
+    },
+    {
+      "id": "Ural ATsP-6",
+      "name": "Firefighter Ural ATsP-6"
+    },
+    {
+      "id": "Ural-375",
+      "name": "Truck Ural-4320"
+    },
+    {
+      "id": "Ural-375 PBU",
+      "name": "Truck Ural-4320 MCC"
+    },
+    {
+      "id": "Ural-375 ZU-23",
+      "name": "AAA ZU-23 on Ural-4320"
+    },
+    {
+      "id": "Ural-375 ZU-23 Insurgent",
+      "name": "AAA ZU-23 on Ural-4320 Insurgent"
+    },
+    {
+      "id": "Ural-4320 APA-5D",
+      "name": "GPU APA-5D on Ural 4320"
+    },
+    {
+      "id": "Ural-4320-31",
+      "name": "Truck Ural-4320-31 Arm'd"
+    },
+    {
+      "id": "Ural-4320T",
+      "name": "Truck Ural-4320T"
+    },
+    {
+      "id": "VAB_Mephisto",
+      "name": "ATGM VAB Mephisto"
+    },
+    {
+      "id": "VAZ Car",
+      "name": "Car VAZ-2109"
+    },
+    {
+      "id": "Vulcan",
+      "name": "SPAAA Vulcan M163"
+    },
+    {
+      "id": "Wellcarnsc",
+      "name": "Rwy. Well Car"
+    },
+    {
+      "id": "Wespe124",
+      "name": "SPH Sd.Kfz.124 Wespe 105mm"
+    },
+    {
+      "id": "Willys_MB",
+      "name": "Car Willys Jeep"
+    },
+    {
+      "id": "ZBD04A",
+      "name": "ZBD-04A"
+    },
+    {
+      "id": "ZIL-131 KUNG",
+      "name": "Truck ZIL-131 (C2)"
+    },
+    {
+      "id": "ZIL-135",
+      "name": "Truck ZIL-135"
+    },
+    {
+      "id": "ZIL-4331",
+      "name": "Truck ZIL-4331"
+    },
+    {
+      "id": "ZSU-23-4 Shilka",
+      "name": "SPAAA ZSU-23-4 Shilka \"Gun Dish\""
+    },
+    {
+      "id": "ZSU_57_2",
+      "name": "SPAAA ZSU-57-2"
+    },
+    {
+      "id": "ZTZ96B",
+      "name": "ZTZ-96B"
+    },
+    {
+      "id": "ZU-23 Closed Insurgent",
+      "name": "AAA ZU-23 Insurgent Closed Emplacement"
+    },
+    {
+      "id": "ZU-23 Emplacement",
+      "name": "AAA ZU-23 Emplacement"
+    },
+    {
+      "id": "ZU-23 Emplacement Closed",
+      "name": "AAA ZU-23 Closed Emplacement"
+    },
+    {
+      "id": "ZU-23 Insurgent",
+      "name": "AAA ZU-23 Insurgent Emplacement"
+    },
+    {
+      "id": "ZiL-131 APA-80",
+      "name": "GPU APA-80 on ZIL-131"
+    },
+    {
+      "id": "bofors40",
+      "name": "AAA Bofors 40mm"
+    },
+    {
+      "id": "fire_control",
+      "name": "Bunker with Fire Control Center"
+    },
+    {
+      "id": "flak18",
+      "name": "AAA 8,8cm Flak 18"
+    },
+    {
+      "id": "flak30",
+      "name": "AAA Flak 38 20mm"
+    },
+    {
+      "id": "flak36",
+      "name": "AAA 8,8cm Flak 36"
+    },
+    {
+      "id": "flak37",
+      "name": "AAA 8,8cm Flak 37"
+    },
+    {
+      "id": "flak38",
+      "name": "AAA Flak-Vierling 38 Quad 20mm"
+    },
+    {
+      "id": "flak41",
+      "name": "AAA 8,8cm Flak 41"
+    },
+    {
+      "id": "gaz-66_civil",
+      "name": "Truck GAZ-66 civil"
+    },
+    {
+      "id": "generator_5i57",
+      "name": "Diesel Power Station 5I57A"
+    },
+    {
+      "id": "house1arm",
+      "name": "Barracks armed"
+    },
+    {
+      "id": "house2arm",
+      "name": "Watch tower armed"
+    },
+    {
+      "id": "houseA_arm",
+      "name": "Building armed"
+    },
+    {
+      "id": "hy_launcher",
+      "name": "AShM SS-N-2 Silkworm"
+    },
+    {
+      "id": "kamaz_tent_civil",
+      "name": "Truck KAMAZ-43101 civil"
+    },
+    {
+      "id": "leopard-2A4",
+      "name": "MBT Leopard-2A4"
+    },
+    {
+      "id": "leopard-2A4_trs",
+      "name": "MBT Leopard-2A4 Trs"
+    },
+    {
+      "id": "outpost",
+      "name": "Outpost"
+    },
+    {
+      "id": "outpost_road",
+      "name": "Road outpost"
+    },
+    {
+      "id": "outpost_road_l",
+      "name": "Road outpost_L"
+    },
+    {
+      "id": "outpost_road_r",
+      "name": "Road outpost-R"
+    },
+    {
+      "id": "p-19 s-125 sr",
+      "name": "SAM SA-2/3/5 P19 \"Flat Face\" SR "
+    },
+    {
+      "id": "prmg_gp_beacon",
+      "name": "PRMG Glidepath car"
+    },
+    {
+      "id": "prmg_loc_beacon",
+      "name": "PRMG Localizer car"
+    },
+    {
+      "id": "r11_volvo_drivable",
+      "name": "M92 R11 Volvo drivable"
+    },
+    {
+      "id": "rapier_fsa_blindfire_radar",
+      "name": "SAM Rapier Blindfire TR"
+    },
+    {
+      "id": "rapier_fsa_launcher",
+      "name": "SAM Rapier LN"
+    },
+    {
+      "id": "rapier_fsa_optical_tracker_unit",
+      "name": "SAM Rapier Tracker"
+    },
+    {
+      "id": "rsbn_beacon",
+      "name": "RSBN car"
+    },
+    {
+      "id": "snr s-125 tr",
+      "name": "SAM SA-3 S-125 \"Low Blow\" TR"
+    },
+    {
+      "id": "soldier_mauser98",
+      "name": "Infantry Mauser 98"
+    },
+    {
+      "id": "soldier_wwii_br_01",
+      "name": "Infantry SMLE No.4 Mk-1"
+    },
+    {
+      "id": "soldier_wwii_us",
+      "name": "Infantry M1 Garand"
+    },
+    {
+      "id": "tacr2a",
+      "name": "Firefighter RAF Rescue"
+    },
+    {
+      "id": "tt_B8M1",
+      "name": "MLRS LC with B8M1 80mm"
+    },
+    {
+      "id": "tt_DSHK",
+      "name": "Scout LC with DSHK 12.7mm"
+    },
+    {
+      "id": "tt_KORD",
+      "name": "Scout LC with KORD 12.7mm"
+    },
+    {
+      "id": "tt_ZU-23",
+      "name": "SPAAA LC with ZU-23"
+    },
+    {
+      "id": "ural_4230_civil_b",
+      "name": "Truck Ural-4320 civil"
+    },
+    {
+      "id": "ural_4230_civil_t",
+      "name": "Truck Ural-4320T civil"
+    },
+    {
+      "id": "ural_atz5_civil",
+      "name": "Refueler ATZ-5 civil"
+    },
+    {
+      "id": "v1_launcher",
+      "name": "V-1 Launch Ramp"
+    },
+    {
+      "id": "zil-131_civil",
+      "name": "Truck ZiL-131 civil"
+    }
+  ],
+  "plane": [
+    {
+      "id": "A-10A",
+      "name": "A-10A"
+    },
+    {
+      "id": "A-10C",
+      "name": "A-10C"
+    },
+    {
+      "id": "A-10C_2",
+      "name": "A-10C_2"
+    },
+    {
+      "id": "A-20G",
+      "name": "A-20G"
+    },
+    {
+      "id": "A-50",
+      "name": "A-50"
+    },
+    {
+      "id": "A6E",
+      "name": "A6E"
+    },
+    {
+      "id": "AJS37",
+      "name": "AJS37"
+    },
+    {
+      "id": "AV8BNA",
+      "name": "AV8BNA"
+    },
+    {
+      "id": "An-26B",
+      "name": "An-26B"
+    },
+    {
+      "id": "An-30M",
+      "name": "An-30M"
+    },
+    {
+      "id": "B-17G",
+      "name": "B-17G"
+    },
+    {
+      "id": "B-1B",
+      "name": "B-1B"
+    },
+    {
+      "id": "B-52H",
+      "name": "B-52H"
+    },
+    {
+      "id": "Bf-109K-4",
+      "name": "Bf-109K-4"
+    },
+    {
+      "id": "C-101CC",
+      "name": "C-101CC"
+    },
+    {
+      "id": "C-101EB",
+      "name": "C-101EB"
+    },
+    {
+      "id": "C-130",
+      "name": "C-130"
+    },
+    {
+      "id": "C-130J-30",
+      "name": "C-130J-30"
+    },
+    {
+      "id": "C-17A",
+      "name": "C-17A"
+    },
+    {
+      "id": "C-47",
+      "name": "C-47"
+    },
+    {
+      "id": "Christen Eagle II",
+      "name": "Christen Eagle II"
+    },
+    {
+      "id": "E-2C",
+      "name": "E-2C"
+    },
+    {
+      "id": "E-3A",
+      "name": "E-3A"
+    },
+    {
+      "id": "F-100D",
+      "name": "F-100D"
+    },
+    {
+      "id": "F-117A",
+      "name": "F-117A"
+    },
+    {
+      "id": "F-14A",
+      "name": "F-14A"
+    },
+    {
+      "id": "F-14A-135-GR",
+      "name": "F-14A-135-GR"
+    },
+    {
+      "id": "F-14A-135-GR-Early",
+      "name": "F-14A-135-GR-Early"
+    },
+    {
+      "id": "F-14A-95-GR",
+      "name": "F-14A-95-GR"
+    },
+    {
+      "id": "F-14B",
+      "name": "F-14B"
+    },
+    {
+      "id": "F-15C",
+      "name": "F-15C"
+    },
+    {
+      "id": "F-15E",
+      "name": "F-15E"
+    },
+    {
+      "id": "F-15ESE",
+      "name": "F-15ESE"
+    },
+    {
+      "id": "F-16A",
+      "name": "F-16A"
+    },
+    {
+      "id": "F-16A MLU",
+      "name": "F-16A MLU"
+    },
+    {
+      "id": "F-16C bl.50",
+      "name": "F-16C bl.50"
+    },
+    {
+      "id": "F-16C bl.52d",
+      "name": "F-16C bl.52d"
+    },
+    {
+      "id": "F-16C_50",
+      "name": "F-16C_50"
+    },
+    {
+      "id": "F-4E",
+      "name": "F-4E"
+    },
+    {
+      "id": "F-4E-45MC",
+      "name": "F-4E-45MC"
+    },
+    {
+      "id": "F-5E",
+      "name": "F-5E"
+    },
+    {
+      "id": "F-5E-3",
+      "name": "F-5E-3"
+    },
+    {
+      "id": "F-5E-3_FC",
+      "name": "F-5E-3_FC"
+    },
+    {
+      "id": "F-86F Sabre",
+      "name": "F-86F Sabre"
+    },
+    {
+      "id": "F-86F_FC",
+      "name": "F-86F_FC"
+    },
+    {
+      "id": "F/A-18A",
+      "name": "F/A-18A"
+    },
+    {
+      "id": "F/A-18C",
+      "name": "F/A-18C"
+    },
+    {
+      "id": "F4U-1D",
+      "name": "F4U-1D"
+    },
+    {
+      "id": "F4U-1D_CW",
+      "name": "F4U-1D_CW"
+    },
+    {
+      "id": "FA-18C_hornet",
+      "name": "FA-18C_hornet"
+    },
+    {
+      "id": "FW-190A8",
+      "name": "FW-190A8"
+    },
+    {
+      "id": "FW-190D9",
+      "name": "FW-190D9"
+    },
+    {
+      "id": "Falcon_Gyrocopter",
+      "name": "Falcon_Gyrocopter"
+    },
+    {
+      "id": "H-6J",
+      "name": "H-6J"
+    },
+    {
+      "id": "Hawk",
+      "name": "Hawk"
+    },
+    {
+      "id": "I-16",
+      "name": "I-16"
+    },
+    {
+      "id": "IL-76MD",
+      "name": "IL-76MD"
+    },
+    {
+      "id": "IL-78M",
+      "name": "IL-78M"
+    },
+    {
+      "id": "J-11A",
+      "name": "J-11A"
+    },
+    {
+      "id": "JF-17",
+      "name": "JF-17"
+    },
+    {
+      "id": "Ju-88A4",
+      "name": "Ju-88A4"
+    },
+    {
+      "id": "KC-135",
+      "name": "KC-135"
+    },
+    {
+      "id": "KC130",
+      "name": "KC130"
+    },
+    {
+      "id": "KC135MPRS",
+      "name": "KC135MPRS"
+    },
+    {
+      "id": "KJ-2000",
+      "name": "KJ-2000"
+    },
+    {
+      "id": "L-39C",
+      "name": "L-39C"
+    },
+    {
+      "id": "L-39ZA",
+      "name": "L-39ZA"
+    },
+    {
+      "id": "La-7",
+      "name": "La-7"
+    },
+    {
+      "id": "M-2000C",
+      "name": "M-2000C"
+    },
+    {
+      "id": "MB-339A",
+      "name": "MB-339A"
+    },
+    {
+      "id": "MB-339APAN",
+      "name": "MB-339APAN"
+    },
+    {
+      "id": "MQ-9 Reaper",
+      "name": "MQ-9 Reaper"
+    },
+    {
+      "id": "MiG-15bis",
+      "name": "MiG-15bis"
+    },
+    {
+      "id": "MiG-15bis_FC",
+      "name": "MiG-15bis_FC"
+    },
+    {
+      "id": "MiG-19P",
+      "name": "MiG-19P"
+    },
+    {
+      "id": "MiG-21Bis",
+      "name": "MiG-21Bis"
+    },
+    {
+      "id": "MiG-23MLD",
+      "name": "MiG-23MLD"
+    },
+    {
+      "id": "MiG-25PD",
+      "name": "MiG-25PD"
+    },
+    {
+      "id": "MiG-25RBT",
+      "name": "MiG-25RBT"
+    },
+    {
+      "id": "MiG-27K",
+      "name": "MiG-27K"
+    },
+    {
+      "id": "MiG-29 Fulcrum",
+      "name": "MiG-29 Fulcrum"
+    },
+    {
+      "id": "MiG-29A",
+      "name": "MiG-29A"
+    },
+    {
+      "id": "MiG-29G",
+      "name": "MiG-29G"
+    },
+    {
+      "id": "MiG-29S",
+      "name": "MiG-29S"
+    },
+    {
+      "id": "MiG-31",
+      "name": "MiG-31"
+    },
+    {
+      "id": "Mirage 2000-5",
+      "name": "Mirage 2000-5"
+    },
+    {
+      "id": "Mirage-F1AD",
+      "name": "Mirage-F1AD"
+    },
+    {
+      "id": "Mirage-F1AZ",
+      "name": "Mirage-F1AZ"
+    },
+    {
+      "id": "Mirage-F1B",
+      "name": "Mirage-F1B"
+    },
+    {
+      "id": "Mirage-F1BD",
+      "name": "Mirage-F1BD"
+    },
+    {
+      "id": "Mirage-F1BE",
+      "name": "Mirage-F1BE"
+    },
+    {
+      "id": "Mirage-F1BQ",
+      "name": "Mirage-F1BQ"
+    },
+    {
+      "id": "Mirage-F1C",
+      "name": "Mirage-F1C"
+    },
+    {
+      "id": "Mirage-F1C-200",
+      "name": "Mirage-F1C-200"
+    },
+    {
+      "id": "Mirage-F1CE",
+      "name": "Mirage-F1CE"
+    },
+    {
+      "id": "Mirage-F1CG",
+      "name": "Mirage-F1CG"
+    },
+    {
+      "id": "Mirage-F1CH",
+      "name": "Mirage-F1CH"
+    },
+    {
+      "id": "Mirage-F1CJ",
+      "name": "Mirage-F1CJ"
+    },
+    {
+      "id": "Mirage-F1CK",
+      "name": "Mirage-F1CK"
+    },
+    {
+      "id": "Mirage-F1CR",
+      "name": "Mirage-F1CR"
+    },
+    {
+      "id": "Mirage-F1CT",
+      "name": "Mirage-F1CT"
+    },
+    {
+      "id": "Mirage-F1CZ",
+      "name": "Mirage-F1CZ"
+    },
+    {
+      "id": "Mirage-F1DDA",
+      "name": "Mirage-F1DDA"
+    },
+    {
+      "id": "Mirage-F1ED",
+      "name": "Mirage-F1ED"
+    },
+    {
+      "id": "Mirage-F1EDA",
+      "name": "Mirage-F1EDA"
+    },
+    {
+      "id": "Mirage-F1EE",
+      "name": "Mirage-F1EE"
+    },
+    {
+      "id": "Mirage-F1EH",
+      "name": "Mirage-F1EH"
+    },
+    {
+      "id": "Mirage-F1EQ",
+      "name": "Mirage-F1EQ"
+    },
+    {
+      "id": "Mirage-F1JA",
+      "name": "Mirage-F1JA"
+    },
+    {
+      "id": "Mirage-F1M-CE",
+      "name": "Mirage-F1M-CE"
+    },
+    {
+      "id": "Mirage-F1M-EE",
+      "name": "Mirage-F1M-EE"
+    },
+    {
+      "id": "MosquitoFBMkVI",
+      "name": "MosquitoFBMkVI"
+    },
+    {
+      "id": "P-47D-30",
+      "name": "P-47D-30"
+    },
+    {
+      "id": "P-47D-30bl1",
+      "name": "P-47D-30bl1"
+    },
+    {
+      "id": "P-47D-40",
+      "name": "P-47D-40"
+    },
+    {
+      "id": "P-51D",
+      "name": "P-51D"
+    },
+    {
+      "id": "P-51D-30-NA",
+      "name": "P-51D-30-NA"
+    },
+    {
+      "id": "QF-4E",
+      "name": "QF-4E"
+    },
+    {
+      "id": "RQ-1A Predator",
+      "name": "RQ-1A Predator"
+    },
+    {
+      "id": "S-3B",
+      "name": "S-3B"
+    },
+    {
+      "id": "S-3B Tanker",
+      "name": "S-3B Tanker"
+    },
+    {
+      "id": "SpitfireLFMkIX",
+      "name": "SpitfireLFMkIX"
+    },
+    {
+      "id": "SpitfireLFMkIXCW",
+      "name": "SpitfireLFMkIXCW"
+    },
+    {
+      "id": "Su-17M4",
+      "name": "Su-17M4"
+    },
+    {
+      "id": "Su-24M",
+      "name": "Su-24M"
+    },
+    {
+      "id": "Su-24MR",
+      "name": "Su-24MR"
+    },
+    {
+      "id": "Su-25",
+      "name": "Su-25"
+    },
+    {
+      "id": "Su-25T",
+      "name": "Su-25T"
+    },
+    {
+      "id": "Su-25TM",
+      "name": "Su-25TM"
+    },
+    {
+      "id": "Su-27",
+      "name": "Su-27"
+    },
+    {
+      "id": "Su-30",
+      "name": "Su-30"
+    },
+    {
+      "id": "Su-33",
+      "name": "Su-33"
+    },
+    {
+      "id": "Su-34",
+      "name": "Su-34"
+    },
+    {
+      "id": "TF-51D",
+      "name": "TF-51D"
+    },
+    {
+      "id": "Tornado GR4",
+      "name": "Tornado GR4"
+    },
+    {
+      "id": "Tornado IDS",
+      "name": "Tornado IDS"
+    },
+    {
+      "id": "Tu-142",
+      "name": "Tu-142"
+    },
+    {
+      "id": "Tu-160",
+      "name": "Tu-160"
+    },
+    {
+      "id": "Tu-22M3",
+      "name": "Tu-22M3"
+    },
+    {
+      "id": "Tu-95MS",
+      "name": "Tu-95MS"
+    },
+    {
+      "id": "WingLoong-I",
+      "name": "WingLoong-I"
+    },
+    {
+      "id": "Yak-40",
+      "name": "Yak-40"
+    },
+    {
+      "id": "Yak-52",
+      "name": "Yak-52"
+    }
+  ],
+  "helicopter": [
+    {
+      "id": "AH-1W",
+      "name": "AH-1W"
+    },
+    {
+      "id": "AH-64A",
+      "name": "AH-64A"
+    },
+    {
+      "id": "AH-64D",
+      "name": "AH-64D"
+    },
+    {
+      "id": "AH-64D_BLK_II",
+      "name": "AH-64D_BLK_II"
+    },
+    {
+      "id": "CH-47D",
+      "name": "CH-47D"
+    },
+    {
+      "id": "CH-47Fbl1",
+      "name": "CH-47Fbl1"
+    },
+    {
+      "id": "CH-53E",
+      "name": "CH-53E"
+    },
+    {
+      "id": "CHAP_TigerUHT",
+      "name": "CHAP_TigerUHT"
+    },
+    {
+      "id": "Ka-27",
+      "name": "Ka-27"
+    },
+    {
+      "id": "Ka-50",
+      "name": "Ka-50"
+    },
+    {
+      "id": "Ka-50_3",
+      "name": "Ka-50_3"
+    },
+    {
+      "id": "Mi-24P",
+      "name": "Mi-24P"
+    },
+    {
+      "id": "Mi-24V",
+      "name": "Mi-24V"
+    },
+    {
+      "id": "Mi-26",
+      "name": "Mi-26"
+    },
+    {
+      "id": "Mi-28N",
+      "name": "Mi-28N"
+    },
+    {
+      "id": "Mi-8MT",
+      "name": "Mi-8MT"
+    },
+    {
+      "id": "OH-58D",
+      "name": "OH-58D"
+    },
+    {
+      "id": "OH58D",
+      "name": "OH58D"
+    },
+    {
+      "id": "SA342L",
+      "name": "SA342L"
+    },
+    {
+      "id": "SA342M",
+      "name": "SA342M"
+    },
+    {
+      "id": "SA342Minigun",
+      "name": "SA342Minigun"
+    },
+    {
+      "id": "SA342Mistral",
+      "name": "SA342Mistral"
+    },
+    {
+      "id": "SH-3W",
+      "name": "SH-3W"
+    },
+    {
+      "id": "SH-60B",
+      "name": "SH-60B"
+    },
+    {
+      "id": "UH-1H",
+      "name": "UH-1H"
+    },
+    {
+      "id": "UH-60A",
+      "name": "UH-60A"
+    }
+  ],
+  "ship": [
+    {
+      "id": "ALBATROS",
+      "name": "Corvette 1124M Grisha [CH]"
+    },
+    {
+      "id": "BDK-775",
+      "name": "LS Ropucha"
+    },
+    {
+      "id": "CHAP_Project22160",
+      "name": "Patrol Ship 22160 Vasily Bykov [CH]"
+    },
+    {
+      "id": "CHAP_Project22160_TorM2KM",
+      "name": "Patrol ship 22160 Vasily Bykov with Tor M2KM [CH]"
+    },
+    {
+      "id": "CVN_71",
+      "name": "CVN-71 Theodore Roosevelt"
+    },
+    {
+      "id": "CVN_72",
+      "name": "CVN-72 Abraham Lincoln"
+    },
+    {
+      "id": "CVN_73",
+      "name": "CVN-73 George Washington"
+    },
+    {
+      "id": "CVN_75",
+      "name": "CVN-75 Harry S. Truman"
+    },
+    {
+      "id": "CV_1143_5",
+      "name": "CV 1143.5 Admiral Kuznetsov(2017)"
+    },
+    {
+      "id": "CastleClass_01",
+      "name": "Castle Class"
+    },
+    {
+      "id": "Dry-cargo ship-1",
+      "name": "Bulker Yakushev"
+    },
+    {
+      "id": "Dry-cargo ship-2",
+      "name": "Cargo Ivanov"
+    },
+    {
+      "id": "ELNYA",
+      "name": "Tanker Elnya 160"
+    },
+    {
+      "id": "Essex",
+      "name": "Essex Class Carrier 1944"
+    },
+    {
+      "id": "Forrestal",
+      "name": "CV-59 Forrestal"
+    },
+    {
+      "id": "HandyWind",
+      "name": "Bulker Handy Wind"
+    },
+    {
+      "id": "HarborTug",
+      "name": "Harbor Tug"
+    },
+    {
+      "id": "Higgins_boat",
+      "name": "Boat LCVP Higgins"
+    },
+    {
+      "id": "IMPROVED_KILO",
+      "name": "SSK 636 Improved Kilo"
+    },
+    {
+      "id": "KILO",
+      "name": "SSK 877V Kilo"
+    },
+    {
+      "id": "KUZNECOW",
+      "name": "CV 1143.5 Admiral Kuznetsov"
+    },
+    {
+      "id": "LHA_Tarawa",
+      "name": "LHA-1 Tarawa"
+    },
+    {
+      "id": "LST_Mk2",
+      "name": "LST Mk.II"
+    },
+    {
+      "id": "La_Combattante_II",
+      "name": "FAC La Combattante IIa"
+    },
+    {
+      "id": "MOLNIYA",
+      "name": "Corvette 1241.1 Molniya"
+    },
+    {
+      "id": "MOSCOW",
+      "name": "Cruiser 1164 Moskva"
+    },
+    {
+      "id": "NEUSTRASH",
+      "name": "Frigate 11540 Neustrashimy"
+    },
+    {
+      "id": "PERRY",
+      "name": "FFG Oliver Hazard Perry"
+    },
+    {
+      "id": "PIOTR",
+      "name": "Battlecruiser 1144.2 Pyotr Velikiy"
+    },
+    {
+      "id": "REZKY",
+      "name": "Frigate 1135M Rezky"
+    },
+    {
+      "id": "SOM",
+      "name": "SSK 641B Tango"
+    },
+    {
+      "id": "Schnellboot_type_S130",
+      "name": "Boat Schnellboot type S130"
+    },
+    {
+      "id": "Seawise_Giant",
+      "name": "Tanker Seawise Giant"
+    },
+    {
+      "id": "Ship_Tilde_Supply",
+      "name": "Supply Ship MV Tilde"
+    },
+    {
+      "id": "Stennis",
+      "name": "CVN-74 John C. Stennis"
+    },
+    {
+      "id": "TICONDEROG",
+      "name": "CG Ticonderoga"
+    },
+    {
+      "id": "Type_021_1",
+      "name": "Type 021-1 Missile Boat"
+    },
+    {
+      "id": "Type_052B",
+      "name": "Type 052B Destroyer"
+    },
+    {
+      "id": "Type_052C",
+      "name": "Type 052C Destroyer"
+    },
+    {
+      "id": "Type_054A",
+      "name": "Type 054A Frigate"
+    },
+    {
+      "id": "Type_071",
+      "name": "Type 071 Amphibious Transport Dock"
+    },
+    {
+      "id": "Type_093",
+      "name": "Type 093 Attack Submarine"
+    },
+    {
+      "id": "USS_Arleigh_Burke_IIa",
+      "name": "DDG Arleigh Burke IIa"
+    },
+    {
+      "id": "USS_Samuel_Chase",
+      "name": "LS Samuel Chase"
+    },
+    {
+      "id": "Uboat_VIIC",
+      "name": "U-boat VIIC U-flak"
+    },
+    {
+      "id": "VINSON",
+      "name": "CVN-70 Carl Vinson"
+    },
+    {
+      "id": "ZWEZDNY",
+      "name": "Boat Zvezdny type"
+    },
+    {
+      "id": "ara_vdm",
+      "name": "ARA Veinticinco de Mayo"
+    },
+    {
+      "id": "atconveyor",
+      "name": "SS Atlantic Conveyor"
+    },
+    {
+      "id": "hms_invincible",
+      "name": "HMS Invincible (R05)"
+    },
+    {
+      "id": "leander-gun-achilles",
+      "name": "HMS Achilles (F12)"
+    },
+    {
+      "id": "leander-gun-andromeda",
+      "name": "HMS Andromeda (F57)"
+    },
+    {
+      "id": "leander-gun-ariadne",
+      "name": "HMS Ariadne (F72)"
+    },
+    {
+      "id": "leander-gun-condell",
+      "name": "CNS Almirante Condell (PFG-06)"
+    },
+    {
+      "id": "leander-gun-lynch",
+      "name": "CNS Almirante Lynch (PFG-07)"
+    },
+    {
+      "id": "santafe",
+      "name": "ARA Santa Fe S-21"
+    },
+    {
+      "id": "speedboat",
+      "name": "Boat Armed Hi-speed"
+    }
+  ],
+  "static": [
+    {
+      "id": ".Ammunition depot",
+      "name": "Ammunition depot"
+    },
+    {
+      "id": ".Command Center",
+      "name": "Command Center"
+    },
+    {
+      "id": "345 Excavator",
+      "name": "Excavator"
+    },
+    {
+      "id": "463_Pallet",
+      "name": "463 Pallet"
+    },
+    {
+      "id": "AM32a-60_01",
+      "name": "M92 AM32a-60-01"
+    },
+    {
+      "id": "AM32a-60_02",
+      "name": "M92 AM32a-60-02"
+    },
+    {
+      "id": "APFC fuel",
+      "name": "M92 APFC fuel"
+    },
+    {
+      "id": "Airshow_Cone",
+      "name": "Airshow cone"
+    },
+    {
+      "id": "Airshow_Crowd",
+      "name": "Airshow Crowd"
+    },
+    {
+      "id": "B600",
+      "name": "M92 B600"
+    },
+    {
+      "id": "Barracks 2",
+      "name": "Barracks 2"
+    },
+    {
+      "id": "Barrier A",
+      "name": "M92 Barrier A"
+    },
+    {
+      "id": "Barrier B",
+      "name": "M92 Barrier B"
+    },
+    {
+      "id": "Barrier C",
+      "name": "M92 Barrier C"
+    },
+    {
+      "id": "Barrier D",
+      "name": "M92 Barrier D"
+    },
+    {
+      "id": "Beer Bomb",
+      "name": "Barrel"
+    },
+    {
+      "id": "Belgian gate",
+      "name": "Belgian gate"
+    },
+    {
+      "id": "Black_Tyre",
+      "name": "Mark Tyre Black"
+    },
+    {
+      "id": "Black_Tyre_RF",
+      "name": "Mark Tyre with Red Flag"
+    },
+    {
+      "id": "Black_Tyre_WF",
+      "name": "Mark Tyre with White Flag"
+    },
+    {
+      "id": "Boiler-house A",
+      "name": "Boiler-house A"
+    },
+    {
+      "id": "BoomBarrier_closed",
+      "name": "M92 Boom Barrier closed"
+    },
+    {
+      "id": "BoomBarrier_open",
+      "name": "M92 Boom Barrier open"
+    },
+    {
+      "id": "Bridge",
+      "name": "Bridge"
+    },
+    {
+      "id": "Building",
+      "name": "Building"
+    },
+    {
+      "id": "Building01_PBR",
+      "name": "M92 Building01 PBR"
+    },
+    {
+      "id": "Building02_PBR",
+      "name": "M92 Building02 PBR"
+    },
+    {
+      "id": "Building03_PBR",
+      "name": "M92 Building03 PBR"
+    },
+    {
+      "id": "Building04_PBR",
+      "name": "M92 Building04 PBR"
+    },
+    {
+      "id": "Building05_PBR",
+      "name": "M92 Building05 PBR"
+    },
+    {
+      "id": "Building06_PBR",
+      "name": "M92 Building06 PBR"
+    },
+    {
+      "id": "Building07_PBR",
+      "name": "M92 Building07 PBR"
+    },
+    {
+      "id": "Building08_PBR",
+      "name": "M92 Building08 PBR"
+    },
+    {
+      "id": "Cafe",
+      "name": "Cafe"
+    },
+    {
+      "id": "Camouflage01",
+      "name": "M92 Camouflage 01"
+    },
+    {
+      "id": "Camouflage02",
+      "name": "M92 Camouflage 02"
+    },
+    {
+      "id": "Camouflage03",
+      "name": "M92 Camouflage 03"
+    },
+    {
+      "id": "Camouflage04",
+      "name": "M92 Camouflage 04"
+    },
+    {
+      "id": "Camouflage05",
+      "name": "M92 Camouflage 05"
+    },
+    {
+      "id": "Camouflage06",
+      "name": "M92 Camouflage 06"
+    },
+    {
+      "id": "Camouflage07",
+      "name": "M92 Camouflage 07"
+    },
+    {
+      "id": "Cargo01",
+      "name": "M92 Cargo 01"
+    },
+    {
+      "id": "Cargo02",
+      "name": "M92 Cargo 02"
+    },
+    {
+      "id": "Cargo03",
+      "name": "M92 Cargo 03"
+    },
+    {
+      "id": "Cargo04",
+      "name": "M92 Cargo 04"
+    },
+    {
+      "id": "Cargo05",
+      "name": "M92 Cargo 05"
+    },
+    {
+      "id": "Cargo06",
+      "name": "M92 Cargo 06"
+    },
+    {
+      "id": "Chemical tank A",
+      "name": "Chemical tank A"
+    },
+    {
+      "id": "Comms tower M",
+      "name": "Comms tower M"
+    },
+    {
+      "id": "Concertina wire",
+      "name": "Concertina wire"
+    },
+    {
+      "id": "Cone01",
+      "name": "M92 Cone 01"
+    },
+    {
+      "id": "Cone02",
+      "name": "M92 Cone 02"
+    },
+    {
+      "id": "Container brown",
+      "name": "Container brown"
+    },
+    {
+      "id": "Container red 1",
+      "name": "Container red 1"
+    },
+    {
+      "id": "Container red 2",
+      "name": "Container red 2"
+    },
+    {
+      "id": "Container red 3",
+      "name": "Container red 3"
+    },
+    {
+      "id": "Container white",
+      "name": "Container white"
+    },
+    {
+      "id": "Container_10ft",
+      "name": "M92 Container 10ft"
+    },
+    {
+      "id": "Container_20ft",
+      "name": "M92 Container 20ft"
+    },
+    {
+      "id": "Container_40ft",
+      "name": "M92 Container 40ft"
+    },
+    {
+      "id": "Container_generator",
+      "name": "M92 Container generator"
+    },
+    {
+      "id": "Container_office",
+      "name": "M92 Container office"
+    },
+    {
+      "id": "Container_watchtower",
+      "name": "M92 Container watchtower"
+    },
+    {
+      "id": "Container_watchtower_lights",
+      "name": "M92 Container watchtower lights"
+    },
+    {
+      "id": "Czech hedgehogs 1",
+      "name": "Czech hedgehogs 1"
+    },
+    {
+      "id": "Czech hedgehogs 2",
+      "name": "Czech hedgehogs 2"
+    },
+    {
+      "id": "Dragonteeth 1",
+      "name": "Dragonteeth 1"
+    },
+    {
+      "id": "Dragonteeth 2",
+      "name": "Dragonteeth 2"
+    },
+    {
+      "id": "Dragonteeth 3",
+      "name": "Dragonteeth 3"
+    },
+    {
+      "id": "Dragonteeth 4",
+      "name": "Dragonteeth 4"
+    },
+    {
+      "id": "Dragonteeth 5",
+      "name": "Dragonteeth 5"
+    },
+    {
+      "id": "Drop Zone Marker A",
+      "name": "Drop Zone Marker A"
+    },
+    {
+      "id": "Drop Zone Marker B",
+      "name": "Drop Zone Marker B"
+    },
+    {
+      "id": "Drop Zone Marker C",
+      "name": "Drop Zone Marker C"
+    },
+    {
+      "id": "Drop Zone Marker D",
+      "name": "Drop Zone Marker D"
+    },
+    {
+      "id": "Drop Zone Marker E",
+      "name": "Drop Zone Marker E"
+    },
+    {
+      "id": "Electric power box",
+      "name": "Electric power box"
+    },
+    {
+      "id": "ElevatedPlatform_down",
+      "name": "M92 Elevated Platform down"
+    },
+    {
+      "id": "ElevatedPlatform_up",
+      "name": "M92 Elevated Platform up"
+    },
+    {
+      "id": "FARP Ammo Dump Coating",
+      "name": "FARP Ammo Storage"
+    },
+    {
+      "id": "FARP CP Blindage",
+      "name": "FARP Command Post"
+    },
+    {
+      "id": "FARP Fuel Depot",
+      "name": "FARP Fuel Depot"
+    },
+    {
+      "id": "FARP Tent",
+      "name": "FARP Tent"
+    },
+    {
+      "id": "Farm A",
+      "name": "Farm A"
+    },
+    {
+      "id": "Farm B",
+      "name": "Farm B"
+    },
+    {
+      "id": "FarpHide_Dmed",
+      "name": "FARP Hide Double Med"
+    },
+    {
+      "id": "FarpHide_Dsmall",
+      "name": "FARP Hide Double Small"
+    },
+    {
+      "id": "FarpHide_Med",
+      "name": "FARP Hide Single Med"
+    },
+    {
+      "id": "FarpHide_small",
+      "name": "FARP Hide Single Small"
+    },
+    {
+      "id": "Fire Control Bunker",
+      "name": "Fire control bunker"
+    },
+    {
+      "id": "FireExtinguisher01",
+      "name": "M92 Fire Extinguisher 01"
+    },
+    {
+      "id": "FireExtinguisher02",
+      "name": "M92 Fire Extinguisher 02"
+    },
+    {
+      "id": "FireExtinguisher03",
+      "name": "M92 Fire Extinguisher 03"
+    },
+    {
+      "id": "FlagPole",
+      "name": "Flag Pole"
+    },
+    {
+      "id": "Freya_Shelter_Brick",
+      "name": "Freya Shelter Brick"
+    },
+    {
+      "id": "Freya_Shelter_Concrete",
+      "name": "Freya Shelter Concrete"
+    },
+    {
+      "id": "Fuel tank",
+      "name": "Fuel tank"
+    },
+    {
+      "id": "Garage A",
+      "name": "Garage A"
+    },
+    {
+      "id": "Garage B",
+      "name": "Garage B"
+    },
+    {
+      "id": "Garage small A",
+      "name": "Garage small A"
+    },
+    {
+      "id": "Garage small B",
+      "name": "Garage small B"
+    },
+    {
+      "id": "GeneratorF",
+      "name": "GeneratorF"
+    },
+    {
+      "id": "HESCO_generator",
+      "name": "M92 HESCO generator"
+    },
+    {
+      "id": "HESCO_post_1",
+      "name": "M92 HESCO post 1"
+    },
+    {
+      "id": "HESCO_wallperimeter_1",
+      "name": "M92 HESCO wallperimeter 1"
+    },
+    {
+      "id": "HESCO_wallperimeter_2",
+      "name": "M92 HESCO wallperimeter 2"
+    },
+    {
+      "id": "HESCO_wallperimeter_3",
+      "name": "M92 HESCO wallperimeter 3"
+    },
+    {
+      "id": "HESCO_wallperimeter_4",
+      "name": "M92 HESCO wallperimeter 4"
+    },
+    {
+      "id": "HESCO_wallperimeter_5",
+      "name": "M92 HESCO wallperimeter 5"
+    },
+    {
+      "id": "HESCO_watchtower_1",
+      "name": "M92 HESCO watchtower 1"
+    },
+    {
+      "id": "HESCO_watchtower_2",
+      "name": "M92 HESCO watchtower 2"
+    },
+    {
+      "id": "HESCO_watchtower_3",
+      "name": "M92 HESCO watchtower 3"
+    },
+    {
+      "id": "Hangar A",
+      "name": "Hangar A"
+    },
+    {
+      "id": "Hangar B",
+      "name": "Hangar B"
+    },
+    {
+      "id": "Haystack 1",
+      "name": "Haystack 1"
+    },
+    {
+      "id": "Haystack 2",
+      "name": "Haystack 2"
+    },
+    {
+      "id": "Haystack 3",
+      "name": "Haystack 3"
+    },
+    {
+      "id": "Haystack 4",
+      "name": "Haystack 4"
+    },
+    {
+      "id": "Hemmkurvenhindernis",
+      "name": "Hemmkurvenhindernis"
+    },
+    {
+      "id": "Jerrycan",
+      "name": "M92 Jerrycan"
+    },
+    {
+      "id": "LHD_LHA",
+      "name": "M92 LHD LHA"
+    },
+    {
+      "id": "Ladder",
+      "name": "M92 Ladder"
+    },
+    {
+      "id": "Landmine",
+      "name": "Landmine"
+    },
+    {
+      "id": "Log posts 1",
+      "name": "Log posts 1"
+    },
+    {
+      "id": "Log posts 2",
+      "name": "Log posts 2"
+    },
+    {
+      "id": "Log posts 3",
+      "name": "Log posts 3"
+    },
+    {
+      "id": "Log ramps 1",
+      "name": "Log ramps 1"
+    },
+    {
+      "id": "Log ramps 2",
+      "name": "Log ramps 2"
+    },
+    {
+      "id": "Log ramps 3",
+      "name": "Log ramps 3"
+    },
+    {
+      "id": "M32-10C_01",
+      "name": "M92 M32-10C 01"
+    },
+    {
+      "id": "M32-10C_02",
+      "name": "M92 M32-10C 02"
+    },
+    {
+      "id": "M32-10C_03",
+      "name": "M92 M32-10C 03"
+    },
+    {
+      "id": "M32-10C_04",
+      "name": "M92 M32-10C 04"
+    },
+    {
+      "id": "M92_10Ft_Container",
+      "name": "10ft Container"
+    },
+    {
+      "id": "M92_Ammo_Pallet",
+      "name": "Ammo Pallet"
+    },
+    {
+      "id": "M92_Concrete_Barrier_Cargo",
+      "name": "Concrete Barrier"
+    },
+    {
+      "id": "M92_MRE_Pallet",
+      "name": "MRE Pallet"
+    },
+    {
+      "id": "MJ-1_01",
+      "name": "M92 MJ-1 01"
+    },
+    {
+      "id": "MJ-1_02",
+      "name": "M92 MJ-1 02"
+    },
+    {
+      "id": "Military staff",
+      "name": "Military staff"
+    },
+    {
+      "id": "NF-2_LightOff01",
+      "name": "M92 NF-2 LightOff 01"
+    },
+    {
+      "id": "NF-2_LightOff02",
+      "name": "M92 NF-2 LightOff 02"
+    },
+    {
+      "id": "NF-2_LightOn",
+      "name": "M92 NF-2 LightOn"
+    },
+    {
+      "id": "Nodding_Donkey_Pump",
+      "name": "Nodding Donkey Pump"
+    },
+    {
+      "id": "Oil Barrel",
+      "name": "M92 Oil barrel"
+    },
+    {
+      "id": "Oil derrick",
+      "name": "Oil derrick"
+    },
+    {
+      "id": "Oil platform",
+      "name": "Oil platform"
+    },
+    {
+      "id": "Orca",
+      "name": "Orca Whale"
+    },
+    {
+      "id": "P20_01",
+      "name": "M92 P20 01"
+    },
+    {
+      "id": "Pile of Woods",
+      "name": "M92 Pile of woods"
+    },
+    {
+      "id": "Pump station",
+      "name": "Pump station"
+    },
+    {
+      "id": "Railway crossing A",
+      "name": "Railway crossing A"
+    },
+    {
+      "id": "Railway crossing B",
+      "name": "Railway crossing B"
+    },
+    {
+      "id": "Railway station",
+      "name": "Railway station"
+    },
+    {
+      "id": "Red_Flag",
+      "name": "Mark Flag Red"
+    },
+    {
+      "id": "Repair workshop",
+      "name": "Repair workshop"
+    },
+    {
+      "id": "Restaurant 1",
+      "name": "Restaurant 1"
+    },
+    {
+      "id": "Revetment_x4",
+      "name": "M92 Revetment x4"
+    },
+    {
+      "id": "Revetment_x8",
+      "name": "M92 Revetment x8"
+    },
+    {
+      "id": "Sandbag_01",
+      "name": "M92 Sandbag 01"
+    },
+    {
+      "id": "Sandbag_02",
+      "name": "M92 Sandbag 02"
+    },
+    {
+      "id": "Sandbag_03",
+      "name": "M92 Sandbag 03"
+    },
+    {
+      "id": "Sandbag_04",
+      "name": "M92 Sandbag 04"
+    },
+    {
+      "id": "Sandbag_05",
+      "name": "M92 Sandbag 05"
+    },
+    {
+      "id": "Sandbag_06",
+      "name": "M92 Sandbag 06"
+    },
+    {
+      "id": "Sandbag_07",
+      "name": "M92 Sandbag 07"
+    },
+    {
+      "id": "Sandbag_08",
+      "name": "M92 Sandbag 08"
+    },
+    {
+      "id": "Sandbag_09",
+      "name": "M92 Sandbag 09"
+    },
+    {
+      "id": "Sandbag_10",
+      "name": "M92 Sandbag 10"
+    },
+    {
+      "id": "Sandbag_11",
+      "name": "M92 Sandbag 11"
+    },
+    {
+      "id": "Sandbag_12",
+      "name": "M92 Sandbag 12"
+    },
+    {
+      "id": "Sandbag_13",
+      "name": "M92 Sandbag 13"
+    },
+    {
+      "id": "Sandbag_15",
+      "name": "M92 Sandbag 15"
+    },
+    {
+      "id": "Sandbag_16",
+      "name": "M92 Sandbag 16"
+    },
+    {
+      "id": "Sandbag_17",
+      "name": "M92 Sandbag 17"
+    },
+    {
+      "id": "Shelter",
+      "name": "Shelter"
+    },
+    {
+      "id": "Shelter B",
+      "name": "Shelter B"
+    },
+    {
+      "id": "Shelter01",
+      "name": "M92 Shelter 01"
+    },
+    {
+      "id": "Shelter02",
+      "name": "M92 Shelter 02"
+    },
+    {
+      "id": "Shop",
+      "name": "Shop"
+    },
+    {
+      "id": "Siegfried Line",
+      "name": "Siegfried line"
+    },
+    {
+      "id": "Small house 1A",
+      "name": "Small house 1A"
+    },
+    {
+      "id": "Small house 1A area",
+      "name": "Small house 1A area"
+    },
+    {
+      "id": "Small house 1B",
+      "name": "Small house 1B"
+    },
+    {
+      "id": "Small house 1B area",
+      "name": "Small house 1B area"
+    },
+    {
+      "id": "Small house 1C area",
+      "name": "Small house 1C area"
+    },
+    {
+      "id": "Small house 2C",
+      "name": "Small house 2C"
+    },
+    {
+      "id": "Small werehouse 1",
+      "name": "Small warehouse 1"
+    },
+    {
+      "id": "Small werehouse 2",
+      "name": "Small warehouse 2"
+    },
+    {
+      "id": "Small werehouse 3",
+      "name": "Small warehouse 3"
+    },
+    {
+      "id": "Small werehouse 4",
+      "name": "Small warehouse 4"
+    },
+    {
+      "id": "Small_LightHouse",
+      "name": "Small_LightHouse"
+    },
+    {
+      "id": "Stanley_LightHouse",
+      "name": "Stanley LightHouse"
+    },
+    {
+      "id": "Subsidiary structure 1",
+      "name": "Subsidiary structure 1"
+    },
+    {
+      "id": "Subsidiary structure 2",
+      "name": "Subsidiary structure 2"
+    },
+    {
+      "id": "Subsidiary structure 3",
+      "name": "Subsidiary structure 3"
+    },
+    {
+      "id": "Subsidiary structure A",
+      "name": "Subsidiary structure A"
+    },
+    {
+      "id": "Subsidiary structure B",
+      "name": "Subsidiary structure B"
+    },
+    {
+      "id": "Subsidiary structure C",
+      "name": "Subsidiary structure C"
+    },
+    {
+      "id": "Subsidiary structure D",
+      "name": "Subsidiary structure D"
+    },
+    {
+      "id": "Subsidiary structure E",
+      "name": "Subsidiary structure E"
+    },
+    {
+      "id": "Subsidiary structure F",
+      "name": "Subsidiary structure F"
+    },
+    {
+      "id": "Subsidiary structure G",
+      "name": "Subsidiary structure G"
+    },
+    {
+      "id": "Supermarket A",
+      "name": "Supermarket A"
+    },
+    {
+      "id": "TV tower",
+      "name": "TV tower"
+    },
+    {
+      "id": "Tank",
+      "name": "Tank 1"
+    },
+    {
+      "id": "Tank 2",
+      "name": "Tank 2"
+    },
+    {
+      "id": "Tank 3",
+      "name": "Tank 3"
+    },
+    {
+      "id": "Tech combine",
+      "name": "Tech combine"
+    },
+    {
+      "id": "Tech hangar A",
+      "name": "Tech hangar A"
+    },
+    {
+      "id": "Tent01",
+      "name": "M92 Tent 01"
+    },
+    {
+      "id": "Tent02",
+      "name": "M92 Tent 02"
+    },
+    {
+      "id": "Tent03",
+      "name": "M92 Tent 03"
+    },
+    {
+      "id": "Tent04",
+      "name": "M92 Tent 04"
+    },
+    {
+      "id": "Tent05",
+      "name": "M92 Tent 05"
+    },
+    {
+      "id": "Tetrahydra",
+      "name": "Tetrahydra"
+    },
+    {
+      "id": "Toolbox01",
+      "name": "M92 Toolbox 01"
+    },
+    {
+      "id": "Toolbox02",
+      "name": "M92 Toolbox 02"
+    },
+    {
+      "id": "Tower Crane",
+      "name": "TowerCrane"
+    },
+    {
+      "id": "Train",
+      "name": "Train"
+    },
+    {
+      "id": "Transport",
+      "name": "Transport"
+    },
+    {
+      "id": "TugHarlan",
+      "name": "M92 Tug Harlan"
+    },
+    {
+      "id": "Twall_x1",
+      "name": "M92 Twall x1"
+    },
+    {
+      "id": "Twall_x6",
+      "name": "M92 Twall x6"
+    },
+    {
+      "id": "Twall_x6_3mts",
+      "name": "M92 Twall x6 3mts"
+    },
+    {
+      "id": "WC",
+      "name": "WC"
+    },
+    {
+      "id": "Warehouse",
+      "name": "Warehouse"
+    },
+    {
+      "id": "Water tower A",
+      "name": "Water tower A"
+    },
+    {
+      "id": "White_Flag",
+      "name": "Mark Flag White"
+    },
+    {
+      "id": "White_Tyre",
+      "name": "Mark Tyre White"
+    },
+    {
+      "id": "WindTurbine",
+      "name": "Wind Turbine"
+    },
+    {
+      "id": "WindTurbine_11",
+      "name": "Wind Turbine 2"
+    },
+    {
+      "id": "Windsock",
+      "name": "Windsock"
+    },
+    {
+      "id": "Workshop A",
+      "name": "Workshop A"
+    },
+    {
+      "id": "af_hq",
+      "name": "HQ Building"
+    },
+    {
+      "id": "ammo_cargo",
+      "name": "Ammo"
+    },
+    {
+      "id": "barrels_cargo",
+      "name": "Barrels"
+    },
+    {
+      "id": "big_smoke",
+      "name": "Big smoke (fire and smoke effect)"
+    },
+    {
+      "id": "billboard_motorized",
+      "name": "Billboard Motorized"
+    },
+    {
+      "id": "cds_barrels",
+      "name": "CDS Barrels"
+    },
+    {
+      "id": "cds_crate",
+      "name": "CDS Crate"
+    },
+    {
+      "id": "container_20ft",
+      "name": "Container 20ft"
+    },
+    {
+      "id": "container_40ft",
+      "name": "Container 40ft"
+    },
+    {
+      "id": "container_cargo",
+      "name": "Container"
+    },
+    {
+      "id": "f_bar_cargo",
+      "name": "F-shape barrier"
+    },
+    {
+      "id": "fueltank_cargo",
+      "name": "Fueltank"
+    },
+    {
+      "id": "gbu_43b_airdrop",
+      "name": "GBU-43 MOAB"
+    },
+    {
+      "id": "ip_tower",
+      "name": "IP Tower"
+    },
+    {
+      "id": "iso_container",
+      "name": "ISO container"
+    },
+    {
+      "id": "iso_container_small",
+      "name": "ISO container small"
+    },
+    {
+      "id": "l118",
+      "name": "L118 Light Artillery"
+    },
+    {
+      "id": "m117_cargo",
+      "name": "M117 bombs"
+    },
+    {
+      "id": "offshore WindTurbine",
+      "name": "Offshore Wind Turbine"
+    },
+    {
+      "id": "offshore WindTurbine2",
+      "name": "Offshore Wind Turbine 2"
+    },
+    {
+      "id": "oiltank_cargo",
+      "name": "Oiltank"
+    },
+    {
+      "id": "pipes_big_cargo",
+      "name": "Pipes big"
+    },
+    {
+      "id": "pipes_small_cargo",
+      "name": "Pipes small"
+    },
+    {
+      "id": "r11_volvo",
+      "name": "M92 R11 Volvo"
+    },
+    {
+      "id": "tetrapod_cargo",
+      "name": "Tetrapod"
+    },
+    {
+      "id": "trunks_long_cargo",
+      "name": "Trunks long"
+    },
+    {
+      "id": "trunks_small_cargo",
+      "name": "Trunks short"
+    },
+    {
+      "id": "uh1h_cargo",
+      "name": "UH-1H cargo"
+    },
+    {
+      "id": "warning_board_a",
+      "name": "Warning Board: Spy Cannot Escape!"
+    },
+    {
+      "id": "warning_board_b",
+      "name": "Warning Board: Catch Spy!"
+    }
+  ]
+}

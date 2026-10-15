@@ -27,8 +27,9 @@ These are static HTML snapshots of the live, interactive web tools. Each one is 
 | Intent Builder | https://claude.ai/artifact/T1McQ5z9AJwnMirFHMeWUo |
 | Campaign Board (per-cycle front end: objective, JIPTL, apportionment, targeting, participants, and unit doc uploads) | https://claude.ai/artifact/PTTEXkmEhu6xAurJtB9UsP |
 | Campaign Intake (unit-facing form to submit a campaign's Combined Campaign Intent and file, plus a CAOC-only review queue) | https://claude.ai/artifact/Lja4TbxxMtLspuAQanXNSW |
+| JIPTL Review (CFACC approve/disapprove queue for a cycle's JIPTL, built from the JIPTL pipeline's output) | not yet published as a live artifact -- `tools/jiptl_review.html` is a static snapshot for now |
 
-Both are design mockups, not functioning tools: no file upload, storage, or review workflow is wired up yet. Submitting the form, dragging in a file, and the CAOC Review action buttons are all visual only. They show what the pages look like and how a unit or the CAOC Board would move through them, pending a real backend.
+Most are design mockups, not functioning tools: no file upload, storage, or review workflow is wired up yet. Submitting the form, dragging in a file, and the CAOC Review action buttons are all visual only. They show what the pages look like and how a unit or the CAOC Board would move through them, pending a real backend. The JIPTL Review page is the exception on one count -- its Approve/Disapprove/Remarks controls actually persist, but only to that browser's local storage (no shared backend yet either), via `tools/jiptl_pipeline/` (see that folder's own README): classify a mission's REDFOR order of battle, geofence it to the cycle's Battle Management Area, score and cap it against the cycle's Key Tasks, and stamp ATO-referenceable target numbers.
 
 If you're integrating these into a site, the HTML files in `/tools` are a good starting point for layout and styling — but swap in your own data backend for anything that needs to actually work (file storage, submission records, shared state), since the copies here don't connect to anything.
 
