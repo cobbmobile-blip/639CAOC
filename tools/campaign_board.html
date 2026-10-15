@@ -480,107 +480,35 @@ footer .wrap { font-family: var(--mono); font-size: 11px; color: var(--ink-dim);
   <section>
     <h2>Unit Submissions</h2>
     <div class="panel">
-      <div id="submitForm" class="submit-row" hidden>
-        <select id="submitPkg">
+      <div class="submit-row">
+        <select>
           <option>Package A</option>
           <option>Package B</option>
           <option>Package C</option>
           <option>Other</option>
         </select>
-        <label class="link-btn secondary upload-btn" for="submitFile">
+        <a class="link-btn secondary upload-btn" href="#">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"></path><path d="M6 10l6-6 6 6"></path><path d="M4 20h16"></path></svg>
           Upload file
-        </label>
-        <input type="file" id="submitFile" hidden>
-        <span id="submitStatus" class="mono" style="font-size:12px; color:var(--ink-dim);"></span>
+        </a>
       </div>
-      <p id="submitHint" style="margin:0 0 14px; font-size:12px; color:var(--ink-dim);">Mission briefs, kneeboards, or anything else your package wants the rest of the coalition to see — posts alongside the CAOC products above.</p>
-      <div id="submissionList" class="downloads"></div>
-      <p id="submitEmpty" style="margin:10px 0 0; font-size:13px; color:var(--ink-dim);">No unit documents uploaded yet.</p>
+      <p style="margin:0 0 14px; font-size:12px; color:var(--ink-dim);">Mission briefs, kneeboards, or anything else your package wants the rest of the coalition to see — posts alongside the CAOC products above.</p>
+      <div class="downloads">
+        <a class="doc-card" href="#">
+          <span class="glyph">B</span>
+          <span class="meta"><span class="title">TGP_Setup_Reminders.pdf</span><span class="sub">Package B &middot; Oct 13, 9:14 PM</span></span>
+          <span class="go">↓</span>
+        </a>
+        <a class="doc-card" href="#">
+          <span class="glyph">C</span>
+          <span class="meta"><span class="title">Madhatters_Kneeboard_v2.pdf</span><span class="sub">Package C &middot; Oct 12, 7:40 PM</span></span>
+          <span class="go">↓</span>
+        </a>
+      </div>
     </div>
   </section>
 
 </main>
-
-<script>
-(function () {
-  function escapeHtml(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
-  }
-
-  async function init() {
-    var claudeApi = window.claude;
-    var assets = null, db = null;
-    try { assets = await claudeApi.use('assets'); } catch (e) {}
-    try { db = await claudeApi.use('db'); } catch (e) {}
-
-    var formEl = document.getElementById('submitForm');
-    var hintEl = document.getElementById('submitHint');
-    var listEl = document.getElementById('submissionList');
-    var emptyEl = document.getElementById('submitEmpty');
-    var statusEl = document.getElementById('submitStatus');
-    var fileInput = document.getElementById('submitFile');
-    var pkgSelect = document.getElementById('submitPkg');
-
-    if (!assets || !db) {
-      hintEl.textContent = 'Unit uploads are available when this page is open in the Claude app, signed in.';
-      return;
-    }
-    formEl.hidden = false;
-
-    function render(docs) {
-      var items = Object.keys(docs || {}).map(function (k) { return docs[k]; });
-      listEl.innerHTML = '';
-      if (!items.length) { emptyEl.hidden = false; return; }
-      emptyEl.hidden = true;
-      items.sort(function (a, b) { return (b.uploadedAt || 0) - (a.uploadedAt || 0); });
-      items.forEach(function (d) {
-        var a = document.createElement('a');
-        a.className = 'doc-card';
-        a.href = d.assetUrl; a.target = '_blank'; a.rel = 'noopener';
-        var initial = (d.pkg || 'U').slice(-1).toUpperCase();
-        a.innerHTML =
-          '<span class="glyph">' + escapeHtml(initial) + '</span>' +
-          '<span class="meta"><span class="title">' + escapeHtml(d.fileName) + '</span>' +
-          '<span class="sub">' + escapeHtml(d.pkg) + ' &middot; ' + escapeHtml(new Date(d.uploadedAt).toLocaleString()) + '</span></span>' +
-          '<span class="go">&#8595;</span>';
-        listEl.appendChild(a);
-      });
-    }
-
-    try { db.collection('submissions').onSnapshot(render); } catch (e) {}
-
-    fileInput.addEventListener('change', async function () {
-      var file = fileInput.files[0];
-      if (!file) return;
-      statusEl.textContent = 'Uploading…';
-      try {
-        var res = await assets.upload(file);
-        var id = 'submissions/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-        await db.doc(id).set({
-          fileName: file.name,
-          pkg: pkgSelect.value,
-          assetId: res.id,
-          assetUrl: res.url,
-          contentType: res.contentType,
-          sizeBytes: res.sizeBytes,
-          uploadedAt: Date.now()
-        });
-        statusEl.textContent = 'Uploaded.';
-      } catch (e) {
-        statusEl.textContent = 'Upload failed — try again.';
-      }
-      fileInput.value = '';
-      setTimeout(function () { statusEl.textContent = ''; }, 3000);
-    });
-  }
-
-  if (window.claude) { init(); }
-  else { window.addEventListener('load', function () { if (window.claude) init(); }); }
-})();
-</script>
 
 <footer>
   <div class="wrap">

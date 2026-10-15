@@ -1,0 +1,337 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>639 CAOC Intake</title>
+<style>
+/* Layout concept: a single intake form feeding a shared submissions queue, with a
+   second, access-gated queue view for CAOC staff reusing the same record cards. */
+:root {
+  --bg: #eef1ea;
+  --surface: #ffffff;
+  --surface-2: #e4e8dd;
+  --ink: #16200f;
+  --ink-dim: #4b5542;
+  --line: #c6cdb9;
+  --accent: #3a6b35;
+  --accent-ink: #f3f7ee;
+  --amber: #946a1a;
+  --amber-bg: #faecce;
+  --green: #2f7d4f;
+  --green-bg: #e2f1e6;
+  --slate: #5a6472;
+  --slate-bg: #e7eaee;
+  --red: #a23b2e;
+  --red-bg: #f7e4df;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --head: 'Barlow Semi Condensed', var(--sans);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1410; --surface: #161d14; --surface-2: #1c241a; --ink: #e7ede1; --ink-dim: #a3ad98;
+    --line: #2d3728; --accent: #7fb86f; --accent-ink: #0f1410; --amber: #d9a441; --amber-bg: #2e260f;
+    --green: #6fbf8c; --green-bg: #152a1d; --slate: #9aa6ab; --slate-bg: #1c2522; --red: #e08070; --red-bg: #2e1813;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1410; --surface: #161d14; --surface-2: #1c241a; --ink: #e7ede1; --ink-dim: #a3ad98;
+  --line: #2d3728; --accent: #7fb86f; --accent-ink: #0f1410; --amber: #d9a441; --amber-bg: #2e260f;
+  --green: #6fbf8c; --green-bg: #152a1d; --slate: #9aa6ab; --slate-bg: #1c2522; --red: #e08070; --red-bg: #2e1813;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--sans);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0; line-height: 1.5;
+}
+.wrap { max-width: 880px; margin: 0 auto; }
+
+h1, h2, h3 { font-family: var(--head); font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; margin: 0; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-dim); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+header.board {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+  padding: 14px max(16px, env(safe-area-inset-left, 0px)) 14px max(16px, env(safe-area-inset-right, 0px));
+}
+.board-inner { max-width: 880px; margin: 0 auto; }
+.board-id .unit { font-family: var(--mono); font-size: 12px; color: var(--ink-dim); letter-spacing: 0.08em; }
+.board-id .campaign { font-family: var(--head); font-size: 22px; font-weight: 700; }
+.board-sub { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+
+main { padding-top: 28px; padding-bottom: 56px; }
+section { margin-bottom: 40px; }
+section > .eyebrow { margin-bottom: 6px; }
+section > h2 { font-size: 22px; margin-bottom: 14px; }
+section > p.lede { margin: -8px 0 16px; max-width: 62ch; color: var(--ink-dim); font-size: 13px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; }
+
+/* Form */
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field label { display: block; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-dim); margin-bottom: 6px; }
+.field .hint { display: block; font-size: 12px; color: var(--ink-dim); margin-top: 5px; font-family: var(--sans); text-transform: none; letter-spacing: 0; }
+.field input[type="text"], .field input[type="url"], .field textarea, .field select {
+  width: 100%; font-family: var(--sans); font-size: 14px; color: var(--ink);
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+}
+.field textarea { resize: vertical; min-height: 64px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 560px) { .row2 { grid-template-columns: 1fr; } }
+
+.tasks-grid { display: flex; flex-direction: column; gap: 10px; }
+.task-row { display: grid; grid-template-columns: 28px 1fr 1fr; gap: 10px; align-items: center; }
+@media (max-width: 560px) { .task-row { grid-template-columns: 1fr; } }
+.task-row .n { font-family: var(--mono); font-size: 12px; color: var(--ink-dim); text-align: center; }
+.task-row input[type="text"] { width: 100%; font-family: var(--sans); font-size: 13px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 20px; border-radius: 8px; border: 1px solid transparent;
+  font-family: var(--sans); font-weight: 600; font-size: 13px; cursor: pointer;
+}
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.secondary { background: var(--surface); color: var(--ink); border-color: var(--line); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.dropzone {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  flex-direction: column; text-align: center;
+  border: 1.5px dashed var(--line); border-radius: 10px; padding: 26px 16px;
+  background: var(--surface-2); cursor: pointer; font-size: 13px; color: var(--ink-dim);
+}
+.dropzone svg { width: 22px; height: 22px; color: var(--ink-dim); }
+.dropzone .choose { color: var(--accent); font-weight: 600; text-decoration: underline; }
+.dropzone.dragover { border-color: var(--accent); background: var(--green-bg); }
+.dropzone.has-file { border-style: solid; border-color: var(--accent); color: var(--ink); }
+.dropzone.has-file svg { color: var(--accent); }
+.dropzone.unsupported { border-style: solid; border-color: var(--amber); background: var(--amber-bg); color: var(--amber); }
+.dropzone.unsupported svg { color: var(--amber); }
+
+.status-pill { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.status-submitted { background: var(--slate-bg); color: var(--slate); }
+.status-in-review { background: var(--amber-bg); color: var(--amber); }
+.status-products-generated { background: var(--green-bg); color: var(--green); }
+.status-published { background: var(--green-bg); color: var(--green); }
+
+/* Submission cards */
+.sub-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+.sub-card:last-child { margin-bottom: 0; }
+.sub-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sub-top .name { font-family: var(--head); font-size: 17px; font-weight: 700; }
+.sub-top .meta { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+.sub-body { margin-top: 10px; font-size: 13px; color: var(--ink); }
+.sub-body .label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; color: var(--ink-dim); letter-spacing: 0.06em; display: block; margin-top: 10px; }
+.sub-tasks { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+.sub-tasks li { margin-bottom: 2px; }
+.sub-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.sub-actions .btn { padding: 7px 14px; font-size: 12px; }
+.file-link { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: 13px; text-decoration: none; word-break: break-all; }
+
+.gate-note { font-size: 13px; color: var(--ink-dim); }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+
+<header class="board">
+  <div class="board-inner">
+    <div class="board-id">
+      <span class="unit">639 CAOC</span>
+      <span class="campaign">Campaign Intake</span>
+    </div>
+    <div class="board-sub">Submit a campaign for CAOC review &amp; product generation</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <h2>Submit a Campaign</h2>
+    <p class="lede">Fill out the Combined Campaign Intent and point us at your .miz or campaign file. The CAOC Board reviews each submission and generates the standing products — the finished package posts to the Campaign Board.</p>
+    <div class="panel">
+      <form id="intakeForm">
+        <div class="row2">
+          <div class="field">
+            <label for="fCampaign">Campaign name</label>
+            <input type="text" id="fCampaign" required>
+          </div>
+          <div class="field">
+            <label for="fUnit">Submitting unit / squadron</label>
+            <select id="fUnit" required>
+              <option value="">Select your unit…</option>
+              <option>34th Virtual Fighter Squadron "Rattlesnakes"</option>
+              <option>75th Virtual Attack Squadron "Boneyard"</option>
+              <option>492nd Virtual Fighter Squadron "Madhatters"</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="fPoc">POC — name &amp; Discord handle</label>
+          <input type="text" id="fPoc">
+        </div>
+        <div class="field">
+          <label for="fEndState">End state — conditions when the campaign is won (2–3 sentences)</label>
+          <textarea id="fEndState"></textarea>
+        </div>
+        <div class="field">
+          <label>Campaign file</label>
+          <label id="dropzone" for="fFile" class="dropzone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"></path><path d="M7 8l5-5 5 5"></path><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"></path></svg>
+            <span id="dropzoneText"><strong>Drag your file here</strong> or <span class="choose">Choose File</span></span>
+          </label>
+          <input type="file" id="fFile" hidden>
+        </div>
+        <div class="field">
+          <label for="fFileLink">Link to .miz / campaign file (if you have one)</label>
+          <input type="url" id="fFileLink" placeholder="Discord message link, Drive link, OneDrive, GitHub, etc.">
+        </div>
+        <div class="field">
+          <label>Key tasks, in priority order — your pitch; the CFACC may work with you to sharpen it</label>
+          <div class="tasks-grid">
+            <div class="task-row"><span class="n">1</span><input type="text" placeholder="Key task"><input type="text" placeholder="Measure / how we'll know"></div>
+            <div class="task-row"><span class="n">2</span><input type="text" placeholder="Key task"><input type="text" placeholder="Measure / how we'll know"></div>
+            <div class="task-row"><span class="n">3</span><input type="text" placeholder="Key task"><input type="text" placeholder="Measure / how we'll know"></div>
+            <div class="task-row"><span class="n">4</span><input type="text" placeholder="Key task"><input type="text" placeholder="Measure / how we'll know"></div>
+            <div class="task-row"><span class="n">5</span><input type="text" placeholder="Key task"><input type="text" placeholder="Measure / how we'll know"></div>
+          </div>
+        </div>
+        <div class="field" style="margin-top:22px;">
+          <button type="submit" class="btn primary" id="submitBtn">Submit for CAOC Review</button>
+          <span id="formStatus" class="mono" style="font-size:12px; color:var(--ink-dim); margin-left:10px;"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section>
+    <h2>My Submissions</h2>
+    <div class="sub-card">
+      <div class="sub-top">
+        <div><div class="name">Dagger's Edge</div>
+        <div class="meta">34th VFS "Rattlesnakes" &middot; Maj. Haines &middot; Oct 11, 8:52 PM</div></div>
+        <span class="status-pill status-in-review">In Review</span>
+      </div>
+      <div class="sub-body">
+        <span class="label">End state</span>Red's IADS suppressed over the AO; Red ground forces unable to sustain operations; Blue holds uncontested air superiority enabling a follow-on offensive.
+        <span class="label">Key tasks</span>
+        <ol class="sub-tasks">
+          <li>Achieve and maintain air superiority</li>
+          <li>Interdict LOCs</li>
+          <li>Destroy C2 nodes</li>
+          <li>Attrit rear echelon</li>
+          <li>Assist front-line units (CAS; continuous, on call)</li>
+        </ol>
+        <span class="label">Files</span><a class="file-link" href="#">&#8599; Campaign / .miz file (Drive link)</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>CAOC Review</h2>
+    <p class="lede">Visible to CAOC Board members only. Advance a submission as the Board works it.</p>
+    <div class="sub-card">
+      <div class="sub-top">
+        <div><div class="name">Dagger's Edge</div>
+        <div class="meta">34th VFS "Rattlesnakes" &middot; Maj. Haines &middot; Oct 11, 8:52 PM</div></div>
+        <span class="status-pill status-in-review">In Review</span>
+      </div>
+      <div class="sub-body">
+        <span class="label">End state</span>Red's IADS suppressed over the AO; Red ground forces unable to sustain operations; Blue holds uncontested air superiority enabling a follow-on offensive.
+        <span class="label">Key tasks</span>
+        <ol class="sub-tasks">
+          <li>Achieve and maintain air superiority</li>
+          <li>Interdict LOCs</li>
+          <li>Destroy C2 nodes</li>
+          <li>Attrit rear echelon</li>
+          <li>Assist front-line units (CAS; continuous, on call)</li>
+        </ol>
+        <span class="label">Files</span><a class="file-link" href="#">&#8599; Campaign / .miz file (Drive link)</a>
+      </div>
+      <div class="sub-actions">
+        <button type="button" class="btn secondary">Mark In Review</button>
+        <button type="button" class="btn secondary">Mark Products Generated</button>
+        <button type="button" class="btn primary">Push to Campaign Board</button>
+      </div>
+    </div>
+    <div class="sub-card">
+      <div class="sub-top">
+        <div><div class="name">Blacktip Reach</div>
+        <div class="meta">75th VAS "Boneyard" &middot; Capt. Elswick &middot; Oct 9, 6:10 PM</div></div>
+        <span class="status-pill status-submitted">Submitted</span>
+      </div>
+      <div class="sub-body">
+        <span class="label">End state</span>Littoral strike group neutralized; convoy lanes reopened for Blue logistics.
+        <span class="label">Key tasks</span>
+        <ol class="sub-tasks">
+          <li>Neutralize the littoral strike group</li>
+          <li>Reopen convoy lanes for Blue logistics</li>
+        </ol>
+        <span class="label">Files</span><span style="color:var(--ink-dim); font-size:13px;">No file link provided</span>
+      </div>
+      <div class="sub-actions">
+        <button type="button" class="btn secondary">Mark In Review</button>
+        <button type="button" class="btn secondary">Mark Products Generated</button>
+        <button type="button" class="btn primary">Push to Campaign Board</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* Design-only interaction: drag/drop visuals and file-type messaging.
+   Nothing here uploads, stores, or sends data anywhere. */
+(function () {
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  var ALLOWED = ['pdf', 'md', 'txt', 'json', 'csv'];
+  var dropzone = document.getElementById('dropzone');
+  var dropzoneText = document.getElementById('dropzoneText');
+  var fileInput = document.getElementById('fFile');
+  var fileLinkInput = document.getElementById('fFileLink');
+
+  function extOf(name) {
+    var m = /\.([a-z0-9]+)$/i.exec(name || '');
+    return m ? m[1].toLowerCase() : '';
+  }
+  function handleFile(file) {
+    if (!file) return;
+    var ext = extOf(file.name);
+    dropzone.classList.remove('dragover');
+    if (ALLOWED.indexOf(ext) !== -1) {
+      dropzone.classList.remove('unsupported');
+      dropzone.classList.add('has-file');
+      dropzoneText.innerHTML = '<strong>' + escapeHtml(file.name) + '</strong> ready to upload &middot; <span class="choose">change file</span>';
+    } else {
+      dropzone.classList.remove('has-file');
+      dropzone.classList.add('unsupported');
+      dropzoneText.innerHTML = '<strong>.' + escapeHtml(ext || '?') + ' files can\'t be uploaded here</strong> — paste a link below instead, or <span class="choose">try another file</span>';
+      if (!fileLinkInput.value) fileLinkInput.focus();
+    }
+  }
+  fileInput.addEventListener('change', function (ev) { handleFile(ev.target.files[0]); });
+  dropzone.addEventListener('dragover', function (ev) { ev.preventDefault(); dropzone.classList.add('dragover'); });
+  dropzone.addEventListener('dragleave', function () { dropzone.classList.remove('dragover'); });
+  dropzone.addEventListener('drop', function (ev) {
+    ev.preventDefault();
+    var file = ev.dataTransfer.files && ev.dataTransfer.files[0];
+    handleFile(file);
+  });
+
+  var form = document.getElementById('intakeForm');
+  var formStatus = document.getElementById('formStatus');
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    formStatus.textContent = 'Design preview — nothing is submitted or stored.';
+    setTimeout(function () { formStatus.textContent = ''; }, 4000);
+  });
+})();
+</script>

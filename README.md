@@ -26,8 +26,11 @@ These are static HTML snapshots of the live, interactive web tools. Each one is 
 | Package Plan Builder (MAAP) | https://claude.ai/artifact/8Fr8aCnTGiseYWf8WZw6DE |
 | Intent Builder | https://claude.ai/artifact/T1McQ5z9AJwnMirFHMeWUo |
 | Campaign Board (per-cycle front end: objective, JIPTL, apportionment, targeting, participants, and unit doc uploads) | https://claude.ai/artifact/PTTEXkmEhu6xAurJtB9UsP |
+| Campaign Intake (unit-facing form to submit a campaign's Combined Campaign Intent and file, plus a CAOC-only review queue) | https://claude.ai/artifact/Lja4TbxxMtLspuAQanXNSW |
 
-If you're integrating these into a site, the HTML files in `/tools` are a good starting point for layout and styling — but swap in your own data backend if you need live, shared state, since the copies here don't connect to the Claude-hosted database the live versions use. The Campaign Board's static copy also loses its Unit Submissions upload panel outside the live artifact, since that depends on the Claude app.
+Both are design mockups, not functioning tools: no file upload, storage, or review workflow is wired up yet. Submitting the form, dragging in a file, and the CAOC Review action buttons are all visual only. They show what the pages look like and how a unit or the CAOC Board would move through them, pending a real backend.
+
+If you're integrating these into a site, the HTML files in `/tools` are a good starting point for layout and styling — but swap in your own data backend for anything that needs to actually work (file storage, submission records, shared state), since the copies here don't connect to anything.
 
 ## Process overview
 
