@@ -28,10 +28,18 @@ These are static HTML snapshots of the live, interactive web tools. Each one is 
 | Campaign Board (per-cycle front end: objective, JIPTL, apportionment, targeting, participants, and unit doc uploads) | https://claude.ai/artifact/PTTEXkmEhu6xAurJtB9UsP |
 | Campaign Intake (unit-facing form to submit a campaign's Combined Campaign Intent and file, plus a CAOC-only review queue) | https://claude.ai/artifact/Lja4TbxxMtLspuAQanXNSW |
 | JIPTL Review (CFACC approve/disapprove queue for a cycle's JIPTL, built from the JIPTL pipeline's output) | not yet published as a live artifact -- `tools/jiptl_review.html` is a static snapshot for now |
+| Tanker Cell (notional CAOC tanker cell: submit a campaign tanker requirement, queue it for build into the target .miz, and plot every tanker's orbit on a shared deconfliction board) | https://claude.ai/artifact/5AkWBkdSfDuebCWPKoAEto |
+| ACO Builder (plot a full theater ACO -- ROZs, restricted areas, ACA/HIDACZ/ADIZ, FSCL/FLOT, fire areas, firing lanes, MRR/SAAFR corridors, CAP/AWACS stations, bullseye -- reads tanker tracks live from Tanker Cell) | https://claude.ai/artifact/RnXqj1mXK1xHMDJMKArzne |
 
-Most are design mockups, not functioning tools: no file upload, storage, or review workflow is wired up yet. Submitting the form, dragging in a file, and the CAOC Review action buttons are all visual only. They show what the pages look like and how a unit or the CAOC Board would move through them, pending a real backend. The JIPTL Review page is the exception on one count -- its Approve/Disapprove/Remarks controls actually persist, but only to that browser's local storage (no shared backend yet either), via `tools/jiptl_pipeline/` (see that folder's own README): classify a mission's REDFOR order of battle, geofence it to the cycle's Battle Management Area, score and cap it against the cycle's Key Tasks, and stamp ATO-referenceable target numbers.
+Most are design mockups, not functioning tools: no file upload, storage, or review workflow is wired up yet. Submitting the form, dragging in a file, and the CAOC Review action buttons are all visual only. They show what the pages look like and how a unit or the CAOC Board would move through them, pending a real backend. Three are exceptions with real persistence: JIPTL Review's Approve/Disapprove/Remarks controls persist to that browser's local storage only (no shared backend) via `tools/jiptl_pipeline/` (see that folder's own README): classify a mission's REDFOR order of battle, geofence it to the cycle's Battle Management Area, score and cap it against the cycle's Key Tasks, and stamp ATO-referenceable target numbers. Tanker Cell and ACO Builder go further -- both read and write a real shared database behind the live artifact link (not local storage), so a tanker requirement queued in Tanker Cell shows up live on ACO Builder's board for every viewer; that shared state only exists in the live artifact, not in the static `.html` snapshot here.
 
 If you're integrating these into a site, the HTML files in `/tools` are a good starting point for layout and styling — but swap in your own data backend for anything that needs to actually work (file storage, submission records, shared state), since the copies here don't connect to anything.
+
+## Scripts (`/scripts`)
+
+| File | What it does |
+|---|---|
+| `extract_tankers.py` | Pulls tanker net/callsign/frequency/TACAN data straight out of a DCS `.miz` (via `slpp`, a pure-Python Lua table parser -- `pip install slpp`) and formats it to paste into the Theater Comm Plan's Tankers column: `python3 extract_tankers.py path/to/mission.miz [--json out.json] [--csv out.csv]` |
 
 ## Process overview
 

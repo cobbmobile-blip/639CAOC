@@ -1,0 +1,985 @@
+<title>ACO Builder</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: reference/toolbar card -> plotting board -> detail panel (on finishing
+   a shape) -> measures list/export. Paper/ops-board palette matching the rest
+   of the 639 CAOC toolset, teal accent to tell this tool apart from Tanker
+   Cell (blue) and Comm Grid (amber). */
+:root{
+  --bg:#f3efe2; --surface:#fffdf7; --surface-2:#ece6d4; --border:#d8cfb4;
+  --fg:#211d14; --fg-muted:#6b6450; --accent:#8a5a14; --accent-ink:#fffdf7;
+  --accent-2:#3f6a52; --good:#3f6a52; --warn:#9a6a1f; --danger:#a13c2d;
+  --c-tanker:#1c3a52; --c-roz:#9a6a1f; --c-restricted:#a13c2d; --c-fscl:#a13c2d; --c-flot:#3f6a52; --c-arty:#3c2660;
+  --c-aca:#1c3a52; --c-mrr:#8a7a1f; --c-saafr:#214a28; --c-hidacz:#8a2d5a; --c-adiz:#4a5560; --c-ffa:#b5541f; --c-cap:#1f6f6b; --c-bullseye:#8a5a14;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --disp: "Oswald", var(--body);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13160f; --surface:#1a1e15; --surface-2:#20251a; --border:#343b2a;
+    --fg:#e9e4d2; --fg-muted:#9a9c84; --accent:#d19a3d; --accent-ink:#1a1e15;
+    --accent-2:#6fa389; --good:#6fa389; --warn:#d1a24d; --danger:#d4715f;
+    --c-tanker:#aecbe3; --c-roz:#d1a24d; --c-restricted:#d4715f; --c-fscl:#d4715f; --c-flot:#6fa389; --c-arty:#c6afdd;
+    --c-aca:#aecbe3; --c-mrr:#e0cd6e; --c-saafr:#a9cfae; --c-hidacz:#e091b8; --c-adiz:#9fb0c0; --c-ffa:#e8975f; --c-cap:#6fcfc7; --c-bullseye:#d19a3d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13160f; --surface:#1a1e15; --surface-2:#20251a; --border:#343b2a;
+  --fg:#e9e4d2; --fg-muted:#9a9c84; --accent:#d19a3d; --accent-ink:#1a1e15;
+  --accent-2:#6fa389; --good:#6fa389; --warn:#d1a24d; --danger:#d4715f;
+  --c-tanker:#aecbe3; --c-roz:#d1a24d; --c-restricted:#d4715f; --c-fscl:#d4715f; --c-flot:#6fa389; --c-arty:#c6afdd;
+  --c-aca:#aecbe3; --c-mrr:#e0cd6e; --c-saafr:#a9cfae; --c-hidacz:#e091b8; --c-adiz:#9fb0c0; --c-ffa:#e8975f; --c-cap:#6fcfc7; --c-bullseye:#d19a3d;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--body); line-height:1.45;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+.wrap{max-width:900px; margin:0 auto; padding-block:28px 80px;}
+header.top{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:6px; flex-wrap:wrap;}
+h1{font-family:var(--disp); font-weight:700; font-size:1.7rem; margin:0 0 4px; letter-spacing:.01em;}
+.sub{color:var(--fg-muted); font-size:.92rem; max-width:620px;}
+.sub a{color:var(--accent);}
+.themebtn{background:var(--surface); border:1px solid var(--border); color:var(--fg); font-family:var(--mono); font-size:.78rem; padding:6px 10px; border-radius:6px; cursor:pointer;}
+.themebtn:hover{border-color:var(--accent);}
+
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin-top:20px;}
+.panelhead{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+.panelhead h2{font-family:var(--disp); font-size:1.05rem; margin:0; font-weight:600;}
+.panelhead .note{font-size:.8rem; color:var(--fg-muted);}
+
+.fieldgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:12px 14px;}
+.field{display:flex; flex-direction:column; gap:4px; min-width:0;}
+.field.span2{grid-column:span 2;}
+.field label{font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--fg-muted); font-weight:600;}
+.field select{font-family:var(--body);}
+.field input, .field select, .field textarea{
+  font-family:var(--mono); font-size:.88rem; background:var(--surface-2); border:1px solid var(--border);
+  color:var(--fg); border-radius:6px; padding:7px 9px; width:100%;
+}
+.field textarea{font-family:var(--body); resize:vertical; min-height:46px;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--accent); outline-offset:-1px;}
+.fieldhint{font-size:.72rem; color:var(--fg-muted);}
+
+.sectionlabel{font-family:var(--disp); font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin:18px 0 8px; font-weight:600;}
+.sectionlabel:first-child{margin-top:0;}
+
+.plotrefrow{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:10px;}
+.plotrefrow .field{flex:0 0 150px;}
+
+.drawtools{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+.drawbtn{font-family:var(--body); font-size:.8rem; font-weight:600; padding:8px 12px; border-radius:7px; border:1px solid var(--border); background:var(--surface-2); color:var(--fg); cursor:pointer; display:flex; align-items:center; gap:6px;}
+.drawbtn .sw{width:11px; height:11px; border-radius:3px; display:inline-block;}
+.drawbtn:hover{border-color:var(--accent);}
+.drawbtn.active{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 16%, var(--surface-2)); color:var(--accent);}
+.drawactions{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+.btnrow{display:flex; justify-content:flex-end; gap:10px; margin-top:16px;}
+.btn{font-family:var(--body); font-size:.85rem; font-weight:600; padding:10px 18px; border-radius:7px; border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); cursor:pointer;}
+.btn.secondary{background:transparent; color:var(--fg); border-color:var(--border);}
+.btn.danger{background:transparent; color:var(--danger); border-color:var(--danger);}
+.btn:hover{filter:brightness(1.06);}
+.btn:disabled{opacity:.55; cursor:default; filter:none;}
+.btn.small{padding:5px 10px; font-size:.76rem;}
+
+.status{font-size:.8rem; color:var(--fg-muted); font-family:var(--mono); margin-top:10px; text-align:right;}
+.status.ok{color:var(--good);} .status.err{color:var(--danger);}
+.drawstatus{font-family:var(--mono); font-size:.8rem; color:var(--accent); min-height:1.2em; margin-bottom:8px;}
+
+.plotbox{position:relative; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:var(--surface-2); touch-action:none;}
+.plotbox svg{display:block; width:100%; height:auto; cursor:crosshair;}
+.plotgrid line{stroke:var(--border); stroke-width:1;}
+.plotgrid text{fill:var(--fg-muted); font-family:var(--mono); font-size:9px;}
+.plotaxis line{stroke:var(--fg-muted); stroke-width:1; stroke-dasharray:2 3; opacity:.5;}
+.plotlabel{fill:var(--fg); font-family:var(--disp); font-size:10.5px; font-weight:600;}
+.plotoverlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:color-mix(in srgb, var(--surface) 88%, transparent); color:var(--fg-muted); font-size:.85rem; text-align:center; padding:20px;}
+
+.shape-tanker{fill:color-mix(in srgb, var(--c-tanker) 16%, transparent); stroke:var(--c-tanker); stroke-width:1.25;}
+.shape-roz{fill:color-mix(in srgb, var(--c-roz) 18%, transparent); stroke:var(--c-roz); stroke-width:1.5;}
+.shape-restricted{fill:color-mix(in srgb, var(--c-restricted) 20%, transparent); stroke:var(--c-restricted); stroke-width:1.5; stroke-dasharray:5 3;}
+.shape-fscl{fill:none; stroke:var(--c-fscl); stroke-width:2.5;}
+.shape-flot{fill:none; stroke:var(--c-flot); stroke-width:2; stroke-dasharray:6 4;}
+.shape-arty{fill:color-mix(in srgb, var(--c-arty) 20%, transparent); stroke:var(--c-arty); stroke-width:1.25;}
+.shape-aca{fill:color-mix(in srgb, var(--c-aca) 14%, transparent); stroke:var(--c-aca); stroke-width:1.5; stroke-dasharray:2 2;}
+.shape-mrr{fill:color-mix(in srgb, var(--c-mrr) 20%, transparent); stroke:var(--c-mrr); stroke-width:1.25;}
+.shape-saafr{fill:color-mix(in srgb, var(--c-saafr) 20%, transparent); stroke:var(--c-saafr); stroke-width:1.25;}
+.shape-hidacz{fill:color-mix(in srgb, var(--c-hidacz) 16%, transparent); stroke:var(--c-hidacz); stroke-width:1.5; stroke-dasharray:1 3;}
+.shape-adiz{fill:none; stroke:var(--c-adiz); stroke-width:1.5; stroke-dasharray:8 4 2 4;}
+.shape-ffa{fill:color-mix(in srgb, var(--c-ffa) 18%, transparent); stroke:var(--c-ffa); stroke-width:1.5;}
+.shape-cap{fill:color-mix(in srgb, var(--c-cap) 14%, transparent); stroke:var(--c-cap); stroke-width:1.5; stroke-dasharray:3 2;}
+.shape-bullseye circle{fill:none; stroke:var(--c-bullseye); stroke-width:1.5;}
+.shape-bullseye line{stroke:var(--c-bullseye); stroke-width:1.5;}
+.shape-draft{fill:color-mix(in srgb, var(--accent) 22%, transparent); stroke:var(--accent); stroke-width:1.5; stroke-dasharray:4 3;}
+.draftvertex{fill:var(--accent); stroke:var(--surface); stroke-width:1.5;}
+
+.plotlegend{display:flex; gap:12px; flex-wrap:wrap; font-size:.72rem; color:var(--fg-muted); margin-top:10px;}
+.plotlegend span{display:inline-flex; align-items:center; gap:5px;}
+.plotlegend .sw{width:14px; height:9px; border-radius:2px; display:inline-block;}
+
+table.queue{width:100%; border-collapse:collapse; margin-top:4px;}
+table.queue th, table.queue td{border-bottom:1px solid var(--border); padding:9px 8px; text-align:left; vertical-align:top; font-size:.85rem;}
+table.queue thead th{font-family:var(--disp); font-size:.74rem; text-transform:uppercase; letter-spacing:.04em; color:var(--fg-muted); font-weight:600; border-bottom:2px solid var(--border);}
+table.queue td.mono{font-family:var(--mono); font-size:.8rem;}
+.pill{display:inline-block; padding:3px 9px; border-radius:99px; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.03em; font-family:var(--disp);}
+.pill.t-tanker{background:color-mix(in srgb, var(--c-tanker) 18%, var(--surface)); color:var(--c-tanker); border:1px solid color-mix(in srgb, var(--c-tanker) 45%, transparent);}
+.pill.t-roz{background:color-mix(in srgb, var(--c-roz) 18%, var(--surface)); color:var(--c-roz); border:1px solid color-mix(in srgb, var(--c-roz) 45%, transparent);}
+.pill.t-restricted{background:color-mix(in srgb, var(--c-restricted) 18%, var(--surface)); color:var(--c-restricted); border:1px solid color-mix(in srgb, var(--c-restricted) 45%, transparent);}
+.pill.t-fscl{background:color-mix(in srgb, var(--c-fscl) 18%, var(--surface)); color:var(--c-fscl); border:1px solid color-mix(in srgb, var(--c-fscl) 45%, transparent);}
+.pill.t-flot{background:color-mix(in srgb, var(--c-flot) 18%, var(--surface)); color:var(--c-flot); border:1px solid color-mix(in srgb, var(--c-flot) 45%, transparent);}
+.pill.t-arty{background:color-mix(in srgb, var(--c-arty) 18%, var(--surface)); color:var(--c-arty); border:1px solid color-mix(in srgb, var(--c-arty) 45%, transparent);}
+.pill.t-aca{background:color-mix(in srgb, var(--c-aca) 18%, var(--surface)); color:var(--c-aca); border:1px solid color-mix(in srgb, var(--c-aca) 45%, transparent);}
+.pill.t-mrr{background:color-mix(in srgb, var(--c-mrr) 18%, var(--surface)); color:var(--c-mrr); border:1px solid color-mix(in srgb, var(--c-mrr) 45%, transparent);}
+.pill.t-saafr{background:color-mix(in srgb, var(--c-saafr) 18%, var(--surface)); color:var(--c-saafr); border:1px solid color-mix(in srgb, var(--c-saafr) 45%, transparent);}
+.pill.t-hidacz{background:color-mix(in srgb, var(--c-hidacz) 18%, var(--surface)); color:var(--c-hidacz); border:1px solid color-mix(in srgb, var(--c-hidacz) 45%, transparent);}
+.pill.t-adiz{background:color-mix(in srgb, var(--c-adiz) 18%, var(--surface)); color:var(--c-adiz); border:1px solid color-mix(in srgb, var(--c-adiz) 45%, transparent);}
+.pill.t-ffa{background:color-mix(in srgb, var(--c-ffa) 18%, var(--surface)); color:var(--c-ffa); border:1px solid color-mix(in srgb, var(--c-ffa) 45%, transparent);}
+.pill.t-cap{background:color-mix(in srgb, var(--c-cap) 18%, var(--surface)); color:var(--c-cap); border:1px solid color-mix(in srgb, var(--c-cap) 45%, transparent);}
+.pill.t-bullseye{background:color-mix(in srgb, var(--c-bullseye) 18%, var(--surface)); color:var(--c-bullseye); border:1px solid color-mix(in srgb, var(--c-bullseye) 45%, transparent);}
+.emptystate{text-align:center; padding:28px 10px; color:var(--fg-muted); font-size:.88rem;}
+.emptystate b{color:var(--fg); font-weight:600;}
+.copyarea{width:100%; min-height:200px; font-family:var(--mono); font-size:.78rem; background:var(--surface-2); border:1px solid var(--border); color:var(--fg); border-radius:7px; padding:10px; white-space:pre; overflow:auto; margin-top:10px;}
+
+.refpanel summary{font-family:var(--disp); font-size:1.05rem; font-weight:600; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center;}
+.refpanel summary::-webkit-details-marker{display:none;}
+.refpanel summary .chev{font-family:var(--mono); color:var(--fg-muted); font-size:.8rem; transition:transform .15s;}
+.refpanel[open] summary .chev{transform:rotate(90deg);}
+.refpanel .refnote{font-size:.78rem; color:var(--fg-muted); margin:10px 0 14px;}
+.refdef{margin:14px 0 0;}
+.refdef dt{font-family:var(--disp); font-size:.85rem; font-weight:600; color:var(--accent); margin-top:12px;}
+.refdef dt .sw{width:11px; height:11px; border-radius:3px; display:inline-block; margin-right:7px; vertical-align:-1px;}
+.refdef dd{margin:4px 0 0; font-size:.85rem; color:var(--fg);}
+.refdef .cite{display:block; font-family:var(--mono); font-size:.72rem; color:var(--fg-muted); margin-top:3px;}
+
+@media (max-width: 640px){
+  .field.span2{grid-column:span 1;}
+  table.queue, table.queue thead, table.queue tbody, table.queue tr, table.queue th, table.queue td{display:block;}
+  table.queue thead{display:none;}
+  table.queue tbody tr{border:1px solid var(--border); border-radius:8px; margin-bottom:10px; padding:4px 6px;}
+  table.queue td{border:none; padding:5px 6px;}
+  table.queue td::before{content:attr(data-label); display:block; font-size:.66rem; text-transform:uppercase; letter-spacing:.04em; opacity:.6;}
+}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>ACO Builder</h1>
+      <div class="sub">Plot a complete theater ACO on one board &mdash; ROZs, restricted areas, ACA/HIDACZ/ADIZ zones, FSCL/FLOT, fire areas, firing lanes, MRR/SAAFR corridors, CAP/AWACS stations, and bullseye. Tanker tracks are managed in <a href="https://claude.ai/artifact/5AkWBkdSfDuebCWPKoAEto" target="_blank" rel="noopener">Tanker Cell</a> and appear here automatically, read-only, for deconfliction.</div>
+    </div>
+    <button class="themebtn" id="themeBtn" type="button">Theme: System</button>
+  </header>
+
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Theater Parameters</h2>
+      <span class="note">Procedural control basics for this ACO</span>
+    </div>
+    <div class="fieldgrid">
+      <div class="field"><label for="t-coord-alt">Coordinating altitude (ft)</label><input id="t-coord-alt" type="number" step="500" placeholder="e.g. 18000"></div>
+      <div class="field"><label for="t-coord-level">Coordination level</label><input id="t-coord-level" type="text" placeholder="e.g. FL180, by name"></div>
+      <div class="field span2"><label for="t-notes">Remarks</label><input id="t-notes" type="text" placeholder="Optional &mdash; who/when this ACO effective period covers"></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn secondary" id="theaterSaveBtn" type="button">Save theater parameters</button>
+    </div>
+    <div class="status" id="theaterStatus"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Plot</h2>
+      <span class="note">Click the board to place points</span>
+    </div>
+
+    <div class="sectionlabel">Reference &amp; filter</div>
+    <div class="plotrefrow">
+      <div class="field"><label for="f-ref-lat">Reference lat</label><input id="f-ref-lat" type="number" step="0.0001" placeholder="e.g. 42.0000"></div>
+      <div class="field"><label for="f-ref-lon">Reference lon</label><input id="f-ref-lon" type="number" step="0.0001" placeholder="e.g. 41.5000"></div>
+      <div class="field"><label for="f-campaign-filter">Campaign</label><input id="f-campaign-filter" type="text" placeholder="blank = show all"></div>
+    </div>
+
+    <div class="sectionlabel">Reference point</div>
+    <div class="drawtools" id="drawTools">
+      <button class="drawbtn" data-mode="bullseye-point" type="button"><span class="sw" style="background:var(--c-bullseye);"></span>Bullseye</button>
+    </div>
+
+    <div class="sectionlabel">Flight routes &amp; stations</div>
+    <div class="drawtools">
+      <button class="drawbtn" data-mode="cap-station" type="button"><span class="sw" style="background:var(--c-cap);"></span>CAP / AWACS station</button>
+      <button class="drawbtn" data-mode="ll-corridor" type="button"><span class="sw" style="background:var(--c-mrr);"></span>MRR / SAAFR corridor</button>
+    </div>
+
+    <div class="sectionlabel">Airspace control</div>
+    <div class="drawtools">
+      <button class="drawbtn" data-mode="roz-circle" type="button"><span class="sw" style="background:var(--c-roz);"></span>ROZ (circle)</button>
+      <button class="drawbtn" data-mode="roz-polygon" type="button"><span class="sw" style="background:var(--c-roz);"></span>ROZ (polygon)</button>
+      <button class="drawbtn" data-mode="restricted-polygon" type="button"><span class="sw" style="background:var(--c-restricted);"></span>Restricted area</button>
+      <button class="drawbtn" data-mode="zone-polygon" type="button"><span class="sw" style="background:var(--c-aca);"></span>ACA / HIDACZ / ADIZ</button>
+    </div>
+
+    <div class="sectionlabel">Fire support coordination</div>
+    <div class="drawtools">
+      <button class="drawbtn" data-mode="fscl-line" type="button"><span class="sw" style="background:var(--c-fscl);"></span>FSCL</button>
+      <button class="drawbtn" data-mode="flot-line" type="button"><span class="sw" style="background:var(--c-flot);"></span>FLOT</button>
+      <button class="drawbtn" data-mode="fire-area-polygon" type="button"><span class="sw" style="background:var(--c-ffa);"></span>Fire area (FFA/NFA/RFA)</button>
+      <button class="drawbtn" data-mode="arty-corridor" type="button"><span class="sw" style="background:var(--c-arty);"></span>Arty firing lane</button>
+    </div>
+
+    <div class="drawactions" id="drawActions" hidden>
+      <button class="btn small" id="finishDrawBtn" type="button" disabled>Finish shape</button>
+      <button class="btn small secondary" id="undoPointBtn" type="button">Undo last point</button>
+      <button class="btn small secondary" id="cancelDrawBtn" type="button">Cancel</button>
+    </div>
+    <div class="drawstatus" id="drawStatus"></div>
+
+    <div class="plotbox">
+      <svg id="acoSvg" viewBox="0 0 900 560" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="plotoverlay" id="acoOverlay">Enter a reference point above (an airbase or bullseye) to start plotting.</div>
+    </div>
+
+    <div class="plotlegend">
+      <span><span class="sw" style="background:var(--c-tanker);"></span>Tanker (Tanker Cell)</span>
+      <span><span class="sw" style="background:var(--c-cap);"></span>CAP/AWACS</span>
+      <span><span class="sw" style="background:var(--c-mrr);"></span>MRR/SAAFR</span>
+      <span><span class="sw" style="background:var(--c-roz);"></span>ROZ</span>
+      <span><span class="sw" style="background:var(--c-restricted);"></span>Restricted</span>
+      <span><span class="sw" style="background:var(--c-aca);"></span>ACA/HIDACZ/ADIZ</span>
+      <span><span class="sw" style="background:var(--c-fscl);"></span>FSCL</span>
+      <span><span class="sw" style="background:var(--c-flot);"></span>FLOT</span>
+      <span><span class="sw" style="background:var(--c-ffa);"></span>FFA/NFA/RFA</span>
+      <span><span class="sw" style="background:var(--c-arty);"></span>Arty lane</span>
+      <span><span class="sw" style="background:var(--c-bullseye);"></span>Bullseye</span>
+    </div>
+  </section>
+
+  <section class="panel" id="detailPanel" hidden>
+    <div class="panelhead">
+      <h2>New <span id="detailTypeLabel">Measure</span></h2>
+    </div>
+    <div class="fieldgrid">
+      <div class="field" id="d-subtype-wrap" hidden><label for="d-subtype">Measure type</label><select id="d-subtype"></select></div>
+      <div class="field"><label for="d-label">Label</label><input id="d-label" type="text" placeholder="e.g. ROZ North"></div>
+      <div class="field"><label for="d-campaign">Campaign</label><input id="d-campaign" type="text"></div>
+      <div class="field" id="d-radius-wrap" hidden><label for="d-radius">Radius (NM)</label><input id="d-radius" type="number" step="0.5"></div>
+      <div class="field" id="d-width-wrap" hidden><label for="d-width">Corridor width (NM)</label><input id="d-width" type="number" step="0.5" value="2"></div>
+      <div class="field" id="d-floor-wrap" hidden><label for="d-floor">Altitude floor (ft)</label><input id="d-floor" type="number" step="500"></div>
+      <div class="field" id="d-ceiling-wrap" hidden><label for="d-ceiling">Altitude ceiling (ft)</label><input id="d-ceiling" type="number" step="500"></div>
+      <div class="field span2"><label for="d-notes">Notes</label><textarea id="d-notes" placeholder="Optional"></textarea></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn secondary" id="detailCancelBtn" type="button">Discard</button>
+      <button class="btn" id="detailSaveBtn" type="button">Save to board</button>
+    </div>
+  </section>
+
+  <details class="panel refpanel">
+    <summary>ACM Reference <span class="chev">&#9656;</span></summary>
+    <div class="refnote">Plain-language definitions for the measure types above, drawn from open-source joint and Army airspace-control doctrine. Not a substitute for the current ACO's own definitions &mdash; always use what the ACO itself specifies for a live campaign.</div>
+    <dl class="refdef">
+      <dt><span class="sw" style="background:var(--c-roz);"></span>ROZ &mdash; Restricted Operating Zone</dt>
+      <dd>Airspace of defined dimensions set aside for a specific unit or operation (a tanker track, a SEAD stack, a CAS holding area) so other aircraft stay clear of it without further coordination. Established by the airspace control authority and published in the ACO.
+        <span class="cite">JP 3-52, Joint Airspace Control; FM 3-52 App B</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-restricted);"></span>Restricted Area</dt>
+      <dd>Airspace with specific restrictions on activity for safety, security, or operational reasons. Entry is only as authorized in the ACO &mdash; broader and often more persistent than a single-unit ROZ.
+        <span class="cite">JP 3-52; AFDP 3-52, Airspace Control</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-fscl);"></span>FSCL &mdash; Fire Support Coordination Line</dt>
+      <dd>A line set by the appropriate land or amphibious force commander. Forward of it, any component may engage surface targets without further coordination with that commander (subject to other active ACMs); short of it, fires must be coordinated with the force controlling that ground. It is a permission boundary, not just a reference line.
+        <span class="cite">FM 3-52 App B; FM 90-31 Ch.5</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-flot);"></span>FLOT &mdash; Forward Line of Own Troops</dt>
+      <dd>A line marking the most forward positions of friendly ground forces at a given time. Used for deconfliction and situational awareness &mdash; unlike the FSCL, crossing it carries no automatic coordination requirement by itself.
+        <span class="cite">FM 3-52 App B</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-arty);"></span>Arty Firing Lane</dt>
+      <dd>A corridor reserved for indirect-fire trajectories (artillery, MLRS/rockets) between a firing position and its target area. Aircraft are routed clear of it, or transit only with coordination, while it is active &mdash; conceptually one of the ACO's airspace coordinating measures tied to a surface fire mission.
+        <span class="cite">JP 3-52; FM 3-52 App B</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-aca);"></span>ACA &mdash; Airspace Coordination Area</dt>
+      <dd>A three-dimensional block of airspace, with a floor and ceiling, set aside so friendly aircraft can operate at low level at the same time surface fires are passing through the area &mdash; the classic measure for letting CAS and artillery work the same patch of sky safely.
+        <span class="cite">JP 3-52; FM 3-52 App B</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-hidacz);"></span>HIDACZ &mdash; High-Density Airspace Control Zone</dt>
+      <dd>Airspace with a concentrated volume of traffic or a high density of airspace users, requiring additional coordinating measures beyond the norm &mdash; typically drawn around a major air assault, a large CAS stack, or a congested corridor.
+        <span class="cite">JP 3-52; FM 3-52 App B</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-adiz);"></span>ADIZ &mdash; Air Defense Identification Zone</dt>
+      <dd>Airspace over land or water in which the ready identification, location, and control of civil and military aircraft is required in the interest of national security &mdash; usually large, theater-scale, and drawn once per campaign rather than per mission.
+        <span class="cite">JP 3-52</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-mrr);"></span>MRR &mdash; Minimum Risk Route</dt>
+      <dd>A temporary lateral corridor recommended for use by high-speed, fixed-wing aircraft that minimizes their exposure to friendly fires &mdash; a flight-planning route, not a fire-support measure.
+        <span class="cite">FM 3-52 App B</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-saafr);"></span>SAAFR &mdash; Standard-Use Army Aircraft Flight Route</dt>
+      <dd>A route established below the coordinating altitude for conducting Army aviation traffic, normally without further coordination with the airspace control authority &mdash; the rotary-wing counterpart to an MRR.
+        <span class="cite">FM 3-52 App B</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-ffa);"></span>FFA / NFA / RFA &mdash; Fire Area Measures</dt>
+      <dd>Three related surface-fire control areas drawn on the same polygon tool here, distinguished by the "Measure type" picker when saving: a <b>Free Fire Area (FFA)</b> is any area into which any weapon system may fire without additional coordination; a <b>No Fire Area (NFA)</b> is one into which no fires or their effects are allowed, with narrow exceptions; a <b>Restricted Fire Area (RFA)</b> has specific restrictions beyond the norm and requires coordination before fires that do not meet those restrictions.
+        <span class="cite">FM 3-52 App B; FM 90-31 Ch.5</span></dd>
+    </dl>
+
+    <div class="refnote" style="margin-top:18px;"><b style="color:var(--fg);">Coordinating altitude / coordination level</b> &mdash; not a drawn shape, but the backbone of the ACO: the altitude (or flight level) at or below which aircraft normally operate under positive or procedural control measures like these, and above which a different control scheme (usually positive, radar-based) applies. Set it once per campaign under Theater Parameters above.</div>
+
+    <div class="refnote" style="margin-top:14px;"><b style="color:var(--fg);">Tactical control measures below (not formal JP 3-52 ACM categories, but standard working-ACO/overlay fixtures):</b></div>
+    <dl class="refdef">
+      <dt><span class="sw" style="background:var(--c-bullseye);"></span>Bullseye</dt>
+      <dd>A fixed geographic reference point used for brevity &mdash; bearing/range calls, target handoffs, threat calls &mdash; instead of lat/lon. Universal in modern air-to-air and strike brevity, but not itself an ACM in the joint airspace-control sense.
+        <span class="cite">common tactical usage</span></dd>
+
+      <dt><span class="sw" style="background:var(--c-cap);"></span>CAP / AWACS Station</dt>
+      <dd>A working holding area for a combat air patrol or an AWACS/E-3 orbit. Doctrinally this is usually just a ROZ assigned to that mission, but it is broken out here as its own type so fighter and C2 stations are visually distinct from general-purpose ROZs on a busy board.
+        <span class="cite">derived from ROZ, JP 3-52</span></dd>
+    </dl>
+  </details>
+
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Airspace Measures</h2>
+      <button class="btn secondary" id="exportBtn" type="button">Copy as text</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="queue" id="acmTable" hidden>
+        <thead><tr><th>Type</th><th>Label</th><th>Campaign</th><th>Detail</th><th></th></tr></thead>
+        <tbody id="acmBody"></tbody>
+      </table>
+    </div>
+    <div class="emptystate" id="acmEmpty">Nothing plotted yet. Pick a tool above and click the board to start.</div>
+    <textarea class="copyarea" id="exportArea" readonly hidden></textarea>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  // ---------- theme ----------
+  var themeBtn = document.getElementById('themeBtn');
+  var themeOrder = ['system','dark','light'];
+  function applyTheme(t){
+    if(t==='system'){ document.documentElement.removeAttribute('data-theme'); }
+    else { document.documentElement.setAttribute('data-theme', t); }
+    themeBtn.textContent = 'Theme: ' + t.charAt(0).toUpperCase() + t.slice(1);
+  }
+  var savedTheme = 'system';
+  try{ savedTheme = localStorage.getItem('acobuilder_theme') || 'system'; }catch(e){}
+  applyTheme(savedTheme);
+  themeBtn.addEventListener('click', function(){
+    var idx = themeOrder.indexOf(savedTheme);
+    savedTheme = themeOrder[(idx+1) % themeOrder.length];
+    applyTheme(savedTheme);
+    try{ localStorage.setItem('acobuilder_theme', savedTheme); }catch(e){}
+  });
+
+  // ---------- projection (local flat-earth plotting board, no basemap imagery) ----------
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  var VB_W = 900, VB_H = 560, CX0 = VB_W/2, CY0 = VB_H/2;
+  var PX_PER_NM = 2.6;
+  var GRID_STEP_NM = 20;
+  var NM_PER_DEG_LAT = 60;
+
+  var svg = document.getElementById('acoSvg');
+  var overlay = document.getElementById('acoOverlay');
+  var refLatEl = document.getElementById('f-ref-lat'), refLonEl = document.getElementById('f-ref-lon');
+  var campaignFilterEl = document.getElementById('f-campaign-filter');
+
+  function refPoint(){
+    var rl = parseFloat(refLatEl.value), ro = parseFloat(refLonEl.value);
+    if(isNaN(rl) || isNaN(ro)) return null;
+    return {lat:rl, lon:ro};
+  }
+  function lonScale(refLat){ return NM_PER_DEG_LAT * Math.cos(refLat * Math.PI/180); }
+  function project(lat, lon, ref){
+    var dyNm = (lat - ref.lat) * NM_PER_DEG_LAT;
+    var dxNm = (lon - ref.lon) * lonScale(ref.lat);
+    return { x: CX0 + dxNm * PX_PER_NM, y: CY0 - dyNm * PX_PER_NM };
+  }
+  function unproject(x, y, ref){
+    var dxNm = (x - CX0) / PX_PER_NM;
+    var dyNm = (CY0 - y) / PX_PER_NM;
+    return { lat: ref.lat + dyNm / NM_PER_DEG_LAT, lon: ref.lon + dxNm / lonScale(ref.lat) };
+  }
+  function nmOffset(lat, lon, ref){
+    return { dx:(lon-ref.lon)*lonScale(ref.lat), dy:(lat-ref.lat)*NM_PER_DEG_LAT };
+  }
+  function nmDistance(a, b, ref){
+    var oa = nmOffset(a.lat, a.lon, ref), ob = nmOffset(b.lat, b.lon, ref);
+    return Math.sqrt(Math.pow(ob.dx-oa.dx,2) + Math.pow(ob.dy-oa.dy,2));
+  }
+
+  function el(name, attrs){
+    var n = document.createElementNS(SVG_NS, name);
+    for(var k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+  function clearSvg(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+
+  function drawGrid(ref){
+    var g = el('g', {class:'plotgrid'});
+    var spanNm = VB_W / PX_PER_NM / 2;
+    var maxN = Math.ceil(spanNm / GRID_STEP_NM) + 1;
+    for(var i=-maxN;i<=maxN;i++){
+      var offNm = i*GRID_STEP_NM;
+      var x = CX0 + offNm*PX_PER_NM;
+      if(x>=0 && x<=VB_W){
+        g.appendChild(el('line',{x1:x,y1:0,x2:x,y2:VB_H}));
+        if(i!==0){ var lx = el('text',{x:x+3,y:12}); lx.textContent=(offNm>0?'+':'')+offNm+'NM'; g.appendChild(lx); }
+      }
+      var y = CY0 - offNm*PX_PER_NM;
+      if(y>=0 && y<=VB_H){
+        g.appendChild(el('line',{x1:0,y1:y,x2:VB_W,y2:y}));
+        if(i!==0){ var ly = el('text',{x:4,y:y-3}); ly.textContent=(offNm>0?'+':'')+offNm+'NM'; g.appendChild(ly); }
+      }
+    }
+    svg.appendChild(g);
+    var axis = el('g',{class:'plotaxis'});
+    axis.appendChild(el('line',{x1:CX0,y1:0,x2:CX0,y2:VB_H}));
+    axis.appendChild(el('line',{x1:0,y1:CY0,x2:VB_W,y2:CY0}));
+    svg.appendChild(axis);
+    svg.appendChild(el('circle',{cx:CX0,cy:CY0,r:3,fill:'var(--fg-muted)'}));
+    var refLabel = el('text',{class:'plotlabel',x:CX0+6,y:CY0-6});
+    refLabel.textContent = 'REF';
+    svg.appendChild(refLabel);
+  }
+
+  function stadiumPath(lenPx, widPx){
+    var halfLen = lenPx/2, halfWid = widPx/2;
+    return 'M '+(-halfLen+halfWid)+' '+(-halfWid)+' '+
+           'L '+(halfLen-halfWid)+' '+(-halfWid)+' '+
+           'A '+halfWid+' '+halfWid+' 0 0 1 '+(halfLen-halfWid)+' '+halfWid+' '+
+           'L '+(-halfLen+halfWid)+' '+halfWid+' '+
+           'A '+halfWid+' '+halfWid+' 0 0 1 '+(-halfLen+halfWid)+' '+(-halfWid)+' Z';
+  }
+  function polyPath(points, ref, closed){
+    var pts = points.map(function(pt){ return project(pt.lat, pt.lon, ref); });
+    var d = 'M '+pts.map(function(p){return p.x+' '+p.y;}).join(' L ');
+    if(closed) d += ' Z';
+    return d;
+  }
+  function corridorPath(points, widthNm, ref){
+    var proj = points.map(function(pt){ return project(pt.lat, pt.lon, ref); });
+    var halfWidPx = (widthNm/2) * PX_PER_NM;
+    var left = [], right = [];
+    for(var i=0;i<proj.length;i++){
+      var prev = proj[i-1], cur = proj[i], next = proj[i+1];
+      var dirs = [];
+      if(prev) dirs.push(Math.atan2(cur.y-prev.y, cur.x-prev.x));
+      if(next) dirs.push(Math.atan2(next.y-cur.y, next.x-cur.x));
+      var dir = dirs.length===2 ? Math.atan2(Math.sin(dirs[0])+Math.sin(dirs[1]), Math.cos(dirs[0])+Math.cos(dirs[1])) : dirs[0];
+      var nx = -Math.sin(dir), ny = Math.cos(dir);
+      left.push({x:cur.x+nx*halfWidPx, y:cur.y+ny*halfWidPx});
+      right.push({x:cur.x-nx*halfWidPx, y:cur.y-ny*halfWidPx});
+    }
+    var d = 'M '+left.map(function(p){return p.x+' '+p.y;}).join(' L ');
+    d += ' L ' + right.slice().reverse().map(function(p){return p.x+' '+p.y;}).join(' L ') + ' Z';
+    return d;
+  }
+
+  function centroidOfPoints(points){
+    var sx=0, sy=0;
+    points.forEach(function(p){ sx+=p.lat; sy+=p.lon; });
+    return {lat:sx/points.length, lon:sy/points.length};
+  }
+
+  // ---------- draw-mode state ----------
+  // MODE_DEFS is the single source of truth for every draw tool: what shape
+  // it produces (kind), how many points it needs, and which acmType(s) it
+  // can save as. A mode with more than one "types" entry shows a sub-type
+  // picker in the detail panel instead of a fixed type.
+  var MODE_DEFS = {
+    'bullseye-point':    { kind:'point',     types:[{v:'bullseye', l:'Bullseye'}] },
+    'cap-station':       { kind:'circle',    types:[{v:'cap_station', l:'CAP / AWACS Station'}] },
+    'll-corridor':       { kind:'corridor',  minPoints:2, types:[{v:'mrr', l:'MRR — Minimum Risk Route'}, {v:'saafr', l:'SAAFR — Standard-Use Army Aircraft Flight Route'}] },
+    'roz-circle':        { kind:'circle',    types:[{v:'roz', l:'ROZ'}] },
+    'roz-polygon':       { kind:'polygon',   minPoints:3, types:[{v:'roz', l:'ROZ'}] },
+    'restricted-polygon':{ kind:'polygon',   minPoints:3, types:[{v:'restricted_area', l:'Restricted Area'}] },
+    'zone-polygon':      { kind:'polygon',   minPoints:3, types:[{v:'aca', l:'ACA — Airspace Coordination Area'}, {v:'hidacz', l:'HIDACZ — High-Density Airspace Control Zone'}, {v:'adiz', l:'ADIZ — Air Defense Identification Zone'}] },
+    'fscl-line':         { kind:'line',      minPoints:2, types:[{v:'fscl', l:'FSCL'}] },
+    'flot-line':         { kind:'line',      minPoints:2, types:[{v:'flot', l:'FLOT'}] },
+    'fire-area-polygon': { kind:'polygon',   minPoints:3, types:[{v:'ffa', l:'FFA — Free Fire Area'}, {v:'nfa', l:'NFA — No Fire Area'}, {v:'rfa', l:'RFA — Restricted Fire Area'}] },
+    'arty-corridor':     { kind:'corridor',  minPoints:2, types:[{v:'arty_lane', l:'Arty Firing Lane'}] }
+  };
+
+  var drawMode = null;
+  var drawPoints = [];
+  var allMeasures = [];
+  var lastSnapshotWithId = [];
+  var pendingType = null, pendingGeometry = null;
+
+  var drawStatus = document.getElementById('drawStatus');
+  var drawActions = document.getElementById('drawActions');
+  var finishBtn = document.getElementById('finishDrawBtn');
+  var undoBtn = document.getElementById('undoPointBtn');
+  var cancelBtn = document.getElementById('cancelDrawBtn');
+  var drawToolButtons = document.querySelectorAll('.drawbtn');
+
+  function setStatus(msg){ drawStatus.textContent = msg; }
+
+  function startMode(mode){
+    drawMode = mode; drawPoints = [];
+    var def = MODE_DEFS[mode];
+    drawToolButtons.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-mode')===mode); });
+    drawActions.hidden = false;
+    finishBtn.disabled = true;
+    if(def.kind === 'circle'){
+      setStatus('Click the board to place the center.');
+    } else if(def.kind === 'point'){
+      setStatus('Click the board to place the point.');
+    } else {
+      setStatus('Click to add points (minimum ' + def.minPoints + '). Click Finish shape when done.');
+    }
+    render();
+  }
+
+  function stopMode(){
+    drawMode = null; drawPoints = [];
+    drawToolButtons.forEach(function(b){ b.classList.remove('active'); });
+    drawActions.hidden = true;
+    setStatus('');
+    render();
+  }
+
+  drawToolButtons.forEach(function(b){
+    b.addEventListener('click', function(){
+      var mode = b.getAttribute('data-mode');
+      if(drawMode === mode){ stopMode(); } else { startMode(mode); }
+    });
+  });
+  cancelBtn.addEventListener('click', stopMode);
+  undoBtn.addEventListener('click', function(){
+    if(drawPoints.length){ drawPoints.pop(); }
+    var def = MODE_DEFS[drawMode];
+    if(def && (def.kind === 'polygon' || def.kind === 'line' || def.kind === 'corridor')){
+      finishBtn.disabled = drawPoints.length < def.minPoints;
+    }
+    render();
+  });
+  finishBtn.addEventListener('click', function(){
+    var def = MODE_DEFS[drawMode];
+    if(!def || drawPoints.length < def.minPoints) return;
+    var geometry = def.kind === 'polygon'
+      ? { kind:'polygon', points: drawPoints.slice() }
+      : (def.kind === 'corridor'
+          ? { kind:'corridor', points: drawPoints.slice(), widthNm: 2 }
+          : { kind:'line', points: drawPoints.slice() });
+    openDetail(def, geometry);
+    stopMode();
+  });
+
+  function svgPoint(evt){
+    var rect = svg.getBoundingClientRect();
+    var x = (evt.clientX - rect.left) * (VB_W / rect.width);
+    var y = (evt.clientY - rect.top) * (VB_H / rect.height);
+    return {x:x, y:y};
+  }
+
+  svg.addEventListener('pointerdown', function(evt){
+    if(!drawMode) return;
+    var def = MODE_DEFS[drawMode];
+    var ref = refPoint();
+    if(!ref) return;
+    var pt = svgPoint(evt);
+    var ll = unproject(pt.x, pt.y, ref);
+
+    if(def.kind === 'point'){
+      openDetail(def, { kind:'point', lat: ll.lat, lon: ll.lon });
+      stopMode();
+    } else if(def.kind === 'circle'){
+      if(drawPoints.length === 0){
+        drawPoints.push(ll);
+        setStatus('Click again to set the radius.');
+        render();
+      } else {
+        var radiusNm = nmDistance(drawPoints[0], ll, ref);
+        openDetail(def, { kind:'circle', centerLat: drawPoints[0].lat, centerLon: drawPoints[0].lon, radiusNm: radiusNm });
+        stopMode();
+      }
+    } else {
+      drawPoints.push(ll);
+      finishBtn.disabled = drawPoints.length < def.minPoints;
+      setStatus(drawPoints.length + ' point(s) placed. ' + (drawPoints.length < def.minPoints ? 'Need ' + def.minPoints + ' minimum.' : 'Click Finish shape when done, or keep adding points.'));
+      render();
+    }
+  });
+
+  // ---------- detail panel ----------
+  var detailPanel = document.getElementById('detailPanel');
+  var detailTypeLabel = document.getElementById('detailTypeLabel');
+  var dSubtypeWrap = document.getElementById('d-subtype-wrap'), dSubtype = document.getElementById('d-subtype');
+  var dLabel = document.getElementById('d-label'), dCampaign = document.getElementById('d-campaign'), dNotes = document.getElementById('d-notes');
+  var dRadiusWrap = document.getElementById('d-radius-wrap'), dRadius = document.getElementById('d-radius');
+  var dWidthWrap = document.getElementById('d-width-wrap'), dWidth = document.getElementById('d-width');
+  var dFloorWrap = document.getElementById('d-floor-wrap'), dFloor = document.getElementById('d-floor');
+  var dCeilingWrap = document.getElementById('d-ceiling-wrap'), dCeiling = document.getElementById('d-ceiling');
+
+  var TYPE_LABELS = {
+    roz:'ROZ', restricted_area:'Restricted Area', fscl:'FSCL', flot:'FLOT', arty_lane:'Arty Firing Lane',
+    aca:'ACA', hidacz:'HIDACZ', adiz:'ADIZ', mrr:'MRR', saafr:'SAAFR',
+    ffa:'FFA', nfa:'NFA', rfa:'RFA', bullseye:'Bullseye', cap_station:'CAP/AWACS Station'
+  };
+
+  var pendingModeDef = null;
+
+  function openDetail(modeDef, geometry){
+    pendingModeDef = modeDef; pendingGeometry = geometry;
+    pendingType = modeDef.types[0].v;
+    detailTypeLabel.textContent = TYPE_LABELS[pendingType] || pendingType;
+    dLabel.value = ''; dNotes.value = '';
+    dCampaign.value = campaignFilterEl.value.trim();
+
+    if(modeDef.types.length > 1){
+      dSubtypeWrap.hidden = false;
+      dSubtype.innerHTML = '';
+      modeDef.types.forEach(function(t){
+        var opt = document.createElement('option');
+        opt.value = t.v; opt.textContent = t.l;
+        dSubtype.appendChild(opt);
+      });
+      dSubtype.value = pendingType;
+    } else {
+      dSubtypeWrap.hidden = true;
+    }
+
+    dRadiusWrap.hidden = true; dWidthWrap.hidden = true; dFloorWrap.hidden = true; dCeilingWrap.hidden = true;
+    dFloor.value = ''; dCeiling.value = '';
+    if(geometry.kind === 'circle'){
+      dRadiusWrap.hidden = false;
+      dRadius.value = geometry.radiusNm.toFixed(1);
+    }
+    if(geometry.kind === 'corridor'){
+      dWidthWrap.hidden = false;
+      dWidth.value = geometry.widthNm;
+    }
+    if(geometry.kind !== 'line' && geometry.kind !== 'point'){
+      dFloorWrap.hidden = false; dCeilingWrap.hidden = false;
+    }
+    detailPanel.hidden = false;
+    detailPanel.scrollIntoView({block:'center', behavior:'smooth'});
+  }
+
+  dSubtype.addEventListener('change', function(){
+    pendingType = dSubtype.value;
+    detailTypeLabel.textContent = TYPE_LABELS[pendingType] || pendingType;
+  });
+
+  document.getElementById('detailCancelBtn').addEventListener('click', function(){
+    detailPanel.hidden = true; pendingType = null; pendingGeometry = null; pendingModeDef = null;
+  });
+  document.getElementById('detailSaveBtn').addEventListener('click', function(){
+    if(!db){ setStatus('Database unavailable — cannot save.'); return; }
+    if(!pendingType || !pendingGeometry) return;
+    var geometry = pendingGeometry;
+    if(geometry.kind === 'circle'){
+      var r = parseFloat(dRadius.value); if(!isNaN(r) && r>0) geometry.radiusNm = r;
+    }
+    if(geometry.kind === 'corridor'){
+      var w = parseFloat(dWidth.value); if(!isNaN(w) && w>0) geometry.widthNm = w;
+    }
+    var doc = {
+      acmType: pendingType,
+      label: dLabel.value.trim() || TYPE_LABELS[pendingType],
+      campaign: dCampaign.value.trim(),
+      notes: dNotes.value.trim(),
+      geometry: geometry,
+      status: 'active',
+      createdAt: Date.now()
+    };
+    var floor = parseFloat(dFloor.value), ceiling = parseFloat(dCeiling.value);
+    if(!isNaN(floor)) doc.altitudeFloorFt = floor;
+    if(!isNaN(ceiling)) doc.altitudeCeilingFt = ceiling;
+
+    db.collection('airspace_measures').add(doc).then(function(){
+      detailPanel.hidden = true; pendingType = null; pendingGeometry = null; pendingModeDef = null;
+    }).catch(function(){
+      setStatus('Save failed — try again.');
+    });
+  });
+
+  // ---------- render ----------
+  function filteredMeasures(){
+    var filter = campaignFilterEl.value.trim().toLowerCase();
+    if(!filter) return allMeasures;
+    return allMeasures.filter(function(m){ return (m.campaign||'').toLowerCase().indexOf(filter) !== -1; });
+  }
+
+  // Maps every acmType to its CSS shape class, used for circles, polygons,
+  // lines and corridors alike (racetrack and point geometries are handled
+  // as special cases below).
+  var ACM_SHAPE_CLASS = {
+    roz:'shape-roz', restricted_area:'shape-restricted', fscl:'shape-fscl', flot:'shape-flot',
+    arty_lane:'shape-arty', aca:'shape-aca', hidacz:'shape-hidacz', adiz:'shape-adiz',
+    mrr:'shape-mrr', saafr:'shape-saafr', ffa:'shape-ffa', nfa:'shape-restricted', rfa:'shape-roz',
+    cap_station:'shape-cap', tanker_track:'shape-tanker'
+  };
+
+  function drawMeasure(m, ref){
+    var geo = m.geometry || {};
+    var cls = ACM_SHAPE_CLASS[m.acmType] || 'shape-roz';
+    var labelText = m.builtCallsign || m.label || m.callsignLabel || '';
+
+    if(m.acmType === 'tanker_track' || geo.kind === 'racetrack'){
+      var p = project(geo.centerLat, geo.centerLon, ref);
+      var lenPx = (geo.lengthNm||50) * PX_PER_NM, widPx = (geo.widthNm||20) * PX_PER_NM;
+      var rotation = (geo.headingDeg||0) - 90;
+      var g = el('g', {transform:'translate('+p.x+','+p.y+') rotate('+rotation+')'});
+      g.appendChild(el('path', {class:'shape-tanker', d:stadiumPath(lenPx, widPx)}));
+      svg.appendChild(g);
+      var freqTxt = (m.comm && typeof m.comm.freqMhz === 'number') ? ' ' + m.comm.freqMhz.toFixed(3) : '';
+      var lab = el('text', {class:'plotlabel', x:p.x+10, y:p.y-10});
+      lab.textContent = labelText + freqTxt;
+      svg.appendChild(lab);
+      return;
+    }
+    if(geo.kind === 'point'){
+      var pp0 = project(geo.lat, geo.lon, ref);
+      var g0 = el('g', {class:'shape-bullseye'});
+      g0.appendChild(el('circle', {cx:pp0.x, cy:pp0.y, r:9}));
+      g0.appendChild(el('circle', {cx:pp0.x, cy:pp0.y, r:2.5, fill:'var(--c-bullseye)'}));
+      g0.appendChild(el('line', {x1:pp0.x-14, y1:pp0.y, x2:pp0.x+14, y2:pp0.y}));
+      g0.appendChild(el('line', {x1:pp0.x, y1:pp0.y-14, x2:pp0.x, y2:pp0.y+14}));
+      svg.appendChild(g0);
+      var lab0 = el('text', {class:'plotlabel', x:pp0.x+12, y:pp0.y-12});
+      lab0.textContent = labelText;
+      svg.appendChild(lab0);
+      return;
+    }
+    if(geo.kind === 'circle'){
+      var pc = project(geo.centerLat, geo.centerLon, ref);
+      svg.appendChild(el('circle', {class:cls, cx:pc.x, cy:pc.y, r:(geo.radiusNm||5)*PX_PER_NM}));
+      var labc = el('text', {class:'plotlabel', x:pc.x, y:pc.y, 'text-anchor':'middle'});
+      labc.textContent = labelText;
+      svg.appendChild(labc);
+      return;
+    }
+    if(geo.kind === 'polygon'){
+      svg.appendChild(el('path', {class:cls, d:polyPath(geo.points, ref, true)}));
+      var cen = centroidOfPoints(geo.points);
+      var pp = project(cen.lat, cen.lon, ref);
+      var labp = el('text', {class:'plotlabel', x:pp.x, y:pp.y, 'text-anchor':'middle'});
+      labp.textContent = labelText;
+      svg.appendChild(labp);
+      return;
+    }
+    if(geo.kind === 'line'){
+      svg.appendChild(el('path', {class:cls, d:polyPath(geo.points, ref, false)}));
+      var mid = geo.points[Math.floor(geo.points.length/2)];
+      var pm = project(mid.lat, mid.lon, ref);
+      var labl = el('text', {class:'plotlabel', x:pm.x+6, y:pm.y-6});
+      labl.textContent = labelText;
+      svg.appendChild(labl);
+      return;
+    }
+    if(geo.kind === 'corridor'){
+      svg.appendChild(el('path', {class:cls, d:corridorPath(geo.points, geo.widthNm||2, ref)}));
+      var ca = centroidOfPoints(geo.points);
+      var pa = project(ca.lat, ca.lon, ref);
+      var laba = el('text', {class:'plotlabel', x:pa.x, y:pa.y, 'text-anchor':'middle'});
+      laba.textContent = labelText;
+      svg.appendChild(laba);
+      return;
+    }
+  }
+
+  function drawDraftShape(ref){
+    if(!drawMode || !drawPoints.length) return;
+    var def = MODE_DEFS[drawMode];
+    if(def.kind === 'circle'){
+      var p0 = project(drawPoints[0].lat, drawPoints[0].lon, ref);
+      svg.appendChild(el('circle', {class:'draftvertex', cx:p0.x, cy:p0.y, r:4}));
+      return;
+    }
+    var pts = drawPoints.map(function(pt){ return project(pt.lat, pt.lon, ref); });
+    var d = 'M '+pts.map(function(p){return p.x+' '+p.y;}).join(' L ');
+    var isPolygon = (def.kind === 'polygon');
+    svg.appendChild(el('path', {class:'shape-draft', d:d + (isPolygon && pts.length>2 ? ' Z' : ''), fill: isPolygon ? '' : 'none'}));
+    pts.forEach(function(p){ svg.appendChild(el('circle', {class:'draftvertex', cx:p.x, cy:p.y, r:4})); });
+  }
+
+  function render(){
+    var ref = refPoint();
+    if(!ref){ overlay.hidden = false; clearSvg(); return; }
+    overlay.hidden = true;
+    clearSvg();
+    drawGrid(ref);
+    filteredMeasures().forEach(function(m){ drawMeasure(m, ref); });
+    drawDraftShape(ref);
+  }
+
+  [refLatEl, refLonEl, campaignFilterEl].forEach(function(f){ f.addEventListener('input', render); });
+
+  // ---------- list + export ----------
+  var acmTable = document.getElementById('acmTable');
+  var acmBody = document.getElementById('acmBody');
+  var acmEmpty = document.getElementById('acmEmpty');
+
+  var TYPE_PILL_CLASS = {
+    tanker_track:'t-tanker', roz:'t-roz', restricted_area:'t-restricted', fscl:'t-fscl', flot:'t-flot', arty_lane:'t-arty',
+    aca:'t-aca', hidacz:'t-hidacz', adiz:'t-adiz', mrr:'t-mrr', saafr:'t-saafr',
+    ffa:'t-ffa', nfa:'t-restricted', rfa:'t-roz', bullseye:'t-bullseye', cap_station:'t-cap'
+  };
+
+  function geoSummary(m){
+    var geo = m.geometry || {};
+    if(geo.kind === 'racetrack') return Math.round(geo.lengthNm||0)+'NM trk, hdg '+Math.round(geo.headingDeg||0)+'°';
+    if(geo.kind === 'point') return geo.lat.toFixed(4)+', '+geo.lon.toFixed(4);
+    if(geo.kind === 'circle') return geo.radiusNm.toFixed(1)+'NM radius';
+    if(geo.kind === 'polygon') return geo.points.length+'-pt polygon';
+    if(geo.kind === 'line') return geo.points.length+'-pt line';
+    if(geo.kind === 'corridor') return geo.points.length+'-pt, '+geo.widthNm+'NM wide';
+    return '';
+  }
+
+  function renderList(docsWithId){
+    if(!docsWithId.length){
+      acmTable.hidden = true; acmEmpty.hidden = false; return;
+    }
+    acmTable.hidden = false; acmEmpty.hidden = true;
+    acmBody.innerHTML = '';
+    docsWithId.forEach(function(item){
+      var m = item.data;
+      var tr = document.createElement('tr');
+
+      var tdType = document.createElement('td');
+      tdType.setAttribute('data-label','Type');
+      var pill = document.createElement('span');
+      pill.className = 'pill ' + (TYPE_PILL_CLASS[m.acmType] || '');
+      pill.textContent = (TYPE_LABELS[m.acmType] || m.acmType || 'measure').replace('_',' ');
+      tdType.appendChild(pill);
+      tr.appendChild(tdType);
+
+      var tdLabel = document.createElement('td');
+      tdLabel.setAttribute('data-label','Label');
+      tdLabel.textContent = m.builtCallsign || m.label || m.callsignLabel || '—';
+      tr.appendChild(tdLabel);
+
+      var tdCampaign = document.createElement('td');
+      tdCampaign.setAttribute('data-label','Campaign');
+      tdCampaign.textContent = m.campaign || '—';
+      tr.appendChild(tdCampaign);
+
+      var tdDetail = document.createElement('td');
+      tdDetail.className = 'mono';
+      tdDetail.setAttribute('data-label','Detail');
+      tdDetail.textContent = geoSummary(m);
+      tr.appendChild(tdDetail);
+
+      var tdActions = document.createElement('td');
+      if(m.acmType !== 'tanker_track'){
+        var delBtn = document.createElement('button');
+        delBtn.className = 'btn small danger';
+        delBtn.type = 'button';
+        delBtn.textContent = 'Delete';
+        delBtn.addEventListener('click', function(){
+          if(db) db.collection('airspace_measures').doc(item.id).delete();
+        });
+        tdActions.appendChild(delBtn);
+      } else {
+        var note = document.createElement('span');
+        note.style.cssText = 'font-size:.72rem;color:var(--fg-muted);';
+        note.textContent = 'via Tanker Cell';
+        tdActions.appendChild(note);
+      }
+      tr.appendChild(tdActions);
+
+      acmBody.appendChild(tr);
+    });
+  }
+
+  document.getElementById('exportBtn').addEventListener('click', function(){
+    var lines = ['AIRSPACE CONTROL MEASURES'];
+    var filter = campaignFilterEl.value.trim();
+    if(filter) lines.push('Campaign: ' + filter);
+    lines.push('');
+    filteredMeasures().forEach(function(m){
+      var geo = m.geometry || {};
+      lines.push('[' + (TYPE_LABELS[m.acmType]||m.acmType) + '] ' + (m.label || m.callsignLabel || ''));
+      if(geo.kind === 'racetrack') lines.push('  center ' + geo.centerLat.toFixed(4) + ', ' + geo.centerLon.toFixed(4) + '  hdg ' + Math.round(geo.headingDeg) + '°  len ' + geo.lengthNm + 'NM');
+      if(geo.kind === 'point') lines.push('  point ' + geo.lat.toFixed(4) + ', ' + geo.lon.toFixed(4));
+      if(geo.kind === 'circle') lines.push('  center ' + geo.centerLat.toFixed(4) + ', ' + geo.centerLon.toFixed(4) + '  radius ' + geo.radiusNm.toFixed(1) + 'NM');
+      if(geo.kind === 'polygon' || geo.kind === 'line' || geo.kind === 'corridor'){
+        geo.points.forEach(function(p, i){ lines.push('  pt' + (i+1) + ': ' + p.lat.toFixed(4) + ', ' + p.lon.toFixed(4)); });
+        if(geo.kind === 'corridor') lines.push('  width ' + geo.widthNm + 'NM');
+      }
+      if(m.altitudeFloorFt != null || m.altitudeCeilingFt != null) lines.push('  alt block ' + (m.altitudeFloorFt||0) + '-' + (m.altitudeCeilingFt||'unl') + ' ft');
+      if(m.notes) lines.push('  notes: ' + m.notes);
+      lines.push('');
+    });
+    var text = lines.join('\n');
+    var area = document.getElementById('exportArea');
+    area.value = text; area.hidden = false;
+    try{ navigator.clipboard.writeText(text); }catch(e){}
+    area.focus(); area.select();
+  });
+
+  // ---------- db ----------
+  var db = null;
+  try{
+    if(window.claude && window.claude.use){ db = window.claude.use('db'); }
+  }catch(e){ db = null; }
+
+  function renderListFiltered(){
+    var filter = campaignFilterEl.value.trim().toLowerCase();
+    renderList(lastSnapshotWithId.filter(function(item){
+      if(!filter) return true;
+      return ((item.data.campaign||'').toLowerCase().indexOf(filter) !== -1);
+    }));
+  }
+
+  function subscribe(){
+    if(!db){ return; }
+    try{
+      db.collection('airspace_measures').orderBy('createdAt','desc').limit(500).onSnapshot(function(snap){
+        allMeasures = snap.docs.map(function(d){ return d.data() || {}; });
+        lastSnapshotWithId = snap.docs.map(function(d){ return {id:d.id, data:d.data()||{}}; });
+        render();
+        renderListFiltered();
+      }, function(err){
+        acmEmpty.hidden = false;
+        acmEmpty.textContent = 'Could not load airspace measures.';
+      });
+    }catch(e){}
+  }
+  campaignFilterEl.addEventListener('input', function(){
+    render();
+    renderListFiltered();
+  });
+
+  // ---------- theater parameters ----------
+  var tCoordAlt = document.getElementById('t-coord-alt'), tCoordLevel = document.getElementById('t-coord-level'), tNotes = document.getElementById('t-notes');
+  var theaterStatus = document.getElementById('theaterStatus');
+  document.getElementById('theaterSaveBtn').addEventListener('click', function(){
+    if(!db){ theaterStatus.textContent = 'Database unavailable.'; theaterStatus.className='status err'; return; }
+    var alt = parseFloat(tCoordAlt.value);
+    var data = {
+      coordinatingAltitudeFt: isNaN(alt) ? null : alt,
+      coordinationLevel: tCoordLevel.value.trim(),
+      notes: tNotes.value.trim(),
+      updatedAt: Date.now()
+    };
+    db.collection('aco_meta').doc('theater').set(data).then(function(){
+      theaterStatus.textContent = 'Saved.'; theaterStatus.className = 'status ok';
+    }).catch(function(){
+      theaterStatus.textContent = 'Save failed — try again.'; theaterStatus.className = 'status err';
+    });
+  });
+  function subscribeTheater(){
+    if(!db) return;
+    try{
+      db.collection('aco_meta').doc('theater').onSnapshot(function(doc){
+        var data = (doc && doc.exists) ? (doc.data() || {}) : {};
+        if(data.coordinatingAltitudeFt != null) tCoordAlt.value = data.coordinatingAltitudeFt;
+        if(data.coordinationLevel) tCoordLevel.value = data.coordinationLevel;
+        if(data.notes) tNotes.value = data.notes;
+      }, function(){});
+    }catch(e){}
+  }
+
+  subscribe();
+  subscribeTheater();
+  render();
+})();
+</script>

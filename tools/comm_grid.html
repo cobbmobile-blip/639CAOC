@@ -18,9 +18,8 @@
   --cat-tacadmin-bg:#ffffff; --cat-tacadmin-fg:#211d14; --cat-tacadmin-border:#c9c2aa;
   --cat-tankers-bg:#d9e6f2; --cat-tankers-fg:#1c3a52; --cat-tankers-border:#aecbe3;
   --cat-tactical-bg:#f5e9ad; --cat-tactical-fg:#4a3c06; --cat-tactical-border:#e0cd6e;
-  --cat-caw7-bg:#d8ead9; --cat-caw7-fg:#214a28; --cat-caw7-border:#a9cfae;
-  --cat-tacops-bg:#e5daf0; --cat-tacops-fg:#3c2660; --cat-tacops-border:#c6afdd;
-  --cat-sfcwar-bg:#f2d6d1; --cat-sfcwar-fg:#6b1f14; --cat-sfcwar-border:#e0a99f;
+  --cat-rescue-bg:#d8ead9; --cat-rescue-fg:#214a28; --cat-rescue-border:#a9cfae;
+  --cat-groundcoord-bg:#e5daf0; --cat-groundcoord-fg:#3c2660; --cat-groundcoord-border:#c6afdd;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -31,9 +30,8 @@
     --cat-tacadmin-bg:#2a2d22; --cat-tacadmin-fg:#e9e4d2; --cat-tacadmin-border:#454a38;
     --cat-tankers-bg:#1c2c3a; --cat-tankers-fg:#aecbe3; --cat-tankers-border:#2e4a5f;
     --cat-tactical-bg:#3a3414; --cat-tactical-fg:#e0cd6e; --cat-tactical-border:#564c1e;
-    --cat-caw7-bg:#1c3220; --cat-caw7-fg:#a9cfae; --cat-caw7-border:#2e4e34;
-    --cat-tacops-bg:#2a1f3a; --cat-tacops-fg:#c6afdd; --cat-tacops-border:#453163;
-    --cat-sfcwar-bg:#3a1f1c; --cat-sfcwar-fg:#e0a99f; --cat-sfcwar-border:#5c2e27;
+    --cat-rescue-bg:#1c3220; --cat-rescue-fg:#a9cfae; --cat-rescue-border:#2e4e34;
+    --cat-groundcoord-bg:#2a1f3a; --cat-groundcoord-fg:#c6afdd; --cat-groundcoord-border:#453163;
   }
 }
 :root[data-theme="dark"]{
@@ -44,9 +42,8 @@
   --cat-tacadmin-bg:#2a2d22; --cat-tacadmin-fg:#e9e4d2; --cat-tacadmin-border:#454a38;
   --cat-tankers-bg:#1c2c3a; --cat-tankers-fg:#aecbe3; --cat-tankers-border:#2e4a5f;
   --cat-tactical-bg:#3a3414; --cat-tactical-fg:#e0cd6e; --cat-tactical-border:#564c1e;
-  --cat-caw7-bg:#1c3220; --cat-caw7-fg:#a9cfae; --cat-caw7-border:#2e4e34;
-  --cat-tacops-bg:#2a1f3a; --cat-tacops-fg:#c6afdd; --cat-tacops-border:#453163;
-  --cat-sfcwar-bg:#3a1f1c; --cat-sfcwar-fg:#e0a99f; --cat-sfcwar-border:#5c2e27;
+  --cat-rescue-bg:#1c3220; --cat-rescue-fg:#a9cfae; --cat-rescue-border:#2e4e34;
+  --cat-groundcoord-bg:#2a1f3a; --cat-groundcoord-fg:#c6afdd; --cat-groundcoord-border:#453163;
 }
 *{box-sizing:border-box;}
 body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--body); line-height:1.45;}
@@ -88,9 +85,8 @@ table.grid tbody td.catcell{padding:6px;}
 td.cat-tacadmin{background:var(--cat-tacadmin-bg); color:var(--cat-tacadmin-fg);}
 td.cat-tankers{background:var(--cat-tankers-bg); color:var(--cat-tankers-fg);}
 td.cat-tactical{background:var(--cat-tactical-bg); color:var(--cat-tactical-fg);}
-td.cat-caw7{background:var(--cat-caw7-bg); color:var(--cat-caw7-fg);}
-td.cat-tacops{background:var(--cat-tacops-bg); color:var(--cat-tacops-fg);}
-td.cat-sfcwar{background:var(--cat-sfcwar-bg); color:var(--cat-sfcwar-fg);}
+td.cat-rescue{background:var(--cat-rescue-bg); color:var(--cat-rescue-fg);}
+td.cat-groundcoord{background:var(--cat-groundcoord-bg); color:var(--cat-groundcoord-fg);}
 
 .rowbtns{display:flex; justify-content:center; padding:4px 0;}
 .rowbtns button{background:none; border:none; color:var(--fg-muted); font-size:.75rem; cursor:pointer; font-family:var(--mono);}
@@ -161,10 +157,9 @@ td.cat-sfcwar{background:var(--cat-sfcwar-bg); color:var(--cat-sfcwar-fg);}
             <th class="rownum-col"></th>
             <th class="cat-tacadmin" style="background:var(--cat-tacadmin-bg); color:var(--cat-tacadmin-fg);">Tac Admin</th>
             <th style="background:var(--cat-tankers-bg); color:var(--cat-tankers-fg);">Tankers</th>
-            <th style="background:var(--cat-tactical-bg); color:var(--cat-tactical-fg);">Tactical</th>
-            <th style="background:var(--cat-caw7-bg); color:var(--cat-caw7-fg);">CAW-7</th>
-            <th style="background:var(--cat-tacops-bg); color:var(--cat-tacops-fg);">Tac Ops</th>
-            <th style="background:var(--cat-sfcwar-bg); color:var(--cat-sfcwar-fg);">Sfc Warfare</th>
+            <th style="background:var(--cat-tactical-bg); color:var(--cat-tactical-fg);">Tactical Air</th>
+            <th style="background:var(--cat-rescue-bg); color:var(--cat-rescue-fg);">Rescue</th>
+            <th style="background:var(--cat-groundcoord-bg); color:var(--cat-groundcoord-fg);">Ground Coord</th>
             <th class="rownum-col"></th>
           </tr>
         </thead>
@@ -174,12 +169,11 @@ td.cat-sfcwar{background:var(--cat-sfcwar-bg); color:var(--cat-sfcwar-fg);}
     <div class="legend">
       <span><span class="sw" style="background:var(--cat-tacadmin-bg);"></span>Tac Admin</span>
       <span><span class="sw" style="background:var(--cat-tankers-bg);"></span>Tankers</span>
-      <span><span class="sw" style="background:var(--cat-tactical-bg);"></span>Tactical</span>
-      <span><span class="sw" style="background:var(--cat-caw7-bg);"></span>CAW-7</span>
-      <span><span class="sw" style="background:var(--cat-tacops-bg);"></span>Tac Ops</span>
-      <span><span class="sw" style="background:var(--cat-sfcwar-bg);"></span>Sfc Warfare</span>
+      <span><span class="sw" style="background:var(--cat-tactical-bg);"></span>Tactical Air</span>
+      <span><span class="sw" style="background:var(--cat-rescue-bg);"></span>Rescue</span>
+      <span><span class="sw" style="background:var(--cat-groundcoord-bg);"></span>Ground Coord</span>
     </div>
-    <div class="helpnote">Each cell holds a net name, callsign, and frequency. Standard channels (TAC COORD, ASOC, STRIKE, SEAD, and similar) are pre-seeded in row 1 under Tactical/Tac Ops &mdash; rename, retune, or clear any cell as needed for the campaign.</div>
+    <div class="helpnote">Each cell holds a net name, callsign, and frequency. The six standard channel slots per column (TAC COORD/CTAF, tanker tracks, CHECK IN/SEAD/STRIKE, PRCC/SAR, ASOC/JTAC, and similar) are pre-seeded with just the net name &mdash; fill in callsign and freq per campaign, and rename, retune, or clear any cell as needed.</div>
     <div id="statusLine" class="status" style="margin-top:10px;"></div>
   </section>
 
@@ -222,12 +216,11 @@ td.cat-sfcwar{background:var(--cat-sfcwar-bg); color:var(--cat-sfcwar-fg);}
 
   // ---------- categories ----------
   var CATS = [
-    {key:'tacadmin', label:'Tac Admin', cls:'cat-tacadmin'},
-    {key:'tankers',  label:'Tankers',   cls:'cat-tankers'},
-    {key:'tactical', label:'Tactical',  cls:'cat-tactical'},
-    {key:'caw7',     label:'CAW-7',     cls:'cat-caw7'},
-    {key:'tacops',   label:'Tac Ops',   cls:'cat-tacops'},
-    {key:'sfcwar',   label:'Sfc Warfare', cls:'cat-sfcwar'}
+    {key:'tacadmin',    label:'Tac Admin',     cls:'cat-tacadmin'},
+    {key:'tankers',     label:'Tankers',       cls:'cat-tankers'},
+    {key:'tactical',    label:'Tactical Air',  cls:'cat-tactical'},
+    {key:'rescue',      label:'Rescue',        cls:'cat-rescue'},
+    {key:'groundcoord', label:'Ground Coord',  cls:'cat-groundcoord'}
   ];
 
   function emptyCell(){ return {net:'', callsign:'', freq:''}; }
@@ -237,16 +230,22 @@ td.cat-sfcwar{background:var(--cat-sfcwar-bg); color:var(--cat-sfcwar-fg);}
     return row;
   }
 
-  // default seed: standard deconfliction channels pre-populated
+  // default seed: standard deconfliction channels pre-populated (net name only —
+  // callsign and freq are set per campaign). Matches the standing 6-row layout.
   function defaultRows(){
-    var r1 = emptyRow();
-    r1.tactical = {net:'TAC COORD', callsign:'', freq:''};
-    r1.tacops   = {net:'ASOC', callsign:'', freq:''};
-    var r2 = emptyRow();
-    r2.tactical = {net:'STRIKE', callsign:'', freq:''};
-    r2.tacops   = {net:'SEAD', callsign:'', freq:''};
-    var r3 = emptyRow();
-    return [r1, r2, r3];
+    var seed = [
+      {tacadmin:'TAC COORD',  tankers:'BOOM',          tactical:'CHECK IN', rescue:'PRCC/CSARTF', groundcoord:'ASOC'},
+      {tacadmin:'CTAF',       tankers:'BOOM',          tactical:'XINT',     rescue:'RESCORT',     groundcoord:'JTAC/FAC(A) 1'},
+      {tacadmin:'ADMIN C2',   tankers:'BOOM',          tactical:'SEAD',     rescue:'SAR-A',        groundcoord:'JTAC/FAC(A) 2'},
+      {tacadmin:'RANGE CTL',  tankers:'MPRS',          tactical:'STRIKE',   rescue:'SAR-B',        groundcoord:'JTAC/FAC(A) 3'},
+      {tacadmin:'AIC',        tankers:'MPRS',          tactical:'SCAR',     rescue:'ISR (MQ-9)',   groundcoord:'ROTARY STRIKE'},
+      {tacadmin:'SOF LNO',    tankers:'HEAVY TANKER',  tactical:'DCA',      rescue:'RECON (RQ-7)', groundcoord:'CAS COORD'}
+    ];
+    return seed.map(function(s){
+      var row = emptyRow();
+      CATS.forEach(function(c){ row[c.key] = {net: s[c.key] || '', callsign:'', freq:''}; });
+      return row;
+    });
   }
 
   var state = {

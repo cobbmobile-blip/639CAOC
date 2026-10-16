@@ -1,0 +1,725 @@
+<title>Tanker Cell</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: a request form (card) feeding a status queue (table) below it —
+   single column, paper/ops-board palette matching the 639 CAOC toolset. */
+:root{
+  --bg:#f3efe2; --surface:#fffdf7; --surface-2:#ece6d4; --border:#d8cfb4;
+  --fg:#211d14; --fg-muted:#6b6450; --accent:#2f5f8a; --accent-ink:#fffdf7;
+  --good:#3f6a52; --warn:#9a6a1f; --danger:#a13c2d;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --disp: "Oswald", var(--body);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12161c; --surface:#181d25; --surface-2:#1f2630; --border:#303a47;
+    --fg:#e7e4da; --fg-muted:#93a0ab; --accent:#6fa7d6; --accent-ink:#0d1620;
+    --good:#6fa389; --warn:#d1a24d; --danger:#d4715f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12161c; --surface:#181d25; --surface-2:#1f2630; --border:#303a47;
+  --fg:#e7e4da; --fg-muted:#93a0ab; --accent:#6fa7d6; --accent-ink:#0d1620;
+  --good:#6fa389; --warn:#d1a24d; --danger:#d4715f;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--body); line-height:1.45;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+.wrap{max-width:900px; margin:0 auto; padding-block:28px 80px;}
+header.top{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:6px; flex-wrap:wrap;}
+h1{font-family:var(--disp); font-weight:700; font-size:1.7rem; margin:0 0 4px; letter-spacing:.01em;}
+.sub{color:var(--fg-muted); font-size:.92rem; max-width:620px;}
+.themebtn{background:var(--surface); border:1px solid var(--border); color:var(--fg); font-family:var(--mono); font-size:.78rem; padding:6px 10px; border-radius:6px; cursor:pointer;}
+.themebtn:hover{border-color:var(--accent);}
+
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin-top:20px;}
+.panelhead{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+.panelhead h2{font-family:var(--disp); font-size:1.05rem; margin:0; font-weight:600;}
+.panelhead .note{font-size:.8rem; color:var(--fg-muted);}
+
+.fieldgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:12px 14px;}
+.field{display:flex; flex-direction:column; gap:4px; min-width:0;}
+.field.span2{grid-column:span 2;}
+.field label{font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--fg-muted); font-weight:600;}
+.field input, .field select, .field textarea{
+  font-family:var(--mono); font-size:.88rem; background:var(--surface-2); border:1px solid var(--border);
+  color:var(--fg); border-radius:6px; padding:7px 9px; width:100%;
+}
+.field select{font-family:var(--body);}
+.field textarea{font-family:var(--body); resize:vertical; min-height:46px;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--accent); outline-offset:-1px;}
+.fieldhint{font-size:.72rem; color:var(--fg-muted);}
+
+.sectionlabel{font-family:var(--disp); font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin:18px 0 8px; font-weight:600;}
+.sectionlabel:first-child{margin-top:0;}
+
+.callsignpreview{font-family:var(--mono); font-size:.95rem; background:var(--surface-2); border:1px dashed var(--border); border-radius:6px; padding:8px 12px; margin-top:14px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;}
+.callsignpreview .cs{font-weight:600; color:var(--accent); font-family:var(--disp); letter-spacing:.02em; font-size:1.05rem;}
+
+.btnrow{display:flex; justify-content:flex-end; gap:10px; margin-top:16px;}
+.btn{font-family:var(--body); font-size:.85rem; font-weight:600; padding:10px 18px; border-radius:7px; border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); cursor:pointer;}
+.btn.secondary{background:transparent; color:var(--fg); border-color:var(--border);}
+.btn:hover{filter:brightness(1.06);}
+.btn:disabled{opacity:.55; cursor:default; filter:none;}
+
+.status{font-size:.8rem; color:var(--fg-muted); font-family:var(--mono); margin-top:10px; text-align:right;}
+.status.ok{color:var(--good);} .status.err{color:var(--danger);}
+
+table.queue{width:100%; border-collapse:collapse; margin-top:4px;}
+table.queue th, table.queue td{border-bottom:1px solid var(--border); padding:9px 8px; text-align:left; vertical-align:top; font-size:.85rem;}
+table.queue thead th{font-family:var(--disp); font-size:.74rem; text-transform:uppercase; letter-spacing:.04em; color:var(--fg-muted); font-weight:600; border-bottom:2px solid var(--border);}
+table.queue td.mono{font-family:var(--mono); font-size:.82rem;}
+.pill{display:inline-block; padding:3px 9px; border-radius:99px; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.03em; font-family:var(--disp);}
+.pill.pending{background:color-mix(in srgb, var(--warn) 18%, var(--surface)); color:var(--warn); border:1px solid color-mix(in srgb, var(--warn) 45%, transparent);}
+.pill.built{background:color-mix(in srgb, var(--good) 18%, var(--surface)); color:var(--good); border:1px solid color-mix(in srgb, var(--good) 45%, transparent);}
+.pill.error{background:color-mix(in srgb, var(--danger) 18%, var(--surface)); color:var(--danger); border:1px solid color-mix(in srgb, var(--danger) 45%, transparent);}
+.emptystate{text-align:center; padding:28px 10px; color:var(--fg-muted); font-size:.88rem;}
+.emptystate b{color:var(--fg); font-weight:600;}
+
+.plotpanel{margin-top:14px;}
+.plotrefrow{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:10px;}
+.plotrefrow .field{flex:0 0 150px;}
+.plotrefrow .btn{padding:8px 14px; font-size:.8rem;}
+.plotbox{position:relative; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:var(--surface-2); touch-action:none;}
+.plotbox svg{display:block; width:100%; height:auto;}
+.plotgrid line{stroke:var(--border); stroke-width:1;}
+.plotgrid text{fill:var(--fg-muted); font-family:var(--mono); font-size:9px;}
+.plotaxis line{stroke:var(--fg-muted); stroke-width:1; stroke-dasharray:2 3; opacity:.5;}
+.tracktube{fill:color-mix(in srgb, var(--accent) 20%, transparent); stroke:var(--accent); stroke-width:1.5;}
+.trackcenterline{stroke:var(--accent); stroke-width:1; stroke-dasharray:4 4; opacity:.6;}
+.tankerhandle{fill:var(--accent); stroke:var(--surface); stroke-width:2; cursor:grab;}
+.tankerhandle:active{cursor:grabbing;}
+.headinghandle{fill:var(--surface); stroke:var(--accent); stroke-width:2; cursor:grab;}
+.headinghandle:active{cursor:grabbing;}
+.plotlabel{fill:var(--fg); font-family:var(--disp); font-size:11px; font-weight:600;}
+.plotoverlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:color-mix(in srgb, var(--surface) 88%, transparent); color:var(--fg-muted); font-size:.85rem; text-align:center; padding:20px;}
+.plothint{font-size:.74rem; color:var(--fg-muted); margin-top:8px;}
+
+.othertrack-pending{fill:color-mix(in srgb, var(--warn) 14%, transparent); stroke:var(--warn); stroke-width:1.25; stroke-dasharray:3 3;}
+.othertrack-built{fill:color-mix(in srgb, var(--good) 14%, transparent); stroke:var(--good); stroke-width:1.25;}
+.othertrack-error{fill:color-mix(in srgb, var(--danger) 14%, transparent); stroke:var(--danger); stroke-width:1.25; stroke-dasharray:3 3;}
+.otherlabel{fill:var(--fg-muted); font-family:var(--mono); font-size:9.5px;}
+.plotlegend{display:flex; gap:14px; flex-wrap:wrap; font-size:.72rem; color:var(--fg-muted); margin-top:8px;}
+.plotlegend span{display:inline-flex; align-items:center; gap:5px;}
+.plotlegend .sw{width:14px; height:9px; border-radius:2px; display:inline-block;}
+
+@media (max-width: 640px){
+  .field.span2{grid-column:span 1;}
+  table.queue, table.queue thead, table.queue tbody, table.queue tr, table.queue th, table.queue td{display:block;}
+  table.queue thead{display:none;}
+  table.queue tbody tr{border:1px solid var(--border); border-radius:8px; margin-bottom:10px; padding:4px 6px;}
+  table.queue td{border:none; padding:5px 6px;}
+  table.queue td::before{content:attr(data-label); display:block; font-size:.66rem; text-transform:uppercase; letter-spacing:.04em; opacity:.6;}
+}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Tanker Cell</h1>
+      <div class="sub">Submit a campaign tanker requirement here. It queues for build &mdash; Claude places the tanker in the target .miz with its DCS tools, then writes the same net, callsign, and frequency into the Theater Comm Plan's Tankers column.</div>
+    </div>
+    <button class="themebtn" id="themeBtn" type="button">Theme: System</button>
+  </header>
+
+  <section class="panel">
+    <div class="panelhead">
+      <h2>New Tanker Requirement</h2>
+      <span class="note">All fields feed create_refuel_flight directly</span>
+    </div>
+
+    <div class="sectionlabel">Where it goes</div>
+    <div class="fieldgrid">
+      <div class="field"><label for="f-campaign">Campaign</label><input id="f-campaign" type="text" placeholder="e.g. Corridor BLUE"></div>
+      <div class="field"><label for="f-miz">Target .miz</label><input id="f-miz" type="text" placeholder="e.g. OP_VENOM_MOCHA_v1.2.miz"></div>
+      <div class="field"><label for="f-requester">Requested by</label><input id="f-requester" type="text" placeholder="Tanker Cell lead"></div>
+    </div>
+
+    <div class="sectionlabel">Callsign &amp; airframe</div>
+    <div class="fieldgrid">
+      <div class="field"><label for="f-family">Callsign family</label><input id="f-family" type="text" value="Shell" placeholder="Shell"></div>
+      <div class="field"><label for="f-flight">Flight #</label><input id="f-flight" type="number" min="1" max="9" value="1"></div>
+      <div class="field"><label for="f-ship">Ship #</label><input id="f-ship" type="number" min="1" max="9" value="1"></div>
+      <div class="field"><label for="f-type">Aircraft type</label>
+        <select id="f-type">
+          <option value="KC-135">KC-135</option>
+          <option value="KC135MPRS">KC135MPRS</option>
+          <option value="KC130J">KC130J</option>
+          <option value="IL-78M">IL-78M</option>
+          <option value="S-3B Tanker">S-3B Tanker</option>
+        </select>
+      </div>
+      <div class="field"><label for="f-count">Aircraft count</label><input id="f-count" type="number" min="1" max="4" value="1"></div>
+      <div class="field"><label for="f-coalition">Coalition</label>
+        <select id="f-coalition"><option value="blue" selected>Blue</option><option value="red">Red</option><option value="neutral">Neutral</option></select>
+      </div>
+      <div class="field"><label for="f-country">Country</label><input id="f-country" type="text" value="USA"></div>
+    </div>
+    <div class="callsignpreview">
+      <span>Resulting callsign:</span>
+      <span class="cs" id="csPreview">Shell 1-1</span>
+    </div>
+
+    <div class="sectionlabel">Orbit</div>
+    <div class="fieldgrid">
+      <div class="field"><label for="f-lat">Orbit latitude</label><input id="f-lat" type="number" step="0.0001" placeholder="e.g. 42.1500"></div>
+      <div class="field"><label for="f-lon">Orbit longitude</label><input id="f-lon" type="number" step="0.0001" placeholder="e.g. 41.6700"></div>
+      <div class="field"><label for="f-alt">Altitude (ft)</label><input id="f-alt" type="number" step="500" value="22000"></div>
+      <div class="field"><label for="f-heading">Track heading (&deg;)</label><input id="f-heading" type="number" min="0" max="359" value="90"></div>
+      <div class="field"><label for="f-dist">Track length (NM)</label><input id="f-dist" type="number" step="1" value="50"></div>
+      <div class="field"><label for="f-speed">Orbit speed (kt)</label><input id="f-speed" type="number" step="5" value="220"></div>
+      <div class="field"><label for="f-start">Start type</label>
+        <select id="f-start">
+          <option value="air" selected>Air start (near orbit)</option>
+          <option value="cold">Cold start, airfield</option>
+          <option value="hot">Hot start, airfield</option>
+          <option value="runway">Runway, airfield</option>
+        </select>
+      </div>
+      <div class="field" id="f-airdrome-wrap" hidden><label for="f-airdrome">Airdrome ID</label><input id="f-airdrome" type="number" placeholder="from list_airfields"></div>
+    </div>
+
+    <div class="plotpanel">
+      <div class="plotrefrow">
+        <div class="field"><label for="f-ref-lat">Reference lat</label><input id="f-ref-lat" type="number" step="0.0001" placeholder="e.g. 42.0000"></div>
+        <div class="field"><label for="f-ref-lon">Reference lon</label><input id="f-ref-lon" type="number" step="0.0001" placeholder="e.g. 41.5000"></div>
+        <button class="btn secondary" id="plotCenterBtn" type="button">Place tanker here</button>
+      </div>
+      <div class="plotbox">
+        <svg id="plotSvg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="plotoverlay" id="plotOverlay">Enter a reference point above (an airbase or bullseye) to plot the orbit.</div>
+      </div>
+      <div class="plothint">Drag the tanker icon to move the orbit, drag the ring handle to set heading. Solid blue track is the one you're building; the others are every tanker already in the queue, shown for deconfliction. Each orbit is also written as an airspace control measure (ACM) record for the ACO/DKS overlay page.</div>
+      <div class="plotlegend">
+        <span><span class="sw" style="background:var(--accent);"></span>Active (this form)</span>
+        <span><span class="sw" style="background:color-mix(in srgb, var(--warn) 30%, transparent); border:1px dashed var(--warn);"></span>Pending</span>
+        <span><span class="sw" style="background:color-mix(in srgb, var(--good) 30%, transparent); border:1px solid var(--good);"></span>Built</span>
+        <span><span class="sw" style="background:color-mix(in srgb, var(--danger) 30%, transparent); border:1px dashed var(--danger);"></span>Error</span>
+      </div>
+    </div>
+
+    <div class="sectionlabel">Comm Plan entry</div>
+    <div class="fieldgrid">
+      <div class="field"><label for="f-freq">UHF frequency (MHz)</label><input id="f-freq" type="number" step="0.025" placeholder="e.g. 257.750"></div>
+      <div class="field"><label for="f-tacanchan">TACAN channel</label><input id="f-tacanchan" type="number" min="1" max="126" placeholder="e.g. 104"></div>
+      <div class="field"><label for="f-tacanmode">TACAN mode</label><select id="f-tacanmode"><option value="X">X</option><option value="Y" selected>Y</option></select></div>
+    </div>
+
+    <div class="sectionlabel">Notes</div>
+    <div class="fieldgrid">
+      <div class="field span2"><label for="f-notes">Notes for the Tanker Cell / MAAP</label><textarea id="f-notes" placeholder="Optional &mdash; e.g. second track for Cycle 3, keep clear of SAM ring"></textarea></div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn secondary" id="resetBtn" type="button">Clear form</button>
+      <button class="btn" id="updateBtn" type="button">UPDATE MIZ</button>
+    </div>
+    <div id="statusLine" class="status"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Request Queue</h2>
+      <span class="note">Newest first &mdash; ask Claude to process pending requests</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="queue" id="queueTable" hidden>
+        <thead>
+          <tr><th>Status</th><th>Campaign</th><th>Callsign</th><th>Type</th><th>Freq / TACAN</th><th>Requested</th></tr>
+        </thead>
+        <tbody id="queueBody"></tbody>
+      </table>
+    </div>
+    <div class="emptystate" id="queueEmpty">No requests yet. <b>Fill out the form above and hit UPDATE MIZ</b> to queue the first one.</div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  // ---------- theme ----------
+  var themeBtn = document.getElementById('themeBtn');
+  var themeOrder = ['system','dark','light'];
+  function applyTheme(t){
+    if(t==='system'){ document.documentElement.removeAttribute('data-theme'); }
+    else { document.documentElement.setAttribute('data-theme', t); }
+    themeBtn.textContent = 'Theme: ' + t.charAt(0).toUpperCase() + t.slice(1);
+  }
+  var savedTheme = 'system';
+  try{ savedTheme = localStorage.getItem('tankercell_theme') || 'system'; }catch(e){}
+  applyTheme(savedTheme);
+  themeBtn.addEventListener('click', function(){
+    var idx = themeOrder.indexOf(savedTheme);
+    savedTheme = themeOrder[(idx+1) % themeOrder.length];
+    applyTheme(savedTheme);
+    try{ localStorage.setItem('tankercell_theme', savedTheme); }catch(e){}
+  });
+
+  // ---------- callsign preview ----------
+  var famEl = document.getElementById('f-family'), flightEl = document.getElementById('f-flight'), shipEl = document.getElementById('f-ship');
+  var csPreview = document.getElementById('csPreview');
+  function updatePreview(){
+    var fam = (famEl.value || 'Shell').trim();
+    var fl = flightEl.value || '1', sh = shipEl.value || '1';
+    csPreview.textContent = fam + ' ' + fl + '-' + sh;
+  }
+  [famEl, flightEl, shipEl].forEach(function(el){ el.addEventListener('input', updatePreview); });
+  updatePreview();
+
+  // ---------- start type toggling airdrome field ----------
+  var startEl = document.getElementById('f-start');
+  var airdromeWrap = document.getElementById('f-airdrome-wrap');
+  startEl.addEventListener('change', function(){
+    airdromeWrap.hidden = (startEl.value === 'air');
+  });
+
+  // ---------- orbit plot (local flat-earth plotting board, no basemap imagery) ----------
+  (function(){
+    var SVG_NS = 'http://www.w3.org/2000/svg';
+    var VB_W = 800, VB_H = 460, CX0 = VB_W/2, CY0 = VB_H/2;
+    var PX_PER_NM = 4.2;      // scale of the plot
+    var GRID_STEP_NM = 10;    // grid line spacing
+    var TRACK_WIDTH_NM = 20;  // nominal track width (visual only, not sent to DCS tools)
+    var NM_PER_DEG_LAT = 60;
+
+    var svg = document.getElementById('plotSvg');
+    var overlay = document.getElementById('plotOverlay');
+    var plotBox = document.querySelector('.plotbox');
+    var refLatEl = document.getElementById('f-ref-lat'), refLonEl = document.getElementById('f-ref-lon');
+    var latEl = document.getElementById('f-lat'), lonEl = document.getElementById('f-lon');
+    var headingEl = document.getElementById('f-heading'), distEl = document.getElementById('f-dist');
+    var centerBtn = document.getElementById('plotCenterBtn');
+
+    function refPoint(){
+      var rl = parseFloat(refLatEl.value), ro = parseFloat(refLonEl.value);
+      if(isNaN(rl) || isNaN(ro)) return null;
+      return {lat:rl, lon:ro};
+    }
+    function lonScale(refLat){ return NM_PER_DEG_LAT * Math.cos(refLat * Math.PI/180); }
+
+    // lat/lon -> svg pixel
+    function project(lat, lon, ref){
+      var dyNm = (lat - ref.lat) * NM_PER_DEG_LAT;
+      var dxNm = (lon - ref.lon) * lonScale(ref.lat);
+      return { x: CX0 + dxNm * PX_PER_NM, y: CY0 - dyNm * PX_PER_NM };
+    }
+    // svg pixel -> lat/lon
+    function unproject(x, y, ref){
+      var dxNm = (x - CX0) / PX_PER_NM;
+      var dyNm = (CY0 - y) / PX_PER_NM;
+      return { lat: ref.lat + dyNm / NM_PER_DEG_LAT, lon: ref.lon + dxNm / lonScale(ref.lat) };
+    }
+
+    function clearSvg(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+    function el(name, attrs){
+      var n = document.createElementNS(SVG_NS, name);
+      for(var k in attrs) n.setAttribute(k, attrs[k]);
+      return n;
+    }
+
+    function drawGrid(ref){
+      var g = el('g', {class:'plotgrid'});
+      var spanNm = VB_W / PX_PER_NM / 2;
+      var maxN = Math.ceil(spanNm / GRID_STEP_NM) + 1;
+      for(var i=-maxN;i<=maxN;i++){
+        var offNm = i*GRID_STEP_NM;
+        var x = CX0 + offNm*PX_PER_NM;
+        if(x>=0 && x<=VB_W){
+          g.appendChild(el('line',{x1:x,y1:0,x2:x,y2:VB_H}));
+          if(i!==0){
+            var lx = el('text',{x:x+3,y:12}); lx.textContent=(offNm>0?'+':'')+offNm+'NM'; g.appendChild(lx);
+          }
+        }
+        var y = CY0 - offNm*PX_PER_NM;
+        if(y>=0 && y<=VB_H){
+          g.appendChild(el('line',{x1:0,y1:y,x2:VB_W,y2:y}));
+          if(i!==0){
+            var ly = el('text',{x:4,y:y-3}); ly.textContent=(offNm>0?'+':'')+offNm+'NM'; g.appendChild(ly);
+          }
+        }
+      }
+      svg.appendChild(g);
+      var axis = el('g',{class:'plotaxis'});
+      axis.appendChild(el('line',{x1:CX0,y1:0,x2:CX0,y2:VB_H}));
+      axis.appendChild(el('line',{x1:0,y1:CY0,x2:VB_W,y2:CY0}));
+      svg.appendChild(axis);
+      var refLabel = el('text',{class:'plotlabel',x:CX0+6,y:CY0-6});
+      refLabel.textContent = 'REF';
+      svg.appendChild(refLabel);
+      var refDot = el('circle',{cx:CX0,cy:CY0,r:3,fill:'var(--fg-muted)'});
+      svg.appendChild(refDot);
+    }
+
+    var dragMode = null; // 'center' | 'heading'
+    var otherOrbits = []; // every other queued/built tanker, for deconfliction
+
+    function stadiumPath(lenPx, widPx){
+      var halfLen = lenPx/2, halfWid = widPx/2;
+      return 'M '+(-halfLen+halfWid)+' '+(-halfWid)+' '+
+             'L '+(halfLen-halfWid)+' '+(-halfWid)+' '+
+             'A '+halfWid+' '+halfWid+' 0 0 1 '+(halfLen-halfWid)+' '+halfWid+' '+
+             'L '+(-halfLen+halfWid)+' '+halfWid+' '+
+             'A '+halfWid+' '+halfWid+' 0 0 1 '+(-halfLen+halfWid)+' '+(-halfWid)+' Z';
+    }
+
+    function drawOtherOrbit(o, ref){
+      if(typeof o.orbitLat !== 'number' || typeof o.orbitLon !== 'number') return;
+      var heading = o.headingDeg || 0;
+      var lengthNm = o.raceDistanceNm || 50;
+      var p = project(o.orbitLat, o.orbitLon, ref);
+      var lenPx = lengthNm * PX_PER_NM;
+      var widPx = TRACK_WIDTH_NM * PX_PER_NM;
+      var rotation = heading - 90;
+      var statusClass = 'othertrack-' + (o.status === 'built' ? 'built' : (o.status === 'error' ? 'error' : 'pending'));
+
+      var g = el('g', {transform:'translate('+p.x+','+p.y+') rotate('+rotation+')'});
+      g.appendChild(el('path', {class:statusClass, d:stadiumPath(lenPx, widPx)}));
+      svg.appendChild(g);
+
+      var freqTxt = (typeof o.freqMhz === 'number') ? o.freqMhz.toFixed(3) : '';
+      var tacanTxt = o.tacanChannel ? (' · ' + o.tacanChannel + (o.tacanMode||'')) : '';
+      var label = el('text', {class:'otherlabel', x:p.x+12, y:p.y+4});
+      label.textContent = (o.builtCallsign || o.callsignLabel || '?') + (freqTxt ? '  ' + freqTxt + tacanTxt : '');
+      svg.appendChild(label);
+    }
+
+    function render(){
+      var ref = refPoint();
+      if(!ref){
+        overlay.hidden = false;
+        clearSvg();
+        return;
+      }
+      overlay.hidden = true;
+      clearSvg();
+      drawGrid(ref);
+
+      otherOrbits.forEach(function(o){ drawOtherOrbit(o, ref); });
+
+      var lat = parseFloat(latEl.value), lon = parseFloat(lonEl.value);
+      if(isNaN(lat) || isNaN(lon)) return;
+      var heading = parseFloat(headingEl.value) || 0;
+      var lengthNm = parseFloat(distEl.value) || 50;
+
+      var p = project(lat, lon, ref);
+      var lenPx = lengthNm * PX_PER_NM;
+      var widPx = TRACK_WIDTH_NM * PX_PER_NM;
+      var rotation = heading - 90;
+
+      var trackGroup = el('g', {transform:'translate('+p.x+','+p.y+') rotate('+rotation+')'});
+      var halfLen = lenPx/2;
+      trackGroup.appendChild(el('path', {class:'tracktube', d:stadiumPath(lenPx, widPx)}));
+      trackGroup.appendChild(el('line', {class:'trackcenterline', x1:-halfLen, y1:0, x2:halfLen, y2:0}));
+
+      // heading handle: small ring at the forward end of the track
+      var handleR = 9;
+      var handleOffset = halfLen + 16;
+      trackGroup.appendChild(el('circle', {class:'headinghandle', cx:handleOffset, cy:0, r:handleR, 'data-handle':'heading'}));
+
+      // tanker icon at center
+      trackGroup.appendChild(el('circle', {class:'tankerhandle', cx:0, cy:0, r:10, 'data-handle':'center'}));
+
+      svg.appendChild(trackGroup);
+
+      var label = el('text', {class:'plotlabel', x:p.x+14, y:p.y-14});
+      label.textContent = (famEl.value||'Tanker')+' '+(flightEl.value||'1')+'-'+(shipEl.value||'1')+'  '+Math.round(heading)+'°';
+      svg.appendChild(label);
+    }
+
+    window.__setTankerOrbits = function(list){
+      otherOrbits = list || [];
+      render();
+    };
+
+    function svgPoint(evt){
+      var rect = svg.getBoundingClientRect();
+      var x = (evt.clientX - rect.left) * (VB_W / rect.width);
+      var y = (evt.clientY - rect.top) * (VB_H / rect.height);
+      return {x:x, y:y};
+    }
+
+    svg.addEventListener('pointerdown', function(evt){
+      var target = evt.target;
+      var handle = target.getAttribute && target.getAttribute('data-handle');
+      if(!handle) return;
+      dragMode = handle;
+      svg.setPointerCapture(evt.pointerId);
+      evt.preventDefault();
+    });
+
+    svg.addEventListener('pointermove', function(evt){
+      if(!dragMode) return;
+      var ref = refPoint();
+      if(!ref) return;
+      var pt = svgPoint(evt);
+
+      if(dragMode === 'center'){
+        var ll = unproject(pt.x, pt.y, ref);
+        latEl.value = ll.lat.toFixed(4);
+        lonEl.value = ll.lon.toFixed(4);
+        render();
+      } else if(dragMode === 'heading'){
+        var lat = parseFloat(latEl.value), lon = parseFloat(lonEl.value);
+        if(isNaN(lat) || isNaN(lon)) return;
+        var c = project(lat, lon, ref);
+        var dx = pt.x - c.x, dy = pt.y - c.y;
+        var angleEast = Math.atan2(dy, dx) * 180/Math.PI;
+        var heading = ((angleEast + 90) % 360 + 360) % 360;
+        headingEl.value = Math.round(heading);
+        render();
+      }
+    });
+
+    function endDrag(){ dragMode = null; }
+    svg.addEventListener('pointerup', endDrag);
+    svg.addEventListener('pointercancel', endDrag);
+
+    centerBtn.addEventListener('click', function(){
+      var ref = refPoint();
+      if(!ref) return;
+      latEl.value = ref.lat.toFixed(4);
+      lonEl.value = ref.lon.toFixed(4);
+      render();
+    });
+
+    [refLatEl, refLonEl, latEl, lonEl, headingEl, distEl, famEl, flightEl, shipEl].forEach(function(f){
+      f.addEventListener('input', render);
+    });
+
+    window.__renderTankerPlot = render;
+    render();
+  })();
+
+  // ---------- status helpers ----------
+  var statusLine = document.getElementById('statusLine');
+  function setStatus(msg, cls){
+    statusLine.textContent = msg;
+    statusLine.className = 'status' + (cls ? ' ' + cls : '');
+  }
+
+  // ---------- reset ----------
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    document.querySelectorAll('.field input[type=text], .field input[type=number], .field textarea').forEach(function(el){
+      if(el.id === 'f-family'){ el.value = 'Shell'; return; }
+      if(el.id === 'f-flight' || el.id === 'f-ship'){ el.value = '1'; return; }
+      if(el.id === 'f-alt'){ el.value = '22000'; return; }
+      if(el.id === 'f-heading'){ el.value = '90'; return; }
+      if(el.id === 'f-dist'){ el.value = '50'; return; }
+      if(el.id === 'f-speed'){ el.value = '220'; return; }
+      if(el.id === 'f-count'){ el.value = '1'; return; }
+      if(el.id === 'f-country'){ el.value = 'USA'; return; }
+      el.value = '';
+    });
+    document.getElementById('f-tacanmode').value = 'Y';
+    document.getElementById('f-coalition').value = 'blue';
+    document.getElementById('f-type').value = 'KC-135';
+    document.getElementById('f-start').value = 'air';
+    airdromeWrap.hidden = true;
+    updatePreview();
+    setStatus('');
+    if(window.__renderTankerPlot) window.__renderTankerPlot();
+  });
+
+  // ---------- db ----------
+  var db = null;
+  function initCapabilities(){
+    try{
+      if(window.claude && window.claude.use){
+        db = window.claude.use('db');
+      }
+    }catch(e){ db = null; }
+  }
+
+  // ---------- submit ----------
+  var updateBtn = document.getElementById('updateBtn');
+  updateBtn.addEventListener('click', function(){
+    var campaign = document.getElementById('f-campaign').value.trim();
+    var targetMiz = document.getElementById('f-miz').value.trim();
+    var freq = parseFloat(document.getElementById('f-freq').value);
+    var lat = parseFloat(document.getElementById('f-lat').value);
+    var lon = parseFloat(document.getElementById('f-lon').value);
+
+    if(!targetMiz){ setStatus('Target .miz is required.', 'err'); return; }
+    if(isNaN(lat) || isNaN(lon)){ setStatus('Orbit latitude and longitude are required.', 'err'); return; }
+    if(isNaN(freq)){ setStatus('UHF frequency is required.', 'err'); return; }
+
+    var tacanChanRaw = document.getElementById('f-tacanchan').value;
+    var tacanChannel = tacanChanRaw ? parseInt(tacanChanRaw, 10) : null;
+
+    var req = {
+      campaign: campaign,
+      targetMiz: targetMiz,
+      requestedBy: document.getElementById('f-requester').value.trim(),
+      family: famEl.value.trim() || 'Shell',
+      flight: parseInt(flightEl.value || '1', 10),
+      ship: parseInt(shipEl.value || '1', 10),
+      callsignLabel: csPreview.textContent,
+      aircraftType: document.getElementById('f-type').value,
+      count: parseInt(document.getElementById('f-count').value || '1', 10),
+      coalition: document.getElementById('f-coalition').value,
+      country: document.getElementById('f-country').value.trim() || 'USA',
+      orbitLat: lat,
+      orbitLon: lon,
+      altitudeFt: parseFloat(document.getElementById('f-alt').value || '22000'),
+      altitudeM: Math.round(parseFloat(document.getElementById('f-alt').value || '22000') * 0.3048),
+      headingDeg: parseFloat(document.getElementById('f-heading').value || '90'),
+      raceDistanceNm: parseFloat(document.getElementById('f-dist').value || '50'),
+      raceDistanceM: Math.round(parseFloat(document.getElementById('f-dist').value || '50') * 1852),
+      speedKt: parseFloat(document.getElementById('f-speed').value || '220'),
+      speedKmh: Math.round(parseFloat(document.getElementById('f-speed').value || '220') * 1.852),
+      startType: startEl.value,
+      airdromeId: airdromeWrap.hidden ? null : (parseInt(document.getElementById('f-airdrome').value, 10) || null),
+      freqMhz: freq,
+      tacanChannel: tacanChannel,
+      tacanMode: document.getElementById('f-tacanmode').value,
+      notes: document.getElementById('f-notes').value.trim(),
+      status: 'pending',
+      createdAt: Date.now()
+    };
+
+    if(!db){
+      setStatus('Database unavailable in this view — request not queued.', 'err');
+      return;
+    }
+
+    updateBtn.disabled = true;
+    setStatus('Queuing request…');
+    db.collection('tanker_requests').add(req).then(function(ref){
+      // Mirror into a generic airspace-control-measure record, shaped so a
+      // future ACO/DKS overlay page can read every ACM type (tanker tracks,
+      // CAP stations, SAM rings, ...) from one collection without knowing
+      // about tanker-specific fields.
+      var acm = {
+        acmType: 'tanker_track',
+        label: req.callsignLabel + ' (' + req.aircraftType + ')',
+        campaign: req.campaign,
+        coalition: req.coalition,
+        geometry: {
+          kind: 'racetrack',
+          centerLat: req.orbitLat,
+          centerLon: req.orbitLon,
+          headingDeg: req.headingDeg,
+          lengthNm: req.raceDistanceNm,
+          widthNm: 20,
+          altitudeFt: req.altitudeFt
+        },
+        comm: { freqMhz: req.freqMhz, tacanChannel: req.tacanChannel, tacanMode: req.tacanMode },
+        sourceCollection: 'tanker_requests',
+        sourceId: ref.id,
+        status: 'pending',
+        createdAt: req.createdAt
+      };
+      db.collection('airspace_measures').doc(ref.id).set(acm).catch(function(){ /* best-effort mirror */ });
+      setStatus('Queued. Tell Claude to process the Tanker Cell queue.', 'ok');
+      updateBtn.disabled = false;
+    }).catch(function(err){
+      setStatus('Queue failed — try again.', 'err');
+      updateBtn.disabled = false;
+    });
+  });
+
+  // ---------- queue rendering ----------
+  var queueTable = document.getElementById('queueTable');
+  var queueBody = document.getElementById('queueBody');
+  var queueEmpty = document.getElementById('queueEmpty');
+
+  function fmtTime(ms){
+    if(!ms) return '';
+    try{ return new Date(ms).toLocaleString(); }catch(e){ return ''; }
+  }
+
+  function renderQueue(snap){
+    if(window.__setTankerOrbits){
+      var orbits = snap.docs.map(function(doc){ return doc.data() || {}; });
+      window.__setTankerOrbits(orbits);
+    }
+    if(snap.empty){
+      queueTable.hidden = true;
+      queueEmpty.hidden = false;
+      return;
+    }
+    queueTable.hidden = false;
+    queueEmpty.hidden = true;
+    queueBody.innerHTML = '';
+    snap.docs.forEach(function(doc){
+      var d = doc.data() || {};
+      var tr = document.createElement('tr');
+      var status = d.status || 'pending';
+
+      var tdStatus = document.createElement('td');
+      tdStatus.setAttribute('data-label', 'Status');
+      var pill = document.createElement('span');
+      pill.className = 'pill ' + status;
+      pill.textContent = status;
+      tdStatus.appendChild(pill);
+      if(status === 'error' && d.errorMessage){
+        var errNote = document.createElement('div');
+        errNote.style.cssText = 'font-size:.72rem;color:var(--danger);margin-top:4px;';
+        errNote.textContent = d.errorMessage;
+        tdStatus.appendChild(errNote);
+      }
+      tr.appendChild(tdStatus);
+
+      var tdCampaign = document.createElement('td');
+      tdCampaign.setAttribute('data-label', 'Campaign');
+      tdCampaign.textContent = d.campaign || '—';
+      var mizNote = document.createElement('div');
+      mizNote.style.cssText = 'font-size:.72rem;color:var(--fg-muted);';
+      mizNote.textContent = d.targetMiz || '';
+      tdCampaign.appendChild(mizNote);
+      tr.appendChild(tdCampaign);
+
+      var tdCallsign = document.createElement('td');
+      tdCallsign.className = 'mono';
+      tdCallsign.setAttribute('data-label', 'Callsign');
+      tdCallsign.textContent = (d.builtCallsign || d.callsignLabel || '—');
+      tr.appendChild(tdCallsign);
+
+      var tdType = document.createElement('td');
+      tdType.setAttribute('data-label', 'Type');
+      tdType.textContent = d.aircraftType || '—';
+      tr.appendChild(tdType);
+
+      var tdFreq = document.createElement('td');
+      tdFreq.className = 'mono';
+      tdFreq.setAttribute('data-label', 'Freq / TACAN');
+      var freqTxt = (d.freqMhz != null ? d.freqMhz.toFixed(3) : '—');
+      var tacanTxt = d.tacanChannel ? (' · TACAN ' + d.tacanChannel + (d.tacanMode||'')) : '';
+      tdFreq.textContent = freqTxt + tacanTxt;
+      tr.appendChild(tdFreq);
+
+      var tdReq = document.createElement('td');
+      tdReq.setAttribute('data-label', 'Requested');
+      tdReq.textContent = fmtTime(d.createdAt);
+      var byNote = document.createElement('div');
+      byNote.style.cssText = 'font-size:.72rem;color:var(--fg-muted);';
+      byNote.textContent = d.requestedBy || '';
+      tdReq.appendChild(byNote);
+      tr.appendChild(tdReq);
+
+      queueBody.appendChild(tr);
+    });
+  }
+
+  function subscribeQueue(){
+    if(!db) return;
+    try{
+      db.collection('tanker_requests').orderBy('createdAt', 'desc').limit(50).onSnapshot(function(snap){
+        renderQueue(snap);
+      }, function(err){
+        queueEmpty.hidden = false;
+        queueEmpty.textContent = 'Could not load the request queue.';
+      });
+    }catch(e){}
+  }
+
+  initCapabilities();
+  subscribeQueue();
+})();
+</script>
