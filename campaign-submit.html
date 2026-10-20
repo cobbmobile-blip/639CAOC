@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Submit a Campaign</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .wiz { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .wiz { grid-template-columns: 1fr; } }
+  .steps { list-style: none; margin: 0; padding: 0; position: sticky; top: 76px; }
+  .steps button { width: 100%; text-align: left; display: flex; gap: 10px; align-items: center; background: none; border: 0; border-left: 3px solid var(--line);
+    color: var(--muted); font: inherit; font-size: 14px; padding: 8px 12px; cursor: pointer; }
+  .steps button:hover { color: var(--text); }
+  .steps button[aria-current="step"] { border-left-color: var(--accent); color: var(--text); font-weight: 600; background: var(--panel-2); }
+  .steps .n { font: 600 11px var(--mono); width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor; display: grid; place-items: center; flex: none; }
+  .steps .done .n { background: var(--ok); border-color: var(--ok); color: var(--accent-ink); }
+  .steps .miss .n { border-color: var(--warn); color: var(--warn); }
+  .req { color: var(--warn); }
+  .checks { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  .checks label, .ack { display: flex; gap: 8px; align-items: center; text-transform: none; letter-spacing: 0; font-size: 14px; color: var(--text); margin: 0; }
+  .checks input, .ack input { width: auto; }
+  .ack { padding: 8px 0; border-top: 1px solid var(--line); }
+  .nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .issues { border: 1px solid var(--warn); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 14px; font-size: 13px; }
+  .issues ul { margin: 6px 0 0; padding-left: 18px; }
+  .issues button { background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; font: inherit; text-decoration: underline; }
+  .comment { border-left: 3px solid var(--warn); padding: 6px 12px; margin: 8px 0; font-size: 13px; background: var(--panel-2); }
+  .doc.inline { max-height: 560px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>AOC.UnitAuth.require();</script>
+<script src="js/proposal.js"></script>
+
+<main class="wrap">
+  <section class="campaign-head">
+    <div>
+      <div class="op" id="who"></div>
+      <h1>Submit a campaign</h1>
+      <div class="campaign-meta"><span>Propose a campaign for the CAOC to run. Save as you go — only the marked <span class="req">*</span> questions are required to submit.</span></div>
+    </div>
+    <button class="btn primary" id="newBtn">+ New proposal</button>
+  </section>
+
+  <section class="panel" style="margin-bottom:16px">
+    <div class="panel-head"><h2>Your proposals</h2></div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Operation</th><th>Theater</th><th>Mode</th><th>Status</th><th>Updated</th><th></th></tr></thead>
+      <tbody id="mine"></tbody>
+    </table></div>
+  </section>
+
+  <section id="editor" class="hidden">
+    <div class="wiz">
+      <nav class="panel" style="padding:8px 0"><ol class="steps" id="steps"></ol></nav>
+      <section class="panel">
+        <div class="panel-head">
+          <div><h2 id="stepTitle"></h2><div class="muted small" id="stepDesc"></div></div>
+          <div class="toolbar"><span class="badge" id="subStatus"></span><button class="btn sm" id="saveBtn">Save draft</button></div>
+        </div>
+        <div id="comments"></div>
+        <form id="form" onsubmit="return false"></form>
+        <div class="nav">
+          <button class="btn" id="back">← Back</button>
+          <button class="btn primary" id="next">Next →</button>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<script>
+  const { Store, UnitAuth, esc, toast, zulu, PROPOSAL } = AOC;
+  const { STEPS, validate, render, visible, STATUS } = PROPOSAL;
+  AOC.renderChrome({ unit: true });
+  const me = UnitAuth.group();
+  document.getElementById("who").textContent = `Sponsor · ${me.name}`;
+
+  let sub = null, step = 0, dirty = false;
+  const editable = () => sub && ["draft", "returned"].includes(sub.status);
+
+  // ---------- proposal list ----------
+  function renderMine() {
+    const list = (Store.db.submissions || []).filter(s => s.gid === me.id);
+    document.getElementById("mine").innerHTML = list.length ? list.map(s => {
+      const [label, cls] = STATUS[s.status];
+      return `<tr><td><b>OP ${esc(s.data.opName || "UNNAMED")}</b></td><td>${esc(s.data.theater || "—")}</td><td>${esc(s.data.mode || "—")}</td>
+        <td><span class="badge ${cls}">${label}</span></td><td class="muted small">${zulu(new Date(s.updated))}</td>
+        <td style="text-align:right"><button class="btn sm" data-open="${s.id}">${["draft", "returned"].includes(s.status) ? "Continue" : "View"}</button></td></tr>`;
+    }).join("") : `<tr><td colspan="6" class="muted">No proposals yet. Start one with “New proposal”.</td></tr>`;
+  }
+  document.getElementById("mine").addEventListener("click", e => {
+    const id = e.target.closest("[data-open]")?.dataset.open;
+    if (id) open(structuredClone(Store.submission(id)));
+  });
+  document.getElementById("newBtn").onclick = () => open({
+    id: "s" + Date.now(), gid: me.id, status: "draft", created: new Date().toISOString(), comments: [],
+    data: { tz: me.tz || "", keytasks: [""], slots: [{}], openToGroups: "Yes" }
+  });
+
+  function open(s) {
+    if (dirty && !confirm("Discard unsaved changes to the current proposal?")) return;
+    sub = s; dirty = false;
+    // read-only proposals open on the review step
+    step = editable() ? 0 : STEPS.length - 1;
+    document.getElementById("editor").classList.remove("hidden");
+    renderAll();
+    document.getElementById("editor").scrollIntoView({ behavior: "smooth" });
+  }
+
+  // ---------- wizard ----------
+  function stepState(i) {
+    const { missing } = validate(sub.data);
+    if (missing.some(m => m.step === i)) return "miss";
+    const touched = STEPS[i].fields.some(f => { const v = sub.data[f.key]; return v && !(Array.isArray(v) && !v.filter(x => x && (typeof x !== "object" || Object.values(x).some(Boolean))).length); });
+    return touched ? "done" : "";
+  }
+  function renderSteps() {
+    document.getElementById("steps").innerHTML = STEPS.map((s, i) =>
+      `<li><button class="${stepState(i)}" data-step="${i}" ${i === step ? 'aria-current="step"' : ""}><span class="n">${stepState(i) === "done" ? "✓" : i + 1}</span>${esc(s.title)}</button></li>`).join("");
+  }
+  document.getElementById("steps").addEventListener("click", e => { const b = e.target.closest("[data-step]"); if (b) { step = +b.dataset.step; renderAll(); } });
+
+  function fieldHtml(f) {
+    const v = sub.data[f.key], ro = editable() ? "" : "disabled";
+    const lab = `<label>${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ""}</label>`;
+    const hint = f.hint ? `<div class="hint">${esc(f.hint)}</div>` : "";
+    switch (f.type) {
+      case "textarea": return `<div class="field">${lab}<textarea data-key="${f.key}" ${ro}>${esc(v)}</textarea>${hint}</div>`;
+      case "select": return `<div class="field">${lab}<select data-key="${f.key}" ${ro}><option value="">Select…</option>${f.options.map(o => `<option ${o === v ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>${hint}</div>`;
+      case "checks": return `<div class="field">${lab}<div class="checks">${f.options.map(o => `<label><input type="checkbox" data-checks="${f.key}" value="${esc(o)}" ${(v || []).includes(o) ? "checked" : ""} ${ro}>${esc(o)}</label>`).join("")}</div>${hint}</div>`;
+      case "check": return `<label class="ack"><input type="checkbox" data-check="${f.key}" ${v ? "checked" : ""} ${ro}>${esc(f.label)} <span class="req">*</span></label>`;
+      case "list": return `<div class="field list-edit">${lab}${(v || []).map((t, i) => `<div class="item"><input data-list="${f.key}" data-i="${i}" value="${esc(t)}" ${ro}>${ro ? "" : `<button class="btn sm ghost" data-del="${f.key}" data-i="${i}">✕</button>`}</div>`).join("")}
+        ${ro ? "" : `<button class="btn sm" data-add="${f.key}">+ Add</button>`}</div>`;
+      case "table": return `<div class="field">${lab}<div class="grid-edit"><table style="min-width:0"><thead><tr>${f.columns.map(c => `<th style="${c.w ? `width:${c.w}px` : ""}">${esc(c.label)}</th>`).join("")}<th></th></tr></thead>
+        <tbody>${(v || []).map((r, i) => `<tr>${f.columns.map(c => `<td><input data-table="${f.key}" data-i="${i}" data-col="${c.key}" value="${esc(r[c.key])}" ${ro}></td>`).join("")}
+        <td class="rowact">${ro ? "" : `<button data-del="${f.key}" data-i="${i}">✕</button>`}</td></tr>`).join("")}</tbody></table></div>
+        ${ro ? "" : `<button class="btn sm" data-add="${f.key}" style="margin-top:6px">+ Add row</button>`}</div>`;
+      default: return `<div class="field">${lab}<input type="${f.type === "date" ? "date" : f.type === "number" ? "number" : "text"}" data-key="${f.key}" value="${esc(v)}" ${ro}>${hint}</div>`;
+    }
+  }
+
+  function renderForm() {
+    const s = STEPS[step], form = document.getElementById("form");
+    document.getElementById("stepTitle").textContent = `${step + 1}. ${s.title}`;
+    document.getElementById("stepDesc").textContent = s.desc;
+    let html = "";
+    if (s.id === "review") {
+      const { missing, warnings } = validate(sub.data);
+      if (editable() && (missing.length || warnings.length)) html += `<div class="issues"><b>Before you can submit:</b><ul>
+        ${missing.map(m => `<li><button data-step="${m.step}">${esc(STEPS[m.step].title)}</button> — ${esc(m.label)}</li>`).join("")}
+        ${warnings.map(w => `<li>${esc(w)}</li>`).join("")}</ul></div>`;
+      html += `<article class="doc inline">${render(sub.data, me)}</article>`;
+    }
+    // lay out half-width fields in pairs
+    const fields = s.fields.filter(f => visible(f, sub.data));
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i].half && fields[i + 1]?.half) { html += `<div class="row2">${fieldHtml(fields[i])}${fieldHtml(fields[i + 1])}</div>`; i++; }
+      else html += fieldHtml(fields[i]);
+    }
+    form.innerHTML = html;
+  }
+
+  function renderNav() {
+    const last = step === STEPS.length - 1, nb = document.getElementById("next");
+    document.getElementById("back").disabled = step === 0;
+    nb.textContent = last ? (sub.status === "returned" ? "Resubmit to CAOC" : "Submit to CAOC") : "Next →";
+    nb.classList.toggle("hidden", last && !editable());
+    document.getElementById("saveBtn").classList.toggle("hidden", !editable());
+    const [label, cls] = STATUS[sub.status];
+    const st = document.getElementById("subStatus"); st.className = "badge " + cls; st.textContent = label;
+    document.getElementById("comments").innerHTML = (sub.comments || []).map(c =>
+      `<div class="comment"><b>${esc(c.by)}</b> <span class="muted small">${zulu(new Date(c.when))} · ${esc(c.action)}</span><br>${esc(c.text)}</div>`).join("");
+  }
+
+  function renderAll() { renderSteps(); renderForm(); renderNav(); renderMine(); }
+
+  // ---------- binding ----------
+  const form = document.getElementById("form");
+  form.addEventListener("input", e => {
+    const t = e.target, d = sub.data;
+    if (t.dataset.key) d[t.dataset.key] = t.value;
+    else if (t.dataset.list) d[t.dataset.list][+t.dataset.i] = t.value;
+    else if (t.dataset.table) d[t.dataset.table][+t.dataset.i][t.dataset.col] = t.value;
+    else return;
+    dirty = true;
+    renderSteps();
+  });
+  form.addEventListener("change", e => {
+    const t = e.target, d = sub.data;
+    if (t.dataset.checks) {
+      const set = new Set(d[t.dataset.checks] || []);
+      t.checked ? set.add(t.value) : set.delete(t.value);
+      d[t.dataset.checks] = [...set];
+    } else if (t.dataset.check) d[t.dataset.check] = t.checked;
+    else if (t.tagName === "SELECT") { renderForm(); } // conditional questions may appear
+    else return;
+    dirty = true;
+    renderSteps();
+    if (STEPS[step].id === "review") renderForm();
+  });
+  form.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.step) { step = +b.dataset.step; renderAll(); return; }
+    const key = b.dataset.add || b.dataset.del; if (!key) return;
+    const f = STEPS[step].fields.find(x => x.key === key);
+    sub.data[key] = sub.data[key] || [];
+    if (b.dataset.add) sub.data[key].push(f.type === "list" ? "" : {});
+    else sub.data[key].splice(+b.dataset.i, 1);
+    dirty = true; renderForm(); renderSteps();
+  });
+
+  function saveDraft(msg = "Draft saved") {
+    Store.saveSubmission(structuredClone(sub));
+    sub = structuredClone(Store.submission(sub.id));
+    dirty = false; renderNav(); renderMine();
+    if (msg) toast(msg);
+  }
+  document.getElementById("saveBtn").onclick = () => saveDraft();
+  document.getElementById("back").onclick = () => { if (step > 0) { if (editable() && dirty) saveDraft(null); step--; renderAll(); } };
+  document.getElementById("next").onclick = () => {
+    if (step < STEPS.length - 1) { if (editable() && dirty) saveDraft(null); step++; renderAll(); window.scrollTo({ top: document.getElementById("editor").offsetTop - 70 }); return; }
+    const { missing, warnings } = validate(sub.data);
+    if (missing.length || warnings.length) { toast("Fix the items listed above first"); renderForm(); return; }
+    sub.status = "submitted";
+    saveDraft(null);
+    Store.log("_submissions", `${me.name} submitted OP ${sub.data.opName}`, me.name);
+    toast(`OP ${sub.data.opName} submitted to the CAOC`);
+    renderAll();
+  };
+
+  window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+  renderMine();
+</script>
+</body>
+</html>

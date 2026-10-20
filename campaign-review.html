@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Campaign Proposals</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .rev { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 950px) { .rev { grid-template-columns: 1fr; } }
+  .plist button { width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); color: var(--text); font: inherit; padding: 10px 4px; cursor: pointer; }
+  .plist button[aria-current="true"] { background: var(--panel-2); }
+  .comment { border-left: 3px solid var(--warn); padding: 6px 12px; margin: 8px 0; font-size: 13px; background: var(--panel-2); }
+  .doc.inline { max-height: calc(100vh - 340px); }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>AOC.Auth.require();</script>
+<script src="js/proposal.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:16px">
+    <div><a href="index.html" class="small">← Dashboard</a><h1 style="margin-top:4px">Campaign proposals</h1>
+      <div class="muted small">Proposals submitted by sponsoring groups. The CFC decides; accepting one creates the campaign, drafts its Commander's Intent, and sets the CFACC's deliverables list.</div></div>
+  </div>
+  <div class="rev">
+    <section class="panel" style="padding-bottom:4px">
+      <div class="panel-head"><h2>Queue</h2>
+        <select id="filter" style="width:auto"><option value="active">Needs action</option><option value="all">All</option></select></div>
+      <div class="plist" id="list"></div>
+    </section>
+    <section class="panel" id="detail"><p class="muted">Select a proposal.</p></section>
+  </div>
+</main>
+
+<script>
+  const { Store, esc, toast, zulu, PROPOSAL } = AOC;
+  const { render, validate, STATUS } = PROPOSAL;
+  AOC.renderChrome();
+  const user = AOC.Auth.user();
+  let selected = new URLSearchParams(location.search).get("id");
+
+  function renderList() {
+    // drafts stay private to the group; oldest waiting first so nothing sits too long
+    const all = (Store.db.submissions || []).filter(s => s.status !== "draft").sort((a, b) => new Date(a.updated) - new Date(b.updated));
+    const shown = filter.value === "all" ? all : all.filter(s => s.status === "submitted");
+    const waiting = s => { const d = Math.floor((Date.now() - new Date(s.updated)) / 864e5); return d < 1 ? "today" : `${d} day${d > 1 ? "s" : ""}`; };
+    if (!selected && shown[0]) selected = shown[0].id;
+    document.getElementById("list").innerHTML = shown.length ? shown.map(s => {
+      const g = Store.group(s.gid), [label, cls] = STATUS[s.status];
+      return `<button data-id="${s.id}" aria-current="${s.id === selected}"><b>OP ${esc(s.data.opName)}</b>
+        <div class="muted small">${esc(g?.name)} · ${esc(s.data.theater)} · ${esc(s.data.mode)}</div>
+        <div style="margin-top:4px"><span class="badge ${cls}">${label}</span> <span class="muted small">${s.status === "submitted" ? `waiting ${waiting(s)}` : zulu(new Date(s.updated))}</span></div></button>`;
+    }).join("") : `<p class="muted">Nothing waiting for review.</p>`;
+  }
+  filter.onchange = renderList;
+  document.getElementById("list").addEventListener("click", e => { const b = e.target.closest("[data-id]"); if (b) { selected = b.dataset.id; renderAll(); } });
+
+  function renderDetail() {
+    const el = document.getElementById("detail"), s = selected && Store.submission(selected);
+    if (!s || s.status === "draft") { el.innerHTML = `<p class="muted">Select a proposal.</p>`; return; }
+    const g = Store.group(s.gid), [label, cls] = STATUS[s.status];
+    const { warnings } = validate(s.data);
+    const redFlag = s.data.redCmdr === "Request a CAOC-appointed REDFOR commander";
+    el.innerHTML = `<div class="panel-head"><div><h2>OP ${esc(s.data.opName)}</h2><div class="muted small">${esc(g?.name)} · JFACC ${esc(s.data.leadCallsign)} (${esc(s.data.leadDiscord)})${s.data.jfaccChosen ? ` · ${esc(s.data.jfaccChosen.toLowerCase())}` : ""}</div></div>
+        <span class="badge ${cls}">${label}</span></div>
+      ${(s.data.jfaccChosen || "").startsWith("Interim") ? `<div class="comment" style="border-color:var(--info)"><b>Note:</b> the group's JFACC is interim — confirm the elected JFACC before the first event.</div>` : ""}
+      ${redFlag ? `<div class="comment" style="border-color:var(--info)"><b>Action:</b> sponsor requests a CAOC-appointed REDFOR commander. Appoint one before accepting.</div>` : ""}
+      ${warnings.map(w => `<div class="comment">${esc(w)}</div>`).join("")}
+      ${(s.comments || []).map(c => `<div class="comment"><b>${esc(c.by)}</b> <span class="muted small">${zulu(new Date(c.when))} · ${esc(c.action)}</span><br>${esc(c.text)}</div>`).join("")}
+      <article class="doc inline">${render(s.data, g)}</article>
+      ${s.status === "submitted" && !AOC.Auth.can("decideProposals") ? `<p class="muted small" style="margin-top:14px">Accepting, returning or declining a proposal is a CFC decision.</p>` : ""}
+      ${s.status === "submitted" && AOC.Auth.can("decideProposals") ? `<div class="field" style="margin-top:14px"><label for="note">Note to the sponsor</label>
+        <textarea id="note" placeholder="Required when returning or declining"></textarea></div>
+        ${redFlag ? `<div class="field"><label for="redAppoint">Appointed REDFOR commander (callsign)</label><input id="redAppoint"></div>` : ""}
+        <div class="toolbar" style="justify-content:flex-end">
+          <button class="btn danger" data-act="declined">Decline</button>
+          <button class="btn" data-act="returned">Return for changes</button>
+          <button class="btn primary" data-act="accepted">Accept &amp; create campaign</button></div>` : ""}`;
+  }
+
+  // Products the sponsor asked for become the campaign's deliverables list for the CFACC
+  const WANTED = { "Commander's Intent": "ci", "AOD": "aod", "ATO": "ato", "ACO": "aco", "SPINS": "spins", "JIPTL": "jiptl",
+    "TDPs": "tdp", "Comm Plan": "acp", "BDA / MISREP rollup": "bda" };
+  const wantedIds = names => { const ids = (names || []).map(n => WANTED[n]).filter(Boolean); return ids.length ? [...new Set(["ci", ...ids])] : undefined; };
+
+  // Accepting turns the proposal into a live campaign with a drafted CI
+  function createCampaign(s) {
+    const d = Store.db, p = s.data;
+    let id = (p.opName || "campaign").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    while (d.campaigns.some(c => c.id === id)) id += "-2";
+    d.campaigns.push({ id, opName: p.opName.toUpperCase(), theater: p.theater, phase: "Phase 0 — Planning", dday: p.start, atoDay: 0,
+      atoPeriod: "TBD", nextEvent: p.start && p.sessionTime ? `${p.start}T${p.sessionTime.replace(/\D/g, "").padEnd(4, "0").replace(/(\d\d)(\d\d)/, "$1:$2")}:00Z` : undefined,
+      groups: [s.gid], status: { ci: "draft" }, proposal: s.id, productsWanted: wantedIds(p.products),
+      jfacc: { callsign: p.leadCallsign, group: s.gid, discord: p.leadDiscord, deputy: p.backup } });
+    d.content[id] = { ci: { commander: `${p.leadCallsign} (JFACC, ${Store.group(s.gid)?.name || "sponsor"})`, purpose: p.purpose, method: p.method, endstate: p.endstate,
+      keytasks: (p.keytasks || []).filter(Boolean), constraints: p.constraints, restraints: p.restraints, risk: p.risk } };
+    Store.save();
+    return id;
+  }
+
+  document.getElementById("detail").addEventListener("click", e => {
+    const act = e.target.closest("[data-act]")?.dataset.act; if (!act || !AOC.Auth.can("decideProposals")) return;
+    const s = structuredClone(Store.submission(selected)), text = document.getElementById("note").value.trim();
+    if (act !== "accepted" && !text) { toast("Add a note to the sponsor first"); return; }
+    if (act === "accepted" && s.data.redCmdr === "Request a CAOC-appointed REDFOR commander") {
+      const r = document.getElementById("redAppoint").value.trim();
+      if (!r) { toast("Appoint a REDFOR commander first"); return; }
+      s.data.redName = r; s.data.redCmdr = "CAOC-appointed";
+    }
+    s.status = act;
+    s.comments = [...(s.comments || []), { by: user.callsign, when: new Date().toISOString(), action: STATUS[act][0], text: text || "Accepted." }];
+    if (act === "accepted") s.campaign = createCampaign(s);
+    Store.saveSubmission(s);
+    toast(act === "accepted" ? `OP ${s.data.opName} created` : `Proposal ${STATUS[act][0].toLowerCase()}`);
+    renderAll();
+    if (act === "accepted") document.getElementById("detail").insertAdjacentHTML("afterbegin",
+      `<div class="comment" style="border-color:var(--ok)">Campaign created. <a href="index.html?c=${s.campaign}">Open its dashboard →</a></div>`);
+  });
+
+  function renderAll() { renderList(); renderDetail(); }
+  renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Unit Portal Sign-in</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+
+<div class="login-wrap">
+  <form class="panel login" id="f" autocomplete="off">
+    <div class="brand" id="brand"></div>
+    <h2 style="text-align:center">Op Status · Unit Portal</h2>
+    <p class="muted small" style="text-align:center;margin-top:0">For registered participating groups. Download released ATOs, ACOs, SPINS and other products for your missions.</p>
+    <div class="field">
+      <label for="gl">Group login</label>
+      <input id="gl" required autofocus>
+    </div>
+    <div class="field">
+      <label for="code">Access code</label>
+      <input id="code" type="password" required>
+    </div>
+    <div class="err" id="err"></div>
+    <button class="btn primary" style="width:100%;justify-content:center" type="submit">Enter portal</button>
+    <div class="notice">
+      <b>Prototype:</b> demo group logins include viper, hornet, eagle, hawg, knights, tomcat, harrier, mistral, thunder, keepers, ridge, support (access code <span class="mono">unit-demo</span>).
+      "rotary" shows the pending-registration message.
+      <br><br>AOC staff? <a href="login.html">Staff sign-in</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  AOC.renderChrome({ bar: false });
+  document.getElementById("brand").innerHTML = AOC.LOGO + "<span>VIRTUAL AOC</span>";
+  document.getElementById("f").onsubmit = e => {
+    e.preventDefault();
+    const r = AOC.UnitAuth.login(gl.value, code.value);
+    if (r === true) location.href = "unit.html";
+    else document.getElementById("err").textContent = r;
+  };
+</script>
+</body>
+</html>

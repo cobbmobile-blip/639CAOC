@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Staff Login</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+
+<div class="login-wrap">
+  <form class="panel login" id="f" autocomplete="off">
+    <div class="brand" id="brand"></div>
+    <h2 style="text-align:center">Staff Access</h2>
+    <p class="muted small" style="text-align:center;margin-top:0">Authorised AOC staff only. Participating groups receive products via their liaison.</p>
+    <div class="field">
+      <label for="cs">Callsign</label>
+      <input id="cs" required autofocus>
+    </div>
+    <div class="field">
+      <label for="pw">Password</label>
+      <input id="pw" type="password" required>
+    </div>
+    <div class="err" id="err"></div>
+    <button class="btn primary" style="width:100%;justify-content:center" type="submit">Sign in</button>
+    <div class="notice">
+      <b>Prototype:</b> demo staff callsigns are ATLAS (CFC), OVERLORD (CFACC), SPARTAN, CHALICE, WIZARD, DARKSTAR (password <span class="mono">aoc-demo</span>).
+      Production would use server-side sign-in, e.g. Discord OAuth restricted to your server's AOC staff role.
+      <br><br>Participating group? <a href="unit-login.html">Unit portal sign-in</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  AOC.renderChrome({ bar: false });
+  document.getElementById("brand").innerHTML = AOC.LOGO + "<span>VIRTUAL AOC</span>";
+  document.getElementById("f").onsubmit = e => {
+    e.preventDefault();
+    if (AOC.Auth.login(cs.value, pw.value)) {
+      const next = new URLSearchParams(location.search).get("next");
+      location.href = next && /^[\w-]+\.html/.test(next) ? next : "index.html";
+    } else {
+      document.getElementById("err").textContent = "Unknown callsign or wrong password.";
+    }
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Op Status</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .doc-modal { max-width: 900px; width: 100%; max-height: calc(100vh - 32px); display: flex; flex-direction: column; }
+  .doc-modal .doc { flex: 1; max-height: none; }
+  .mine { border-color: var(--accent); }
+
+  .prod-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+  .prod-tiles .tile { gap: 6px; }
+  .prod-tiles .tile.locked { opacity: .45; border-style: dashed; }
+  .bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--ok); }
+  .upd { font: 600 10.5px var(--mono); letter-spacing: .06em; color: var(--warn); }
+  .upd.new { color: var(--ok); }
+
+  .mx th, .mx td { text-align: center; white-space: nowrap; }
+  .mx th:first-child, .mx td:first-child { text-align: left; }
+  .mx td:first-child { white-space: normal; min-width: 180px; }
+  .mx tr.me td { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .mx tfoot td { font-weight: 600; border-top: 2px solid var(--line); }
+  .cell { font: 600 11.5px var(--mono); padding: 3px 7px; border-radius: 4px; display: inline-block; }
+  .cell.cur { color: var(--ok); }
+  .cell.old { color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, transparent); }
+  .cell.none { color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent); }
+  .cell.na { color: var(--muted); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+  .lines { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .gcard { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+  .gcard.me { border-color: var(--accent); }
+  .gcard.open { border-style: dashed; border-color: var(--warn); }
+  .gcard h3 { margin: 0; font-size: 14px; }
+  .gcard .sub { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .line { display: flex; gap: 8px; align-items: baseline; font-size: 12.5px; padding: 4px 0; border-top: 1px solid var(--line); }
+  .line .m { font-family: var(--mono); color: var(--accent); width: 38px; flex: none; }
+  .line .g { flex: 1; min-width: 0; }
+  .line .t { font-family: var(--mono); color: var(--muted); flex: none; }
+  .dks { border: 1px dashed var(--line); border-radius: var(--radius); padding: 10px 12px; font-size: 12.5px; color: var(--muted); display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  // Units sign in as their group; AOC staff may view as observers
+  if (!AOC.UnitAuth.group() && !AOC.Auth.user()) { location.replace("unit-login.html"); throw new Error("auth required"); }
+</script>
+<script src="js/products.js"></script>
+
+<main class="wrap">
+  <section class="campaign-head">
+    <div>
+      <div class="op" id="viewer"></div>
+      <h1 id="opName"></h1>
+      <div class="campaign-meta" id="meta"></div>
+    </div>
+    <div class="campaign-select">
+      <label for="campaign">Campaign</label>
+      <select id="campaign"></select>
+    </div>
+  </section>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="panel" id="groupPanel" style="margin-bottom:16px"></section>
+
+  <section class="panel" style="margin-bottom:16px">
+    <div class="panel-head">
+      <div><h2>Product board</h2><div class="muted small">Released products apply to every participating group. Bars show how many groups hold the current version.</div></div>
+    </div>
+    <div class="prod-tiles" id="board"></div>
+  </section>
+
+  <section class="panel" style="margin-bottom:16px">
+    <div class="panel-head">
+      <div><h2>Distribution</h2><div class="muted small">Which version of each product every group has pulled from this portal.</div></div>
+    </div>
+    <div class="table-scroll"><table class="mx" id="matrix"></table></div>
+    <div class="legend">
+      <span><span class="cell cur">✓ v2</span> current</span>
+      <span><span class="cell old">v1 → v2</span> outdated</span>
+      <span><span class="cell none">not pulled</span> released, not downloaded</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2 id="linesTitle">ATO lines by group</h2><div class="muted small" id="linesSub"></div></div>
+    </div>
+    <div class="lines" id="lines"></div>
+  </section>
+</main>
+
+<script>
+  const { Store, UnitAuth, Auth, esc, PRODUCTS, toast, zulu, download, htmlToText } = AOC;
+  AOC.renderChrome({ unit: true });
+  const me = UnitAuth.group();          // null when viewing as AOC staff
+  const staff = me ? null : Auth.user();
+
+  const campaigns = me ? Store.db.campaigns.filter(c => c.groups.includes(me.id)) : Store.db.campaigns;
+  let cid = (() => { try { return localStorage.getItem("aoc.unitCampaign"); } catch { return null; } })();
+  if (!campaigns.some(c => c.id === cid)) cid = staff ? Store.currentCampaignId() : campaigns[0]?.id;
+
+  const sel = document.getElementById("campaign");
+  sel.innerHTML = campaigns.map(c => `<option value="${c.id}">OP ${esc(c.opName)} — ${esc(c.theater)}</option>`).join("");
+  sel.value = cid;
+  sel.onchange = () => { cid = sel.value; try { localStorage.setItem("aoc.unitCampaign", cid); } catch {} render(); };
+
+  document.getElementById("viewer").textContent = me ? `Op status · ${me.name}` : `Op status · viewing as AOC staff (${staff.callsign})`;
+
+  // ---------- helpers ----------
+  const camp = () => Store.campaign(cid);
+  const released = () => Object.entries(camp().shared || {}).sort((a, b) => (PRODUCTS[a[0]]?.stage || 9) - (PRODUCTS[b[0]]?.stage || 9));
+  const activeGroups = () => camp().groups.map(id => Store.group(id)).filter(Boolean);
+  const atoLines = () => camp().shared?.ato?.data?.missions || [];
+  function ctxFor(s) {
+    const u = Store.db.users.find(x => x.callsign === s.by);
+    return { campaign: camp(), user: { callsign: s.by || "AOC", role: u?.role || "AOC staff" }, approval: s.approval, group: id => Store.group(id) };
+  }
+  const renderShared = (pid, s) => PRODUCTS[pid].render(s.data, ctxFor(s));
+  const opFile = () => camp().opName.replace(/\s+/g, "_");
+  const receive = (pid, s) => { if (me && s.groups.includes(me.id)) Store.markReceived(cid, me.id, pid, s.version); };
+  function until(iso) {
+    if (!iso) return "—";
+    const ms = new Date(iso) - Date.now();
+    if (ms < 0) return "in progress";
+    const d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5);
+    return `${zulu(new Date(iso))} (in ${d ? d + "d " : ""}${h}h)`;
+  }
+  function cellState(gid, pid, s) {
+    if (!s.groups.includes(gid)) return { cls: "na", txt: "—" };
+    const r = Store.received(cid, gid, pid);
+    if (r >= s.version) return { cls: "cur", txt: `✓ v${s.version}` };
+    if (r > 0) return { cls: "old", txt: `v${r} → v${s.version}` };
+    return { cls: "none", txt: "not pulled" };
+  }
+
+  // ---------- actions ----------
+  function viewDoc(pid) {
+    const s = camp().shared[pid];
+    receive(pid, s);
+    const back = document.createElement("div");
+    back.className = "modal-back";
+    back.innerHTML = `<div class="panel doc-modal">
+      <div class="panel-head"><h2>${PRODUCTS[pid].code} · ${esc(PRODUCTS[pid].name)} <span class="muted small">v${s.version}</span></h2>
+        <div class="toolbar"><button class="btn sm" data-txt>Download .txt</button><button class="btn sm" data-print>Print / PDF</button><button class="btn sm" data-x>Close</button></div></div>
+      <article class="doc">${renderShared(pid, s)}</article></div>`;
+    document.body.appendChild(back);
+    const close = () => { back.remove(); render(); };
+    back.onclick = e => { if (e.target === back) close(); };
+    back.querySelector("[data-x]").onclick = close;
+    back.querySelector("[data-txt]").onclick = () => download(`${opFile()}_${PRODUCTS[pid].code}_v${s.version}.txt`, htmlToText(renderShared(pid, s)));
+    back.querySelector("[data-print]").onclick = () => printDoc(renderShared(pid, s), `${PRODUCTS[pid].code} v${s.version}`);
+  }
+  function printDoc(html, title) {
+    const w = window.open("", "_blank");
+    if (!w) { toast("Allow pop-ups to print"); return; }
+    w.document.write(`<!doctype html><html data-theme="staff"><head><meta charset="utf-8"><title>${esc(title)}</title>
+      <link rel="stylesheet" href="css/styles.css"><style>body{background:#fff}.doc{max-height:none;border:0}</style></head>
+      <body><article class="doc">${html}</article></body></html>`);
+    w.document.close();
+    w.onload = () => w.print();
+  }
+  // Group pack: every product released to the group, plus a summary of the group's ATO lines
+  function groupPack() {
+    const c = camp(), mine = atoLines().filter(m => m.group === me.id), hr = "=".repeat(72);
+    let out = `${hr}\nGROUP PACK — ${me.name.toUpperCase()}\nOPERATION ${c.opName} — ${c.theater.toUpperCase()}\nGenerated ${zulu()}\nUNCLASSIFIED // EXERCISE — DCS WORLD SIMULATION ONLY\n${hr}\n\n`;
+    if (mine.length) out += `YOUR GROUP'S ATO LINES\n` + mine.map(m => `  MSN ${m.msn}  ${m.callsign}  ${m.num}x ${m.type}  ${m.role}  TOT ${m.tot}  ${m.target}  AR ${m.tanker}`).join("\n") + "\n\n";
+    released().forEach(([pid, s]) => {
+      if (!s.groups.includes(me.id) || !PRODUCTS[pid]) return;
+      out += `${hr}\n${htmlToText(renderShared(pid, s))}\n\n`;
+      receive(pid, s);
+    });
+    return out;
+  }
+
+  // ---------- render ----------
+  function renderHeader() {
+    const c = camp(), groups = activeGroups(), lines = atoLines();
+    const claimed = lines.filter(l => l.group), open = lines.length - claimed.length;
+    const sorties = claimed.reduce((s, l) => s + (parseInt(l.num) || 0), 0);
+    const rel = released();
+    let cells = 0, cur = 0;
+    groups.forEach(g => rel.forEach(([pid, s]) => { if (s.groups.includes(g.id)) { cells++; if (Store.received(cid, g.id, pid) >= s.version) cur++; } }));
+
+    document.getElementById("opName").textContent = "OP " + c.opName;
+    document.getElementById("meta").innerHTML = `<span>JFACC <b>${c.jfacc ? `${esc(c.jfacc.callsign)} · ${esc(Store.group(c.jfacc.group)?.name || "")}` : "Not named"}</b></span>
+      <span>Theater <b>${esc(c.theater)}</b></span><span>Phase <b>${esc(c.phase)}</b></span>
+      <span>ATO Day <b>${c.atoDay || "—"}</b> <b>${esc(c.atoPeriod)}</b></span><span>Next event <b>${until(c.nextEvent)}</b></span>`;
+    document.getElementById("kpis").innerHTML = [
+      [groups.length, `Groups · ${groups.reduce((s, g) => s + (g.members || 0), 0)} pilots`],
+      [`${claimed.length} / ${lines.length}`, `ATO lines claimed${open ? ` · ${open} open` : ""}`],
+      [sorties, "Sorties tasked"],
+      [rel.length, "Products released"],
+      [cells ? Math.round(cur / cells * 100) + "%" : "—", "Distribution current"]
+    ].map(([v, l]) => `<div class="panel kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  }
+
+  function renderGroupPanel() {
+    const el = document.getElementById("groupPanel");
+    if (!me) {
+      el.classList.remove("mine");
+      const behind = activeGroups().filter(g => released().some(([pid, s]) => s.groups.includes(g.id) && Store.received(cid, g.id, pid) < s.version));
+      el.innerHTML = `<div class="panel-head"><h2>Staff view</h2><a class="btn sm" href="product.html?p=ato&c=${cid}">Edit ATO</a></div>
+        <p class="muted" style="margin-top:0">This is the page every participating group sees after signing in. Groups behind on products:</p>
+        <ul class="list">${behind.length ? behind.map(g => {
+          const missing = released().filter(([pid, s]) => s.groups.includes(g.id) && Store.received(cid, g.id, pid) < s.version).map(([pid]) => PRODUCTS[pid]?.code);
+          return `<li><span class="dot warn"></span><div class="grow"><b>${esc(g.name)}</b><div class="muted small">needs ${missing.join(", ")} · liaison ${esc(g.contact)}</div></div></li>`;
+        }).join("") : `<li class="muted">Every group holds the current version of every product.</li>`}</ul>`;
+      return;
+    }
+    el.classList.add("mine");
+    const mine = atoLines().filter(m => m.group === me.id);
+    const updates = released().filter(([pid, s]) => s.groups.includes(me.id) && Store.received(cid, me.id, pid) < s.version);
+    el.innerHTML = `<div class="panel-head">
+        <div><h2>${esc(me.name)}</h2><div class="muted small">${esc(me.airframes)} · ${me.members || "?"} pilots · ${esc(me.tz || "")} · liaison ${esc(me.contact)}</div></div>
+        <button class="btn primary" id="packBtn">Download group pack</button></div>
+      <div style="margin-bottom:12px">${updates.length
+        ? `<b class="small">${updates.length} update${updates.length > 1 ? "s" : ""} waiting:</b> ` + updates.map(([pid, s]) => {
+            const r = Store.received(cid, me.id, pid);
+            return `<span class="upd ${r ? "" : "new"}">${PRODUCTS[pid]?.code} ${r ? `v${r}→v${s.version}` : "NEW"}</span>`; }).join(" · ")
+        : `<span class="small" style="color:var(--ok)">✓ You hold the current version of every released product.</span>`}</div>
+      <div class="table-scroll"><table><thead><tr><th>Msn</th><th>Callsign</th><th>Aircraft</th><th>Mission</th><th>TOT</th><th>Target / area</th><th>AR</th></tr></thead><tbody>
+        ${mine.length ? mine.map(m => `<tr><td class="mono">${esc(m.msn)}</td><td><b>${esc(m.callsign)}</b></td><td>${esc(m.num)}× ${esc(m.type)}</td>
+          <td>${esc(m.role)}</td><td class="mono">${esc(m.tot)}</td><td>${esc(m.target)}</td><td>${esc(m.tanker)}</td></tr>`).join("")
+          : `<tr><td colspan="7" class="muted">No lines on the released ATO.</td></tr>`}
+      </tbody></table></div>
+      <div class="dks" style="margin-top:12px">
+        <span><b style="color:var(--text)">DKS export</b> — send this group pack to Digital Kneeboard Simulator for mission planning. Integration coming soon.</span>
+        <button class="btn sm" disabled title="Waiting on the DKS integration">Send to DKS</button>
+      </div>`;
+    document.getElementById("packBtn").onclick = () => {
+      download(`${opFile()}_${me.login}_group_pack.txt`, groupPack());
+      Store.log(cid, `${me.name} downloaded group pack`, me.name);
+      render();
+    };
+  }
+
+  function renderBoard() {
+    const groups = activeGroups(), rel = Object.fromEntries(released());
+    const ids = Object.keys(PRODUCTS).sort((a, b) => PRODUCTS[a].stage - PRODUCTS[b].stage);
+    document.getElementById("board").innerHTML = [...ids.filter(id => rel[id]), ...ids.filter(id => !rel[id])].map(id => {
+      const p = PRODUCTS[id], s = rel[id];
+      if (!s) return `<div class="tile locked"><span class="code">${p.code}</span><h3>${esc(p.name)}</h3><p>Not yet released</p></div>`;
+      const n = groups.filter(g => s.groups.includes(g.id)).length;
+      const cur = groups.filter(g => s.groups.includes(g.id) && Store.received(cid, g.id, id) >= s.version).length;
+      const mineR = me ? Store.received(cid, me.id, id) : null;
+      const flag = me && s.groups.includes(me.id) && mineR < s.version ? `<span class="upd ${mineR ? "" : "new"}">${mineR ? "UPDATED" : "NEW"}</span>` : "";
+      return `<div class="tile"><div class="foot"><span class="code">${p.code} · v${s.version}</span>${flag}</div>
+        <h3>${esc(p.name)}</h3>
+        <div class="muted small">Released ${zulu(new Date(s.when))} by ${esc(s.by)}</div>
+        <div class="bar" title="${cur} of ${n} groups current"><i style="width:${n ? cur / n * 100 : 0}%"></i></div>
+        <div class="muted small">${cur} / ${n} groups current</div>
+        <div class="toolbar"><button class="btn sm" data-view="${id}">View</button><button class="btn sm" data-dl="${id}">Download .txt</button>
+          ${PRODUCTS[id].fields.some(f => f.type === "matrix") ? `<button class="btn sm" disabled title="DKS integration coming soon — will load this matrix into the DKS comm page">Send to DKS</button>` : ""}</div></div>`;
+    }).join("");
+  }
+
+  function renderMatrix() {
+    const groups = activeGroups(), rel = released().filter(([pid]) => PRODUCTS[pid]);
+    const lines = atoLines();
+    if (!rel.length) { document.getElementById("matrix").innerHTML = `<tr><td class="muted">Nothing released for this campaign yet.</td></tr>`; return; }
+    document.getElementById("matrix").innerHTML = `<thead><tr><th>Group</th><th>Lines</th>${rel.map(([pid, s]) => `<th>${PRODUCTS[pid].code}<div class="muted" style="font-weight:400">v${s.version}</div></th>`).join("")}</tr></thead>
+      <tbody>${groups.map(g => `<tr class="${me && g.id === me.id ? "me" : ""}"><td><b>${esc(g.name)}</b><div class="muted small">${esc(g.airframes)}</div></td>
+        <td class="mono">${lines.filter(l => l.group === g.id).length || "—"}</td>
+        ${rel.map(([pid, s]) => { const st = cellState(g.id, pid, s); return `<td><span class="cell ${st.cls}">${st.txt}</span></td>`; }).join("")}</tr>`).join("")}</tbody>
+      <tfoot><tr><td>Current</td><td class="mono">${lines.filter(l => l.group).length}</td>${rel.map(([pid, s]) => {
+        const n = groups.filter(g => s.groups.includes(g.id)), c = n.filter(g => Store.received(cid, g.id, pid) >= s.version);
+        return `<td class="mono">${c.length}/${n.length}</td>`; }).join("")}</tr></tfoot>`;
+  }
+
+  function renderLines() {
+    const lines = atoLines(), ato = camp().shared?.ato;
+    document.getElementById("linesTitle").textContent = ato ? `ATO Day ${ato.data.atoDay} lines by group` : "ATO lines by group";
+    document.getElementById("linesSub").textContent = ato ? `From ATO v${ato.version} · products go to the whole group, lines show who flies what` : "";
+    if (!lines.length) { document.getElementById("lines").innerHTML = `<p class="muted">No ATO released for this campaign yet.</p>`; return; }
+    const lineHtml = m => `<div class="line"><span class="m">${esc(m.msn)}</span>
+      <span class="g"><b>${esc(m.callsign)}</b> · ${esc(m.num)}× ${esc(m.type)} · ${esc(m.role)} · ${esc(m.target)}</span><span class="t">${esc(m.tot)}</span></div>`;
+    const groups = activeGroups().filter(g => lines.some(l => l.group === g.id))
+      .sort((a, b) => (me && a.id === me.id ? -1 : me && b.id === me.id ? 1 : 0));
+    const open = lines.filter(l => !l.group);
+    document.getElementById("lines").innerHTML = groups.map(g => {
+      const ls = lines.filter(l => l.group === g.id);
+      return `<div class="gcard ${me && g.id === me.id ? "me" : ""}"><h3>${esc(g.name)}${me && g.id === me.id ? " (you)" : ""}</h3>
+        <div class="sub">${esc(g.airframes)} · ${ls.length} line${ls.length > 1 ? "s" : ""} · ${ls.reduce((s, l) => s + (parseInt(l.num) || 0), 0)} sorties</div>${ls.map(lineHtml).join("")}</div>`;
+    }).join("") + (open.length ? `<div class="gcard open"><h3>Open lines</h3><div class="sub">Not yet assigned to a group</div>
+      ${open.map(lineHtml).join("")}</div>` : "")
+      + activeGroups().filter(g => !lines.some(l => l.group === g.id)).map(g =>
+        `<div class="gcard"><h3>${esc(g.name)}</h3><div class="sub">${esc(g.airframes)} · no lines on this ATO (still receives all products)</div></div>`).join("");
+  }
+
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.view) viewDoc(b.dataset.view);
+    if (b.dataset.dl) {
+      const pid = b.dataset.dl, s = camp().shared[pid];
+      download(`${opFile()}_${PRODUCTS[pid].code}_v${s.version}.txt`, htmlToText(renderShared(pid, s)));
+      receive(pid, s); render();
+    }  });
+
+  function render() { renderHeader(); renderGroupPanel(); renderBoard(); renderMatrix(); renderLines(); }
+  if (!cid) document.querySelector("main").innerHTML = `<div class="panel">Your group isn't assigned to any campaign yet. Contact the AOC.</div>`;
+  else render();
+</script>
+</body>
+</html>

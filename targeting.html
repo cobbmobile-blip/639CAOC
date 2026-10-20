@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Target Nomination</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .tlay { display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 1100px) { .tlay { grid-template-columns: minmax(0, 1fr); } }
+  .tlay > * { min-width: 0; }
+  .kt { table-layout: fixed; width: 100%; }
+  .kt th:first-child { width: 26px; }
+  .step { margin-bottom: 14px; }
+  .step h3 { font: 600 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+  .kt td input { padding: 4px 6px; font-size: 12px; }
+  .kt td { padding: 3px 4px; }
+  .mini { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .mini label { margin: 0 0 2px; font-size: 10.5px; }
+  .mini input, .mini select { padding: 4px 6px; font-size: 12px; }
+  .src { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .src input[type=checkbox] { width: auto; }
+  #tmap { height: 360px; border-radius: var(--radius); border: 1px solid var(--line); margin-bottom: 12px; }
+  .tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+  .tabs button { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); font: inherit; font-size: 13px; padding: 8px 12px; cursor: pointer; }
+  .tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+  .res td, .res th { white-space: nowrap; font-size: 12.5px; }
+  .res td.wrap { white-space: normal; min-width: 180px; }
+  .res select { padding: 2px 4px; font-size: 12px; width: auto; }
+  .res .act button { background: none; border: 0; color: var(--muted); cursor: pointer; padding: 2px 5px; font-size: 13px; }
+  .res .act button:hover { color: var(--accent); }
+  .cut { border-top: 2px dashed var(--warn); }
+  .tier { font: 600 10.5px var(--mono); }
+  .tier.HIGH { color: var(--bad); } .tier.MEDIUM { color: var(--warn); } .tier.LOW { color: var(--muted); }
+  .note { font-size: 12.5px; color: var(--muted); }
+  .t-lbl { background: rgba(0,0,0,.72); color: #fff; border: 0; box-shadow: none; font: 600 10.5px var(--mono); padding: 1px 4px; }
+  .t-lbl::before { display: none; }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>AOC.Auth.require();</script>
+<script src="js/products.js"></script>
+<script src="js/targeting.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px">
+    <div>
+      <a class="small" id="back" href="#">← JIPTL</a>
+      <h1 style="margin-top:4px" id="title">Target nomination</h1>
+      <div class="muted small">REDFOR order of battle → classify → keep inside the area of interest → score by Key Task + value tier → cap per task → JIPTL. Ported from the 639CAOC JIPTL pipeline.</div>
+    </div>
+    <div class="toolbar">
+      <span class="small" id="state"></span>
+      <button class="btn" id="runBtn">Run nomination</button>
+      <button class="btn primary" id="sendBtn" disabled>Send to JIPTL…</button>
+    </div>
+  </div>
+
+  <div class="tlay">
+    <section class="panel">
+      <div class="step">
+        <h3>1 · Key tasks & priorities</h3>
+        <table class="kt"><thead><tr><th>#</th><th>Key task</th><th style="width:70px">Weight</th><th style="width:60px">Cap</th></tr></thead><tbody id="kt"></tbody></table>
+        <div class="note" style="margin:6px 0 10px">Score = task weight + tier weight. Cap = most targets this task may put on the JIPTL; the rest go to the watchlist. Task 5 (CAS/TST) is continuous and never ranked.</div>
+        <div class="mini" id="tiers"></div>
+        <div class="toolbar" style="margin-top:8px"><button class="btn sm" id="ciTasks">Use Commander's Intent key tasks</button><button class="btn sm ghost" id="resetCycle">Reset to 639 defaults</button></div>
+      </div>
+
+      <div class="step">
+        <h3>2 · Area of interest</h3>
+        <div class="seg" role="group" aria-label="Area shape" id="areaMode">
+          <button data-mode="box">Box</button><button data-mode="point">Point + radius</button><button data-mode="none">Whole theater</button>
+        </div>
+        <div class="mini" id="boxIn" style="margin-top:8px">
+          <div><label>North lat</label><input data-a="n" placeholder="42.45"></div>
+          <div><label>South lat</label><input data-a="s" placeholder="41.98"></div>
+          <div><label>West lon</label><input data-a="w" placeholder="41.85"></div>
+          <div><label>East lon</label><input data-a="e" placeholder="43.00"></div>
+        </div>
+        <div class="mini hidden" id="pointIn" style="margin-top:8px;grid-template-columns:repeat(3,minmax(0,1fr))">
+          <div><label>Centre lat</label><input data-a="lat" placeholder="42.20"></div>
+          <div><label>Centre lon</label><input data-a="lon" placeholder="42.60"></div>
+          <div><label>Radius NM</label><input data-a="radius" placeholder="40"></div>
+        </div>
+        <div class="toolbar" style="margin-top:8px"><button class="btn sm" id="pickBtn">Set on map</button><span class="note" id="pickHint"></span></div>
+        <div class="note" style="margin-top:6px">Defined here for this nomination only — independent of the ACO and theater map. Coordinates take decimal degrees or DCS format (N42°16.2').</div>
+      </div>
+
+      <div class="step">
+        <h3>3 · REDFOR order of battle</h3>
+        <div id="imports"></div>
+        <div class="src"><span>Coalition Parser CSV <span class="muted small">(Group, Unit, Type, Latitude, Longitude)</span></span>
+          <label class="btn sm" style="margin:0;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text)">Import CSV…<input type="file" id="csvIn" accept=".csv,text/csv" multiple hidden></label></div>
+        <div class="src"><span>Unit table: <b id="tableName"></b></span>
+          <label class="btn sm" style="margin:0;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text)">Load unit_classification.json…<input type="file" id="clsIn" accept=".json,application/json" hidden></label></div>
+        <div class="note" style="margin-top:6px">.miz files go through the 639CAOC <span class="mono">miz_intake.py</span> (it needs the calibrated theater projection), so export a Coalition Parser CSV for now.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div id="tmap"></div>
+      <div class="tabs" id="tabs"></div>
+      <div class="table-scroll" id="results"><p class="muted">Set the area and sources, then <b>Run nomination</b>.</p></div>
+    </section>
+  </div>
+</main>
+
+<script>
+  const { Store, esc, toast, zulu, TARGETING: TG } = AOC;
+  AOC.renderChrome();
+  const cid = new URLSearchParams(location.search).get("c") || Store.currentCampaignId();
+  const campaign = Store.campaign(cid);
+  document.getElementById("back").href = `product.html?p=jiptl&c=${encodeURIComponent(cid)}`;
+  document.getElementById("title").textContent = `Target nomination · OP ${campaign.opName}`;
+
+  // ---------- state (saved per campaign) ----------
+  const saved = Store.content(cid, "targeting") || {};
+  const st = {
+    cycle: structuredClone(saved.cycle || TG.DEFAULT_CYCLE),
+    // area of interest, owned by this page: { mode: "box" | "point" | "none", n, s, w, e, lat, lon, radius }
+    area: saved.area || { mode: "box" },
+    imports: saved.imports || [],    // [{ name, rows }]
+    table: saved.table || null,      // { name, units } when a unit_classification.json is loaded
+    results: saved.results || null,
+    sampleCsv: saved.sampleCsv, sampleLoaded: saved.sampleLoaded
+  };
+  let tab = "jiptl", dirty = false;
+  const save = () => { Store.setContent(cid, "targeting", structuredClone(st)); };
+  const touch = () => { dirty = true; setState(); };
+  function setState() {
+    const el = document.getElementById("state");
+    el.textContent = st.results ? `Last run ${zulu(new Date(st.results.when))}${dirty ? " · settings changed — run again" : ""}` : "";
+    el.style.color = dirty ? "var(--warn)" : "var(--muted)";
+    document.getElementById("sendBtn").disabled = !st.results?.jiptl.length;
+  }
+
+  const ddm = (lat, lng) => { const f = (v, p, n, w) => { const a = Math.abs(v), d = Math.floor(a); return `${v >= 0 ? p : n}${String(d).padStart(w, "0")}°${((a - d) * 60).toFixed(3).padStart(6, "0")}'`; };
+    return `${f(lat, "N", "S", 2)} ${f(lng, "E", "W", 3)}`; };
+  const unitTable = () => st.table ? { ...TG.BUILTIN_UNITS, ...st.table.units } : TG.BUILTIN_UNITS;
+
+  // ---------- step 1: key tasks & tiers ----------
+  function renderCycle() {
+    document.getElementById("kt").innerHTML = Object.entries(st.cycle.keyTasks).map(([k, t]) => `<tr>
+      <td class="mono">${k}</td><td><input data-kt="${k}" data-f="name" value="${esc(t.name)}"></td>
+      <td><input data-kt="${k}" data-f="weight" value="${esc(t.weight)}" ${TG.EXCLUDED_TASKS.includes(k) ? "disabled" : ""}></td>
+      <td><input data-kt="${k}" data-f="cap" value="${esc(t.cap)}" ${TG.EXCLUDED_TASKS.includes(k) ? "disabled" : ""}></td></tr>`).join("");
+    document.getElementById("tiers").innerHTML = ["HIGH", "MEDIUM", "LOW"].map(t => `<div><label>${t} tier weight</label><input data-tier="${t}" value="${esc(st.cycle.tierWeight[t])}"></div>`).join("")
+      + `<div><label>Default grades</label><input data-grades value="${["HIGH", "MEDIUM", "LOW"].map(t => st.cycle.defaultGrade[t]).join(" / ")}" title="Grade seeded for HIGH / MEDIUM / LOW — re-grade lines after the run"></div>`;
+  }
+  document.getElementById("kt").addEventListener("input", e => { const i = e.target; st.cycle.keyTasks[i.dataset.kt][i.dataset.f] = i.dataset.f === "name" ? i.value : i.value.replace(/[^\d.]/g, ""); touch(); });
+  document.getElementById("tiers").addEventListener("input", e => {
+    const i = e.target;
+    if (i.dataset.tier) st.cycle.tierWeight[i.dataset.tier] = i.value.replace(/[^\d.]/g, "");
+    if (i.hasAttribute("data-grades")) { const g = i.value.split("/").map(x => x.trim().toUpperCase()); ["HIGH", "MEDIUM", "LOW"].forEach((t, n) => { if (g[n]) st.cycle.defaultGrade[t] = g[n]; }); }
+    touch();
+  });
+  document.getElementById("resetCycle").onclick = () => { st.cycle = structuredClone(TG.DEFAULT_CYCLE); renderCycle(); touch(); };
+  // Commander's Intent key tasks become task names 1–4 (weights/caps are kept)
+  document.getElementById("ciTasks").onclick = () => {
+    const kts = (Store.content(cid, "ci")?.keytasks || []).filter(Boolean);
+    if (!kts.length) { toast("This campaign's Commander's Intent has no key tasks yet"); return; }
+    kts.slice(0, 4).forEach((t, i) => { st.cycle.keyTasks[i + 1].name = t; });
+    renderCycle(); touch(); toast(`Loaded ${Math.min(4, kts.length)} key tasks from the Commander's Intent`);
+  };
+
+  // ---------- step 2: area of interest (a box or a point + radius, defined on this page) ----------
+  const num = v => (v === "" || v == null ? NaN : TG.parseCoord(v));
+  function areaGeometry() {
+    const a = st.area;
+    if (a.mode === "point") {
+      const lat = num(a.lat), lon = num(a.lon), r = +a.radius;
+      return isFinite(lat) && isFinite(lon) && r > 0 ? { shape: "circle", lat, lon, radiusNM: r } : null;
+    }
+    if (a.mode === "box") {
+      const n = num(a.n), s = num(a.s), w = num(a.w), e = num(a.e);
+      if (![n, s, w, e].every(isFinite)) return null;
+      const N = Math.max(n, s), S = Math.min(n, s), W = Math.min(w, e), E = Math.max(w, e);
+      return { shape: "polygon", polygon: [[N, W], [N, E], [S, E], [S, W]], box: { N, S, W, E } };
+    }
+    return null;
+  }
+  function areaLabel() {
+    const g = areaGeometry(), a = st.area;
+    if (!g) return a.mode === "none" ? "Whole theater" : "Area not set";
+    return g.shape === "circle" ? `${g.radiusNM} NM around ${ddm(g.lat, g.lon)}` : `Box ${ddm(g.box.N, g.box.W)} – ${ddm(g.box.S, g.box.E)}`;
+  }
+  function renderArea() {
+    const m = st.area.mode;
+    document.querySelectorAll("#areaMode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+    document.getElementById("boxIn").classList.toggle("hidden", m !== "box");
+    document.getElementById("pointIn").classList.toggle("hidden", m !== "point");
+    document.getElementById("pickBtn").classList.toggle("hidden", m === "none");
+    document.querySelectorAll("[data-a]").forEach(i => { i.value = st.area[i.dataset.a] ?? ""; });
+  }
+  document.getElementById("areaMode").onclick = e => { const m = e.target.closest("[data-mode]")?.dataset.mode; if (!m) return;
+    st.area.mode = m; picking = null; setPick(); renderArea(); drawMap(); touch(); };
+  document.querySelectorAll("[data-a]").forEach(i => i.addEventListener("input", () => { st.area[i.dataset.a] = i.value.trim(); drawMap(false); touch(); }));
+
+  // set the area by clicking the map: one click for a point, two corners for a box
+  let picking = null, firstCorner = null;
+  function setPick(msg) {
+    document.getElementById("pickHint").textContent = msg || "";
+    document.getElementById("pickBtn").textContent = picking ? "Cancel" : "Set on map";
+    map.getContainer().style.cursor = picking ? "crosshair" : "";
+  }
+  document.getElementById("pickBtn").onclick = () => {
+    if (picking) { picking = null; setPick(); return; }
+    picking = st.area.mode; firstCorner = null;
+    setPick(picking === "point" ? "Click the centre of the area on the map." : "Click one corner of the box, then the opposite corner.");
+  };
+  const fix = v => +v.toFixed(4);
+
+  // ---------- step 3: order of battle sources ----------
+  function renderSources() {
+    document.getElementById("imports").innerHTML = st.imports.map((f, i) => `<div class="src"><span>📄 ${esc(f.name)} <span class="muted small">${f.rows.length} units</span></span>
+      <button class="btn sm ghost danger" data-rmimp="${i}">Remove</button></div>`).join("");
+    document.getElementById("tableName").textContent = st.table ? `${st.table.name} (${Object.keys(st.table.units).length} types) + built-in`
+      : `built-in (${Object.keys(TG.BUILTIN_UNITS).length} DCS types)`;
+  }
+  document.getElementById("imports").onclick = e => { const i = e.target.dataset.rmimp; if (i != null) { st.imports.splice(+i, 1); renderSources(); touch(); } };
+  document.getElementById("csvIn").onchange = async e => {
+    for (const f of e.target.files) {
+      const r = TG.parseCSV(await f.text(), f.name);
+      if (r.error) { toast(`${f.name}: ${r.error}`); continue; }
+      st.imports.push({ name: f.name, rows: r.rows });
+      toast(`${f.name}: ${r.rows.length} units${r.bad?.length ? ` (${r.bad.length} rows skipped)` : ""}`);
+    }
+    e.target.value = ""; renderSources(); touch();
+  };
+  // accepts the 639CAOC unit_classification.json: { "<DCS type>": { category, task, tier, nominate } } (optionally under "units")
+  document.getElementById("clsIn").onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const j = JSON.parse(await f.text()), src = j.units || j.types || j, units = {};
+      Object.entries(src).forEach(([type, v]) => { if (type.startsWith("_") || !v || typeof v !== "object" || !v.tier) return;
+        units[type] = { name: v.name || v.display_name || type, category: v.category || "Unclassified", task: String(v.task ?? ""), tier: String(v.tier).toUpperCase(), nominate: v.nominate !== false }; });
+      if (!Object.keys(units).length) throw new Error("no unit entries with a tier were found");
+      st.table = { name: f.name, units }; renderSources(); touch(); toast(`Loaded ${Object.keys(units).length} unit types from ${f.name}`);
+    } catch (err) { toast(`Couldn't read ${f.name}: ${err.message}`); }
+    e.target.value = "";
+  };
+
+  // ---------- run ----------
+  document.getElementById("runBtn").onclick = () => {
+    const units = st.imports.flatMap(f => f.rows);
+    if (!units.length) { toast("No REDFOR units — import a Coalition Parser CSV first"); return; }
+    if (st.area.mode !== "none" && !areaGeometry()) { toast("Finish the area of interest (or choose Whole theater)"); return; }
+    if (st.results?.edited && !confirm("Running again replaces your re-grades and re-ordering. Continue?")) return;
+    const r = TG.run(units, { cycle: st.cycle, bma: areaGeometry(), table: unitTable() });
+    st.results = { when: new Date().toISOString(), bmaName: areaLabel(), unitsIn: units.length, ...r, edited: false };
+    dirty = false; save(); setState(); tab = "jiptl"; renderResults(); drawMap();
+    toast(`${r.jiptl.length} targets on the JIPTL · ${r.watchlist.length} watchlist · ${r.outOfBMA.length} outside the area`);
+  };
+
+  // ---------- results ----------
+  const GRADES = ["A", "B", "C", "D"];
+  function rowsFor(t) { const r = st.results; return t === "notTargets" ? [...r.continuous, ...r.dropped] : r[t] || []; }
+  function renderResults() {
+    const r = st.results, el = document.getElementById("results"), tabs = document.getElementById("tabs");
+    if (!r) { tabs.innerHTML = ""; return; }
+    const unc = Object.entries(r.unclassified);
+    const T = [["jiptl", "JIPTL", r.jiptl.length], ["watchlist", "Watchlist", r.watchlist.length], ["outOfBMA", "Outside area", r.outOfBMA.length],
+      ["unclassified", "Unclassified types", unc.length], ["notTargets", "Not targets", r.continuous.length + r.dropped.length]];
+    tabs.innerHTML = T.map(([k, l, n]) => `<button data-tab="${k}" aria-selected="${k === tab}">${l} (${n})</button>`).join("");
+    if (tab === "unclassified") {
+      el.innerHTML = unc.length ? `<p class="note">These DCS types aren't in the unit table, so their groups couldn't be scored. Load the full 639CAOC <span class="mono">unit_classification.json</span>, or add them to it.</p>
+        <table class="res"><thead><tr><th>DCS type</th><th>Units</th></tr></thead><tbody>${unc.sort((a, b) => b[1] - a[1]).map(([t, n]) => `<tr><td class="mono">${esc(t)}</td><td>${n}</td></tr>`).join("")}</tbody></table>`
+        : `<p class="muted">Every unit type was classified.</p>`;
+      return;
+    }
+    const list = rowsFor(tab), isJ = tab === "jiptl";
+    const capsLeft = {}; // show the cut line per task on the JIPTL
+    el.innerHTML = `<p class="note">${{ jiptl: "Ranked by score, capped per key task. Re-grade or re-order lines, cut a line to the watchlist, then send to the JIPTL for CFACC approval.",
+        watchlist: "Inside the area of interest and nominate-eligible, but cut by a key task's cap. Promote a line to put it on the JIPTL.",
+        outOfBMA: "Classified targets outside the area of interest — kept for traceability. Promote one to include it anyway.",
+        notTargets: "Task 5 (continuous CAS/TST) and groups below the value floor (dismounts, clutter) — never ranked." }[tab]}</p>
+      ${list.length ? `<table class="res"><thead><tr>${isJ ? "<th>#</th>" : ""}<th>Target</th><th>Unit / group</th><th>Task</th><th>Grade</th><th>Category</th><th>Tier</th><th>Score</th><th>Units</th><th>Location</th><th>Source</th><th></th></tr></thead>
+      <tbody>${list.map((g, i) => `<tr>
+        ${isJ ? `<td class="mono">${i + 1}</td>` : ""}
+        <td class="mono">${esc(g.targetNumber || "—")}</td>
+        <td class="wrap"><b>${esc(g.unitName)}</b><div class="muted small">${esc(g.group)}</div></td>
+        <td title="${esc(g.taskName || "")}">${esc(g.task)}</td>
+        <td>${g.grade ? `<select data-grade="${i}">${GRADES.map(x => `<option ${x === g.grade ? "selected" : ""}>${x}</option>`).join("")}</select>` : "—"}</td>
+        <td>${esc(g.category)}</td><td><span class="tier ${g.tier}">${g.tier}</span></td><td class="mono">${g.score ?? "—"}</td>
+        <td title="${esc(Object.entries(g.composition).map(([t, n]) => `${n}× ${t}`).join("\n"))}">${g.unitCount}</td>
+        <td class="mono small">${ddm(g.lat, g.lon)}</td><td class="small muted">${esc(g.source)}</td>
+        <td class="act">${isJ ? `<button data-mv="${i}" data-d="-1" title="Move up">↑</button><button data-mv="${i}" data-d="1" title="Move down">↓</button><button data-cut="${i}" title="Cut to the watchlist">✂</button>`
+          : ["watchlist", "outOfBMA"].includes(tab) ? `<button data-promote="${i}" title="Put on the JIPTL">＋ JIPTL</button>` : ""}</td></tr>`).join("")}</tbody></table>`
+        : `<p class="muted">Nothing here.</p>`}`;
+  }
+  document.getElementById("tabs").onclick = e => { const t = e.target.closest("[data-tab]")?.dataset.tab; if (t) { tab = t; renderResults(); } };
+  const edited = () => { st.results.edited = true; save(); renderResults(); drawMap(); setState(); };
+  document.getElementById("results").addEventListener("change", e => {
+    const i = e.target.dataset.grade; if (i == null) return; rowsFor(tab)[+i].grade = e.target.value; edited();
+  });
+  document.getElementById("results").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return; const r = st.results;
+    if (b.dataset.mv != null) { const i = +b.dataset.mv, j = i + +b.dataset.d; if (j < 0 || j >= r.jiptl.length) return; [r.jiptl[i], r.jiptl[j]] = [r.jiptl[j], r.jiptl[i]]; edited(); }
+    if (b.dataset.cut != null) { r.watchlist.unshift(...r.jiptl.splice(+b.dataset.cut, 1)); edited(); }
+    if (b.dataset.promote != null) {
+      const g = r[tab].splice(+b.dataset.promote, 1)[0];
+      if (!g.grade) { const kt = st.cycle.keyTasks[g.task] || {}; g.taskName = kt.name; g.score = (+kt.weight || 0) + (+st.cycle.tierWeight[g.tier] || 0); g.grade = st.cycle.defaultGrade[g.tier] || "D"; }
+      r.jiptl.push(g); r.jiptl.sort((a, b) => b.score - a.score); edited(); toast(`${g.targetNumber} added to the JIPTL`);
+    }
+  });
+
+  // ---------- send to the JIPTL product ----------
+  const EFFECT = { "AAA": "Neutralise", "Logistics": "Disrupt", "Ammo / POL": "Destroy", "Armor": "Attrit", "Artillery": "Attrit", "Early warning radar": "Destroy" };
+  document.getElementById("sendBtn").onclick = () => {
+    const cur = Store.content(cid, "jiptl")?.rows || [], r = st.results;
+    const back = document.createElement("div"); back.className = "modal-back";
+    back.innerHTML = `<div class="panel modal"><h2>Send ${r.jiptl.length} targets to the JIPTL</h2>
+      <p class="muted small">The JIPTL goes back to <b>Draft</b> and needs CFACC approval before it can be published.${cur.length ? ` It currently has ${cur.length} targets.` : ""}</p>
+      <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-x>Cancel</button>
+      ${cur.length ? `<button class="btn" data-mode="append">Add below current</button>` : ""}<button class="btn primary" data-mode="replace">${cur.length ? "Replace JIPTL" : "Create JIPTL"}</button></div></div>`;
+    document.body.appendChild(back);
+    back.onclick = ev => {
+      if (ev.target === back || ev.target.closest("[data-x]")) { back.remove(); return; }
+      const mode = ev.target.closest("[data-mode]")?.dataset.mode; if (!mode) return;
+      const rows = r.jiptl.map(g => ({ id: g.targetNumber, name: g.unitName === g.group ? g.unitName : `${g.unitName} — ${g.group}`, task: g.task, grade: g.grade,
+        cat: g.category, tier: g.tier, score: String(g.score), loc: ddm(g.lat, g.lon), effect: EFFECT[g.category] || "Destroy",
+        units: Object.entries(g.composition).map(([t, n]) => `${n}× ${t}`).join("; ") }));
+      const keep = mode === "append" ? cur.filter(c => !rows.some(x => x.id === c.id)) : [];
+      Store.setContent(cid, "jiptl", { ...(Store.content(cid, "jiptl") || {}), rows: [...keep, ...rows], cycle: { bma: r.bmaName, generated: r.when, keyTasks: st.cycle.keyTasks } });
+      Store.setStatus(cid, "jiptl", "draft");
+      Store.log(cid, `JIPTL ${mode === "append" ? "extended" : "rebuilt"} from target nomination (${rows.length} targets)`);
+      back.remove(); toast("JIPTL updated — open it to review and submit for CFACC approval");
+      setTimeout(() => location.href = `product.html?p=jiptl&c=${encodeURIComponent(cid)}`, 900);
+    };
+  };
+
+  // ---------- map preview ----------
+  const map = L.map("tmap", { zoomControl: true });
+  L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, attribution: "© OpenTopoMap, © OpenStreetMap contributors" }).addTo(map);
+  const layer = L.layerGroup().addTo(map);
+  const COLORS = { jiptl: "#e5534b", watchlist: "#f2d14b", outOfBMA: "#8ea1b3" };
+  // fit = false keeps the view still while coordinates are being typed or clicked
+  function drawMap(fit = true) {
+    layer.clearLayers();
+    const bma = areaGeometry(), pts = [];
+    if (bma) (bma.shape === "circle" ? L.circle([bma.lat, bma.lon], { radius: bma.radiusNM * 1852 }) : L.polygon(bma.polygon))
+      .setStyle({ color: "#ffffff", weight: 2.5, dashArray: "8 6", fillOpacity: .05, interactive: false }).bindTooltip("Area of interest").addTo(layer);
+    if (bma?.shape === "circle") L.circleMarker([bma.lat, bma.lon], { radius: 4, color: "#fff", weight: 2, fillColor: "#000", fillOpacity: 1, interactive: false }).addTo(layer);
+    if (st.results) ["outOfBMA", "watchlist", "jiptl"].forEach(k => st.results[k].forEach((g, i) => {
+      pts.push([g.lat, g.lon]);
+      // short rank labels keep a dense target area readable; click a dot for the details
+      const m = L.circleMarker([g.lat, g.lon], { radius: k === "jiptl" ? 7 : 5, color: "#000", weight: 1.5, fillColor: COLORS[k], fillOpacity: .95 })
+        .bindPopup(`<b>${esc(g.targetNumber)} · ${esc(g.unitName)}</b><br>${esc(g.group)}<br>Task ${esc(g.task)} · ${esc(g.tier)}${g.score != null ? ` · score ${g.score} · grade ${esc(g.grade)}` : ""}<br>${{ jiptl: `JIPTL rank #${i + 1}`, watchlist: "Watchlist", outOfBMA: "Outside the area of interest" }[k]}`);
+      if (k === "jiptl") m.bindTooltip(`#${i + 1}`, { permanent: true, direction: "right", offset: [6, 0], className: "t-lbl" });
+      else m.bindTooltip(`${g.targetNumber} ${g.unitName}`, { className: "t-lbl" });
+      m.addTo(layer);
+    }));
+    else st.imports.flatMap(f => f.rows).forEach(u => { pts.push([u.lat, u.lon]); L.circleMarker([u.lat, u.lon], { radius: 4, color: "#000", weight: 1, fillColor: "#f28c28", fillOpacity: .9 }).bindTooltip(`${u.group} · ${u.type}`).addTo(layer); });
+    if (!fit) return;
+    const b = L.featureGroup(layer.getLayers());
+    if (layer.getLayers().length) map.fitBounds(b.getBounds(), { padding: [24, 24], maxZoom: 10 });
+    else map.setView([42.2, 42.6], 7);
+  }
+  map.on("click", e => {
+    if (!picking) return;
+    const { lat, lng } = e.latlng;
+    if (picking === "point") { Object.assign(st.area, { lat: String(fix(lat)), lon: String(fix(lng)), radius: st.area.radius || "40" }); picking = null; setPick(); }
+    else if (!firstCorner) { firstCorner = [lat, lng]; setPick("Now click the opposite corner."); return; }
+    else { Object.assign(st.area, { n: String(fix(Math.max(lat, firstCorner[0]))), s: String(fix(Math.min(lat, firstCorner[0]))),
+        w: String(fix(Math.min(lng, firstCorner[1]))), e: String(fix(Math.max(lng, firstCorner[1]))) }); picking = null; firstCorner = null; setPick(); }
+    renderArea(); drawMap(false); touch();
+  });
+
+  window.addEventListener("beforeunload", () => { save(); });
+  renderCycle(); renderArea(); renderSources(); renderResults(); setState(); drawMap();
+
+  // first visit to a seeded campaign: pull in its sample REDFOR export
+  if (saved.sampleCsv && !saved.sampleLoaded) {
+    fetch(saved.sampleCsv).then(r => r.ok ? r.text() : Promise.reject(r.status)).then(text => {
+      const r = TG.parseCSV(text, saved.sampleCsv.split("/").pop());
+      if (r.rows.length) st.imports.push({ name: saved.sampleCsv.split("/").pop(), rows: r.rows });
+      st.sampleCsv = saved.sampleCsv; st.sampleLoaded = true; save(); renderSources();
+    }).catch(() => {});
+  }
+</script>
+</body>
+</html>

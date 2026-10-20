@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Theater Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .maplay { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; }
+  @media (max-width: 1000px) { .maplay { grid-template-columns: 1fr; } }
+  #map { height: calc(100vh - 230px); min-height: 460px; border-radius: var(--radius); border: 1px solid var(--line); }
+  .side { max-height: calc(100vh - 230px); overflow: auto; }
+  .tools { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tools button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .item { border-top: 1px solid var(--line); padding: 8px 0; display: grid; gap: 6px; }
+  .item .top { display: flex; gap: 8px; align-items: center; }
+  .item .top input { flex: 1; padding: 5px 8px; font-size: 13px; font-weight: 600; }
+  .item .meta { display: flex; gap: 6px; flex-wrap: wrap; }
+  .item .meta select { padding: 4px 6px; font-size: 12px; flex: 1; }
+  .item .attrs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .item .attrs label { margin: 0; font-size: 10.5px; }
+  .item .attrs input { padding: 4px 6px; font-size: 12px; }
+  .item .coord { font: 11.5px var(--mono); color: var(--muted); }
+  .item textarea { min-height: 34px; font-size: 12px; padding: 5px 8px; }
+  .item.sel { background: var(--panel-2); outline: 1px solid var(--accent); }
+  .tag { font: 600 10px var(--mono); letter-spacing: .06em; padding: 2px 6px; border-radius: 3px; background: var(--panel-2); color: var(--muted); border: 1px solid var(--line); }
+  .ico { width: 22px; height: 22px; display: grid; place-items: center; font: 700 10px var(--mono); color: #000; border: 2px solid #000; flex: none; }
+  .sect { font: 600 11px var(--mono); letter-spacing: .1em; color: var(--accent); text-transform: uppercase; margin: 14px 0 2px; display: flex; justify-content: space-between; gap: 8px; }
+  .hintbar { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; min-height: 18px; }
+  .leaflet-container { font-family: var(--font); }
+  .pt-icon { background: none; border: 0; }
+  .pt-icon .ico { box-shadow: 0 0 0 2px rgba(255,255,255,.8); }
+  .pt-label { background: rgba(0,0,0,.7); color: #fff; border: 0; box-shadow: none; font: 600 11px var(--mono); padding: 1px 5px; }
+  .pt-label::before { display: none; }
+  /* FLOT / FSCL end labels: text along the line, light halo so it reads on any map */
+  .line-lbl { background: none; border: 0; }
+  .line-lbl div { position: absolute; white-space: nowrap; text-align: center; font: 700 12px/1.15 Arial, sans-serif; letter-spacing: .04em;
+    text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff; pointer-events: none; }
+  .line-lbl .under { display: block; font-size: 10px; font-weight: 600; margin-top: 7px; }
+  .end-handle { background: #fff; border: 2px solid #000; border-radius: 50%; }
+  .name-pop .leaflet-popup-content-wrapper { background: var(--panel); color: var(--text); border: 1px solid var(--accent); border-radius: 8px; }
+  .name-pop .leaflet-popup-tip { background: var(--accent); }
+  .name-pop .leaflet-popup-content { margin: 10px 12px; }
+  .np-t { font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .np-row { display: flex; gap: 6px; }
+  .np-in { padding: 5px 8px; font-size: 13px; font-weight: 600; }
+
+  /* right-click menu */
+  .ctx { position: absolute; z-index: 1000; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px;
+    box-shadow: var(--shadow); min-width: 230px; padding: 6px 0; font-size: 13px; }
+  .ctx .h { font: 600 10.5px var(--mono); letter-spacing: .1em; color: var(--muted); text-transform: uppercase; padding: 6px 12px 2px; }
+  .ctx .h:first-child { color: var(--accent); }
+  .ctx button { display: flex; width: 100%; gap: 8px; align-items: center; background: none; border: 0; color: inherit; font: inherit; padding: 5px 12px; cursor: pointer; text-align: left; }
+  .ctx button:hover { background: var(--panel-2); }
+  .ctx .sw { width: 14px; height: 14px; border: 2px solid #000; flex: none; }
+  .ctx .ln { width: 16px; height: 0; border-top: 3px solid; flex: none; }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>AOC.Auth.require();</script>
+<script src="js/products.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px">
+    <div>
+      <a class="small" id="back" href="#">← ACO</a>
+      <h1 style="margin-top:4px" id="title">Theater map</h1>
+      <div class="muted small" id="sub"></div>
+    </div>
+    <div class="toolbar">
+      <span class="small" id="saveState"></span>
+      <button class="btn" id="geojson">Download GeoJSON</button>
+      <button class="btn" disabled title="DKS integration coming soon — points go to Waypoints / Nav points / Spider points, shapes to Overlay">Export to DKS</button>
+      <button class="btn primary" id="save">Save map</button>
+    </div>
+  </div>
+
+  <div class="maplay">
+    <section>
+      <div class="panel" style="padding:10px">
+        <div class="tools" id="tools"></div>
+        <div class="hintbar" id="hint"></div>
+      </div>
+      <div id="map" style="margin-top:10px"></div>
+    </section>
+    <aside class="panel side">
+      <div class="panel-head"><h2>Map items</h2><span class="muted small" id="counts"></span></div>
+      <div id="missing"></div>
+      <div id="list"></div>
+    </aside>
+  </div>
+</main>
+
+<datalist id="freqs"></datalist>
+
+<script>
+  const { Store, esc, toast } = AOC;
+  AOC.renderChrome();
+  const cid = new URLSearchParams(location.search).get("c") || Store.currentCampaignId();
+  const campaign = Store.campaign(cid);
+  document.getElementById("back").href = `product.html?p=aco&c=${encodeURIComponent(cid)}`;
+  document.getElementById("title").textContent = `Theater map · OP ${campaign.opName}`;
+  document.getElementById("sub").textContent = `${campaign.theater} · Points, control measures and overlays — valid for the whole campaign`;
+  const DEFAULT_HINT = "Right-click the map to add anything at that spot, or pick a point type and click. The left-edge tools draw plain boxes, circles, polygons and lines.";
+
+  // Point types and the DKS section each will export to (Nav / Spider points are confirmed; the rest TBC).
+  // Waypoints, IPs, targets and bullseye are not made here — they're built in DKS.
+  const POINT_TYPES = {
+    "NAV POINT":    { code: "NP", label: "Nav point", plural: "Nav points", color: "#4ea8ff", dks: "Nav points" },
+    "SPIDER POINT": { code: "SP", label: "Spider point", plural: "Spider points", color: "#f2d14b", dks: "Spider points" },
+    "DEST POINT":   { code: "DP", label: "Dest point", plural: "Destination points", color: "#3fbfbf", dks: "Destination points (TBC)" },
+    "THREAT":       { code: "TH", label: "Threat", plural: "Threats", color: "#f28c28", dks: "Overlay (TBC)" }
+  };
+
+  // DCS air-defence systems with an approximate max engagement range (NM) for the threat ring.
+  // Starting values only — DCS versions and mission settings vary, so the ring stays editable per threat.
+  const THREAT_SYSTEMS = [
+    ["Long range", [["SA-5 Gammon (S-200)", 130], ["SA-10 Grumble (S-300PS)", 40], ["Patriot", 54]]],
+    ["Medium range", [["SA-2 Guideline (S-75)", 22], ["SA-11 Gadfly (Buk)", 19], ["SA-6 Gainful (Kub)", 13], ["SA-3 Goa (S-125)", 13],
+      ["HQ-7", 8], ["Hawk", 24], ["NASAMS", 15]]],
+    ["Short range", [["SA-15 Gauntlet (Tor)", 6.5], ["SA-8 Gecko (Osa)", 5.5], ["SA-19 Grison (Tunguska)", 4.3], ["SA-13 Gopher (Strela-10)", 2.7],
+      ["SA-9 Gaskin (Strela-1)", 2.3], ["Roland", 4.3], ["Rapier", 3.6], ["Chaparral", 4.5], ["Avenger", 2.3]]],
+    ["MANPADS / AAA", [["SA-18 Grouse (Igla)", 2.8], ["Stinger MANPADS", 2.6], ["ZSU-23-4 Shilka", 1.3], ["ZU-23-2", 1.3], ["Gepard", 2.2], ["S-60 57mm", 3.2]]]
+  ];
+  const THREAT_RANGE = Object.fromEntries(THREAT_SYSTEMS.flatMap(([, list]) => list));
+  const SHAPE_COLORS = { RED: "#e5534b", BLUE: "#4ea8ff", YELLOW: "#f2d14b", GREEN: "#3fbf7f", PURPLE: "#a371f7", ORANGE: "#f28c28", WHITE: "#ffffff", BLACK: "#111111" };
+  const KIND_LABEL = { rectangle: "Box", circle: "Circle", polygon: "Polygon", polyline: "Line", track: "Racetrack", anchor: "AR track" };
+
+  // Control-measure types. draw: polyline | polygon | track (two-click racetrack). All export to the DKS Overlay.
+  const ALT = [["altLo", "Floor"], ["altHi", "Ceiling"]];
+  const SHAPE_TYPES = {
+    // Doctrinal line graphics (MIL-STD-2525 / ADP 1-02): FLOT = friendly line with semicircles toward the enemy, "FLOT" at both ends;
+    // FSCL = solid black line, "FSCL" with establishing HQ and effective DTG at both ends.
+    "FLOT":         { label: "FLOT", group: "Lines", draw: "polyline", color: "BLUE", weight: 2.5, name: "FLOT", fields: [["time", "Effective DTG"], ["flip", "Scallops"]] },
+    "FSCL":         { label: "FSCL", group: "Lines", draw: "polyline", color: "BLACK", weight: 3, name: "FSCL", fields: [["hq", "Establishing HQ"], ["time", "Effective DTG"]] },
+    "MRR":          { label: "MRR corridor", group: "Lines", draw: "polyline", color: "BLUE", weight: 3, dash: "6 6", name: "MRR", fields: [["width", "Width (NM)"], ...ALT, ["time", "Effective"]] },
+    // AR track (FAA JO 7610.14 ch.5): left-hand racetrack anchored at the ARCP, legs normally 50 NM long and 20 NM apart,
+    // receivers enter at the ARIP (uptrack, within 30° of the extended centreline), tankers at the ARCP; plus entry/exit points.
+    "TANKER TRACK": { label: "Tanker track", group: "Tracks & orbits", draw: "anchor", color: "BLUE", name: "AR TRACK",
+      fields: [["length", "Length (NM)"], ["width", "Width (NM)"], ["heading", "Refuel leg (°T)"], ["aripOn", "ARIP"], ...ALT, ["callsign", "Tanker"], ["freq", "Freq"]] },
+    "HVAA ORBIT":   { label: "HVAA orbit", group: "Tracks & orbits", draw: "track", color: "PURPLE", name: "ORBIT", width: 15, fields: [["width", "Width (NM)"], ...ALT, ["callsign", "Asset"], ["freq", "Freq"]] },
+    "ARTY ROZ":     { label: "Artillery ROZ", group: "Areas", draw: "polygon", color: "ORANGE", name: "ARTY ROZ", fields: [["altLo", "Floor"], ["maxord", "MAXORD (ft)"], ["unit", "Firing unit"], ["time", "Effective"]] }
+  };
+  const THEATERS = {
+    "Caucasus": [42.2, 42.6, 8], "Syria": [35.0, 37.5, 7], "Persian Gulf": [26.3, 55.5, 7], "Sinai": [30.0, 33.0, 7],
+    "Kola": [68.5, 33.5, 6], "Marianas": [15.0, 145.6, 8], "Afghanistan": [31.5, 65.0, 7], "Iraq": [33.0, 44.0, 6],
+    "South Atlantic": [-51.7, -59.0, 7], "Nevada": [36.5, -115.5, 8], "Normandy": [49.2, -0.5, 8], "Channel": [50.8, 1.5, 8],
+    "Germany (Cold War)": [50.5, 10.0, 7]
+  };
+
+  // ---------- data ----------
+  let data = structuredClone(Store.content(cid, "map") || { points: [], shapes: [] });
+  data.points = data.points || []; data.shapes = data.shapes || [];
+  // older maps may still hold waypoints; they become nav points so nothing is lost
+  data.points.forEach(p => { if (!POINT_TYPES[p.type]) p.type = "NAV POINT"; });
+  const acoMeasures = (Store.content(cid, "aco")?.measures || []).map(m => m.name).filter(Boolean);
+  // Comm Plan channels feed the tanker / HVAA frequency boxes
+  document.getElementById("freqs").innerHTML = AOC.COMM.channels(Store.content(cid, "acp")?.matrix)
+    .filter(c => c.freq).map(c => `<option value="${esc(c.freq)}">${esc(c.id)} ${esc(c.callsign || c.role)}</option>`).join("");
+  let dirty = false, selected = null, placing = null, pendingType = null;
+  const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  function markDirty() { dirty = true; const st = document.getElementById("saveState"); st.textContent = "Unsaved changes"; st.style.color = "var(--warn)"; }
+
+  // DCS-style degrees + decimal minutes, e.g. N42°11.420' E042°39.610'
+  function ddm(lat, lng) {
+    const f = (v, pos, neg, w) => { const a = Math.abs(v), d = Math.floor(a), m = (a - d) * 60;
+      return `${v >= 0 ? pos : neg}${String(d).padStart(w, "0")}°${m.toFixed(3).padStart(6, "0")}'`; };
+    return `${f(lat, "N", "S", 2)} ${f(lng, "E", "W", 3)}`;
+  }
+  // Racetrack outline around the line A→B, width in NM (local flat-earth approximation, fine at theater scale)
+  function racetrack([a, b], widthNM) {
+    const lat0 = (a[0] + b[0]) / 2, kx = 111320 * Math.cos(lat0 * Math.PI / 180), ky = 110540;
+    const P = ll => [(ll[1] - a[1]) * kx, (ll[0] - a[0]) * ky], Q = ([x, y]) => [a[0] + y / ky, a[1] + x / kx];
+    const A = P(a), B = P(b), len = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1;
+    const u = [(B[0] - A[0]) / len, (B[1] - A[1]) / len], n = [-u[1], u[0]], r = (+widthNM || 10) * 1852 / 2, out = [];
+    const arc = (C, s) => { for (let i = 0; i <= 16; i++) { const t = Math.PI * i / 16;
+      out.push(Q([C[0] + r * (s * Math.cos(t) * n[0] + s * Math.sin(t) * u[0]), C[1] + r * (s * Math.cos(t) * n[1] + s * Math.sin(t) * u[1])])); } };
+    arc(B, 1); arc(A, -1);
+    return out;
+  }
+
+  // ---------- AR track geometry, in a frame aligned with the refuelling leg ----------
+  // a = NM along the leg from the ARCP, c = NM to the LEFT of it (left-hand orbit sits on the left)
+  const NM = 1852;
+  function fromFrame([lat0, lng0], hdg, a, c) {
+    const h = hdg * Math.PI / 180, e = (a * Math.sin(h) - c * Math.cos(h)) * NM, n = (a * Math.cos(h) + c * Math.sin(h)) * NM;
+    return [lat0 + n / 110540, lng0 + e / (111320 * Math.cos(lat0 * Math.PI / 180))];
+  }
+  function toFrame([lat0, lng0], hdg, [lat, lng]) {
+    const h = hdg * Math.PI / 180, e = (lng - lng0) * 111320 * Math.cos(lat0 * Math.PI / 180), n = (lat - lat0) * 110540;
+    return { a: (e * Math.sin(h) + n * Math.cos(h)) / NM, c: (-e * Math.cos(h) + n * Math.sin(h)) / NM };
+  }
+  const bearing = ([la1, lo1], [la2, lo2]) => {
+    const e = (lo2 - lo1) * Math.cos((la1 + la2) / 2 * Math.PI / 180), n = la2 - la1;
+    return (Math.atan2(e, n) * 180 / Math.PI + 360) % 360;
+  };
+  // entry / exit are relative to the ARCP; the ARIP (optional) is relative to the ENTRY — about 10 NM before it
+  const AR_DEFAULTS = { length: "50", width: "20", rel: { entry: { a: -10, c: 20 }, exit: { a: 65, c: 0 }, arip: { a: -10, c: 0 } } };
+  const AR_POINT_DEFS = [["arip", "ARIP", "#3fbf7f"], ["arcp", "ARCP", "#ffffff"], ["entry", "ENTRY", "#f2d14b"], ["exit", "EXIT", "#e5534b"]];
+  const hasArip = s => s.aripOn !== "No";
+  const arPoints = s => AR_POINT_DEFS.filter(([k]) => k !== "arip" || hasArip(s));
+  function anchorGeom(s) {
+    const L = +s.length || 50, W = +s.width || 20, h = +s.heading || 0, r = W / 2, A = s.arcp, out = [];
+    for (let i = 0; i <= 16; i++) { const t = Math.PI * i / 16; out.push(fromFrame(A, h, L + r * Math.sin(t), r - r * Math.cos(t))); }   // far turn
+    for (let i = 0; i <= 16; i++) { const t = Math.PI * i / 16; out.push(fromFrame(A, h, -r * Math.sin(t), r + r * Math.cos(t))); }   // near turn
+    const rel = { ...AR_DEFAULTS.rel, ...(s.rel || {}) };
+    const pt = ({ a, c }) => fromFrame(A, h, a, c);
+    return { outline: out, legEnd: fromFrame(A, h, L, 0), arcp: A, entry: pt(rel.entry), exit: pt(rel.exit),
+      arip: pt({ a: rel.entry.a + rel.arip.a, c: rel.entry.c + rel.arip.c }), rel };
+  }
+  const aripDist = s => { const { rel } = anchorGeom(s); return Math.hypot(rel.arip.a, rel.arip.c); };
+
+  // ---------- map ----------
+  const [clat, clng, cz] = THEATERS[campaign.theater] || [42.2, 42.6, 7];
+  const map = L.map("map", { zoomControl: true }).setView([clat, clng], cz);
+  const base = {
+    "Topographic": L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, attribution: "© OpenTopoMap, © OpenStreetMap contributors" }),
+    "Street": L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap contributors" }),
+    "Satellite": L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18, attribution: "Imagery © Esri" })
+  };
+  base["Topographic"].addTo(map);
+  L.control.layers(base, null, { position: "topright" }).addTo(map);
+  L.control.scale({ imperial: true, metric: false }).addTo(map);
+
+  const shapeLayer = new L.FeatureGroup().addTo(map);   // editable by the draw toolbar
+  const trackLayer = L.layerGroup().addTo(map);          // racetracks: edited by dragging their end handles
+  const pointLayer = L.layerGroup().addTo(map);
+  const layers = {}; // id -> leaflet layer
+
+  map.addControl(new L.Control.Draw({
+    position: "topleft",
+    draw: {
+      rectangle: { showArea: false, shapeOptions: { color: SHAPE_COLORS.RED } }, // showArea off avoids a Leaflet.draw bug with Leaflet 1.9
+      circle: { shapeOptions: { color: SHAPE_COLORS.YELLOW }, feet: false, nautic: true },
+      polygon: { shapeOptions: { color: SHAPE_COLORS.GREEN } },
+      polyline: { shapeOptions: { color: SHAPE_COLORS.BLUE }, nautic: true },
+      marker: false, circlemarker: false
+    },
+    edit: { featureGroup: shapeLayer }
+  }));
+
+  // ---------- naming on the map ----------
+  // small popup with a name box; Enter or Save applies it, Esc closes
+  // threats can also pick their DCS system in the same popup
+  const systemSelect = (cur, attrs = "") => `<select ${attrs}><option value="">DCS system…</option>${THREAT_SYSTEMS.map(([g, list]) =>
+    `<optgroup label="${esc(g)}">${list.map(([n, r]) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(n)} — ${r} NM</option>`).join("")}</optgroup>`).join("")}</select>`;
+  function namePopup(latlng, title, current, onSave, opts = {}) {
+    const pop = L.popup({ closeButton: false, className: "name-pop", offset: [0, -8], minWidth: 240 })
+      .setLatLng(latlng)
+      .setContent(`<div class="np-t">${esc(title)}</div>
+        ${opts.threat ? `<div style="margin-bottom:6px">${systemSelect(opts.system, 'class="np-sys" style="padding:4px 6px;font-size:12px"')}</div>` : ""}
+        <div class="np-row"><input class="np-in" value="${esc(current || "")}" placeholder="Name">
+        <button class="btn sm primary np-ok">Save</button></div>`)
+      .openOn(map);
+    const el = pop.getElement(), inp = el.querySelector(".np-in"), sys = el.querySelector(".np-sys");
+    const apply = () => { onSave(inp.value.trim(), sys ? sys.value : undefined); map.closePopup(pop); };
+    el.querySelector(".np-ok").onclick = apply;
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") apply(); if (e.key === "Escape") map.closePopup(pop); });
+    L.DomEvent.disableClickPropagation(el);
+    setTimeout(() => { inp.focus(); inp.select(); }, 0);
+  }
+  function renamePoint(p) {
+    namePopup([p.lat, p.lng], `Name this ${POINT_TYPES[p.type].label.toLowerCase()}`, p.name, (v, system) => {
+      if (v) p.name = v;
+      if (system !== undefined && system !== (p.system || "")) setSystem(p, system);
+      updatePoint(p); markDirty(); renderList();
+    }, { threat: p.type === "THREAT", system: p.system });
+  }
+
+  // ---------- threat rings ----------
+  const rings = {}; // point id -> L.circle
+  const pointLabel = p => p.type === "THREAT" && p.system ? `${p.name} · ${p.system.split(" (")[0]} ${p.range || "?"} NM` : p.name;
+  function setSystem(p, system) {
+    // picking a system sets its default ring; a hand-typed range is kept only if no system default exists
+    p.system = system || "";
+    if (system && THREAT_RANGE[system] != null) p.range = String(THREAT_RANGE[system]);
+  }
+  function updateRing(p) {
+    const want = p.type === "THREAT" && +p.range > 0;
+    if (!want) { if (rings[p.id]) { pointLayer.removeLayer(rings[p.id]); delete rings[p.id]; } return; }
+    // bright red so the ring reads on topo, street and satellite tiles alike
+    const style = { radius: +p.range * 1852, color: "#ff1f1f", weight: 2.5, opacity: .95, dashArray: "10 6", fillColor: "#ff1f1f", fillOpacity: .12, interactive: false };
+    if (rings[p.id]) rings[p.id].setLatLng([p.lat, p.lng]).setRadius(style.radius);
+    else rings[p.id] = L.circle([p.lat, p.lng], style).addTo(pointLayer);
+  }
+  function updatePoint(p) { const m = layers[p.id]; m.setIcon(pointIcon(p)); m.setTooltipContent(pointLabel(p)); updateRing(p); }
+
+  // ---------- points ----------
+  function pointIcon(p) {
+    const t = POINT_TYPES[p.type] || POINT_TYPES["NAV POINT"];
+    const shape = p.type === "THREAT" ? "border-radius:50%" : p.type === "SPIDER POINT" ? "transform:rotate(45deg)" : "";
+    return L.divIcon({ className: "pt-icon", iconSize: [22, 22], iconAnchor: [11, 11],
+      html: `<div class="ico" style="background:${t.color};${shape}"><span style="${p.type === "SPIDER POINT" ? "transform:rotate(-45deg)" : ""}">${t.code}</span></div>` });
+  }
+  function addPointLayer(p) {
+    const m = L.marker([p.lat, p.lng], { icon: pointIcon(p), draggable: true })
+      .bindTooltip(pointLabel(p), { permanent: true, direction: "right", offset: [12, 0], className: "pt-label" })
+      .on("drag", e => { const ll = e.target.getLatLng(); rings[p.id]?.setLatLng(ll); })
+      .on("dragend", e => { const ll = e.target.getLatLng(); p.lat = ll.lat; p.lng = ll.lng; markDirty(); renderList(); })
+      .on("click", () => { select(p.id); renamePoint(p); });
+    m.addTo(pointLayer); layers[p.id] = m;
+    updateRing(p);
+  }
+  function addPoint(type, latlng) {
+    const n = data.points.filter(p => p.type === type).length + 1;
+    const p = { id: uid("p"), type, name: `${POINT_TYPES[type].code}${n}`, lat: latlng.lat, lng: latlng.lng, notes: "" };
+    data.points.push(p); addPointLayer(p); markDirty(); renderList(); select(p.id);
+    renamePoint(p); // name it straight away (the default code stays if you skip)
+  }
+  // AR track points show their role plus an optional name, e.g. "ARCP TEXACO NORTH"
+  const arLabel = (s, k, lab) => s.names?.[k] ? `${lab} ${s.names[k]}` : lab;
+
+  // ---------- shapes & control measures ----------
+  function shapeStyle(s) {
+    const T = SHAPE_TYPES[s.type] || {}, c = SHAPE_COLORS[s.color] || SHAPE_COLORS.RED;
+    const line = s.kind === "polyline";
+    // the FLOT's own path is an invisible, wide hit-line; its scalloped drawing lives in the decoration layer
+    if (s.type === "FLOT") return { color: c, weight: 14, opacity: editing ? .5 : 0, dashArray: editing ? "4 4" : null };
+    return { color: c, weight: T.weight || 2, dashArray: T.dash || null, fillColor: c, fillOpacity: line ? 0 : s.type === "ARTY ROZ" ? .2 : .12 };
+  }
+
+  // ---------- FLOT / FSCL decoration: scallops and end labels, rebuilt in screen space on every zoom ----------
+  const decorLayer = L.layerGroup().addTo(map), decor = {};
+  let editing = false;
+  const DECORATED = ["FLOT", "FSCL"];
+  // semicircles (~14 px across) along the line, bulging to the enemy side: left of drawing direction, or right when flipped
+  function scallops(latlngs, flip) {
+    const pts = latlngs.map(ll => map.latLngToLayerPoint(ll)), out = [], side = flip ? -1 : 1, W = 14;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const P = pts[i], Q = pts[i + 1], L0 = P.distanceTo(Q); if (L0 < 1) continue;
+      const u = [(Q.x - P.x) / L0, (Q.y - P.y) / L0], n = [u[1] * side, -u[0] * side];  // screen y points down, so (uy, -ux) is left
+      const k = Math.max(1, Math.round(L0 / W)), w = L0 / k, r = w / 2;
+      for (let j = 0; j < k; j++) {
+        const cx = P.x + u[0] * (j * w + r), cy = P.y + u[1] * (j * w + r);
+        for (let t = 0; t <= 8; t++) { const a = Math.PI * t / 8;
+          out.push(map.layerPointToLatLng(L.point(cx - r * Math.cos(a) * u[0] + r * Math.sin(a) * n[0], cy - r * Math.cos(a) * u[1] + r * Math.sin(a) * n[1]))); }
+      }
+    }
+    return out;
+  }
+  // a label at each end of the line, turned to run along it and kept upright
+  function endLabels(s, latlngs, html, color) {
+    const ends = [[latlngs[0], latlngs[1]], [latlngs[latlngs.length - 1], latlngs[latlngs.length - 2]]];
+    return ends.map(([a, b]) => {
+      const A = map.latLngToLayerPoint(a), B = map.latLngToLayerPoint(b), d = A.distanceTo(B) || 1;
+      let ang = Math.atan2(B.y - A.y, B.x - A.x) * 180 / Math.PI;
+      // sit the label just inside the end of the line
+      const at = map.layerPointToLatLng(L.point(A.x + (B.x - A.x) / d * 34, A.y + (B.y - A.y) / d * 34));
+      if (ang > 90 || ang < -90) ang += 180;
+      return L.marker(at, { interactive: false, keyboard: false, icon: L.divIcon({ className: "line-lbl", iconSize: [0, 0],
+        html: `<div style="transform:translate(-50%,-50%) rotate(${ang}deg);color:${color}">${html}</div>` }) });
+    });
+  }
+  function decorate(s) {
+    if (decor[s.id]) { decorLayer.removeLayer(decor[s.id]); delete decor[s.id]; }
+    if (!DECORATED.includes(s.type) || !s.latlngs || s.latlngs.length < 2 || !layers[s.id]) return;
+    const ll = layers[s.id].getLatLngs(), c = SHAPE_COLORS[s.color] || SHAPE_COLORS.BLACK, parts = [];
+    if (s.type === "FLOT") {
+      parts.push(L.polyline(scallops(ll, s.flip === "Flipped"), { color: c, weight: 2.5, interactive: false }));
+      parts.push(...endLabels(s, ll, `<b>FLOT</b><span class="under">${s.time ? esc(s.time) : "&nbsp;"}</span>`, c));
+    } else {
+      const sub = [s.hq, s.time].filter(Boolean).map(esc).join("<br>");
+      parts.push(...endLabels(s, ll, `<b>FSCL</b><span class="under">${sub || "&nbsp;"}</span>`, c));
+    }
+    decor[s.id] = L.layerGroup(parts).addTo(decorLayer);
+  }
+  const redecorateAll = () => data.shapes.forEach(decorate);
+  map.on("zoomend", redecorateAll);
+  map.on(L.Draw.Event.EDITSTART, () => { editing = true; data.shapes.filter(s => s.type === "FLOT").forEach(s => layers[s.id].setStyle(shapeStyle(s))); });
+  map.on(L.Draw.Event.EDITSTOP, () => { editing = false; data.shapes.filter(s => s.type === "FLOT").forEach(s => layers[s.id].setStyle(shapeStyle(s))); redecorateAll(); });
+  map.on(L.Draw.Event.EDITVERTEX, e => { const s = data.shapes.find(x => x.id === e.poly?._mapId); if (s) { geomFrom(e.poly, s); decorate(s); } });
+  // map label: name plus the altitude info that matters for that measure
+  function shapeLabel(s) {
+    const alt = s.altLo || s.altHi ? ` · ${s.altLo || "SFC"}–${s.altHi || "?"}` : "";
+    if (s.type === "ARTY ROZ") return `${s.name} · ${s.altLo || "SFC"}–MAXORD ${s.maxord || "?"}`;
+    if (s.type === "TANKER TRACK" || s.type === "HVAA ORBIT") return `${s.name}${s.callsign ? ` (${s.callsign})` : ""}${alt}`;
+    if (s.type === "MRR") return `${s.name}${alt}`;
+    return s.name || KIND_LABEL[s.kind];
+  }
+  function addShapeLayer(s) {
+    let l;
+    const handle = ll => L.marker(ll, { draggable: true, icon: L.divIcon({ className: "end-handle", iconSize: [10, 10] }) });
+    if (s.kind === "anchor") {
+      // AR track: racetrack outline only, plus ARCP / ENTRY / EXIT (and ARIP if used) as real points.
+      // Drag the ARCP to move the whole track, the leg-end handle to turn/stretch it, ENTRY carries the ARIP with it.
+      const g = anchorGeom(s), outline = L.polygon(g.outline, shapeStyle(s));
+      const pts = {}, AR_POINTS = arPoints(s);
+      AR_POINTS.forEach(([k, lab, col]) => {
+        pts[k] = L.marker(g[k], { draggable: true, icon: L.divIcon({ className: "pt-icon", iconSize: [14, 14], iconAnchor: [7, 7],
+          html: `<div class="ico" style="width:14px;height:14px;background:${col};border-radius:${k === "arcp" ? "2px" : "50%"}"></div>` }) })
+          .bindTooltip(arLabel(s, k, lab), { permanent: true, direction: "right", offset: [8, 0], className: "pt-label" })
+          .on("click", ev => { L.DomEvent.stopPropagation(ev); select(s.id);
+            namePopup(pts[k].getLatLng(), `Name the ${lab}`, s.names?.[k], v => {
+              s.names = { ...(s.names || {}), [k]: v }; if (!v) delete s.names[k];
+              pts[k].setTooltipContent(arLabel(s, k, lab)); markDirty(); renderList(); }); });
+      });
+      const legEnd = handle(g.legEnd);
+      // redraw everything except the marker being dragged
+      const refresh = skip => { const n = anchorGeom(s); outline.setLatLngs(n.outline);
+        if (skip !== "legEnd") legEnd.setLatLng(n.legEnd);
+        AR_POINTS.forEach(([k]) => { if (k !== skip) pts[k].setLatLng(n[k]); }); };
+      const done = () => { markDirty(); renderList(); };
+      pts.arcp.on("drag", e => { const p = e.target.getLatLng(); s.arcp = [p.lat, p.lng]; refresh("arcp"); }).on("dragend", done);
+      legEnd.on("drag", e => { const p = e.target.getLatLng(), ll = [p.lat, p.lng];
+        s.heading = String(Math.round(bearing(s.arcp, ll)));
+        s.length = String(Math.max(5, Math.round(toFrame(s.arcp, +s.heading, ll).a))); refresh("legEnd"); })
+        .on("dragend", done);
+      ["arip", "entry", "exit"].filter(k => pts[k]).forEach(k => pts[k].on("drag", e => { const p = e.target.getLatLng();
+        s.rel = { ...AR_DEFAULTS.rel, ...(s.rel || {}) }; const f = toFrame(s.arcp, +s.heading || 0, [p.lat, p.lng]);
+        s.rel[k] = k === "arip" ? { a: +(f.a - s.rel.entry.a).toFixed(1), c: +(f.c - s.rel.entry.c).toFixed(1) } : { a: +f.a.toFixed(1), c: +f.c.toFixed(1) };
+        if (k === "entry") refresh("entry"); }).on("dragend", done));
+      l = L.featureGroup([outline, ...Object.values(pts)]);
+      l._outline = outline; l._handles = [legEnd];
+      trackLayer.addLayer(l);
+    } else if (s.kind === "track") {
+      // HVAA orbit: racetrack outline only; end handles appear while selected
+      const outline = L.polygon(racetrack(s.latlngs, s.width), shapeStyle(s));
+      const handles = s.latlngs.map((ll, i) => handle(ll)
+        .on("drag", e => { const p = e.target.getLatLng(); s.latlngs[i] = [p.lat, p.lng]; outline.setLatLngs(racetrack(s.latlngs, s.width)); })
+        .on("dragend", () => { markDirty(); renderList(); }));
+      l = L.featureGroup([outline]);
+      l._outline = outline; l._handles = handles;
+      trackLayer.addLayer(l);
+    } else {
+      if (s.kind === "circle") l = L.circle([s.lat, s.lng], { radius: s.radius, ...shapeStyle(s) });
+      else if (s.kind === "rectangle") l = L.rectangle(s.latlngs, shapeStyle(s));
+      else if (s.kind === "polygon") l = L.polygon(s.latlngs, shapeStyle(s));
+      else l = L.polyline(s.latlngs, shapeStyle(s));
+      shapeLayer.addLayer(l);
+    }
+    l._mapId = s.id;
+    // FLOT / FSCL carry their labels at the line ends instead of a centre tag
+    l.bindTooltip(shapeLabel(s), s.type && !DECORATED.includes(s.type) ? { permanent: true, direction: "center", className: "pt-label" } : { sticky: true })
+      .on("click", () => select(s.id));
+    layers[s.id] = l;
+    decorate(s);
+  }
+  function redrawShape(s) {
+    const l = layers[s.id]; shapeLayer.removeLayer(l); trackLayer.removeLayer(l); addShapeLayer(s);
+  }
+  // read geometry back from a leaflet layer into our record
+  function geomFrom(layer, s) {
+    if (s.kind === "circle") { const c = layer.getLatLng(); s.lat = c.lat; s.lng = c.lng; s.radius = Math.round(layer.getRadius()); }
+    else if (s.kind === "polyline" || s.kind === "track") s.latlngs = layer.getLatLngs().map(p => [p.lat, p.lng]);
+    else s.latlngs = layer.getLatLngs()[0].map(p => [p.lat, p.lng]);
+  }
+
+  map.on(L.Draw.Event.CREATED, e => {
+    const T = SHAPE_TYPES[pendingType];
+    const kind = T ? T.draw : e.layerType;
+    const count = data.shapes.filter(x => (x.type || null) === (pendingType || null) && x.kind === kind).length + 1;
+    const s = T
+      ? { id: uid("s"), type: pendingType, kind, name: ["FLOT", "FSCL"].includes(pendingType) && count === 1 ? T.name : `${T.name} ${count}`,
+          color: T.color, aco: "", notes: "", ...(T.width ? { width: T.width } : {}) }
+      : { id: uid("s"), kind, name: `${KIND_LABEL[kind].toUpperCase()} ${count}`,
+          color: { rectangle: "RED", circle: "YELLOW", polygon: "GREEN", polyline: "BLUE" }[kind], aco: "", notes: "" };
+    if (kind === "anchor") {
+      // first click = ARCP, second click only sets the refuelling-leg direction; size defaults to 50 × 20 NM
+      const ll = e.layer.getLatLngs().map(p => [p.lat, p.lng]);
+      if (ll.length < 2) { toast("Click a second point to set the track direction"); return; }
+      Object.assign(s, { arcp: ll[0], heading: String(Math.round(bearing(ll[0], ll[1]))), length: AR_DEFAULTS.length, width: AR_DEFAULTS.width,
+        rel: structuredClone(AR_DEFAULTS.rel) });
+    } else geomFrom(e.layer, s);
+    if (kind === "track" && s.latlngs.length < 2) { toast("A track needs a start and an end point"); return; }
+    data.shapes.push(s); addShapeLayer(s); markDirty(); renderList(); select(s.id);
+  });
+  map.on(L.Draw.Event.DRAWSTOP, () => { pendingType = null; activeHandler = null; setHint(DEFAULT_HINT); });
+  map.on(L.Draw.Event.EDITED, e => {
+    e.layers.eachLayer(l => { const s = data.shapes.find(x => x.id === l._mapId); if (s) { geomFrom(l, s); decorate(s); } });
+    markDirty(); renderList();
+  });
+  map.on(L.Draw.Event.DELETED, e => {
+    e.layers.eachLayer(l => { data.shapes = data.shapes.filter(x => x.id !== l._mapId); delete layers[l._mapId];
+      if (decor[l._mapId]) { decorLayer.removeLayer(decor[l._mapId]); delete decor[l._mapId]; } });
+    markDirty(); renderList();
+  });
+
+  // Start drawing a typed measure, with its first vertex at the right-click spot where that applies
+  function startDraw(type, latlng) {
+    const T = SHAPE_TYPES[type];
+    pendingType = type;
+    const style = { color: SHAPE_COLORS[T.color], weight: T.weight || 2, dashArray: T.dash || null };
+    let h;
+    if (T.draw === "anchor") { h = new L.Draw.Polyline(map, { shapeOptions: style, maxPoints: 2, nautic: true });
+      setHint(`${T.label}: the ARCP is where you right-clicked. Click in the direction of the refuelling leg (sets the heading; size starts at 50 × 20 NM).`); }
+    else if (T.draw === "track") { h = new L.Draw.Polyline(map, { shapeOptions: style, maxPoints: 2, nautic: true });
+      setHint(`${T.label}: click the far end of the orbit. Esc to cancel.`); }
+    else if (T.draw === "polygon") { h = new L.Draw.Polygon(map, { shapeOptions: style });
+      setHint(`${T.label}: click to add corners, click the first corner to close. Esc to cancel.`); }
+    else { h = new L.Draw.Polyline(map, { shapeOptions: style, nautic: true });
+      setHint(`${T.label}: click to add points, click the last point again to finish. Esc to cancel.`); }
+    h.enable();
+    if (latlng) h.addVertex(latlng);
+    drawingControls(h, T.draw !== "track" && T.draw !== "anchor");
+  }
+  // Finish / Cancel for drawings started from the right-click menu (the left toolbar has its own)
+  let activeHandler = null;
+  function drawingControls(h, canFinish) {
+    activeHandler = h;
+    const hint = document.getElementById("hint");
+    hint.insertAdjacentHTML("beforeend", ` ${canFinish ? `<button class="btn sm primary" id="drawFinish">Finish</button>` : ""} <button class="btn sm" id="drawCancel">Cancel</button>`);
+    const f = document.getElementById("drawFinish");
+    if (f) f.onclick = () => { try { activeHandler.completeShape(); } catch { toast("Add more points first"); } };
+    document.getElementById("drawCancel").onclick = () => activeHandler.disable();
+  }
+  function startPlain(kind) {
+    pendingType = null;
+    const H = { rectangle: L.Draw.Rectangle, circle: L.Draw.Circle, polygon: L.Draw.Polygon, polyline: L.Draw.Polyline }[kind];
+    const h = new H(map, kind === "rectangle" ? { showArea: false, shapeOptions: { color: SHAPE_COLORS.RED } } : { shapeOptions: { color: SHAPE_COLORS.GREEN } });
+    h.enable();
+    setHint(`Draw a ${KIND_LABEL[kind].toLowerCase()}. Esc to cancel.`);
+    drawingControls(h, kind === "polygon" || kind === "polyline");
+  }
+  function setHint(t) { document.getElementById("hint").textContent = t; }
+  setHint(DEFAULT_HINT);
+
+  // ---------- right-click "Add here" menu ----------
+  let ctxEl = null;
+  function closeCtx() { if (ctxEl) { ctxEl.remove(); ctxEl = null; } }
+  map.on("contextmenu", e => {
+    closeCtx();
+    const at = e.latlng, groups = {};
+    Object.entries(SHAPE_TYPES).forEach(([k, T]) => (groups[T.group] = groups[T.group] || []).push([k, T]));
+    ctxEl = L.DomUtil.create("div", "ctx", map.getContainer());
+    ctxEl.innerHTML = `<div class="h">Add at ${ddm(at.lat, at.lng)}</div>
+      <div class="h">Points</div>
+      ${Object.entries(POINT_TYPES).map(([k, t]) => `<button data-pt="${k}"><span class="sw" style="background:${t.color}"></span>${t.label}</button>`).join("")}
+      ${Object.entries(groups).map(([g, items]) => `<div class="h">${g}</div>` + items.map(([k, T]) =>
+        `<button data-st="${k}"><span class="${T.draw === "polyline" ? "ln" : "sw"}" style="${T.draw === "polyline" ? `border-color:${SHAPE_COLORS[T.color]};${T.dash ? "border-top-style:dashed" : ""}` : `background:${SHAPE_COLORS[T.color]}`}"></span>${T.label}</button>`).join("")).join("")}
+      <div class="h">Plain shapes</div>
+      ${["rectangle", "circle", "polygon", "polyline"].map(k => `<button data-plain="${k}"><span class="sw" style="background:transparent;border-radius:${k === "circle" ? "50%" : "2px"}"></span>${KIND_LABEL[k]}</button>`).join("")}`;
+    // keep the menu inside the map
+    const size = map.getSize(), w = 240, h = Math.min(ctxEl.offsetHeight, size.y - 10);
+    ctxEl.style.left = Math.min(e.containerPoint.x, size.x - w - 6) + "px";
+    ctxEl.style.top = Math.max(4, Math.min(e.containerPoint.y, size.y - h - 6)) + "px";
+    ctxEl.style.maxHeight = (size.y - 10) + "px"; ctxEl.style.overflowY = "auto";
+    L.DomEvent.disableClickPropagation(ctxEl); L.DomEvent.disableScrollPropagation(ctxEl);
+    ctxEl.addEventListener("contextmenu", ev => ev.preventDefault());
+    ctxEl.addEventListener("click", ev => {
+      const b = ev.target.closest("button"); if (!b) return;
+      closeCtx();
+      if (b.dataset.pt) addPoint(b.dataset.pt, at);
+      else if (b.dataset.st) startDraw(b.dataset.st, at);
+      else if (b.dataset.plain) startPlain(b.dataset.plain);
+    });
+  });
+  map.on("click movestart zoomstart", closeCtx);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeCtx(); });
+
+  // point palette: pick a type, then left-click the map
+  document.getElementById("tools").innerHTML = Object.entries(POINT_TYPES).map(([t, v]) =>
+    `<button class="btn sm" data-place="${t}" aria-pressed="false"><span class="ico" style="width:16px;height:16px;font-size:8px;background:${v.color}">${v.code}</span>${v.label}</button>`).join("");
+  document.getElementById("tools").onclick = e => {
+    const b = e.target.closest("[data-place]"); if (!b) return;
+    placing = placing === b.dataset.place ? null : b.dataset.place;
+    document.querySelectorAll("[data-place]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.place === placing)));
+    setHint(placing ? `Click the map to drop a ${POINT_TYPES[placing].label}. Click the button again to stop.` : DEFAULT_HINT);
+    map.getContainer().style.cursor = placing ? "crosshair" : "";
+  };
+  map.on("click", e => { if (placing && !pendingType) addPoint(placing, e.latlng); });
+
+  // ---------- side list ----------
+  function select(id) {
+    selected = id; renderList(); showHandles();
+    // scroll only the side panel, never the page (the map must not jump while you work)
+    const el = document.querySelector(`[data-item="${id}"]`), side = document.querySelector(".side");
+    if (el) { const d = el.getBoundingClientRect().top - side.getBoundingClientRect().top; if (d < 0 || d > side.clientHeight - 60) side.scrollTop += d - 40; }
+  }
+  // edit handles (track ends, AR leg end) only appear on the selected item
+  function showHandles() {
+    data.shapes.forEach(s => { const l = layers[s.id]; if (!l?._handles) return;
+      l._handles.forEach(h => s.id === selected ? l.addLayer(h) : l.removeLayer(h)); });
+  }
+  function shapeCoord(s) {
+    if (s.kind === "circle") return `${ddm(s.lat, s.lng)} · R ${(s.radius / 1852).toFixed(1)} NM`;
+    if (s.kind === "anchor") {
+      const g = anchorGeom(s);
+      return `${s.length || 50} × ${s.width || 20} NM · left-hand · refuel leg ${String(s.heading || 0).padStart(3, "0")}°T<br>`
+        + arPoints(s).map(([k, lab]) => `${lab.padEnd(5, " ").replace(/ /g, "&nbsp;")} ${ddm(...g[k])}${s.names?.[k] ? ` · <b>${esc(s.names[k])}</b>` : ""}`).join("<br>")
+        + `<br>${hasArip(s) ? `ARIP ${aripDist(s).toFixed(0)} NM from ENTRY` : "No ARIP"}`;
+    }
+    if (s.kind === "track") return `${ddm(...s.latlngs[0])} → ${ddm(...s.latlngs[1])} · ${s.width || "?"} NM wide`;
+    return `${s.latlngs.length} vertices · ${ddm(...s.latlngs[0])}`;
+  }
+  function shapeItem(s) {
+    const T = SHAPE_TYPES[s.type];
+    return `<div class="item ${s.id === selected ? "sel" : ""}" data-item="${s.id}">
+      <div class="top"><span class="ico" style="background:${SHAPE_COLORS[s.color]};border-radius:${s.kind === "circle" ? "50%" : "2px"}"></span>
+        <input data-s="${s.id}" data-k="name" value="${esc(s.name)}">
+        <button class="btn sm ghost" data-zoom="${s.id}" title="Zoom to">⌖</button><button class="btn sm ghost danger" data-del="${s.id}" title="Delete">✕</button></div>
+      <div class="meta"><span class="tag">${esc(T ? T.label : KIND_LABEL[s.kind])}</span>
+        <select data-s="${s.id}" data-k="color" title="Colour">${Object.keys(SHAPE_COLORS).map(c => `<option ${c === s.color ? "selected" : ""}>${c}</option>`).join("")}</select>
+        <select data-s="${s.id}" data-k="aco" title="Linked ACO measure"><option value="">No ACO link</option>${acoMeasures.map(n => `<option ${n === s.aco ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></div>
+      ${T ? `<div class="attrs">${T.fields.map(([k, lab]) => `<div><label>${esc(lab)}</label>${k === "flip"
+        ? `<button class="btn sm" data-flip="${s.id}" style="width:100%" title="Scallops bulge toward the enemy">⇅ Flip — enemy ${s.flip === "Flipped" ? "right" : "left"} of line</button>`
+        : k === "aripOn"
+        ? `<select data-s="${s.id}" data-k="aripOn" style="padding:4px 6px;font-size:12px">${["Yes", "No"].map(o => `<option ${(s.aripOn || "Yes") === o ? "selected" : ""}>${o}</option>`).join("")}</select>`
+        : `<input data-s="${s.id}" data-k="${k}" value="${esc(s[k])}" ${k === "freq" ? 'list="freqs"' : ""} placeholder="${k === "maxord" ? "e.g. 18,000" : k.startsWith("alt") ? "e.g. FL220" : ""}">`}</div>`).join("")}</div>` : ""}
+      <div class="coord">${shapeCoord(s)}</div>
+      <textarea data-s="${s.id}" data-k="notes" placeholder="Notes">${esc(s.notes)}</textarea></div>`;
+  }
+  function renderList() {
+    const byType = Object.keys(POINT_TYPES).map(t => [t, data.points.filter(p => p.type === t)]).filter(([, ps]) => ps.length);
+    document.getElementById("counts").textContent = `${data.points.length} points · ${data.shapes.length} shapes`;
+    const drawn = new Set(data.shapes.map(s => s.aco).filter(Boolean));
+    const undrawn = acoMeasures.filter(n => !drawn.has(n));
+    document.getElementById("missing").innerHTML = undrawn.length
+      ? `<p class="small" style="color:var(--warn);margin-top:0">ACO measures not on the map yet: ${undrawn.map(esc).join(", ")}. Draw a shape and link it.</p>` : "";
+    const measures = data.shapes.filter(s => s.type), plain = data.shapes.filter(s => !s.type);
+    document.getElementById("list").innerHTML =
+      byType.map(([t, ps]) => `<div class="sect"><span>${esc(POINT_TYPES[t].plural)}</span><span class="muted">→ DKS ${esc(POINT_TYPES[t].dks)}</span></div>` + ps.map(p => `
+        <div class="item ${p.id === selected ? "sel" : ""}" data-item="${p.id}">
+          <div class="top"><span class="ico" style="background:${POINT_TYPES[p.type].color}">${POINT_TYPES[p.type].code}</span>
+            <input data-p="${p.id}" data-k="name" value="${esc(p.name)}">
+            <button class="btn sm ghost" data-zoom="${p.id}" title="Zoom to">⌖</button><button class="btn sm ghost danger" data-del="${p.id}" title="Delete">✕</button></div>
+          <div class="meta"><select data-p="${p.id}" data-k="type">${Object.keys(POINT_TYPES).map(x => `<option ${x === p.type ? "selected" : ""}>${x}</option>`).join("")}</select>
+            <input data-p="${p.id}" data-k="elev" value="${esc(p.elev)}" placeholder="Elev (ft)" style="width:90px;padding:4px 6px;font-size:12px"></div>
+          ${p.type === "THREAT" ? `<div class="attrs" style="grid-template-columns:1fr 90px">
+            <div><label>DCS system</label>${systemSelect(p.system, `data-p="${p.id}" data-k="system" style="padding:4px 6px;font-size:12px"`)}</div>
+            <div><label>Ring (NM)</label><input data-p="${p.id}" data-k="range" value="${esc(p.range)}" placeholder="NM"></div></div>` : ""}
+          <div class="coord">${ddm(p.lat, p.lng)}</div>
+          <textarea data-p="${p.id}" data-k="notes" placeholder="Notes">${esc(p.notes)}</textarea></div>`).join("")).join("")
+      + (measures.length ? `<div class="sect"><span>Control measures</span><span class="muted">→ DKS Overlay</span></div>` + measures.map(shapeItem).join("") : "")
+      + (plain.length ? `<div class="sect"><span>Overlay shapes</span><span class="muted">→ DKS Overlay</span></div>` + plain.map(shapeItem).join("") : "")
+      + (!data.points.length && !data.shapes.length ? `<p class="muted">Nothing on the map yet. Right-click the map to add something.</p>` : "");
+  }
+  const list = document.getElementById("list");
+  list.addEventListener("input", e => {
+    const t = e.target, k = t.dataset.k; if (!k) return;
+    if (t.dataset.p) {
+      const p = data.points.find(x => x.id === t.dataset.p);
+      if (k === "system") { setSystem(p, t.value); renderList(); } else p[k] = t.value;
+      if (["name", "type", "system", "range"].includes(k)) updatePoint(p);
+      if (k === "type") renderList();
+    } else {
+      const s = data.shapes.find(x => x.id === t.dataset.s); s[k] = t.value;
+      // linking a still-default-named shape to an ACO measure adopts the measure's name
+      if (k === "aco" && t.value && /^(BOX|CIRCLE|POLYGON|LINE|RACETRACK|AR TRACK|FLOT|FSCL|MRR|ORBIT|ARTY ROZ)( \d+)?$/.test(s.name)) { s.name = t.value; renderList(); }
+      const geomKey = ["color", "width", "length", "heading", "aripOn"].includes(k);
+      if (geomKey) { redrawShape(s); showHandles(); }
+      else layers[s.id].setTooltipContent(shapeLabel(s));
+      if (DECORATED.includes(s.type)) decorate(s);
+      if (k === "color" || k === "aco") renderList();
+      if (geomKey && k !== "color") document.querySelector(`[data-item="${s.id}"] .coord`).innerHTML = shapeCoord(s);
+    }
+    markDirty();
+  });
+  list.addEventListener("click", e => {
+    const fl = e.target.closest("[data-flip]")?.dataset.flip;
+    if (fl) { const s = data.shapes.find(x => x.id === fl); s.flip = s.flip === "Flipped" ? "" : "Flipped"; decorate(s); markDirty(); renderList(); return; }
+    const z = e.target.closest("[data-zoom]")?.dataset.zoom, d = e.target.closest("[data-del]")?.dataset.del;
+    if (z) { const l = layers[z]; l.getBounds ? map.fitBounds(l.getBounds(), { maxZoom: 11, padding: [40, 40] }) : map.setView(l.getLatLng(), Math.max(map.getZoom(), 10)); select(z); }
+    if (d) {
+      const l = layers[d]; pointLayer.removeLayer(l); shapeLayer.removeLayer(l); trackLayer.removeLayer(l); delete layers[d];
+      if (rings[d]) { pointLayer.removeLayer(rings[d]); delete rings[d]; }
+      if (decor[d]) { decorLayer.removeLayer(decor[d]); delete decor[d]; }
+      data.points = data.points.filter(x => x.id !== d); data.shapes = data.shapes.filter(x => x.id !== d);
+      markDirty(); renderList();
+    }
+  });
+
+  // ---------- save & export ----------
+  document.getElementById("save").onclick = () => {
+    Store.setContent(cid, "map", structuredClone(data));
+    Store.log(cid, `Theater map saved (${data.points.length} points, ${data.shapes.length} shapes)`);
+    dirty = false;
+    const st = document.getElementById("saveState"); st.textContent = "Saved"; st.style.color = "var(--ok)";
+    toast("Map saved");
+  };
+  document.getElementById("geojson").onclick = () => {
+    const attrs = s => Object.fromEntries((SHAPE_TYPES[s.type]?.fields || []).map(([k]) => [k, s[k] || null]));
+    const lnglat = ([a, b]) => [b, a];
+    const features = [
+      ...data.points.map(p => ({ type: "Feature", geometry: { type: "Point", coordinates: [p.lng, p.lat] },
+        properties: { name: p.name, kind: "point", pointType: p.type, dksSection: POINT_TYPES[p.type].dks, elevation: p.elev || null,
+          ...(p.type === "THREAT" ? { threatSystem: p.system || null, ringNM: +p.range || null } : {}), notes: p.notes } })),
+      // AR tracks: the racetrack outline, with ARIP / ARCP / ENTRY / EXIT as named coordinates
+      ...data.shapes.filter(s => s.kind === "anchor").map(s => { const g = anchorGeom(s);
+        return { type: "Feature", geometry: { type: "Polygon", coordinates: [[...g.outline, g.outline[0]].map(lnglat)] },
+          properties: { name: s.name, kind: "arTrack", measureType: s.type, color: s.color, acoMeasure: s.aco || null, dksSection: "Overlay",
+            ...attrs(s), pattern: "left-hand racetrack", ...Object.fromEntries(AR_POINT_DEFS.map(([k, lab]) => [k, k === "arip" && !hasArip(s) ? null
+              : { name: s.names?.[k] || lab, coordinates: lnglat(g[k]) }])), notes: s.notes } }; }),
+      ...data.shapes.filter(s => s.kind !== "anchor").map(s => ({ type: "Feature",
+        geometry: s.kind === "circle" ? { type: "Point", coordinates: [s.lng, s.lat] }
+          : s.kind === "polyline" || s.kind === "track" ? { type: "LineString", coordinates: s.latlngs.map(([a, b]) => [b, a]) }
+          : { type: "Polygon", coordinates: [[...s.latlngs, s.latlngs[0]].map(([a, b]) => [b, a])] },
+        properties: { name: s.name, kind: s.kind, measureType: s.type || null, radiusMeters: s.radius || null, color: s.color,
+          acoMeasure: s.aco || null, dksSection: "Overlay", ...attrs(s), notes: s.notes } }))
+    ];
+    AOC.download(`${campaign.opName.replace(/\s+/g, "_")}_theater_map.geojson`, JSON.stringify({ type: "FeatureCollection", features }, null, 2), "application/geo+json");
+  };
+  window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+  data.points.forEach(addPointLayer);
+  data.shapes.forEach(addShapeLayer);
+  renderList();
+  // open on the area where the campaign's items are, not the whole theater
+  const all = L.featureGroup([...Object.values(layers)]);
+  if (data.points.length + data.shapes.length) map.fitBounds(all.getBounds(), { padding: [30, 30], maxZoom: 10 });
+</script>
+</body>
+</html>
