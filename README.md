@@ -29,7 +29,8 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | `targeting.html` | CAOC staff | Target nomination (from the JIPTL): REDFOR order of battle → JIPTL, ported from the JIPTL pipeline |
 | `campaign-review.html` | CAOC staff (CFC decides) | Campaign proposal review queue |
 | `unit-login.html` | Participating groups | Group sign-in |
-| `unit.html` | Groups (staff can observe) | Op Status: product board, distribution matrix, ATO lines, group pack download |
+| `unit.html` | Groups (staff can observe) | Op Status: product board, distribution matrix, ATO lines, group pack download; the JFACC group also sees its ATO line requests filling |
+| `ato-request.html` | Campaign's Group JFACC / LNO | Request ATO lines from the group's `.miz` (player slots → Human, rest → AI) or a form; Human lines are posted on Discord for commitment |
 | `campaign-submit.html` | Groups | Campaign proposal wizard (JFACC, intent, win/loss, REDFOR, schedule…) |
 
 ## Demo accounts (prototype only)
@@ -63,6 +64,23 @@ The built-in unit table covers ~130 common DCS types. Load the full
 `OLD/tools/jiptl_pipeline/config/unit_classification.json` on the page to use the complete catalogue.
 `.miz` intake still needs the Python `OLD/tools/jiptl_pipeline/miz_intake.py` (calibrated theater projection).
 
+## ATO line requests (Discord commit)
+
+1. The campaign's **Group JFACC / LNO** opens *ATO requests* in the unit portal and loads their group's `.miz`
+   (read in the browser: BLUE flights, player slots → **Human**, others → **AI**) or fills in the request form
+   (airframe, number of aircraft, mission, Human/AI, TOT, JIPTL target, package, commit-by, notes).
+2. **AI** lines go straight onto the ATO for the sponsor to build in the `.miz`.
+   **Human** lines get a mission number and are posted — via the existing Discord bot — to every registered group
+   whose airframes include that type, with a **Commit** button.
+3. The first unit to press **Commit** fills the line: it becomes the tasked unit on the ATO, joins the campaign, and the
+   JFACC sees "Filled by …" on the request page and Op Status. Later commits are rejected.
+4. The JFACC can cancel an open line or release a commitment (the line is re-posted).
+
+The bot contract (event payloads, the `ato_commit:<line_id>` button and the commit endpoint) is in
+[`docs/ATO_Discord_Integration.md`](docs/ATO_Discord_Integration.md). The prototype can't receive real Discord
+commits, so the request page's *Discord post* preview has "Commit as …" buttons that run the same commit logic.
+`samples/iron_trident_viper.miz` is a sample sponsor mission.
+
 ## Files
 
 - `js/data.js` — seed data (fictional groups, campaigns, sample products, proposals, map)
@@ -70,7 +88,10 @@ The built-in unit table covers ~130 common DCS types. Load the full
 - `js/products.js` — product schemas and document renderers (incl. comm matrix)
 - `js/proposal.js` — campaign proposal questions and renderer
 - `js/targeting.js` — JIPTL nomination pipeline, built-in DCS unit table, SAM kill doctrine
+- `js/ato.js` — ATO line registry, `.miz` reader (zip + Lua table parser), Discord payloads, commit logic
 - `samples/iron_trident_redfor.csv` — sample Coalition Parser export for the demo campaign
+- `samples/iron_trident_viper.miz` — sample sponsor `.miz` for ATO line requests
+- `docs/ATO_Discord_Integration.md` — contract for the Discord bot (post, commit, filled/cancelled)
 - `css/styles.css` — three visual styles (Ops Floor, Night Vision, Staff Paper)
 
 DKS (Digital Kneeboard Simulator) export buttons are placeholders until that integration is built.

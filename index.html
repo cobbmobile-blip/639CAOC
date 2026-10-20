@@ -11,6 +11,7 @@
 <script src="js/app.js"></script>
 <script>AOC.Auth.require();</script>
 <script src="js/products.js"></script>
+<script src="js/ato.js"></script>
 
 <main class="wrap">
   <section class="campaign-head">
@@ -42,6 +43,7 @@
 
     <aside class="grid" style="align-content:start">
       <section class="panel" id="deliverables"></section>
+      <section class="panel" id="atoLines"></section>
       <section class="panel">
         <div class="panel-head"><h2>Product requests</h2><span class="muted small" id="reqCount"></span></div>
         <ul class="list" id="requests"></ul>
@@ -140,8 +142,21 @@
       }).join("")}</ul>`;
   }
 
+  // ATO lines requested by the campaign's JFACC and their commitment state (commits arrive from the Discord post)
+  function renderAtoLines() {
+    const ls = AOC.ATO.lines(cid).filter(l => l.status !== "cancelled"), el = document.getElementById("atoLines");
+    const open = ls.filter(l => l.status === "open"), done = ls.filter(l => l.status === "committed");
+    el.innerHTML = `<div class="panel-head"><h2>ATO line requests</h2><span class="muted small">${done.length} filled · ${open.length} open</span></div>
+      ${ls.length ? `<ul class="list">${[...open, ...done, ...ls.filter(l => l.status === "ai")].map(l => `<li><span class="dot ${l.status === "committed" ? "ok" : l.status === "open" ? "warn" : "off"}"></span>
+        <div class="grow"><b class="mono small">${esc(l.msn)}</b> ${l.num}× ${esc(l.airframe)} · ${esc(l.role)}
+        <div class="muted small">${l.status === "committed" ? `Filled by ${esc(Store.group(l.committedBy)?.name)}` : l.status === "open" ? `Awaiting commit · posted to ${l.recipients.length} group${l.recipients.length === 1 ? "" : "s"}` : "AI — sponsor builds"} · requested by ${esc(Store.group(l.requestedBy)?.name)}</div></div></li>`).join("")}</ul>`
+        : `<p class="muted small" style="margin:0">No requests yet. The campaign's Group JFACC requests lines from the unit portal.</p>`}`;
+  }
+  window.addEventListener("storage", e => { if (e.key && e.key.startsWith("aoc.db")) location.reload(); });
+
   function render() {
     renderDeliverables();
+    renderAtoLines();
     const c = Store.campaign(cid), db = Store.db;
     document.getElementById("opName").textContent = "OP " + c.opName;
     document.getElementById("meta").innerHTML = `

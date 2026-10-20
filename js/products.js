@@ -156,18 +156,21 @@
         { key: "msn", label: "Msn #", w: 70 }, { key: "pkg", label: "Pkg", w: 50 },
         { key: "group", label: "Group", type: "groups" }, { key: "callsign", label: "Callsign" },
         { key: "type", label: "Acft", w: 90 }, { key: "num", label: "#", w: 40 },
-        { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD", "DEAD", "AI", "CAS", "Escort", "Strike", "ISR", "AR", "AEW", "CSAR", "Airlift"] },
+        { key: "crew", label: "Crew", type: "select", options: ["Human", "AI"], w: 80 },
+        { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD", "DEAD", "AI", "CAS", "SCAR", "Escort", "Strike", "ISR", "AR", "AEW", "CSAR", "Airlift"] },
         { key: "tot", label: "TOT / On-sta", w: 90 }, { key: "target", label: "Target / Area", type: "jiptl" }, { key: "tanker", label: "Tanker" }] }
     ],
     render: (d, ctx) => {
       const rows = d.missions || [];
+      // lines requested by the JFACC show as OPEN until a unit commits through the Discord post; AI lines are built by the sponsor
+      const unitOf = r => r.group ? ctx.group(r.group)?.name || r.group : r.crew === "AI" ? "AI" : "OPEN";
       const byGroup = {};
-      rows.forEach(r => { (byGroup[r.group] = byGroup[r.group] || []).push(r); });
+      rows.forEach(r => { const k = r.group || (r.crew === "AI" ? "_ai" : ""); (byGroup[k] = byGroup[k] || []).push(r); });
       return `${head("AIR TASKING ORDER", ctx, `ATO DAY ${esc(d.atoDay)}`)}
       ${kv([["EFFECTIVE", d.period], ["SORTIES", String(rows.reduce((s, r) => s + (parseInt(r.num) || 0), 0))]])}
       ${para("GENERAL INSTRUCTIONS", d.general)}
-      <h2>MASTER MISSION LIST</h2>${table([["msn", "MSN"], ["pkg", "PKG"], ["group", "UNIT", r => r.group ? ctx.group(r.group)?.name || r.group : "OPEN"], ["callsign", "CALLSIGN"], ["type", "ACFT"], ["num", "#"], ["role", "MSN TYPE"], ["tot", "TOT"], ["target", "TGT/AREA"], ["tanker", "AR"]], rows)}
-      ${Object.entries(byGroup).map(([g, rs]) => `<h2>${g ? `TASKED UNIT: ${esc((ctx.group(g)?.name || g).toUpperCase())}` : "OPEN LINES — VOLUNTEERS REQUESTED"}</h2>
+      <h2>MASTER MISSION LIST</h2>${table([["msn", "MSN"], ["pkg", "PKG"], ["group", "UNIT", unitOf], ["callsign", "CALLSIGN"], ["type", "ACFT"], ["num", "#"], ["crew", "CREW", r => r.crew || "Human"], ["role", "MSN TYPE"], ["tot", "TOT"], ["target", "TGT/AREA"], ["tanker", "AR"]], rows)}
+      ${Object.entries(byGroup).map(([g, rs]) => `<h2>${g === "_ai" ? "AI LINES — BUILT BY THE SPONSOR IN THE .MIZ" : g ? `TASKED UNIT: ${esc((ctx.group(g)?.name || g).toUpperCase())}` : "OPEN LINES — POSTED FOR COMMITMENT"}</h2>
         ${table([["msn", "MSN"], ["callsign", "CALLSIGN"], ["num", "#"], ["role", "TYPE"], ["tot", "TOT"], ["target", "TGT/AREA"], ["tanker", "AR"]], rs)}`).join("")}
       ${sig(ctx)}`;
     }

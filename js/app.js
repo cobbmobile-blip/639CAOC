@@ -2,7 +2,7 @@
 // Prototype note: storage is the browser's localStorage and the login gate is client-side only.
 // A real deployment needs server-side auth (e.g. Discord OAuth + role check) and an API/database.
 (function () {
-  const KEY = "aoc.db.v16"; // bumped when the seed's shape changes
+  const KEY = "aoc.db.v17"; // bumped when the seed's shape changes
   const SESSION = "aoc.session";
   const THEME = "aoc.theme";
 
@@ -249,7 +249,7 @@
     bar.innerHTML = `
       <a class="brand" href="${unit ? "unit.html" : "index.html"}">${LOGO}<span>VIRTUAL AOC<small>${opts.unit ? "OP STATUS · UNIT PORTAL" : "COMBINED AIR OPERATIONS CENTER"}</small></span></a>
       <nav class="topnav">${(unit
-        ? [["unit.html", "Op Status"], ["campaign-submit.html", "Submit a campaign"]]
+        ? [["unit.html", "Op Status"], ...(load().campaigns.some(c => c.jfacc?.group === unit.id) ? [["ato-request.html", "ATO requests"]] : []), ["campaign-submit.html", "Submit a campaign"]]
         : u ? [["index.html", "Dashboard"], ["unit.html", "Op Status"], ["campaign-review.html", "Proposals" + (pending ? ` (${pending})` : "")]] : [])
         .map(([href, label]) => `<a href="${href}" ${location.pathname.endsWith(href) ? 'aria-current="page"' : ""}>${label}</a>`).join("")}</nav>
       <span class="spacer"></span>
