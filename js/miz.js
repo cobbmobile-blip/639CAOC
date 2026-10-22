@@ -72,13 +72,44 @@
     return out;
   }
 
+  // Every beacon the mission sets up: route tasks "Activate beacon" (TACAN), "Activate ICLS" and "Activate Link 4 / ACLS",
+  // on any coalition's aircraft, ships or vehicles. Found wherever they sit in a waypoint's task tree.
+  const BEACON_ACTIONS = new Set(["ActivateBeacon", "ActivateICLS", "ActivateLink4", "ActivateACLS"]);
+  // DCS beacon systems that carry their own X/Y mode
+  const SYSTEM_MODE = { 4: "X", 5: "Y", 13: "X", 14: "Y" };
+  function beaconsOf(mission) {
+    const out = [];
+    ["blue", "red", "neutrals"].forEach(side => arr(mission?.coalition?.[side]?.country).forEach(ct =>
+      ["plane", "helicopter", "ship", "vehicle"].forEach(cat => arr(ct?.[cat]?.group).forEach(g => {
+        const units = arr(g.units), cs = u => u && typeof u.callsign === "object" ? u.callsign.name || "" : String(u?.callsign ?? "");
+        const base = { side, cat, group: g.name || "", groupId: g.groupId, lateActivation: !!g.lateActivation, freq: g.frequency != null ? +g.frequency : null,
+          units: units.map(u => ({ name: u.name || "", type: u.type || "", unitId: u.unitId, callsign: cs(u) })) };
+        out.push({ ...base, kind: "group" });   // every group, so tankers and carriers without a beacon are still seen
+        arr(g.route?.points).forEach((pt, wi) => {
+          (function walk(node, enabled) {
+            if (!node || typeof node !== "object") return;
+            const on = enabled && node.enabled !== false;
+            if (BEACON_ACTIONS.has(node.id) && node.params) {
+              const p = node.params, unit = units.find(u => u.unitId === p.unitId);
+              out.push({ ...base, kind: node.id, waypoint: wi + 1, enabled: on, unitId: p.unitId ?? null, unit: unit?.name || null, unitType: unit?.type || units[0]?.type || "",
+                channel: p.channel != null ? +p.channel : null, mode: p.modeChannel || SYSTEM_MODE[p.system] || null, callsign: p.callsign || "",
+                aa: p.AA === true, system: p.system ?? null, hz: p.frequency != null ? +p.frequency : null });
+              return;
+            }
+            Object.values(node).forEach(v => walk(v, on));
+          })(pt.task, true);
+        });
+      }))));
+    return out;
+  }
+
   async function read(file) {
     if (!window.JSZip) throw new Error("the zip reader didn't load");
     const zip = await JSZip.loadAsync(file), entry = zip.file("mission");
     if (!entry) throw new Error("no 'mission' file inside — is this a DCS .miz?");
     const mission = ATO.parseLuaTable(await entry.async("string"));
     return { theatre: mission.theatre || "", date: mission.date ? `${mission.date.Year}-${String(mission.date.Month).padStart(2, "0")}-${String(mission.date.Day).padStart(2, "0")}` : "",
-      flights: ATO.mizFlights(mission, "blue"), red: coalitionUnits(mission, "red") };
+      flights: ATO.mizFlights(mission, "blue"), red: coalitionUnits(mission, "red"), beacons: beaconsOf(mission) };
   }
 
   // REDFOR rows in the target-nomination shape, or null when the theater has no calibrated projection
@@ -87,7 +118,7 @@
     return mf.red.map(u => { const [lat, lon] = xyToLatLon(p, u.x, u.y); return { group: u.group, unit: u.unit, type: u.type, lat, lon, source: `${mf.name} v${mf.v}` }; });
   }
 
-  // host mission file versions: campaign.missionFiles [{ v, name, size, when, by, user, notes, theatre, date, flights, red }]
+  // host mission file versions: campaign.missionFiles [{ v, name, size, when, by, user, notes, theatre, date, flights, red, beacons }]
   const files = cid => Store.campaign(cid).missionFiles || [];
   const current = cid => files(cid).at(-1) || null;
   function submit(cid, mf) {

@@ -34,7 +34,7 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | `campaign-review.html` | CAOC staff (CFC decides) | Campaign proposal review queue |
 | `unit-login.html` | Participating groups | Group sign-in |
 | `unit.html` | Groups (staff can observe) | Op Status: product board, distribution matrix, ATO lines, group pack download; the JFACC group also sees its ATO line requests filling |
-| `mission-file.html` | Host unit (staff can read) | Host mission file intake: upload the draft `.miz` (and every new version); BLUE flights → ATO requests, REDFOR → target nomination; per-theater coordinate calibration |
+| `mission-file.html` | Host unit (staff can read) | Host mission file intake: upload the draft `.miz` (and every new version); BLUE flights → ATO requests, REDFOR → target nomination; per-theater coordinate calibration; TACAN / ICLS scrub |
 | `debrief.html` | Host unit (campaign's JFACC group) | Post-mission debrief: lines flown, BDA, losses, progress — feeds the CAOC's next cycle |
 | `ato-request.html` | Campaign's Group JFACC / LNO | Request ATO lines from the group's `.miz` (player slots → Human, rest → AI) or a form; Human lines are posted on Discord for commitment |
 | `campaign-submit.html` | Groups | Campaign proposal wizard (JFACC, intent, win/loss, REDFOR, schedule…) |
@@ -79,6 +79,23 @@ host `.miz` update T-24h.
 
 The ACO overlay is drawn in DKS on the theater map and is never written into the `.miz`. The Comm Plan agencies are
 persistent for the campaign; normally only tankers and JTACs change, and the rollup lists what changed since the last export. **Cycle to next mission** moves the ATO day on and returns the daily products to Draft.
+
+## TACAN / ICLS scrub (mission file)
+
+Every host `.miz` version is scrubbed for beacons (`js/tacan.js`). It reports only — the host fixes their own file:
+
+1. **Duplicates** — the same TACAN channel + mode on two units; the same ICLS channel on two ships.
+2. **Map clashes** — channels the theater's own DCS TACAN stations use (from the JCEOI's DCS beacon data; DCS seldom
+   records their mode, so both X and Y are treated as taken).
+3. **Callsigns** — one ident on different channels, one channel with different idents, a TACAN with no ident.
+4. **CAOC products** — tanker TACAN and radio against the tanker track on the theater map (matched by callsign, e.g.
+   TEXACO 1 = DCS Texaco11), carrier TACAN/ICLS against the SPINS carrier table, tanker radios that are not a Comm
+   Plan channel; planned tankers/carriers missing from the `.miz` and ones with no plan.
+5. **Likely to fail** — no channel or mode, channel outside 1–126, ICLS outside 1–20, disabled task, beacon on a later
+   waypoint, late-activated group, task pointing at a unit not in the group.
+
+Findings new since the previous version are marked; fixed ones are listed. The rollup shows the count. Tanker tracks
+have optional TACAN channel / X-Y / ident fields; SPINS has a Carriers & ships table (TACAN, ident, ICLS).
 
 ## JCEOI (frequency registers and standard net plan)
 
@@ -151,6 +168,7 @@ commits, so the request page's *Discord post* preview has "Commit as …" button
 - `js/ato.js` — ATO line registry, `.miz` reader (zip + Lua table parser), Discord payloads, commit logic
 - `samples/iron_trident_redfor.csv` — sample Coalition Parser export for the demo campaign
 - `samples/iron_trident_viper.miz` — sample sponsor `.miz` for ATO line requests
+- `samples/iron_trident_host_draft_v2.miz` — v2 of the host draft with tankers, a carrier group and a ground TACAN, carrying deliberate TACAN/ICLS problems for the scrub (synthetic)
 - `samples/iron_trident_host_draft.miz` — sample host draft `.miz` (BLUE flights + REDFOR) for the Mission file page. **Synthetic:** its x/y were generated from the sample CSV with a made-up projection, so use it with `iron_trident_redfor.csv` to demo calibration — never as a real Caucasus calibration
 - `docs/ATO_Discord_Integration.md` — contract for the Discord bot (post, commit, filled/cancelled)
 - `css/styles.css` — three visual styles (Ops Floor, Night Vision, Staff Paper)

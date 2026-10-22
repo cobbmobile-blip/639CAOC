@@ -143,7 +143,8 @@
     // AR track (FAA JO 7610.14 ch.5): left-hand racetrack anchored at the ARCP, legs normally 50 NM long and 20 NM apart,
     // receivers enter at the ARIP (uptrack, within 30° of the extended centreline), tankers at the ARCP; plus entry/exit points.
     "TANKER TRACK": { label: "Tanker track", group: "Tracks & orbits", draw: "anchor", color: "BLUE", name: "AR TRACK",
-      fields: [["length", "Length (NM)"], ["width", "Width (NM)"], ["heading", "Refuel leg (°T)"], ["aripOn", "ARIP"], ...ALT, ["callsign", "Tanker"], ["freq", "Freq"]] },
+      fields: [["length", "Length (NM)"], ["width", "Width (NM)"], ["heading", "Refuel leg (°T)"], ["aripOn", "ARIP"], ...ALT, ["callsign", "Tanker"], ["freq", "Freq"],
+        ["tacanCh", "TACAN ch"], ["tacanMode", "TACAN X/Y"], ["tacanCs", "TACAN ident"]] },
     "HVAA ORBIT":   { label: "HVAA orbit", group: "Tracks & orbits", draw: "track", color: "PURPLE", name: "ORBIT", width: 15, fields: [["width", "Width (NM)"], ...ALT, ["callsign", "Asset"], ["freq", "Freq"]] },
     "ARTY ROZ":     { label: "Artillery ROZ", group: "Areas", draw: "polygon", color: "ORANGE", name: "ARTY ROZ", fields: [["altLo", "Floor"], ["maxord", "MAXORD (ft)"], ["unit", "Firing unit"], ["time", "Effective"]] }
   };
@@ -601,7 +602,7 @@
         ? `<button class="btn sm" data-flip="${s.id}" style="width:100%" title="Scallops bulge toward the enemy">⇅ Flip — enemy ${s.flip === "Flipped" ? "right" : "left"} of line</button>`
         : k === "aripOn"
         ? `<select data-s="${s.id}" data-k="aripOn" style="padding:4px 6px;font-size:12px">${["Yes", "No"].map(o => `<option ${(s.aripOn || "Yes") === o ? "selected" : ""}>${o}</option>`).join("")}</select>`
-        : `<input data-s="${s.id}" data-k="${k}" value="${esc(s[k])}" ${k === "freq" ? 'list="freqs"' : ""} placeholder="${k === "maxord" ? "e.g. 18,000" : k.startsWith("alt") ? "e.g. FL220" : ""}">`}</div>`).join("")}</div>` : ""}
+        : `<input data-s="${s.id}" data-k="${k}" value="${esc(s[k])}" ${k === "freq" ? 'list="freqs"' : ""} placeholder="${k === "maxord" ? "e.g. 18,000" : k.startsWith("alt") ? "e.g. FL220" : k === "tacanCh" ? "1–126" : k === "tacanMode" ? "Y" : k === "tacanCs" ? "e.g. TEX" : ""}">`}</div>`).join("")}</div>` : ""}
       <div class="coord">${shapeCoord(s)}</div>
       <textarea data-s="${s.id}" data-k="notes" placeholder="Notes">${esc(s.notes)}</textarea></div>`;
   }

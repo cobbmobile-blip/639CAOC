@@ -11,6 +11,11 @@
   .warnt { color: var(--warn); }
   .kv { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; margin-bottom: 10px; }
   .kv b { font-weight: 600; }
+  .sev { font: 600 10px var(--mono); text-transform: uppercase; padding: 1px 6px; border-radius: 999px; border: 1px solid; white-space: nowrap; }
+  .sev.error { color: var(--danger, #e5484d); } .sev.warn { color: var(--warn); } .sev.info { color: var(--muted); }
+  .newb { font: 600 10px var(--mono); color: var(--accent); margin-left: 6px; }
+  .finds li { margin: 5px 0; font-size: 13px; list-style: none; }
+  .finds { padding-left: 0; }
 </style>
 </head>
 <body>
@@ -25,6 +30,9 @@
 <script src="js/targeting.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="js/miz.js"></script>
+<script src="js/jceoi-data.js"></script>
+<script src="js/jceoi.js"></script>
+<script src="js/tacan.js"></script>
 
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:12px">
@@ -44,6 +52,7 @@
   <section class="panel hidden" id="calPanel"></section>
 
   <section class="panel"><div class="panel-head"><h2>Versions</h2><span class="muted small" id="vN"></span></div><div id="versions"></div></section>
+  <section class="panel" id="scrubPanel"></section>
   <section class="panel" id="curPanel"></section>
 </main>
 
@@ -111,7 +120,34 @@
           <td class="mono">${rows ? rows[i].lat.toFixed(5) : Math.round(u.x)}</td><td class="mono">${rows ? rows[i].lon.toFixed(5) : Math.round(u.y)}</td></tr>`).join("") || `<tr><td colspan="6" class="muted">No RED units.</td></tr>`}</tbody></table></div>
         <div class="section-h">BLUE flights</div>${flightsTable(cur.flights)}`;
     }
+    renderScrub();
     renderCal();
+  }
+
+  // ---------- TACAN / ICLS scrub: report only, the host fixes their own .miz ----------
+  function scrubHtml(r, title) {
+    if (!r) return `<p class="muted small">This version was sent before the TACAN scrub existed — send it again to scrub it.</p>`;
+    const { CHECK, tacanStr } = AOC.TACAN, n = r.counts;
+    const by = [1, 2, 3, 4, 5].map(k => [k, r.findings.filter(f => f.check === k)]).filter(([, fs]) => fs.length);
+    return `<p class="small">${title} · <b>${r.tacans.length}</b> TACAN${r.tacans.length === 1 ? "" : "s"} · <b>${r.icls.length}</b> ICLS ·
+        <span class="${n.error ? "bad" : ""}" style="${n.error ? "color:var(--danger, #e5484d)" : ""}">${n.error} error${n.error === 1 ? "" : "s"}</span> ·
+        <span style="${n.warn ? "color:var(--warn)" : ""}">${n.warn} warning${n.warn === 1 ? "" : "s"}</span> · ${n.info} note${n.info === 1 ? "" : "s"}</p>
+      ${r.tacans.length || r.icls.length ? `<div class="table-scroll"><table class="mt"><thead><tr><th>Unit</th><th>Type</th><th>Beacon</th><th>Channel</th><th>Ident</th><th>A/A</th><th>Waypoint</th><th>Radio</th></tr></thead><tbody>
+        ${[...r.tacans, ...r.icls].map(b => `<tr><td>${esc(b.group)}${b.unit && b.unit !== b.group ? ` / ${esc(b.unit)}` : ""}</td><td class="mono">${esc(b.unitType)}</td>
+          <td>${b.kind === "ActivateICLS" ? "ICLS" : "TACAN"}${b.enabled ? "" : " (disabled)"}</td><td class="mono">${b.kind === "ActivateICLS" ? esc(b.channel ?? "—") : esc(tacanStr(b.channel, b.mode))}</td>
+          <td class="mono">${esc(b.callsign)}</td><td>${b.kind === "ActivateICLS" ? "" : b.aa ? "yes" : "no"}</td><td>${esc(b.waypoint)}</td><td class="mono">${b.freq != null ? b.freq.toFixed(3) : ""}</td></tr>`).join("")}</tbody></table></div>`
+        : `<p class="muted small">No TACAN or ICLS tasks in this mission.</p>`}
+      ${by.map(([k, fs]) => `<div class="section-h">${k}. ${esc(CHECK[k])}</div><ul class="finds">${fs.map(f => `<li><span class="sev ${f.sev}">${f.sev === "warn" ? "warning" : f.sev === "info" ? "note" : f.sev}</span> ${esc(f.text)}${f.isNew ? `<span class="newb">NEW</span>` : ""}</li>`).join("")}</ul>`).join("")
+        || `<p class="small" style="color:var(--ok)">✓ No TACAN or ICLS problems found.</p>`}
+      ${r.resolved?.length ? `<div class="section-h">Fixed since the last version</div><ul class="finds">${r.resolved.map(f => `<li><span class="sev info">fixed</span> ${esc(f.text)}</li>`).join("")}</ul>` : ""}`;
+  }
+  function renderScrub() {
+    const el = document.getElementById("scrubPanel"), fs = MIZ.files(cid), cur = MIZ.current(cid);
+    if (pending) { el.innerHTML = `<div class="panel-head"><div><h2>TACAN / ICLS scrub — before you send</h2><div class="muted small">Fix these in your .miz, then choose it again; or send it and fix it in the next version.</div></div></div>
+      ${scrubHtml(AOC.TACAN.scrubWithChanges(cid, pending, cur), `${esc(pending.name)} against v${cur?.v || "—"}`)}`; return; }
+    if (!cur) { el.innerHTML = `<div class="panel-head"><h2>TACAN / ICLS scrub</h2></div><p class="muted small">Runs on every mission file version.</p>`; return; }
+    el.innerHTML = `<div class="panel-head"><div><h2>TACAN / ICLS scrub · v${cur.v}</h2><div class="muted small">Duplicates, map TACAN clashes, callsigns, differences from the tanker tracks / SPINS carriers / Comm Plan, and beacons likely to fail.
+      Report only — the host fixes the .miz.</div></div></div>${scrubHtml(AOC.TACAN.scrubWithChanges(cid, cur, fs.at(-2)), `v${cur.v} ${esc(cur.name)}${fs.length > 1 ? `, compared with v${fs.at(-2).v}` : ""}`)}`;
   }
 
   // ---------- calibration: needed once per theater, from a Coalition Parser CSV of the same mission ----------

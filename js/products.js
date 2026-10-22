@@ -277,7 +277,10 @@
       { key: "auth", label: "Authentication procedures", type: "textarea" },
       { type: "section", label: "Procedures" },
       { key: "checkin", label: "Check-in & comm procedures", type: "textarea", hint: "Refer to channels by Comm Plan matrix ID, e.g. YELLOW 1" },
-      { key: "tanker", label: "Air refuelling procedures", type: "textarea" },
+      { key: "tanker", label: "Air refuelling procedures", type: "textarea", hint: "Tanker TACANs are set on each tanker track on the theater map" },
+      { key: "naval", label: "Carriers & ships — TACAN / ICLS", type: "table", columns: [
+        { key: "ship", label: "Ship" }, { key: "hull", label: "DCS type / hull", w: 120 }, { key: "tacanCh", label: "TACAN ch", w: 80 },
+        { key: "tacanMode", label: "X/Y", w: 50 }, { key: "tacanCs", label: "Ident", w: 70 }, { key: "icls", label: "ICLS", w: 60 }, { key: "notes", label: "Notes" }] },
       { key: "csar", label: "CSAR procedures", type: "textarea" },
       { key: "diverts", label: "Divert airfields", type: "table", columns: [
         { key: "field", label: "Airfield" }, { key: "tacan", label: "TACAN", w: 80 }, { key: "freq", label: "Tower freq", w: 100 },
@@ -290,7 +293,9 @@
       <h2>3. WEAPONS RESTRICTIONS</h2>${table([["weapon", "WEAPON / CATEGORY"], ["status", "STATUS"], ["applies", "APPLIES TO"], ["conditions", "CONDITIONS"]], d.weapons)}
       ${d.weaponsNotes ? `<p>${esc(d.weaponsNotes)}</p>` : ""}
       <h2>4. CODE WORDS</h2>${table([["word", "CODE WORD"], ["meaning", "MEANING / ACTION"]], d.codewords)}
-      ${para("5. AUTHENTICATION", d.auth)}${para("6. CHECK-IN & COMM PROCEDURES", d.checkin)}${para("7. AIR REFUELLING", d.tanker)}${para("8. CSAR", d.csar)}
+      ${para("5. AUTHENTICATION", d.auth)}${para("6. CHECK-IN & COMM PROCEDURES", d.checkin)}${para("7. AIR REFUELLING", d.tanker)}
+      ${(d.naval || []).length ? `<h2>7a. CARRIERS &amp; SHIPS — TACAN / ICLS</h2>${table([["ship", "SHIP"], ["hull", "TYPE"], ["tacan", "TACAN"], ["tacanCs", "IDENT"], ["icls", "ICLS"], ["notes", "NOTES"]],
+        d.naval.map(r => ({ ...r, tacan: r.tacanCh ? `${r.tacanCh}${r.tacanMode || ""}` : "" })))}` : ""}${para("8. CSAR", d.csar)}
       <h2>9. DIVERT AIRFIELDS</h2>${table([["field", "AIRFIELD"], ["tacan", "TACAN"], ["freq", "TWR"], ["rwy", "RWY"], ["notes", "NOTES"]], d.diverts)}
       ${para("10. EMERGENCY / LOST COMMS", d.emergency)}${sig(ctx)}`
   };

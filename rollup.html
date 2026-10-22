@@ -31,6 +31,9 @@
 <script src="js/ato.js"></script>
 <script src="js/package.js"></script>
 <script src="js/miz.js"></script>
+<script src="js/jceoi-data.js"></script>
+<script src="js/jceoi.js"></script>
+<script src="js/tacan.js"></script>
 
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:12px">
@@ -119,7 +122,12 @@
     const mf = AOC.MIZ.current(cid);
     document.getElementById("mfLink").href = `mission-file.html?c=${encodeURIComponent(cid)}`;
     document.getElementById("mfile").innerHTML = mf ? `<p class="small"><b>v${mf.v}</b> ${esc(mf.name)} · ${esc(zulu(new Date(mf.when)))} · ${mf.flights.length} BLUE flights · ${mf.red.length} RED units ·
-      ${AOC.MIZ.projection(mf.theatre) ? "coordinates calibrated" : `<span style="color:var(--warn)">${esc(mf.theatre)} not calibrated</span>`}${mf.notes ? `<br><span class="muted">${esc(mf.notes)}</span>` : ""}</p>`
+      ${AOC.MIZ.projection(mf.theatre) ? "coordinates calibrated" : `<span style="color:var(--warn)">${esc(mf.theatre)} not calibrated</span>`}${mf.notes ? `<br><span class="muted">${esc(mf.notes)}</span>` : ""}</p>
+      ${(() => { const r = AOC.TACAN.scrub(cid, mf); if (!r) return `<p class="small muted">TACAN scrub: not run (sent before the scrub existed).</p>`;
+        const n = r.counts, fresh = AOC.TACAN.scrubWithChanges(cid, mf, AOC.MIZ.files(cid).at(-2)).findings.filter(f => f.isNew && f.sev !== "info").length;
+        return `<p class="small">TACAN scrub: <a href="mission-file.html?c=${encodeURIComponent(cid)}">${r.tacans.length} TACAN · ${r.icls.length} ICLS</a> ·
+          <span style="${n.error ? "color:var(--danger, #e5484d);font-weight:600" : ""}">${n.error} error${n.error === 1 ? "" : "s"}</span> ·
+          <span style="${n.warn ? "color:var(--warn)" : ""}">${n.warn} warning${n.warn === 1 ? "" : "s"}</span>${fresh ? ` · ${fresh} new in v${mf.v}` : ""}</p>`; })()}`
       : `<p class="muted small">The host hasn't sent its draft .miz yet.</p>`;
     // debriefs
     const db = Object.entries(c.debriefs || {}).sort((a, b) => b[0] - a[0]);

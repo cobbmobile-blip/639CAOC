@@ -35,7 +35,7 @@ thunder, keepers, ridge, support — code `unit-demo`.
 | `campaign-review.html` | CFC review of campaign proposals |
 | `unit-login.html`, `unit.html` | Group sign-in; Op Status (status only) |
 | `ato-request.html` | Group JFACC/LNO requests ATO lines from a `.miz` or a form |
-| `mission-file.html` | Host mission file intake: versioned draft .miz → BLUE flights (ATO requests), REDFOR (target nomination), theater calibration |
+| `mission-file.html` | Host mission file intake: versioned draft .miz → BLUE flights (ATO requests), REDFOR (target nomination), theater calibration, TACAN/ICLS scrub (`js/tacan.js`) |
 | `debrief.html` | Host unit enters the post-mission debrief |
 | `campaign-submit.html` | Group submits a campaign proposal |
 
@@ -100,6 +100,8 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
   .miz x/y → lat/lon only for **calibrated** theaters (Persian Gulf built in; others fitted once from a Coalition
   Parser CSV of the same mission, max 25 m). **Never hand-enter or guess a projection.** Score = key-task weight + tier
   weight; cap per task; numbers T10001+; SAM sites are named after their doctrinally-critical unit.
+- **TACAN scrub** reports only (the CAOC never edits the .miz). Planned values: tanker tracks on the theater map
+  (`tacanCh`, `tacanMode`, `tacanCs`) and the SPINS `naval` table. Map TACANs come from the JCEOI DCS beacon list.
 - **ATO lines**: the JFACC/LNO requests lines (from the group's `.miz`: player slots → Human, others → AI, or a form).
   AI lines go straight on the ATO. Human lines are posted via the existing Discord bot to every active registered
   group flying that airframe, with a Commit button; **first commit wins**, the line fills on the ATO and the JFACC

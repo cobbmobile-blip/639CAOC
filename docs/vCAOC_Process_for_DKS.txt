@@ -88,7 +88,9 @@ are on the CAOC rollup page (rollup.html) and are editable per campaign.
          (-> ATO line requests) and REDFOR units (-> target nomination);
          each version shows what changed. Map x/y become lat/lon only for a
          calibrated theater (Persian Gulf built in; others calibrated once
-         from a Coalition Parser CSV of the same mission).
+         from a Coalition Parser CSV of the same mission). Each version is
+         also scrubbed for TACAN/ICLS duplicates, map TACAN clashes, ident
+         problems and differences from the tanker tracks / SPINS carriers.
        - Host JFACC requests ATO lines (T-28)                    [HOST]
   4. Commander's Intent (T-26), AOD with the host JFACC (T-24).
   5. JIPTL (T-21) on the Target nomination page (targeting.html): REDFOR

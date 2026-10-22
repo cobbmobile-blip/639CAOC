@@ -518,6 +518,7 @@ window.AOC_SEED = {
           { field: "Batumi", tacan: "16X", freq: "260.000", rwy: "13", notes: "Short runway, no arresting gear" },
           { field: "Vaziani", tacan: "22X", freq: "269.000", rwy: "13", notes: "Rear divert, tanker base" }
         ],
+        naval: [{ ship: "CVN-71 Theodore Roosevelt", hull: "CVN_71", tacanCh: "71", tacanMode: "X", tacanCs: "TDR", icls: "11", notes: "Link 4 / ACLS on 336.000" }],
         emergency: "Lost comms: squawk 7600, proceed to the lost-comms holding point (Kobuleti overhead FL150), then recover via the published MRR."
       },
       // Target nomination settings: its own AO, Area of Operations (a box over Kutaisi–Senaki–Samtredia) and a sample
@@ -548,7 +549,7 @@ window.AOC_SEED = {
           { id: "m4", type: "TANKER TRACK", kind: "anchor", name: "AR TRACK ALPHA", color: "BLUE", aco: "AR TRACK ALPHA",
             arcp: [41.75, 42.70], heading: "280", length: "50", width: "20", aripOn: "Yes",
             rel: { entry: { a: -10, c: 20 }, exit: { a: 65, c: 0 }, arip: { a: -10, c: 0 } },
-            altLo: "FL220", altHi: "FL240", callsign: "TEXACO 1", freq: "230.200", notes: "BOOM — BLUE 1" },
+            altLo: "FL220", altHi: "FL240", callsign: "TEXACO 1", freq: "230.200", tacanCh: "41", tacanMode: "Y", tacanCs: "TEX", notes: "BOOM — BLUE 1" },
           { id: "m5", type: "HVAA ORBIT", kind: "track", name: "ORBIT WEST", color: "PURPLE", latlngs: [[41.22, 41.90], [41.12, 42.45]], width: "15", altLo: "FL290", altHi: "FL310", callsign: "DARKSTAR", freq: "", notes: "E-3 orbit — keep 60 NM behind the FLOT" },
           { id: "m6", type: "ARTY ROZ", kind: "polygon", name: "ARTY ROZ 1", color: "ORANGE", latlngs: [[41.90, 42.28], [41.995, 42.28], [42.01, 42.52], [41.90, 42.52]], altLo: "SFC", maxord: "18,000 ft", unit: "2-14 FA (M109)", time: "0700Z–1100Z", notes: "Fires north across the FLOT — remain clear below MAXORD" },
           // plain overlay shapes linked to ACO measures
