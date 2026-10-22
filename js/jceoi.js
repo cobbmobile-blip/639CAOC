@@ -48,5 +48,39 @@
   const inSync = JSON.stringify(J.template) === JSON.stringify(window.AOC.COMM?.TEMPLATE);
   if (!inSync) console.warn("JCEOI data was built from a different Comm Plan template — run tools/jceoi/build.py");
 
-  window.AOC.JCEOI = { data: J, inSync, bandOf, theaterKey, register, conflicts, pool, net, fmt, theaters: J.theaters.map(t => ({ key: t.key, status: t.status, dcs: t.dcs, count: t.register.length, tacan: t.tacan })) };
+  // ---------- theaters with a pre-decided frequency plan (Nevada / NTTR) ----------
+  const plan = key => (J.theaterPlans || {})[key] || null;
+  const words = s => String(s || "").toUpperCase().split(/[^A-Z0-9]+/).filter(w => w.length >= 3 && !["AFB", "THE", "AND", "NTTR", "RANGE"].includes(w));
+  // an official assignment agrees with a channel when they name the same agency (BLACKJACK, SOF, ...), or the
+  // channel is a tanker net and the assignment is refuelling
+  const agrees = (ch, e) => { const w = new Set(words(`${e.site} ${e.use}`));
+    return words(`${ch.role} ${ch.callsign}`).some(x => w.has(x)) || (/TANKER/i.test(ch.net || "") && /REFUEL|AR-\d/i.test(`${e.site} ${e.use}`)); };
+  const planChannel = (key, id) => { const p = plan(key); if (!p) return null;
+    for (const col of p.caoc.matrix.columns) col.cells.forEach((c, i) => { if (`${col.color} ${i + 1}` === id) id = { ...c, net: col.title, id }; });
+    return typeof id === "object" ? id : null; };
+  // the CAOC's own NTTR plan against the official NTTR / Nellis assignments
+  function planFindings(key) {
+    const p = plan(key); if (!p) return [];
+    const out = [], add = (sev, text) => out.push({ sev, text }), off = register(key).filter(e => e.kind === "nttr");
+    const chans = p.caoc.matrix.columns.flatMap(col => col.cells.map((c, i) => ({ ...c, net: col.title, id: `${col.color} ${i + 1}` }))).filter(c => c.freq);
+    chans.forEach(c => { const f = +c.freq, hits = off.filter(e => sameBand(bandOf(f), e.band) && Math.abs(e.mhz - f) < (J.sep[bandOf(f)] || 0.025) - 1e-9 && !agrees(c, e));
+      if (hits.length) add("warn", `${c.id} ${c.role} ${c.callsign || ""} ${f.toFixed(3)} is assigned by the NTTR to ${[...new Set(hits.map(h => h.site))].join("; ")}.`); });
+    const byF = {}; chans.forEach(c => (byF[c.freq] = byF[c.freq] || []).push(c));
+    Object.entries(byF).filter(([, cs]) => cs.length > 1).forEach(([f, cs]) => add(/TANKER/.test(cs[0].net) && cs.every(c => /TANKER/.test(c.net)) ? "info" : "warn",
+      `${cs.map(c => `${c.id} ${c.role}${c.callsign ? " " + c.callsign : ""}`).join(", ")} share ${(+f).toFixed(3)}${cs.every(c => /TANKER/.test(c.net)) ? " (tankers on the same AR track frequency)" : ""}.`));
+    // the CAOC comm card against the Nellis local standard channelization
+    // channels the instruction leaves to the unit (squadron common, unit option, HAVE QUICK) are not compared
+    p.caoc.presets.forEach(pr => { const o = p.channels.find(c => c.ch === pr.preset); if (!o || !o.uhf || !pr.uhf || /unit option|HAVE QUICK|not used|squadron common/i.test(o.agency)) return;
+      if (Math.abs(o.uhf - +pr.uhf) > 1e-6) add("warn", `Comm card preset ${pr.preset} ${pr.uhfAgency} ${pr.uhf} differs from Nellis channel ${o.ch} ${o.agency} ${o.uhf.toFixed(3)} (NELLISAFBI 11-250 Table A20.1).`);
+      if (o.vhf && pr.vhf && Math.abs(o.vhf - +pr.vhf) > 1e-6) add("warn", `Comm card preset ${pr.preset} VHF ${pr.vhf} differs from Nellis channel ${o.ch} VHF ${o.vhf.toFixed(3)}.`); });
+    // the range JTAC sheet's FM frequencies against Nevada's register
+    p.caoc.jtacs.forEach(j => { const hits = conflicts(+j.fm, key).filter(h => h.kind !== "common");
+      if (hits.length) add("warn", `JTAC ${j.callsign} (${j.range}) FM ${j.fm} is also ${[...new Set(hits.map(h => `${h.site} (${h.use})`))].join("; ")} in ${key}.`); });
+    // tanker table against the AR track list
+    p.caoc.tankers.forEach(t => { const tr = p.caoc.tracks.find(x => x.track === t.track);
+      if (tr && Math.abs(+tr.freq - +t.freq) > 0.0005) add("info", `${t.callsign} on ${t.track} uses ${t.freq}; the CAOC track list gives ${t.track} ${tr.freq}.`); });
+    return out;
+  }
+
+  window.AOC.JCEOI = { data: J, inSync, plan, planChannel, planFindings, agrees, bandOf, theaterKey, register, conflicts, pool, net, fmt, theaters: J.theaters.map(t => ({ key: t.key, status: t.status, dcs: t.dcs, count: t.register.length, tacan: t.tacan })) };
 })();

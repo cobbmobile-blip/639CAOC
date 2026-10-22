@@ -109,12 +109,19 @@ all of them:
   official / public / unverified / hobbyist.
 - **Net plan**: the Comm Plan (ACP) template itself — its 36 channels (TAC ADMIN, TANKERS, TACTICAL AIR, RESCUE, GROUND
   COORD, SPARES) are read by the build, which stops on any mismatch. A new Comm Plan starts with these frequencies. Each
-  with UHF primary and alternate, a VHF-AM backup, and VHF-FM / HF where needed. RAZOR 293.500 stays WHITE 1. Guard is
+  with UHF primary and alternate, a VHF-AM backup, and VHF-FM / HF where needed. RAZOR stays WHITE 1 (now 290.050, clear in every theater). Guard is
   standard and not a net.
 - The **Comm Plan** editor checks every channel against the campaign theater's register (and flags duplicates), and
   can fill empty channels or reset the matrix from the JCEOI. Existing Comm Plans are never changed automatically.
 
-Rebuild the data with `tools/jceoi` (see its README); the build refuses to write a plan with any conflict.
+- **Nevada (NTTR) is pre-decided.** The Nevada register adds every official NTTR / Nellis assignment (AFMAN 13-212V1
+  NTTR Addendum A Attachment 14; NELLISAFBI 11-250 Attachment 20): range tactical frequencies, agencies, local
+  standard channelization, controlling agencies and AR track control, squadron commons. Nevada campaigns use the CAOC
+  NTTR comm matrix as their Comm Plan, checked against it and the official assignments; the JCEOI page has a "Nevada
+  (NTTR plan)" tab with the matrix, comm card vs Nellis channelization, tankers, AR tracks, range JTACs and a plan check.
+
+Rebuild the data with `tools/jceoi` (see its README); the build refuses to write a plan with any conflict (fixed
+channels excepted — they are kept and reported).
 
 ## Target nomination (JIPTL pipeline)
 

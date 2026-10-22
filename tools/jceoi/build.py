@@ -51,6 +51,10 @@ def load_ourairports():
     return ap, fr, nv
 
 
+NTTR_JSON = os.path.join(HERE, "data", "nttr.json")
+NTTR = json.load(open(NTTR_JSON, encoding="utf-8")) if os.path.exists(NTTR_JSON) else None
+
+
 def register_for(key, stem, box, ap, fr, nv, mil):
     reg, tacan = [], []
     def add(**e):
@@ -82,6 +86,12 @@ def register_for(key, stem, box, ap, fr, nv, mil):
         if t == key:
             for m in fs:
                 add(site=site, icao=icao, use=use, mhz=m, kind="military", src=src, conf=conf)
+    # Nevada: the NTTR / Nellis assignments (official) and the scanner list (hobbyist), from extract_nttr.py
+    if key == "Nevada" and NTTR:
+        for o in NTTR["official"]:
+            add(site=o["agency"], icao="NTTR", use=f"NTTR assigned ({o['table']})", mhz=o["mhz"], kind="nttr", src=o["src"], conf="official")
+        for m, d in NTTR["scanner"]:
+            add(site=d, icao="", use="NTTR scanner list", mhz=m, kind="military", src="Scanner list", conf="hobbyist")
     reg.sort(key=lambda e: (e["mhz"], e["site"]))
     return reg, tacan
 
@@ -93,7 +103,9 @@ def register_for(key, stem, box, ap, fr, nv, mil):
 PRODUCTS_JS = os.path.join(HERE, "..", "..", "js", "products.js")
 UHF_SLICE = {"WHITE": (290.0, 304.975), "BLUE": (305.0, 319.975), "YELLOW": (230.0, 259.975), "GREEN": (260.0, 274.975),
              "PURPLE": (320.0, 339.975), "GRAY": (340.0, 359.975)}
-FIXED = {("WHITE", 1): {"role": "TAC COORD", "uhf": 293.5, "callsign": "RAZOR"}}   # CAOC decision: RAZOR = WHITE 1 = 293.500
+# CAOC decision: RAZOR is WHITE 1 TAC COORD. Its frequency is picked like any other (293.500 was dropped on 2026-10-22:
+# it is ROULETTE / R-77 EC at the NTTR); a "uhf" here would pin it.
+FIXED = {("WHITE", 1): {"role": "TAC COORD", "callsign": "RAZOR"}}
 
 
 def read_template():
@@ -126,6 +138,61 @@ def check_policy(tpl):
 FM_NETS = {"CSAR / PRCC", "RESCORT", "SAR", "ASOC", "JTAC/FAC(A) 1", "JTAC/FAC(A) 2", "JTAC/FAC(A) 3", "CAS COORD"}
 HF_NETS = {"C2 / AWACS", "HOST C2", "CSAR / PRCC"}
 ALT_SLICE = (360.0, 399.975)   # every alternate lives up here, away from the primaries
+
+
+# CAOC revisions to its NTTR plan (NTTR_COMM_PLAN.xlsx), decided 2026-10-22. "assign" picks a frequency clear of every
+# documented one in every theater and of everything the NTTR plan already uses.
+NTTR_REVISIONS_DATE = "2026-10-22"
+
+
+def revise_nttr(nets, clear, candidates, nttr_freqs):
+    import copy
+    plan = copy.deepcopy(NTTR); c = plan["caoc"]; log = []
+    cell = lambda cid: next((x for col in c["matrix"]["columns"] for i, x in enumerate(col["cells"]) if f"{col['color']} {i + 1}" == cid), None)
+    def assign(b, lo, hi):
+        used = nttr_freqs(b, plan) + [x[k] for x in nets for k in ("uhf", "uhfAlt", "vhf", "fm", "hf") if x.get(k) is not None and band_of(x[k]) == b]
+        for f in candidates(lo, hi, b):
+            if clear(f, b, used, 0.1): return f
+        raise SystemExit(f"NTTR revision: no clear {b} frequency in {lo}-{hi}")
+    def note(what, old, new, why): log.append({"what": what, "old": old, "new": new, "why": why})
+    fmt = lambda f: f"{f:.3f}"
+
+    # RAZOR: the standard WHITE 1 (picked clear of the NTTR assignments and this plan); comm card follows
+    razor = fmt(next(x["uhf"] for x in nets if x["id"] == "WHITE 1")); x = cell("WHITE 1")
+    note("WHITE 1 TAC COORD RAZOR", x.get("freq"), razor, "293.500 is ROULETTE / R-77, ECE, ECW and TPECR (NTTR Add A Tables A14.1, A14.2)"); x["freq"] = razor
+    for p in c["presets"]:
+        if "RAZOR" in p["uhfAgency"].upper(): note(f"Comm card preset {p['preset']} {p['uhfAgency']}", p["uhf"], razor, "follows RAZOR"); p["uhf"] = razor
+    # preset 5 typo
+    for p in c["presets"]:
+        if p["preset"] == 5 and p["uhf"] == "285.400":
+            note("Comm card preset 5 NELLIS DEPARTURE", p["uhf"], "385.400", "typo; Nellis channel 5 is 385.400 (NELLISAFBI 11-250 Table A20.1)"); p["uhf"] = "385.400"
+    # APOLLO (TAC 4) shared 315.250 with SWORD (TAC 2)
+    x = cell("YELLOW 5"); new = fmt(assign("UHF", 230.0, 259.975))
+    note("YELLOW 5 TAC 4 APOLLO", x.get("freq"), new, "shared 315.250 with YELLOW 3 TAC 2 SWORD"); x["freq"] = new
+    # RQ-7 SNIPER sat on a 422 F-22A squadron frequency
+    x = cell("GREEN 6"); new = fmt(assign("VHF-AM", 138.0, 151.975))
+    note("GREEN 6 RQ-7 SNIPER", x.get("freq"), new, "150.500 is a 422 F-22A squadron frequency (NELLISAFBI 11-250 Table A20.2)"); x["freq"] = new
+    # JTACs follow the CAOC range JTAC sheet (first three JTACs) instead of sharing 30.000
+    for i, j in enumerate(c["jtacs"][:3]):
+        x = cell(f"PURPLE {i + 2}")
+        note(f"PURPLE {i + 2} {x.get('role')}", x.get("freq"), f"{j['fm']} {j['callsign']}", f"range JTAC sheet: {j['callsign']}, range {j['range']}, {j['loc']}, laser {j['laser']}")
+        x["freq"], x["callsign"] = j["fm"], j["callsign"]
+    # AR-230V / AR-231V: no published frequency; assign one each and move every use of the old placeholder
+    for track in ("AR230V", "AR231V"):
+        new = fmt(assign("UHF", 228.0, 240.0))
+        olds = {t["freq"] for t in c["tankers"] if t["track"] == track} | {t["freq"] for t in c["tracks"] if t["track"] == track}
+        for t in c["tracks"]:
+            if t["track"] == track: note(f"{track} track frequency", t["freq"], new, "no published frequency for this track; assigned clear"); t["freq"] = new
+        for t in c["tankers"]:
+            if t["track"] == track: note(f"Tanker {t['callsign']} ({track})", t["freq"], new, f"follows {track}"); t["freq"] = new
+        for col in c["matrix"]["columns"]:
+            for i, x in enumerate(col["cells"]):
+                if x.get("freq") in olds and col["title"] == "TANKERS":
+                    note(f"{col['color']} {i + 1} {x.get('role')} {x.get('callsign')}", x["freq"], new, f"tanker on {track}"); x["freq"] = new
+    # the JTAC sheet's own FM frequencies stay as the CAOC set them; the site's Nevada plan check flags any that clash there
+    plan["revisions"] = {"date": NTTR_REVISIONS_DATE, "changes": log}
+    for r in log: print(f"  NTTR revision: {r['what']}: {r['old']} -> {r['new']} ({r['why']})")
+    return plan
 
 
 def grid(lo, hi, step):
@@ -185,6 +252,14 @@ def main():
                 taken[b].append(f); return f
         raise SystemExit(f"no clear {b} frequency left in {lo}-{hi}")
 
+    def nttr_freqs(b, plan=None):
+        """Every frequency the CAOC NTTR plan already uses in band b (matrix, comm card, tankers, tracks, JTACs)."""
+        c = (plan or NTTR or {}).get("caoc")
+        if not c: return []
+        fs = [float(x["freq"]) for col in c["matrix"]["columns"] for x in col["cells"] if x.get("freq")]
+        fs += [float(p[k]) for p in c["presets"] for k in ("uhf", "vhf") if p.get(k)]
+        fs += [float(t["freq"]) for t in c["tankers"] + c["tracks"] if t.get("freq")] + [float(j["fm"]) for j in c["jtacs"]]
+        return sorted({f for f in fs if band_of(f) == b})
     tpl = read_template(); check_policy(tpl)
     nets = []
     for net, color, roles in tpl:
@@ -194,8 +269,13 @@ def main():
         for i, role in enumerate(roles):
             fx = FIXED.get((color, i + 1), {})
             if fx.get("uhf"):
-                if not clear(fx["uhf"], "UHF", taken["UHF"], 0.1): print(f"WARNING fixed {color} {i+1} {fx['uhf']} is not clear")
+                if not clear(fx["uhf"], "UHF", taken["UHF"], 0.1): print(f"NOTE fixed {color} {i+1} {fx['uhf']} is kept although something documented sits on it (see fixedConflicts)")
                 uhf = fx["uhf"]; taken["UHF"].append(uhf)
+            elif fx:
+                # a named CAOC channel is used in every theater, Nevada's NTTR plan included: keep it off that plan too
+                held = nttr_freqs("UHF"); taken["UHF"] += held
+                uhf = pick(round(lo + i * span, 3), round(lo + (i + 1) * span - 0.025, 3), "UHF", 0.5)
+                for f in held: taken["UHF"].remove(f)
             else:
                 uhf = pick(round(lo + i * span, 3), round(lo + (i + 1) * span - 0.025, 3), "UHF", 0.5)
             nets.append({"id": f"{color} {i + 1}", "color": color, "net": net, "row": i + 1, "role": role, "callsign": fx.get("callsign", ""), "uhf": uhf})
@@ -213,8 +293,11 @@ def main():
     for i, x in enumerate(hf):
         x["hf"] = pick(5.0 + i * 1.3, 5.0 + i * 1.3 + 1.2, "HF", 0.1)
 
+    nttr_plan = revise_nttr(nets, clear, candidates, nttr_freqs) if NTTR else None
+
     # independent check: every plan frequency against every theater register and the common list
-    problems = []
+    problems, fixed_conflicts = [], []
+    fixed_ids = {f"{c} {r}": fx["uhf"] for (c, r), fx in FIXED.items() if fx.get("uhf")}
     for x in nets:
         for k in ("uhf", "uhfAlt", "vhf", "fm", "hf"):
             f = x.get(k)
@@ -225,7 +308,8 @@ def main():
             for t in theaters:
                 for e in t["register"]:
                     if (e["band"] == b or (b == "VHF-AM" and e["band"] == "VHF-NAV")) and abs(e["mhz"] - f) < SEP[b] - 1e-9:
-                        problems.append((x["id"], k, f, t["key"], e["site"], e["mhz"]))
+                        hit = (x["id"], k, f, t["key"], e["site"], e["mhz"])
+                        (fixed_conflicts if k == "uhf" and fixed_ids.get(x["id"]) == f else problems).append(hit)
             for c in common:
                 if c["band"] == b and abs(c["mhz"] - f) < SEP[b] - 1e-9:
                     problems.append((x["id"], k, f, "common", c["use"], c["mhz"]))
@@ -233,6 +317,7 @@ def main():
     print(f"net plan: {len(nets)} channels, {sum(1 for x in nets for k in ('uhf','uhfAlt','vhf','fm','hf') if x.get(k) is not None)} frequencies; "
           f"checked against {total} documented entries ({len(documented)} distinct frequencies): {len(problems)} conflicts")
     for p in problems[:20]: print("  CONFLICT", p)
+    for p in fixed_conflicts: print("  fixed channel, kept:", p)
 
     # compact rows for the browser: [site, icao, use, mhz, kind, src, conf]; the page derives the band
     REG_COLS = ["site", "icao", "use", "mhz", "kind", "src", "conf"]
@@ -240,7 +325,10 @@ def main():
     data = {"version": VERSION, "title": f"vCAOC JCEOI {VERSION}", "generated": datetime.date.today().isoformat(), "regCols": REG_COLS,
             "template": [list(t) for t in tpl],
             "bands": BANDS, "sep": SEP, "guardZone": GUARD_ZONE, "theaters": slim, "common": common, "nets": nets,
-            "sources": mil["sources"], "sourceNotes": mil["_note"]}
+            "sources": mil["sources"], "sourceNotes": mil["_note"],
+            "fixedConflicts": [{"id": a, "mhz": f, "theater": t, "site": site, "documented": m} for a, _, f, t, site, m in fixed_conflicts],
+            # theater plans: where a theater's frequency plan is pre-decided (NTTR), campaigns there follow it
+            "theaterPlans": {"Nevada": {k: nttr_plan[k] for k in ("summary", "sources", "channels", "tactical", "agencies", "control", "squadron", "caoc", "revisions")}} if NTTR else {}}
     if problems:
         print("build stopped: conflicts above -- js/jceoi-data.js not written"); return 1
     with open(OUT, "w", encoding="utf-8") as f:

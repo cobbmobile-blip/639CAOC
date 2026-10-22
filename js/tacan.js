@@ -50,6 +50,9 @@
     const planFreqs = window.AOC.COMM.channels(acp?.matrix).map(ch => parseFloat(ch.freq)).filter(isFinite);
     const tankerGroups = groups.filter(g => g.side === "blue" && g.cat === "plane" && g.units.some(u => TANKER.test(u.type)));
     const tracks = (map.shapes || []).filter(s => s.type === "TANKER TRACK" && s.callsign);
+    // a pre-decided theater (Nevada): the CAOC NTTR tanker table plans the tankers the map does not
+    (X?.plan(tk)?.caoc.tankers || []).forEach(t => { if (!tracks.some(s => flightKey(s.callsign) === flightKey(t.callsign)))
+      tracks.push({ name: t.track, src: "NTTR plan", callsign: t.callsign, freq: t.freq, tacanCh: (t.tacan.match(/\d+/) || [])[0], tacanMode: (t.tacan.match(/[XY]/i) || [])[0] }); });
     const tacanOf = g => tacans.filter(b => b.group === g.group);
     const cmp = (label, planned, b, add4) => {
       if (!planned.ch) return;
@@ -60,10 +63,12 @@
     };
     tracks.forEach(t => {
       const g = tankerGroups.find(g => g.units.some(u => flightKey(u.callsign) === flightKey(t.callsign)));
-      if (!g) { add(4, "info", `track${t.name}`, `${t.name}: planned tanker ${t.callsign} is not in the mission file.`); return; }
+      // the NTTR table lists every tanker the CAOC can task; a mission only has some of them
+      if (!g) { if (!t.src) add(4, "info", `track${t.name}`, `${t.name}: planned tanker ${t.callsign} is not in the mission file.`); return; }
+      const where = t.src ? `the ${t.src} (${t.name})` : `the theater map (${t.name})`;
       const a4 = (sev, k, txt) => add(4, sev, `track${t.name}${k}`, `${g.group} (${t.callsign}): ${txt}`);
-      cmp(`the theater map (${t.name})`, { ch: t.tacanCh, mode: t.tacanMode, cs: t.tacanCs }, tacanOf(g)[0], a4);
-      if (t.freq && g.freq != null && Math.abs(parseFloat(t.freq) - g.freq) > 0.0005) a4("warn", "freq", `radio is ${g.freq.toFixed(3)}; the theater map (${t.name}) plans ${t.freq}.`);
+      cmp(where, { ch: t.tacanCh, mode: t.tacanMode, cs: t.tacanCs }, tacanOf(g)[0], a4);
+      if (t.freq && g.freq != null && Math.abs(parseFloat(t.freq) - g.freq) > 0.0005) a4("warn", "freq", `radio is ${g.freq.toFixed(3)}; ${where} plans ${t.freq}.`);
     });
     tankerGroups.forEach(g => {
       if (!tracks.some(t => g.units.some(u => flightKey(u.callsign) === flightKey(t.callsign))))

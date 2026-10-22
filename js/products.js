@@ -318,14 +318,15 @@
   ];
   // A new Comm Plan is the template with the JCEOI standard frequencies filled in (when the JCEOI is loaded and was
   // built from this same template); campaign-specific changes are made from there.
-  const blankMatrix = () => {
-    const J = window.AOC.JCEOI?.inSync ? window.AOC.JCEOI : null;
+  const blankMatrix = theater => {
+    const J = window.AOC.JCEOI?.inSync ? window.AOC.JCEOI : null, tp = J?.plan(J.theaterKey(theater));
+    if (tp) return structuredClone(tp.caoc.matrix);   // e.g. Nevada: the CAOC's NTTR comm matrix, built on the NTTR assignments
     return { rows: Math.max(...COMM_TEMPLATE.map(t => t[2].length)), columns: COMM_TEMPLATE.map(([title, color, roles]) => ({ title, color, cells: roles.map((role, i) => {
       const n = J?.net(`${color} ${i + 1}`);
       return n ? { role, ...(n.callsign ? { callsign: n.callsign } : {}), freq: n.uhf.toFixed(3) } : { role };
     }) })) };
   };
-  // Every filled cell as a named channel, e.g. WHITE 1 = RAZOR, TAC COORD, 293.500
+  // Every filled cell as a named channel, e.g. WHITE 1 = RAZOR, TAC COORD, 290.050
   const channels = m => (m?.columns || []).flatMap(c => (c.cells || []).slice(0, m.rows).map((cell, i) => ({ id: `${c.color} ${i + 1}`, col: c, ...cell })))
     .filter(ch => ch.role || ch.callsign || ch.freq);
 

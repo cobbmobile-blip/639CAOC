@@ -73,7 +73,7 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
 ## Product decisions (keep unless the user says otherwise)
 
 - **Comm Plan** is a campaign-long **comm matrix**: colored columns (nets), rows numbered top-down; a channel is
-  `<COLOR> <row>` (e.g. RAZOR 293.500 = WHITE 1). Channel list columns: NET, CHANNEL, CALLSIGN, ROLE, FREQ.
+  `<COLOR> <row>` (e.g. RAZOR 290.050 = WHITE 1; IRON TRIDENT's v366 still has 293.500). Channel list columns: NET, CHANNEL, CALLSIGN, ROLE, FREQ.
   No TACAN/navaids section. **Check-in & comm procedures live in SPINS**, not the Comm Plan.
   Template nets: TAC ADMIN (TAC COORD, TAC ADMIN, C2/AWACS, GCI, host C2), TANKERS, TACTICAL AIR, RESCUE, GROUND COORD,
   SPARES. **Guard is standard and not listed**; airfield/ATC frequencies stay out.
@@ -81,8 +81,12 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
   Blue nets only, theater-agnostic (clear in every theater). **The net list is `COMM_TEMPLATE` in `js/products.js`**
   (single source): the build reads it and stops on any mismatch with its frequency policy; `build.py --check` says
   whether the data is current. New Comm Plans (`blankMatrix`) start with the JCEOI UHF primaries filled in, but only
-  when the data was built from the same template. RAZOR 293.500 = WHITE 1 is fixed. Existing campaign Comm Plans
-  (IRON TRIDENT's v366) are left as they are. Every register entry keeps its source and confidence; unverified data is kept (it only blocks
+  when the data was built from the same template. RAZOR = WHITE 1 TAC COORD (callsign fixed; frequency picked clear, 290.050). Existing campaign Comm Plans
+  (IRON TRIDENT's v366) are left as they are.
+- **Nevada / NTTR is a pre-decided theater**: official NTTR/Nellis assignments are in its register; Nevada campaigns use
+  the CAOC NTTR comm matrix (`tools/jceoi/data/nttr.json`, from NTTR_COMM_PLAN.xlsx) as the Comm Plan. The CAOC's
+  2026-10-22 revisions (RAZOR off 293.500 = ROULETTE, preset 5 385.400 typo fix, APOLLO, SNIPER, JTACs from the range JTAC
+  sheet, assigned AR-230V/AR-231V frequencies) are applied by `revise_nttr` in build.py, not in the CAOC's spreadsheet. Every register entry keeps its source and confidence; unverified data is kept (it only blocks
   frequencies). The Comm Plan check uses the campaign theater's register.
   "Publish to DKS Agencies" sends every channel with a frequency as a selectable default agency
   (name = callsign, else `<ROLE> <CHANNEL>`).

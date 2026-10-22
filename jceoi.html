@@ -50,12 +50,14 @@
   AOC.renderChrome();
   const J = X.data;
   document.getElementById("title").textContent = `${J.title}`;
-  const TABS = [["plan", "Net plan"], ["presets", "Preset load"], ["register", "Theater registers"], ["pool", "Clear channels"], ["check", "Check a frequency"], ["about", "Sources & coverage"]];
-  let tab = (() => { try { return localStorage.getItem("aoc.jceoiTab") || "plan"; } catch { return "plan"; } })();
+  const TABS = [["plan", "Net plan"], ["presets", "Preset load"], ["nttr", "Nevada (NTTR plan)"], ["register", "Theater registers"], ["pool", "Clear channels"], ["check", "Check a frequency"], ["about", "Sources & coverage"]];
+  let tab = location.hash === "#nttr" ? "nttr" : (() => { try { return localStorage.getItem("aoc.jceoiTab") || "plan"; } catch { return "plan"; } })();
   const f3 = f => f == null ? "—" : (+f).toFixed(3);
-  const KIND = { dcs: "DCS ATC", "dcs-nav": "DCS nav", civil: "Real-world civil", nav: "Real-world nav", military: "Real-world military", common: "Common / standard", guard: "Guard" };
+  const KIND = { nttr: "NTTR assigned", dcs: "DCS ATC", "dcs-nav": "DCS nav", civil: "Real-world civil", nav: "Real-world nav", military: "Real-world military", common: "Common / standard", guard: "Guard" };
   const allFreqs = n => ["uhf", "uhfAlt", "vhf", "fm", "hf"].map(k => n[k]).filter(v => v != null);
-  const planClear = n => allFreqs(n).every(f => !X.conflicts(f, null).length);
+  // a channel fixed by the CAOC keeps its known conflicts (reported in the note), everything else must be clear
+  const known = (n, h) => (J.fixedConflicts || []).some(c => c.id === n.id && c.site === h.site);
+  const planClear = n => allFreqs(n).every(f => !X.conflicts(f, null).filter(h => !known(n, h)).length);
 
   if (!X.inSync) { const st = document.getElementById("stale"); st.classList.remove("hidden");
     st.innerHTML = `<b>Out of date.</b> This JCEOI was built from a different Comm Plan template than the site now uses, so its net plan may not match the ACP.
@@ -63,7 +65,7 @@
   const total = X.theaters.reduce((s, t) => s + t.count, 0) + J.common.length;
   document.getElementById("kpis").innerHTML = [[J.nets.length, "standard channels"], [J.nets.reduce((s, n) => s + allFreqs(n).length, 0), "assigned frequencies"],
     [X.theaters.length, `theaters (${X.theaters.filter(t => t.dcs).length} with DCS data)`], [total.toLocaleString(), "documented entries"],
-    [J.nets.filter(planClear).length === J.nets.length ? "0" : "!", "conflicts in any theater"]]
+    [J.nets.filter(n => !planClear(n)).length, `conflicts in any theater${(J.fixedConflicts || []).length ? " (besides fixed RAZOR, see note)" : ""}`]]
     .map(([v, l]) => `<div class="panel"><b>${v}</b><span class="muted small">${l}</span></div>`).join("");
 
   function renderTabs() {
@@ -77,7 +79,10 @@
   // ---------- tabs ----------
   const views = {
     plan() {
-      return `<p class="small muted">The net list is the Comm Plan (ACP) template itself — same channels, nets and roles${X.inSync ? " (in step)" : " (<b>out of step — rebuild</b>)"}; every new Comm Plan starts with these UHF primaries filled in. Guard (121.500 / 243.000) is standard and is not a net.
+      const fc = J.fixedConflicts || [];
+      return `${fc.length ? `<p class="small" style="color:var(--warn)">Note: ${[...new Set(fc.map(c => c.id))].map(id => { const hs = fc.filter(c => c.id === id);
+          return `${esc(id)} ${f3(hs[0].mhz)} is fixed by the CAOC, but in ${esc([...new Set(hs.map(h => h.theater))].join(", "))} it is also ${esc([...new Set(hs.map(h => h.site))].join(" / "))}`; }).join("; ")}.
+          It is kept as decided and shows as a conflict there.</p>` : ""}<p class="small muted">The net list is the Comm Plan (ACP) template itself — same channels, nets and roles${X.inSync ? " (in step)" : " (<b>out of step — rebuild</b>)"}; every new Comm Plan starts with these UHF primaries filled in. Guard (121.500 / 243.000) is standard and is not a net.
         Every frequency below is clear of everything documented in every theater (± one channel, ±${J.guardZone * 1000} kHz around Guard).</p>
         <div class="table-scroll"><table class="jt"><thead><tr><th>Channel</th><th>Net</th><th>Role</th><th>Callsign</th><th>UHF primary</th><th>UHF alternate</th><th>VHF-AM</th><th>VHF-FM</th><th>HF</th><th>Check</th></tr></thead><tbody>
         ${J.nets.map(n => `<tr><td><span class="chip-id" style="${cellStyle(n.color)}">${esc(n.id)}</span></td><td>${esc(n.net)}</td><td>${esc(n.role)}</td><td>${esc(n.callsign)}</td>
@@ -87,7 +92,7 @@
         <ul class="small"><li>UHF primaries sit in one slice per net: TACTICAL AIR 230–260, RESCUE 260–275, TAC ADMIN 290–305, TANKERS 305–320, GROUND COORD 320–340, SPARES 340–360 MHz. Every UHF alternate is in 360–400 MHz.</li>
           <li>VHF-AM backups are in 138–152 MHz (the NATO military VHF segment inside the DCS VHF radios' 116–151.975 MHz range), for aircraft without UHF.</li>
           <li>VHF-FM is given to ground coordination and rescue nets (30–88 MHz, avoiding the 38–42.4 MHz block DCS uses for airfield FM). HF is given to C2 and CSAR (5–9 MHz).</li>
-          <li>WHITE 1 TAC COORD is fixed as RAZOR 293.500 by the CAOC. Tankers and JTACs are the nets most likely to change during a campaign; change them in the campaign's Comm Plan, not here.</li></ul>`;
+          <li>WHITE 1 TAC COORD is RAZOR by CAOC decision; its frequency is picked clear like the rest (it moved off 293.500, which is ROULETTE at the NTTR). Tankers and JTACs are the nets most likely to change during a campaign; change them in the campaign's Comm Plan, not here.</li></ul>`;
     },
     presets() {
       // a standard load for radios with 20 presets: UHF on radio 1, VHF on radio 2
@@ -96,6 +101,42 @@
         <div class="table-scroll"><table class="jt"><thead><tr><th>Preset</th><th>Channel</th><th>Role</th><th>UHF (radio 1)</th><th>VHF-AM (radio 2)</th><th>VHF-FM (FM radio)</th></tr></thead><tbody>
         ${order.map((id, i) => { const n = X.net(id); return `<tr><td class="mono">${i + 1}</td><td><span class="chip-id" style="${cellStyle(n.color)}">${esc(id)}</span></td><td>${esc(n.role)}${n.callsign ? ` (${esc(n.callsign)})` : ""}</td>
           <td class="mono">${f3(n.uhf)}</td><td class="mono">${f3(n.vhf)}</td><td class="mono">${f3(n.fm)}</td></tr>`; }).join("")}</tbody></table></div>`;
+    },
+    nttr() {
+      const p = X.plan("Nevada"); if (!p) return `<p class="muted">No Nevada plan in this build.</p>`;
+      const c = p.caoc, fs = X.planFindings("Nevada"), fr = a => a.map(f3).join(" / ");
+      const tbl = (head, rows) => `<div class="table-scroll"><table class="jt"><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+      const skip = a => /unit option|HAVE QUICK|not used|squadron common/i.test(a || "");
+      return `<p class="small">${esc(p.summary)} When a campaign's theater is <b>Nevada</b>, its Comm Plan starts from the CAOC NTTR comm matrix below and is checked against it and the official assignments.</p>
+        <div class="section-h">Plan check — the CAOC NTTR plan against the official NTTR / Nellis assignments</div>
+        <ul class="small" style="list-style:none;padding-left:0">${fs.map(f => `<li class="${f.sev === "warn" ? "warnt" : "muted"}">${f.sev === "warn" ? "!" : "·"} ${esc(f.text)}</li>`).join("") || `<li class="ok">✓ No differences.</li>`}</ul>
+        ${p.revisions?.changes?.length ? `<div class="section-h">CAOC revisions (${esc(p.revisions.date)}) — applied on top of NTTR_COMM_PLAN.xlsx</div>
+        ${tbl(["Item", "Was", "Now", "Why"], p.revisions.changes.map(r => `<tr><td>${esc(r.what)}</td><td class="mono">${esc(r.old ?? "")}</td><td class="mono"><b>${esc(r.new)}</b></td><td class="wrap">${esc(r.why)}</td></tr>`))}
+        <p class="small muted">The spreadsheet and the NTTR comm card / matrix images still show the old values — use the .xlsx download (NTTR sheets) to update them.</p>` : ""}
+        <div class="section-h">CAOC NTTR comm matrix (${esc(c.matrix.name)})</div>
+        <div class="table-scroll"><table class="jt"><thead><tr><th></th>${c.matrix.columns.map(col => `<th><span class="chip-id" style="${cellStyle(col.color)}">${esc(col.color)}</span> ${esc(col.title)}</th>`).join("")}</tr></thead><tbody>
+        ${Array.from({ length: c.matrix.rows }, (_, r) => `<tr><td class="mono">${r + 1}</td>${c.matrix.columns.map(col => { const x = col.cells[r] || {};
+          return `<td><span class="muted">${esc(x.role || "")}</span><br><b>${esc(x.callsign || "")}</b> <span class="mono">${esc(x.freq || "")}</span></td>`; }).join("")}</tr>`).join("")}</tbody></table></div>
+        <div class="section-h">Presets — CAOC comm card and Nellis local standard channelization (NELLISAFBI 11-250 Table A20.1)</div>
+        ${tbl(["Preset", "CAOC UHF", "CAOC VHF", "Nellis channel", "Nellis UHF", "Nellis VHF"], c.presets.map(pr => { const o = p.channels.find(x => x.ch === pr.preset) || {};
+          const d = o.uhf && pr.uhf && Math.abs(o.uhf - +pr.uhf) > 1e-6 && !skip(o.agency);
+          return `<tr><td class="mono">${pr.preset}</td><td class="${d ? "warnt" : ""}">${esc(pr.uhfAgency)} <span class="mono">${esc(pr.uhf)}</span></td><td>${esc(pr.vhfAgency)} <span class="mono">${esc(pr.vhf)}</span></td>
+            <td>${esc(o.agency || "")}</td><td class="mono">${o.uhf ? f3(o.uhf) : ""}</td><td class="mono">${o.vhf ? f3(o.vhf) : ""}</td></tr>`; }))}
+        <div class="section-h">Tankers (CAOC NTTR plan)</div>
+        ${tbl(["Callsign", "Type", "TACAN", "Track", "ARCP", "Altitude", "Frequency"], c.tankers.map(t => `<tr><td>${esc(t.callsign)}</td><td>${esc(t.type)}</td><td class="mono">${esc(t.tacan)}</td><td>${esc(t.track)}</td><td class="mono">${esc(t.arcp)}</td><td>${esc(t.alt)}</td><td class="mono">${esc(t.freq)} ${esc(t.channel)}</td></tr>`))}
+        ${tbl(["AR track", "Altitude", "Frequency (CAOC)", "Control agency (NELLISAFBI 11-250 A20.3)"], c.tracks.map(t => { const key = t.track.replace(/[^0-9]/g, "");
+          const ctl = p.control.find(x => x.agency.includes(`AR-${key}`));
+          return `<tr><td>${esc(t.track)}</td><td>${esc(t.alt)}</td><td class="mono">${esc(t.freq)}</td><td>${ctl ? `${esc(ctl.agency)} <span class="mono">${fr(ctl.freqs)}</span>` : ""}</td></tr>`; }))}
+        <div class="section-h">Range JTACs (CAOC)</div>
+        ${tbl(["Range", "Callsign", "FM", "Laser", "Location", "Block"], c.jtacs.map(j => `<tr><td>${esc(j.range)}</td><td>${esc(j.callsign)}</td><td class="mono">${esc(j.fm)}</td><td class="mono">${esc(j.laser)}</td><td>${esc(j.loc)}</td><td>${esc(j.block)}</td></tr>`))}
+        <div class="section-h">Official — range tactical frequencies (AFMAN 13-212V1 NTTR Add A, Table A14.1)</div>
+        ${tbl(["Range / function", "Primary / secondary / tertiary"], p.tactical.map(t => `<tr><td>${esc(t.agency)}</td><td class="mono">${fr(t.freqs)}</td></tr>`))}
+        <div class="section-h">Official — agencies (Table A14.2) and controlling agencies (NELLISAFBI 11-250 Table A20.3)</div>
+        ${tbl(["Agency", "Frequencies", "Table"], [...p.agencies.map(a => ({ ...a, s: "A14.2" })), ...p.control.map(a => ({ ...a, s: "A20.3" }))].map(a => `<tr><td>${esc(a.agency)}</td><td class="mono">${fr(a.freqs)}</td><td>${a.s}</td></tr>`))}
+        <div class="section-h">Official — squadron common frequencies (Table A20.2), reserved</div>
+        ${tbl(["Unit", "Frequencies"], p.squadron.map(u => `<tr><td>${esc(u.unit)}</td><td class="mono wrap">${fr(u.freqs)}</td></tr>`))}
+        <p class="small muted">Sources: ${Object.entries(p.sources).map(([k, v]) => /^https?:/.test(v) ? `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(k)}</a>` : `${esc(k)} — ${esc(v)}`).join(" · ")}.
+          Table A20.2 unit attribution follows the PDF's reading order; the frequencies are exact. For simulation only.</p>`;
     },
     register() {
       const s = state.reg;
@@ -184,6 +225,17 @@
     X.theaters.forEach(t => add(t.key, [["MHz", "Band", "Site", "ICAO", "Use", "Source type", "Source", "Confidence"],
       ...X.register(t.key).map(e => [e.mhz, e.band, e.site, e.icao, e.use, KIND[e.kind] || e.kind, e.src, e.conf]),
       ...(t.tacan.length ? [[], ["DCS TACAN", "Channel", "Callsign", "Site"], ...t.tacan.map(b => ["", b.ch, b.callsign, b.site])] : [])]));
+    const np = X.plan("Nevada");
+    if (np) {
+      add("NTTR CAOC matrix", [["Channel", "Net", "Role", "Callsign", "Freq"], ...np.caoc.matrix.columns.flatMap(col => col.cells.map((x, i) => [`${col.color} ${i + 1}`, col.title, x.role || "", x.callsign || "", x.freq || ""]))]);
+      add("NTTR presets", [["Preset", "CAOC UHF agency", "UHF", "VHF", "VHF agency"], ...np.caoc.presets.map(p => [p.preset, p.uhfAgency, p.uhf, p.vhf, p.vhfAgency])]);
+      add("NTTR tankers", [["Callsign", "Type", "TACAN", "Track", "ARCP", "Alt", "Freq"], ...np.caoc.tankers.map(t => [t.callsign, t.type, t.tacan, t.track, t.arcp, t.alt, t.freq])]);
+      add("NTTR official", [["Agency / range", "MHz", "Table", "Source"], ...X.register("Nevada").filter(e => e.kind === "nttr").map(e => [e.site, e.mhz, e.use, e.src])]);
+      add("NTTR plan check", [["Severity", "Finding"], ...X.planFindings("Nevada").map(f => [f.sev, f.text])]);
+      add("NTTR revisions", [["Item", "Was", "Now", "Why"], ...(np.revisions?.changes || []).map(r => [r.what, r.old ?? "", r.new, r.why])]);
+      add("NTTR JTACs", [["Range", "Callsign", "FM", "Laser", "Location", "Block"], ...np.caoc.jtacs.map(j => [j.range, j.callsign, j.fm, j.laser, j.loc, j.block])]);
+      add("NTTR AR tracks", [["Track", "Altitude", "Frequency"], ...np.caoc.tracks.map(t => [t.track, t.alt, t.freq])]);
+    }
     add("Common", [["MHz", "Band", "Use", "Source", "Confidence"], ...J.common.map(c => [c.mhz, c.band, c.use, c.src, c.conf])]);
     ["UHF", "VHF-AM", "VHF-FM", "HF"].forEach(b => add(`Clear ${b} (all)`, [["MHz", "In net plan"], ...X.pool(null, b).map(c => [c.mhz, c.inPlan ? "yes" : ""])]));
     add("Sources", [["Source", "Where"], ...Object.entries(J.sources), [], ["Notes", J.sourceNotes]]);

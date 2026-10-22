@@ -1,0 +1,2780 @@
+{
+ "theater": "Nevada",
+ "summary": "At the NTTR much of the frequency plan is pre-decided: range, agency, ATC and squadron frequencies are assigned by the NTTR and Nellis AFB, and the CAOC's NTTR comm matrix builds on them. Nevada campaigns use this plan.",
+ "sources": {
+  "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14": "https://static.e-publishing.af.mil/production/1/nellisafb/publication/afi13-212v1_accsup_nttrsup_add_a/afman13-212v1_nttr_add_a.pdf",
+  "NELLISAFBI 11-250 (17 Jun 2022) Att 20": "https://static.e-publishing.af.mil/production/1/nellisafb/publication/nellisafbi11-250/nellisafbi11-250.pdf",
+  "RED FLAG NELLIS 2014 IFG": "local copy (RFN14IFG Red flag Nellis 2014.pdf), cross-check only",
+  "CAOC NTTR comm plan": "NTTR_COMM_PLAN.xlsx / NTTR IFG 200-201 (CAOC)",
+  "CAOC range JTACs": "NTTR Playground JTACS.ods (CAOC)",
+  "Scanner list": "NTTR Comms listing.ods / NTTR and Area 51 Scanner Frequencies.pdf (hobbyist)"
+ },
+ "channels": [
+  {
+   "ch": 1,
+   "uhf": null,
+   "vhf": null,
+   "agency": "Squadron common"
+  },
+  {
+   "ch": 2,
+   "uhf": 289.4,
+   "vhf": 120.9,
+   "agency": "Nellis Clearance Delivery"
+  },
+  {
+   "ch": 3,
+   "uhf": 275.8,
+   "vhf": 121.8,
+   "agency": "Nellis Ground"
+  },
+  {
+   "ch": 4,
+   "uhf": 327.0,
+   "vhf": 132.55,
+   "agency": "Nellis Tower"
+  },
+  {
+   "ch": 5,
+   "uhf": 385.4,
+   "vhf": 135.1,
+   "agency": "Nellis Approach/Departure West"
+  },
+  {
+   "ch": 6,
+   "uhf": 273.55,
+   "vhf": 124.95,
+   "agency": "Nellis Approach/Departure East"
+  },
+  {
+   "ch": 7,
+   "uhf": 317.525,
+   "vhf": 126.65,
+   "agency": "Nellis Control - Sally"
+  },
+  {
+   "ch": 8,
+   "uhf": 254.4,
+   "vhf": 119.35,
+   "agency": "Nellis Control - Lee"
+  },
+  {
+   "ch": 9,
+   "uhf": 305.6,
+   "vhf": 142.75,
+   "agency": "SOF (Bullseye SOF)"
+  },
+  {
+   "ch": 10,
+   "uhf": 343.725,
+   "vhf": null,
+   "agency": "Emergency Single Frequency Approach"
+  },
+  {
+   "ch": 11,
+   "uhf": 270.1,
+   "vhf": null,
+   "agency": "ATIS"
+  },
+  {
+   "ch": 12,
+   "uhf": 360.625,
+   "vhf": 118.3,
+   "agency": "Creech AFB Tower"
+  },
+  {
+   "ch": 13,
+   "uhf": null,
+   "vhf": null,
+   "agency": "Not used"
+  },
+  {
+   "ch": 14,
+   "uhf": 300.05,
+   "vhf": null,
+   "agency": "Unit option"
+  },
+  {
+   "ch": 15,
+   "uhf": null,
+   "vhf": null,
+   "agency": "HAVE QUICK or unit option (15-19)"
+  },
+  {
+   "ch": 20,
+   "uhf": null,
+   "vhf": null,
+   "agency": "HAVE QUICK"
+  }
+ ],
+ "tactical": [
+  {
+   "agency": "R-61",
+   "freqs": [
+    341.925
+   ]
+  },
+  {
+   "agency": "R-62",
+   "freqs": [
+    234.25,
+    274.875,
+    122.9
+   ]
+  },
+  {
+   "agency": "R-63",
+   "freqs": [
+    361.6,
+    274.875,
+    122.9
+   ]
+  },
+  {
+   "agency": "R-64",
+   "freqs": [
+    288.8
+   ]
+  },
+  {
+   "agency": "R-65",
+   "freqs": [
+    225.45,
+    288.225
+   ]
+  },
+  {
+   "agency": "R-71",
+   "freqs": [
+    335.45,
+    288.225
+   ]
+  },
+  {
+   "agency": "R-74",
+   "freqs": [
+    228.0,
+    288.225
+   ]
+  },
+  {
+   "agency": "R-75",
+   "freqs": [
+    363.9,
+    288.225
+   ]
+  },
+  {
+   "agency": "R-76",
+   "freqs": [
+    354.3,
+    379.65
+   ]
+  },
+  {
+   "agency": "R-77, ECE, ECW and TPECR",
+   "freqs": [
+    293.5
+   ]
+  },
+  {
+   "agency": "Alamo MOA",
+   "freqs": [
+    238.8,
+    294.9
+   ]
+  },
+  {
+   "agency": "Caliente MOA",
+   "freqs": [
+    289.3,
+    370.825
+   ]
+  },
+  {
+   "agency": "Coyote MOA",
+   "freqs": [
+    234.325,
+    268.2
+   ]
+  },
+  {
+   "agency": "Elgin MOA",
+   "freqs": [
+    281.025,
+    255.95
+   ]
+  },
+  {
+   "agency": "NTTR spare",
+   "freqs": [
+    357.1
+   ]
+  },
+  {
+   "agency": "HAVE QUICK time of day (TOD)",
+   "freqs": [
+    369.0
+   ]
+  }
+ ],
+ "agencies": [
+  {
+   "agency": "NATCF East (Nellis Control, SALLY)",
+   "freqs": [
+    317.525,
+    126.65
+   ]
+  },
+  {
+   "agency": "NATCF West (Nellis Control, LEE)",
+   "freqs": [
+    254.4,
+    119.35
+   ]
+  },
+  {
+   "agency": "NTTR Range Monitoring (BLACKJACK)",
+   "freqs": [
+    377.8,
+    123.55
+   ]
+  },
+  {
+   "agency": "DML (Dreamland)",
+   "freqs": [
+    261.1,
+    126.15
+   ]
+  },
+  {
+   "agency": "Creech AFB SOF",
+   "freqs": [
+    226.1,
+    148.175
+   ]
+  },
+  {
+   "agency": "Creech AFB SFA",
+   "freqs": [
+    285.525,
+    118.3
+   ]
+  },
+  {
+   "agency": "Creech Tower (KINS)",
+   "freqs": [
+    360.625,
+    118.3
+   ]
+  },
+  {
+   "agency": "Silverbow Tower (KTNX)",
+   "freqs": [
+    257.95,
+    124.75
+   ]
+  },
+  {
+   "agency": "NTTR Threat Systems (ROULETTE)",
+   "freqs": [
+    293.5,
+    379.65
+   ]
+  },
+  {
+   "agency": "JICO (JUICE)",
+   "freqs": [
+    231.1
+   ]
+  }
+ ],
+ "control": [
+  {
+   "agency": "BLACKJACK",
+   "freqs": [
+    377.8,
+    123.55
+   ]
+  },
+  {
+   "agency": "LA Center West",
+   "freqs": [
+    377.1,
+    124.625
+   ]
+  },
+  {
+   "agency": "LA Center East",
+   "freqs": [
+    343.6,
+    124.2
+   ]
+  },
+  {
+   "agency": "Las Vegas Approach",
+   "freqs": [
+    353.7,
+    307.25,
+    282.2,
+    133.95,
+    118.4,
+    125.9
+   ]
+  },
+  {
+   "agency": "Las Vegas Tower",
+   "freqs": [
+    257.8,
+    119.9
+   ]
+  },
+  {
+   "agency": "FSS Radio",
+   "freqs": [
+    255.4,
+    122.4
+   ]
+  },
+  {
+   "agency": "Dreamland Approach Control",
+   "freqs": [
+    261.1,
+    126.15
+   ]
+  },
+  {
+   "agency": "Tonopah Test Site Tower",
+   "freqs": [
+    257.95,
+    124.75
+   ]
+  },
+  {
+   "agency": "Creech AFB SOF",
+   "freqs": [
+    148.175
+   ]
+  },
+  {
+   "agency": "Creech AFB SFA",
+   "freqs": [
+    285.525
+   ]
+  },
+  {
+   "agency": "Nellis Pilot to Metro",
+   "freqs": [
+    323.9
+   ]
+  },
+  {
+   "agency": "Nellis Pilot to Dispatch",
+   "freqs": [
+    372.2,
+    139.3
+   ]
+  },
+  {
+   "agency": "Nellis AFB CP (RAYMOND 22)",
+   "freqs": [
+    381.3
+   ]
+  },
+  {
+   "agency": "AR-624 control (LA Center)",
+   "freqs": [
+    306.2,
+    323.2
+   ]
+  },
+  {
+   "agency": "AR-625 control (Nellis Control)",
+   "freqs": [
+    324.05,
+    126.95
+   ]
+  },
+  {
+   "agency": "AR-625 control (Oakland) HI / LO",
+   "freqs": [
+    319.8
+   ]
+  },
+  {
+   "agency": "AR-635 control (Salt Lake)",
+   "freqs": [
+    360.8
+   ]
+  },
+  {
+   "agency": "AR-230V / AR-231V control (LA Center)",
+   "freqs": [
+    343.6,
+    124.2
+   ]
+  }
+ ],
+ "squadron": [
+  {
+   "unit": "WS Duty Desk",
+   "freqs": [
+    361.5
+   ]
+  },
+  {
+   "unit": "Adversary Support",
+   "freqs": [
+    328.5
+   ]
+  },
+  {
+   "unit": "66 WPS",
+   "freqs": [
+    138.375,
+    140.275,
+    139.4,
+    143.375,
+    225.5,
+    326.8,
+    255.3,
+    140.975,
+    148.85
+   ]
+  },
+  {
+   "unit": "16 WPS (F-16, F-35)",
+   "freqs": [
+    138.25,
+    139.125,
+    141.625,
+    131.875,
+    139.55,
+    140.15,
+    229.0,
+    349.1,
+    360.25,
+    376.15
+   ]
+  },
+  {
+   "unit": "433 WPS (F-15C, F-22)",
+   "freqs": [
+    260.1,
+    322.25,
+    266.6,
+    262.65,
+    323.85,
+    140.175,
+    140.4,
+    140.7
+   ]
+  },
+  {
+   "unit": "17 WPS (F-15E)",
+   "freqs": [
+    326.775,
+    292.1,
+    257.1,
+    140.325
+   ]
+  },
+  {
+   "unit": "34 WPS (HH-60)",
+   "freqs": [
+    141.775,
+    32.35,
+    233.6,
+    239.7
+   ]
+  },
+  {
+   "unit": "26 WPS (MQ-9)",
+   "freqs": [
+    138.95,
+    230.025,
+    258.675,
+    355.1,
+    149.875
+   ]
+  },
+  {
+   "unit": "422 Ops Desk",
+   "freqs": [
+    379.0
+   ]
+  },
+  {
+   "unit": "422 A-10",
+   "freqs": [
+    143.6,
+    138.0125,
+    149.125,
+    40.15,
+    41.45,
+    41.95,
+    324.85,
+    342.2
+   ]
+  },
+  {
+   "unit": "422 F-16",
+   "freqs": [
+    139.6,
+    140.95,
+    369.4,
+    371.05,
+    373.55
+   ]
+  },
+  {
+   "unit": "422 F-15C",
+   "freqs": [
+    315.8,
+    318.0,
+    141.65
+   ]
+  },
+  {
+   "unit": "422 F-15E",
+   "freqs": [
+    278.4,
+    323.35,
+    140.45,
+    141.925
+   ]
+  },
+  {
+   "unit": "422 F-22A",
+   "freqs": [
+    141.025,
+    305.65,
+    266.6,
+    140.825,
+    141.95,
+    150.5,
+    262.65
+   ]
+  },
+  {
+   "unit": "422 F-35",
+   "freqs": [
+    326.125
+   ]
+  },
+  {
+   "unit": "64 AGRS (F-16)",
+   "freqs": [
+    252.1,
+    123.475,
+    139.75,
+    139.85,
+    141.675,
+    143.825,
+    149.525,
+    283.8,
+    262.75,
+    284.55
+   ]
+  },
+  {
+   "unit": "GREEN FLAG West",
+   "freqs": [
+    139.575,
+    139.95,
+    140.1,
+    140.225,
+    141.05,
+    141.4,
+    46.85,
+    46.775,
+    251.2,
+    395.15,
+    395.85,
+    397.25,
+    399.5,
+    399.85,
+    366.15,
+    138.1
+   ]
+  },
+  {
+   "unit": "RED FLAG ops",
+   "freqs": [
+    234.9
+   ]
+  },
+  {
+   "unit": "66 RQS (HH-60)",
+   "freqs": [
+    140.375,
+    142.55,
+    150.675,
+    32.15,
+    34.05,
+    245.65,
+    318.9,
+    259.0,
+    251.9,
+    236.0
+   ]
+  },
+  {
+   "unit": "USAFADS (Thunderbirds)",
+   "freqs": [
+    139.8,
+    148.175,
+    322.95,
+    235.25,
+    141.175
+   ]
+  }
+ ],
+ "official": [
+  {
+   "agency": "R-61",
+   "mhz": 341.925,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-62",
+   "mhz": 234.25,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-62",
+   "mhz": 274.875,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-62",
+   "mhz": 122.9,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-63",
+   "mhz": 361.6,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-63",
+   "mhz": 274.875,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-63",
+   "mhz": 122.9,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-64",
+   "mhz": 288.8,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-65",
+   "mhz": 225.45,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-65",
+   "mhz": 288.225,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-71",
+   "mhz": 335.45,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-71",
+   "mhz": 288.225,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-74",
+   "mhz": 228.0,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-74",
+   "mhz": 288.225,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-75",
+   "mhz": 363.9,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-75",
+   "mhz": 288.225,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-76",
+   "mhz": 354.3,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-76",
+   "mhz": 379.65,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "R-77, ECE, ECW and TPECR",
+   "mhz": 293.5,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Alamo MOA",
+   "mhz": 238.8,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Alamo MOA",
+   "mhz": 294.9,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Caliente MOA",
+   "mhz": 289.3,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Caliente MOA",
+   "mhz": 370.825,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Coyote MOA",
+   "mhz": 234.325,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Coyote MOA",
+   "mhz": 268.2,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Elgin MOA",
+   "mhz": 281.025,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Elgin MOA",
+   "mhz": 255.95,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "NTTR spare",
+   "mhz": 357.1,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "HAVE QUICK time of day (TOD)",
+   "mhz": 369.0,
+   "table": "A14.1 Tactical",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "NATCF East (Nellis Control, SALLY)",
+   "mhz": 317.525,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "NATCF East (Nellis Control, SALLY)",
+   "mhz": 126.65,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "NATCF West (Nellis Control, LEE)",
+   "mhz": 254.4,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "NATCF West (Nellis Control, LEE)",
+   "mhz": 119.35,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "NTTR Range Monitoring (BLACKJACK)",
+   "mhz": 377.8,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "NTTR Range Monitoring (BLACKJACK)",
+   "mhz": 123.55,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "DML (Dreamland)",
+   "mhz": 261.1,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "DML (Dreamland)",
+   "mhz": 126.15,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Creech AFB SOF",
+   "mhz": 226.1,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Creech AFB SOF",
+   "mhz": 148.175,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Creech AFB SFA",
+   "mhz": 285.525,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Creech AFB SFA",
+   "mhz": 118.3,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Creech Tower (KINS)",
+   "mhz": 360.625,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Creech Tower (KINS)",
+   "mhz": 118.3,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Silverbow Tower (KTNX)",
+   "mhz": 257.95,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Silverbow Tower (KTNX)",
+   "mhz": 124.75,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "NTTR Threat Systems (ROULETTE)",
+   "mhz": 293.5,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "NTTR Threat Systems (ROULETTE)",
+   "mhz": 379.65,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "JICO (JUICE)",
+   "mhz": 231.1,
+   "table": "A14.2 Agency",
+   "src": "AFMAN 13-212V1 NTTR Addendum A (24 Jul 2020) Att 14"
+  },
+  {
+   "agency": "Ch 2 Nellis Clearance Delivery",
+   "mhz": 289.4,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 2 Nellis Clearance Delivery",
+   "mhz": 120.9,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 3 Nellis Ground",
+   "mhz": 275.8,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 3 Nellis Ground",
+   "mhz": 121.8,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 4 Nellis Tower",
+   "mhz": 327.0,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 4 Nellis Tower",
+   "mhz": 132.55,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 5 Nellis Approach/Departure West",
+   "mhz": 385.4,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 5 Nellis Approach/Departure West",
+   "mhz": 135.1,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 6 Nellis Approach/Departure East",
+   "mhz": 273.55,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 6 Nellis Approach/Departure East",
+   "mhz": 124.95,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 7 Nellis Control - Sally",
+   "mhz": 317.525,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 7 Nellis Control - Sally",
+   "mhz": 126.65,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 8 Nellis Control - Lee",
+   "mhz": 254.4,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 8 Nellis Control - Lee",
+   "mhz": 119.35,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 9 SOF (Bullseye SOF)",
+   "mhz": 305.6,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 9 SOF (Bullseye SOF)",
+   "mhz": 142.75,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 10 Emergency Single Frequency Approach",
+   "mhz": 343.725,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 11 ATIS",
+   "mhz": 270.1,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 12 Creech AFB Tower",
+   "mhz": 360.625,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 12 Creech AFB Tower",
+   "mhz": 118.3,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Ch 14 Unit option",
+   "mhz": 300.05,
+   "table": "A20.1 Local channelization",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "BLACKJACK",
+   "mhz": 377.8,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "BLACKJACK",
+   "mhz": 123.55,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "LA Center West",
+   "mhz": 377.1,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "LA Center West",
+   "mhz": 124.625,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "LA Center East",
+   "mhz": 343.6,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "LA Center East",
+   "mhz": 124.2,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Las Vegas Approach",
+   "mhz": 353.7,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Las Vegas Approach",
+   "mhz": 307.25,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Las Vegas Approach",
+   "mhz": 282.2,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Las Vegas Approach",
+   "mhz": 133.95,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Las Vegas Approach",
+   "mhz": 118.4,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Las Vegas Approach",
+   "mhz": 125.9,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Las Vegas Tower",
+   "mhz": 257.8,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Las Vegas Tower",
+   "mhz": 119.9,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "FSS Radio",
+   "mhz": 255.4,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "FSS Radio",
+   "mhz": 122.4,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Dreamland Approach Control",
+   "mhz": 261.1,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Dreamland Approach Control",
+   "mhz": 126.15,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Tonopah Test Site Tower",
+   "mhz": 257.95,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Tonopah Test Site Tower",
+   "mhz": 124.75,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Creech AFB SOF",
+   "mhz": 148.175,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Creech AFB SFA",
+   "mhz": 285.525,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Nellis Pilot to Metro",
+   "mhz": 323.9,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Nellis Pilot to Dispatch",
+   "mhz": 372.2,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Nellis Pilot to Dispatch",
+   "mhz": 139.3,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Nellis AFB CP (RAYMOND 22)",
+   "mhz": 381.3,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "AR-624 control (LA Center)",
+   "mhz": 306.2,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "AR-624 control (LA Center)",
+   "mhz": 323.2,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "AR-625 control (Nellis Control)",
+   "mhz": 324.05,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "AR-625 control (Nellis Control)",
+   "mhz": 126.95,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "AR-625 control (Oakland) HI / LO",
+   "mhz": 319.8,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "AR-635 control (Salt Lake)",
+   "mhz": 360.8,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "AR-230V / AR-231V control (LA Center)",
+   "mhz": 343.6,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "AR-230V / AR-231V control (LA Center)",
+   "mhz": 124.2,
+   "table": "A20.3 Controlling agencies",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "WS Duty Desk",
+   "mhz": 361.5,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "Adversary Support",
+   "mhz": 328.5,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 WPS",
+   "mhz": 138.375,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 WPS",
+   "mhz": 140.275,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 WPS",
+   "mhz": 139.4,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 WPS",
+   "mhz": 143.375,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 WPS",
+   "mhz": 225.5,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 WPS",
+   "mhz": 326.8,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 WPS",
+   "mhz": 255.3,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 WPS",
+   "mhz": 140.975,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 WPS",
+   "mhz": 148.85,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "16 WPS (F-16, F-35)",
+   "mhz": 138.25,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "16 WPS (F-16, F-35)",
+   "mhz": 139.125,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "16 WPS (F-16, F-35)",
+   "mhz": 141.625,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "16 WPS (F-16, F-35)",
+   "mhz": 131.875,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "16 WPS (F-16, F-35)",
+   "mhz": 139.55,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "16 WPS (F-16, F-35)",
+   "mhz": 140.15,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "16 WPS (F-16, F-35)",
+   "mhz": 229.0,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "16 WPS (F-16, F-35)",
+   "mhz": 349.1,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "16 WPS (F-16, F-35)",
+   "mhz": 360.25,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "16 WPS (F-16, F-35)",
+   "mhz": 376.15,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "433 WPS (F-15C, F-22)",
+   "mhz": 260.1,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "433 WPS (F-15C, F-22)",
+   "mhz": 322.25,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "433 WPS (F-15C, F-22)",
+   "mhz": 266.6,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "433 WPS (F-15C, F-22)",
+   "mhz": 262.65,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "433 WPS (F-15C, F-22)",
+   "mhz": 323.85,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "433 WPS (F-15C, F-22)",
+   "mhz": 140.175,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "433 WPS (F-15C, F-22)",
+   "mhz": 140.4,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "433 WPS (F-15C, F-22)",
+   "mhz": 140.7,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "17 WPS (F-15E)",
+   "mhz": 326.775,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "17 WPS (F-15E)",
+   "mhz": 292.1,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "17 WPS (F-15E)",
+   "mhz": 257.1,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "17 WPS (F-15E)",
+   "mhz": 140.325,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "34 WPS (HH-60)",
+   "mhz": 141.775,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "34 WPS (HH-60)",
+   "mhz": 32.35,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "34 WPS (HH-60)",
+   "mhz": 233.6,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "34 WPS (HH-60)",
+   "mhz": 239.7,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "26 WPS (MQ-9)",
+   "mhz": 138.95,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "26 WPS (MQ-9)",
+   "mhz": 230.025,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "26 WPS (MQ-9)",
+   "mhz": 258.675,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "26 WPS (MQ-9)",
+   "mhz": 355.1,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "26 WPS (MQ-9)",
+   "mhz": 149.875,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 Ops Desk",
+   "mhz": 379.0,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 A-10",
+   "mhz": 143.6,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 A-10",
+   "mhz": 138.0125,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 A-10",
+   "mhz": 149.125,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 A-10",
+   "mhz": 40.15,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 A-10",
+   "mhz": 41.45,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 A-10",
+   "mhz": 41.95,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 A-10",
+   "mhz": 324.85,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 A-10",
+   "mhz": 342.2,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-16",
+   "mhz": 139.6,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-16",
+   "mhz": 140.95,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-16",
+   "mhz": 369.4,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-16",
+   "mhz": 371.05,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-16",
+   "mhz": 373.55,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-15C",
+   "mhz": 315.8,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-15C",
+   "mhz": 318.0,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-15C",
+   "mhz": 141.65,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-15E",
+   "mhz": 278.4,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-15E",
+   "mhz": 323.35,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-15E",
+   "mhz": 140.45,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-15E",
+   "mhz": 141.925,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-22A",
+   "mhz": 141.025,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-22A",
+   "mhz": 305.65,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-22A",
+   "mhz": 266.6,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-22A",
+   "mhz": 140.825,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-22A",
+   "mhz": 141.95,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-22A",
+   "mhz": 150.5,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-22A",
+   "mhz": 262.65,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "422 F-35",
+   "mhz": 326.125,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "64 AGRS (F-16)",
+   "mhz": 252.1,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "64 AGRS (F-16)",
+   "mhz": 123.475,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "64 AGRS (F-16)",
+   "mhz": 139.75,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "64 AGRS (F-16)",
+   "mhz": 139.85,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "64 AGRS (F-16)",
+   "mhz": 141.675,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "64 AGRS (F-16)",
+   "mhz": 143.825,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "64 AGRS (F-16)",
+   "mhz": 149.525,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "64 AGRS (F-16)",
+   "mhz": 283.8,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "64 AGRS (F-16)",
+   "mhz": 262.75,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "64 AGRS (F-16)",
+   "mhz": 284.55,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 139.575,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 139.95,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 140.1,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 140.225,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 141.05,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 141.4,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 46.85,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 46.775,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 251.2,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 395.15,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 395.85,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 397.25,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 399.5,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 399.85,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 366.15,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "GREEN FLAG West",
+   "mhz": 138.1,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "RED FLAG ops",
+   "mhz": 234.9,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 RQS (HH-60)",
+   "mhz": 140.375,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 RQS (HH-60)",
+   "mhz": 142.55,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 RQS (HH-60)",
+   "mhz": 150.675,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 RQS (HH-60)",
+   "mhz": 32.15,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 RQS (HH-60)",
+   "mhz": 34.05,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 RQS (HH-60)",
+   "mhz": 245.65,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 RQS (HH-60)",
+   "mhz": 318.9,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 RQS (HH-60)",
+   "mhz": 259.0,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 RQS (HH-60)",
+   "mhz": 251.9,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "66 RQS (HH-60)",
+   "mhz": 236.0,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "USAFADS (Thunderbirds)",
+   "mhz": 139.8,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "USAFADS (Thunderbirds)",
+   "mhz": 148.175,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "USAFADS (Thunderbirds)",
+   "mhz": 322.95,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "USAFADS (Thunderbirds)",
+   "mhz": 235.25,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  },
+  {
+   "agency": "USAFADS (Thunderbirds)",
+   "mhz": 141.175,
+   "table": "A20.2 Squadron common",
+   "src": "NELLISAFBI 11-250 (17 Jun 2022) Att 20"
+  }
+ ],
+ "caoc": {
+  "matrix": {
+   "name": "NTTR Comm Matrix",
+   "rows": 6,
+   "columns": [
+    {
+     "title": "TAC ADMIN",
+     "color": "WHITE",
+     "cells": [
+      {
+       "role": "TAC COORD",
+       "callsign": "RAZOR",
+       "freq": "293.500"
+      },
+      {
+       "role": "CTAF",
+       "callsign": "UNICOM",
+       "freq": "304.600"
+      },
+      {
+       "role": "HOOMAN C2",
+       "callsign": "KEYBOARD",
+       "freq": "305.200"
+      },
+      {
+       "role": "NTTR RANGE CTL",
+       "callsign": "BLACKJACK",
+       "freq": "377.800"
+      },
+      {
+       "role": "R-2508 RANGE CTL",
+       "callsign": "PANCHO",
+       "freq": "348.700"
+      },
+      {
+       "role": "BULLSEYE SOF",
+       "callsign": "SNACKSHACK",
+       "freq": "305.600"
+      }
+     ]
+    },
+    {
+     "title": "TANKERS",
+     "color": "BLUE",
+     "cells": [
+      {
+       "role": "135 MPRS",
+       "callsign": "TEXACO 5",
+       "freq": "230.200"
+      },
+      {
+       "role": "135 MPRS",
+       "callsign": "TEXACO 2",
+       "freq": "231.200"
+      },
+      {
+       "role": "135 MPRS",
+       "callsign": "ARCO 2",
+       "freq": "352.600"
+      },
+      {
+       "role": "135 Boom",
+       "callsign": "ARCO 3",
+       "freq": "366.300"
+      },
+      {
+       "role": "135 Boom",
+       "callsign": "SHELL 2",
+       "freq": "352.600"
+      },
+      {
+       "role": "135 Boom",
+       "callsign": "SHELL 3",
+       "freq": "366.300"
+      }
+     ]
+    },
+    {
+     "title": "TACTICAL",
+     "color": "YELLOW",
+     "cells": [
+      {
+       "role": "AIC",
+       "callsign": "MAGIC",
+       "freq": "305.100"
+      },
+      {
+       "role": "TAC 1",
+       "callsign": "SABRE",
+       "freq": "253.250"
+      },
+      {
+       "role": "TAC 2",
+       "callsign": "SWORD",
+       "freq": "315.250"
+      },
+      {
+       "role": "TAC 3",
+       "callsign": "ARIES",
+       "freq": "339.000"
+      },
+      {
+       "role": "TAC 4",
+       "callsign": "APOLLO",
+       "freq": "315.250"
+      },
+      {
+       "role": "CSAR COMMON",
+       "callsign": "SANDY",
+       "freq": "395.750"
+      }
+     ]
+    },
+    {
+     "title": "TACTICAL",
+     "color": "GREEN",
+     "cells": [
+      {
+       "role": "AIC",
+       "callsign": "WIZARD",
+       "freq": "307.100"
+      },
+      {
+       "role": "TAC 5",
+       "callsign": "GEMINI",
+       "freq": "262.000"
+      },
+      {
+       "role": "TAC 6",
+       "callsign": "ATLAS",
+       "freq": "242.750"
+      },
+      {
+       "role": "TAC 7",
+       "callsign": "FENIX",
+       "freq": "280.000"
+      },
+      {
+       "role": "TAC 8",
+       "callsign": "MERCURY",
+       "freq": "267.000"
+      },
+      {
+       "role": "RQ-7",
+       "callsign": "SNIPER",
+       "freq": "150.500"
+      }
+     ]
+    },
+    {
+     "title": "TAC OPS",
+     "color": "PURPLE",
+     "cells": [
+      {
+       "role": "ASOC",
+       "callsign": "CHAOS"
+      },
+      {
+       "role": "JTAC/FAC(A) 1",
+       "freq": "30.000"
+      },
+      {
+       "role": "JTAC/FAC(A) 2",
+       "freq": "30.000"
+      },
+      {
+       "role": "JTAC/FAC(A) 3",
+       "freq": "30.000"
+      },
+      {
+       "role": "APACHE STRIKE",
+       "callsign": "TONTO"
+      },
+      {
+       "role": "MQ-9",
+       "callsign": "GOGGLES",
+       "freq": "131.250"
+      }
+     ]
+    }
+   ]
+  },
+  "presets": [
+   {
+    "preset": 1,
+    "uhfAgency": "NELLIS ATIS",
+    "uhf": "270.100",
+    "vhf": "",
+    "vhfAgency": "SCF"
+   },
+   {
+    "preset": 2,
+    "uhfAgency": "NELLIS CLEARANCE",
+    "uhf": "289.400",
+    "vhf": "120.900",
+    "vhfAgency": "NELLIS CLEARANCE"
+   },
+   {
+    "preset": 3,
+    "uhfAgency": "NELLIS GROUND",
+    "uhf": "275.800",
+    "vhf": "121.800",
+    "vhfAgency": "NELLIS GROUND"
+   },
+   {
+    "preset": 4,
+    "uhfAgency": "NELLIS TOWER",
+    "uhf": "327.000",
+    "vhf": "132.550",
+    "vhfAgency": "NELLIS TOWER"
+   },
+   {
+    "preset": 5,
+    "uhfAgency": "NELLIS DEPARTURE",
+    "uhf": "285.400",
+    "vhf": "135.100",
+    "vhfAgency": "NELLIS DEPARTURE"
+   },
+   {
+    "preset": 6,
+    "uhfAgency": "NELLIS APPROACH",
+    "uhf": "273.550",
+    "vhf": "124.950",
+    "vhfAgency": "NELLIS APPROACH"
+   },
+   {
+    "preset": 7,
+    "uhfAgency": "NATCF SALLY",
+    "uhf": "317.525",
+    "vhf": "126.650",
+    "vhfAgency": "NATCF SALLY"
+   },
+   {
+    "preset": 8,
+    "uhfAgency": "NATCF LEEE",
+    "uhf": "254.400",
+    "vhf": "119.350",
+    "vhfAgency": "NATCF LEEE"
+   },
+   {
+    "preset": 9,
+    "uhfAgency": "",
+    "uhf": "",
+    "vhf": "142.750",
+    "vhfAgency": "BULLSEYE SOF"
+   },
+   {
+    "preset": 10,
+    "uhfAgency": "",
+    "uhf": "",
+    "vhf": "",
+    "vhfAgency": ""
+   },
+   {
+    "preset": 11,
+    "uhfAgency": "",
+    "uhf": "",
+    "vhf": "",
+    "vhfAgency": ""
+   },
+   {
+    "preset": 12,
+    "uhfAgency": "CREECH TOWER",
+    "uhf": "360.625",
+    "vhf": "",
+    "vhfAgency": ""
+   },
+   {
+    "preset": 13,
+    "uhfAgency": "C2",
+    "uhf": "305.100",
+    "vhf": "",
+    "vhfAgency": ""
+   },
+   {
+    "preset": 14,
+    "uhfAgency": "AR635 PRI",
+    "uhf": "352.600",
+    "vhf": "",
+    "vhfAgency": ""
+   },
+   {
+    "preset": 15,
+    "uhfAgency": "RAZOR - TAC COORD",
+    "uhf": "293.500",
+    "vhf": "",
+    "vhfAgency": ""
+   },
+   {
+    "preset": 16,
+    "uhfAgency": "BLACKJACK",
+    "uhf": "377.800",
+    "vhf": "",
+    "vhfAgency": ""
+   },
+   {
+    "preset": 17,
+    "uhfAgency": "",
+    "uhf": "",
+    "vhf": "",
+    "vhfAgency": ""
+   },
+   {
+    "preset": 18,
+    "uhfAgency": "",
+    "uhf": "",
+    "vhf": "",
+    "vhfAgency": ""
+   },
+   {
+    "preset": 19,
+    "uhfAgency": "BULLSEYE SOF",
+    "uhf": "305.600",
+    "vhf": "142.750",
+    "vhfAgency": "BULLSEYE SOF"
+   },
+   {
+    "preset": 20,
+    "uhfAgency": "HQ TOD",
+    "uhf": "300.050",
+    "vhf": "",
+    "vhfAgency": ""
+   }
+  ],
+  "tankers": [
+   {
+    "callsign": "SHELL 31",
+    "type": "Boom",
+    "tacan": "65Y",
+    "track": "AR624",
+    "arcp": "N371059W1133738",
+    "alt": "FL250",
+    "freq": "366.300",
+    "channel": "BLU 6"
+   },
+   {
+    "callsign": "SHELL 21",
+    "type": "Boom",
+    "tacan": "42Y",
+    "track": "AR635",
+    "arcp": "N382700W1141400",
+    "alt": "FL250",
+    "freq": "352.600",
+    "channel": "BLU 5"
+   },
+   {
+    "callsign": "TEXACO 51",
+    "type": "MPRS",
+    "tacan": "64Y",
+    "track": "AR230V",
+    "arcp": "N364445W1142630",
+    "alt": "FL220",
+    "freq": "230.200",
+    "channel": "BLU 1"
+   },
+   {
+    "callsign": "ARCO 21",
+    "type": "MPRS",
+    "tacan": "46Y",
+    "track": "AR635",
+    "arcp": "N382700W1141400",
+    "alt": "FL220",
+    "freq": "352.600",
+    "channel": "BLU 3"
+   },
+   {
+    "callsign": "ARCO 31",
+    "type": "MPRS",
+    "tacan": "61Y",
+    "track": "AR624",
+    "arcp": "N371059W1133738",
+    "alt": "18000",
+    "freq": "366.300",
+    "channel": "BLU 4"
+   },
+   {
+    "callsign": "TEXACO 21",
+    "type": "MPRS",
+    "tacan": "74Y",
+    "track": "AR231V",
+    "arcp": "N362022W1161415",
+    "alt": "10000",
+    "freq": "231.200",
+    "channel": "BLU 2"
+   }
+  ],
+  "tracks": [
+   {
+    "track": "AR635",
+    "alt": "FL190/FL260",
+    "freq": "352.600"
+   },
+   {
+    "track": "AR625H",
+    "alt": "FL230/FL250",
+    "freq": "295.800"
+   },
+   {
+    "track": "AR625L",
+    "alt": "FL180/FL210",
+    "freq": "291.900"
+   },
+   {
+    "track": "AR641A",
+    "alt": "12000/FL230",
+    "freq": "295.400"
+   },
+   {
+    "track": "AR641B",
+    "alt": "FL190/FL230",
+    "freq": "295.400"
+   },
+   {
+    "track": "AR230V",
+    "alt": "6000/8000",
+    "freq": "230.000"
+   },
+   {
+    "track": "AR231V",
+    "alt": "6000/8000",
+    "freq": "231.000"
+   },
+   {
+    "track": "AR624",
+    "alt": "FL190/FL220",
+    "freq": "366.300"
+   }
+  ],
+  "jtacs": [
+   {
+    "range": "62B",
+    "callsign": "AXEMAN",
+    "fm": "47.000",
+    "laser": "1309",
+    "loc": "FAC JACK",
+    "block": "60's RANGES"
+   },
+   {
+    "range": "62B",
+    "callsign": "FINGER",
+    "fm": "63.000",
+    "laser": "1151",
+    "loc": "FAC R",
+    "block": "60's RANGES"
+   },
+   {
+    "range": "62A",
+    "callsign": "WARRIOR",
+    "fm": "42.000",
+    "laser": "1568",
+    "loc": "FAC C2",
+    "block": "60's RANGES"
+   },
+   {
+    "range": "64A",
+    "callsign": "WHIPLASH",
+    "fm": "56.000",
+    "laser": "1727",
+    "loc": "FAC S",
+    "block": "60's RANGES"
+   },
+   {
+    "range": "64A",
+    "callsign": "EYEBALL",
+    "fm": "65.000",
+    "laser": "1646",
+    "loc": "FAC VIV",
+    "block": "60's RANGES"
+   },
+   {
+    "range": "64B",
+    "callsign": "FIREFLY",
+    "fm": "35.000",
+    "laser": "1568",
+    "loc": "FAC K",
+    "block": "60's RANGES"
+   },
+   {
+    "range": "63B",
+    "callsign": "JAGUAR",
+    "fm": "31.000",
+    "laser": "1728",
+    "loc": "FAC JILL",
+    "block": "60's RANGES"
+   },
+   {
+    "range": "65C",
+    "callsign": "ANVIL",
+    "fm": "55.000",
+    "laser": "1169",
+    "loc": "FAC HILL",
+    "block": "60's RANGES"
+   },
+   {
+    "range": "76",
+    "callsign": "PLAYBOY",
+    "fm": "69.000",
+    "laser": "1273",
+    "loc": "SEAHAWK",
+    "block": "70's RANGES"
+   },
+   {
+    "range": "76",
+    "callsign": "HAMMER",
+    "fm": "51.000",
+    "laser": "1771",
+    "loc": "VIKING",
+    "block": "70's RANGES"
+   },
+   {
+    "range": "75W",
+    "callsign": "BADGER",
+    "fm": "68.000",
+    "laser": "1554",
+    "loc": "FAC D",
+    "block": "70's RANGES"
+   },
+   {
+    "range": "75E",
+    "callsign": "MANTIS",
+    "fm": "41.000",
+    "laser": "1413",
+    "loc": "STEELER",
+    "block": "70's RANGES"
+   },
+   {
+    "range": "74C",
+    "callsign": "DEATHSTAR",
+    "fm": "38.000",
+    "laser": "1510",
+    "loc": "FAC C",
+    "block": "70's RANGES"
+   }
+  ]
+ },
+ "scanner": [
+  [
+   269.175,
+   "Salt Lake Center low/high - Sector 40"
+  ],
+  [
+   291.6,
+   "Joshua Control - Panamint MOA (R-2508)"
+  ],
+  [
+   324.4,
+   "Nellis Range Training Officer (RTO) \"Showtime\""
+  ],
+  [
+   377.8,
+   "Nellis Range Controller \"Blackjack\" UHF (paired with 123.550)"
+  ],
+  [
+   317.525,
+   "Nellis Control East (Desert MOA, Sally Corridor, paired with 126.650)"
+  ],
+  [
+   269.3,
+   "Oakland Center high - Sector 43"
+  ],
+  [
+   290.3,
+   "Joshua Control - Palmdale"
+  ],
+  [
+   326.2,
+   "Nellis AFB Single Frequency Approach (\"Charlie\")"
+  ],
+  [
+   381.9,
+   "China Lake / R2524 Range Control"
+  ],
+  [
+   317.625,
+   "Salt Lake Center high - Sector 47 (Wilson Creek)"
+  ],
+  [
+   270.1,
+   "Nellis AFB ATIS (\"Automatic Terminal Information Service\")"
+  ],
+  [
+   294.9,
+   "Caliente MOA Range Control Secondary (\"Barnyard\")"
+  ],
+  [
+   327.0,
+   "Nellis AFB Control Tower"
+  ],
+  [
+   381.3,
+   "Nellis AFB Command Post (ALCP) (Raymond 22)"
+  ],
+  [
+   317.4,
+   "LA Center high - Sector 53"
+  ],
+  [
+   270.725,
+   "Red Flag Strike (SEAD) (Freq. \"BEIGE 14\")"
+  ],
+  [
+   300.05,
+   "Have Quick"
+  ],
+  [
+   327.0,
+   "Oakland Center low - Sector 22"
+  ],
+  [
+   123.55,
+   "Nellis Range Controller \"Blackjack\" VHF (paired with 377.800)"
+  ],
+  [
+   225.45,
+   "Range 65 Operations"
+  ],
+  [
+   226.1,
+   "Creech AFB SOF"
+  ],
+  [
+   271.0,
+   "Exercise air-air (NORAD Midwest \"Goliath\")"
+  ],
+  [
+   304.6,
+   "Range 61 Ops (Orange 18)(Blackbird, Darkstar, Raven 27)"
+  ],
+  [
+   335.6,
+   "Joshua Control - Isabella MOA (R-2508)"
+  ],
+  [
+   123.95,
+   "Joshua Control - Saline MOA"
+  ],
+  [
+   235.75,
+   "Creech AFB SOF"
+  ],
+  [
+   273.45,
+   "Oakland Center high - Sector 33 (Tonopah)"
+  ],
+  [
+   305.6,
+   "Supervisor of Flying (SOF) 57 FW-Bullseye Control (VHF on 143.000 MHz)"
+  ],
+  [
+   337.0,
+   "Range 64 operations"
+  ],
+  [
+   126.55,
+   "Joshua Control - Owens MOA (R-2508)"
+  ],
+  [
+   234.25,
+   "Range 62 Operations"
+  ],
+  [
+   273.55,
+   "Nellis AFB Approach/Departure East and Class B"
+  ],
+  [
+   340.2,
+   "Nellis Command Post \"Raymond 23\""
+  ],
+  [
+   126.65,
+   "Nellis Control East (Desert MOA, Sally Corridor, paired with 317.525)"
+  ],
+  [
+   234.325,
+   "Coyote MOA Range Control Primary"
+  ],
+  [
+   274.875,
+   "Range 63 & 64 Operations Secondary (RCO \"Fatness\")"
+  ],
+  [
+   341.925,
+   "Range 61 Operations"
+  ],
+  [
+   134.05,
+   "Joshua Control - Isabella MOA"
+  ],
+  [
+   238.8,
+   "Alamo MOA Range Control (R-4806E, \"Long Shot\")"
+  ],
+  [
+   276.05,
+   "Red Flag Air-Ground Strike"
+  ],
+  [
+   343.0,
+   "Reveille/Desert MOA (Sally Sector) (RF 17-3: active)"
+  ],
+  [
+   239.4,
+   "Red Flag Ops"
+  ],
+  [
+   278.2,
+   "Nellis Tactical (\"Barnyard\" range control)"
+  ],
+  [
+   319.1,
+   "Oakland Center high - Sector 15"
+  ],
+  [
+   346.1,
+   "Nellis Ops / Dispatch"
+  ],
+  [
+   254.4,
+   "Nellis Control West (Restricted Areas, Lee Corridor, Beatty, Goldfield, Tonopah, Warm Springs, Reveille MOA, paired with 119.350)"
+  ],
+  [
+   279.6,
+   "LA Center high - Sector 37"
+  ],
+  [
+   319.2,
+   "LA Center low - Sector 08"
+  ],
+  [
+   346.3,
+   "LA Center high (FL340+) - Sector 36"
+  ],
+  [
+   225.55,
+   "Range 74 exercise controller / ops"
+  ],
+  [
+   281.025,
+   "Elgin MOA Range Control Primary (\"Barnyard\")"
+  ],
+  [
+   319.5,
+   "Aerial Refueling Operations (secondary all routes)"
+  ],
+  [
+   348.7,
+   "Joshua Control - Primary (R-2508)"
+  ],
+  [
+   256.8,
+   "Joshua Control - Saline MOA (R-2508)"
+  ],
+  [
+   257.0,
+   "Dreamland Airspace, AAR Prime (Reveille MOA)"
+  ],
+  [
+   281.5,
+   "Oakland Center high - Sector 34"
+  ],
+  [
+   319.7,
+   "Range 65 Operations"
+  ],
+  [
+   352.05,
+   "LA Center high - Sector 34 (Las Vegas Area)"
+  ],
+  [
+   257.7,
+   "Salt Lake Center high - Sector 4"
+  ],
+  [
+   282.6,
+   "Air-ground/Ops (NORAD Midwest \"Goliath\")"
+  ],
+  [
+   320.1,
+   "Range 62 Operations"
+  ],
+  [
+   354.3,
+   "Range 76 Operations"
+  ],
+  [
+   257.85,
+   "Oakland Center high - Sector 32"
+  ],
+  [
+   284.65,
+   "Oakland Center below FL300 - Sector 46 (Bishop, Mina, Tonopah area)"
+  ],
+  [
+   322.3,
+   "Joshua Control - Owens MOA (R-2508)"
+  ],
+  [
+   360.625,
+   "Creech AFB Tower (paired with 118.300)"
+  ],
+  [
+   259.4,
+   "Nellis Range Control Center \"Bulls Eye\""
+  ],
+  [
+   285.5,
+   "Oakland Center low - Sector 45"
+  ],
+  [
+   323.175,
+   "Oakland Center high - Sector 30 (Coaldale)"
+  ],
+  [
+   361.6,
+   "Range 63 Operations Primary (\"Darkstar\", RCO \"Fatness\")"
+  ],
+  [
+   263.6,
+   "Desert Range Control"
+  ],
+  [
+   288.8,
+   "Range 64 Operations (RCO \"Fatness\")"
+  ],
+  [
+   323.2,
+   "LA Center high - Sector 35 (AR-624)"
+  ],
+  [
+   364.0,
+   "Caliente MOA"
+  ],
+  [
+   268.0,
+   "Range 63 and 64 Operations (RCO \"Fatness\")"
+  ],
+  [
+   324.05,
+   "Nellis Approach/Departure after Red Flag mission, in that case not paired with 126.950"
+  ],
+  [
+   369.0,
+   "Have Quick Time of Day (TOD)"
+  ],
+  [
+   268.2,
+   "Elgin MOA Range Control Secondary (\"Barnyard\")"
+  ]
+ ]
+}
