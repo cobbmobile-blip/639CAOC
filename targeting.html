@@ -36,6 +36,11 @@
   .note { font-size: 12.5px; color: var(--muted); }
   .t-lbl { background: rgba(0,0,0,.72); color: #fff; border: 0; box-shadow: none; font: 600 10.5px var(--mono); padding: 1px 4px; }
   .t-lbl::before { display: none; }
+  .aoi-read { font: 12px var(--mono); margin-top: 8px; color: var(--text); }
+  .aoi-h { width: 14px !important; height: 14px !important; margin: -7px 0 0 -7px !important; background: #fff; border: 2px solid #000; border-radius: 2px; }
+  .aoi-h.move { border-radius: 50%; background: #000; border-color: #fff; cursor: move; }
+  .aoi-h.rot { border-radius: 50%; background: #f2d14b; cursor: grab; }
+  .aoi-h.rad { border-radius: 50%; }
 </style>
 </head>
 <body>
@@ -77,19 +82,13 @@
         <div class="seg" role="group" aria-label="Area shape" id="areaMode">
           <button data-mode="box">Box</button><button data-mode="point">Point + radius</button><button data-mode="none">Whole theater</button>
         </div>
-        <div class="mini" id="boxIn" style="margin-top:8px">
-          <div><label>North lat</label><input data-a="n" placeholder="42.45"></div>
-          <div><label>South lat</label><input data-a="s" placeholder="41.98"></div>
-          <div><label>West lon</label><input data-a="w" placeholder="41.85"></div>
-          <div><label>East lon</label><input data-a="e" placeholder="43.00"></div>
+        <div class="aoi-read" id="aoiRead"></div>
+        <div class="mini hidden" id="pointIn" style="margin-top:6px;grid-template-columns:repeat(3,minmax(0,1fr))">
+          <div><label>Radius NM</label><input id="radiusIn" inputmode="decimal"></div>
         </div>
-        <div class="mini hidden" id="pointIn" style="margin-top:8px;grid-template-columns:repeat(3,minmax(0,1fr))">
-          <div><label>Centre lat</label><input data-a="lat" placeholder="42.20"></div>
-          <div><label>Centre lon</label><input data-a="lon" placeholder="42.60"></div>
-          <div><label>Radius NM</label><input data-a="radius" placeholder="40"></div>
-        </div>
-        <div class="toolbar" style="margin-top:8px"><button class="btn sm" id="pickBtn">Set on map</button><span class="note" id="pickHint"></span></div>
-        <div class="note" style="margin-top:6px">Defined here for this nomination only — independent of the ACO and theater map. Coordinates take decimal degrees or DCS format (N42°16.2').</div>
+        <div class="toolbar" style="margin-top:6px"><button class="btn sm" id="aoiHere">Move to map view</button><button class="btn sm ghost" id="aoiRot0">Reset rotation</button></div>
+        <div class="note" id="aoiHint" style="margin-top:6px"></div>
+        <div class="note" style="margin-top:6px">Defined here for this nomination only — independent of the ACO and theater map.</div>
       </div>
 
       <div class="step">
@@ -171,52 +170,73 @@
     renderCycle(); touch(); toast(`Loaded ${Math.min(4, kts.length)} key tasks from the Commander's Intent`);
   };
 
-  // ---------- step 2: area of interest (a box or a point + radius, defined on this page) ----------
-  const num = v => (v === "" || v == null ? NaN : TG.parseCoord(v));
+  // ---------- step 2: area of interest (a box or a point + radius, set on the map) ----------
+  // box: { mode: "box", lat, lon (centre), wNM, hNM, rot (degrees clockwise from north) }; point: { mode: "point", lat, lon, radius }
+  const NM_DEG = 60, RAD = Math.PI / 180;
+  (function migrateArea() {
+    const a = st.area, n = TG.parseCoord(a.n), s = TG.parseCoord(a.s), w = TG.parseCoord(a.w), e = TG.parseCoord(a.e);
+    // older saves held a north/south/east/west box
+    if (a.wNM == null && [n, s, w, e].every(isFinite)) {
+      const lat = (n + s) / 2, lon = (w + e) / 2;
+      Object.assign(a, { boxLat: lat, boxLon: lon, wNM: Math.abs(e - w) * NM_DEG * Math.cos(lat * RAD), hNM: Math.abs(n - s) * NM_DEG, rot: 0 });
+    }
+    ["n", "s", "w", "e"].forEach(k => delete a[k]);
+    ["lat", "lon", "radius"].forEach(k => { if (a[k] != null && a[k] !== "") a[k] = TG.parseCoord(a[k]); });
+  })();
+  // flat NM frame around a centre: x east, y north (fine for areas a few hundred NM across)
+  const toXY = (c, ll) => [(ll[1] - c[1]) * NM_DEG * Math.cos(c[0] * RAD), (ll[0] - c[0]) * NM_DEG];
+  const toLL = (c, xy) => [c[0] + xy[1] / NM_DEG, c[1] + xy[0] / (NM_DEG * Math.cos(c[0] * RAD))];
+  // rotate clockwise by deg (bearing convention) and back
+  const rotCW = ([x, y], d) => { const r = d * RAD; return [x * Math.cos(r) + y * Math.sin(r), -x * Math.sin(r) + y * Math.cos(r)]; };
+  const boxSet = a => isFinite(a.boxLat) && isFinite(a.boxLon) && a.wNM > 0 && a.hNM > 0;
+  // corners NW, NE, SE, SW of the (rotated) box
+  function boxCorners(a) {
+    const c = [a.boxLat, a.boxLon], w = a.wNM / 2, h = a.hNM / 2;
+    return [[-w, h], [w, h], [w, -h], [-w, -h]].map(p => toLL(c, rotCW(p, a.rot || 0)));
+  }
   function areaGeometry() {
     const a = st.area;
-    if (a.mode === "point") {
-      const lat = num(a.lat), lon = num(a.lon), r = +a.radius;
-      return isFinite(lat) && isFinite(lon) && r > 0 ? { shape: "circle", lat, lon, radiusNM: r } : null;
-    }
-    if (a.mode === "box") {
-      const n = num(a.n), s = num(a.s), w = num(a.w), e = num(a.e);
-      if (![n, s, w, e].every(isFinite)) return null;
-      const N = Math.max(n, s), S = Math.min(n, s), W = Math.min(w, e), E = Math.max(w, e);
-      return { shape: "polygon", polygon: [[N, W], [N, E], [S, E], [S, W]], box: { N, S, W, E } };
-    }
+    if (a.mode === "point") return isFinite(a.lat) && isFinite(a.lon) && a.radius > 0 ? { shape: "circle", lat: a.lat, lon: a.lon, radiusNM: +a.radius } : null;
+    if (a.mode === "box") return boxSet(a) ? { shape: "polygon", polygon: boxCorners(a) } : null;
     return null;
   }
+  const r1 = v => Math.round(v * 10) / 10;
   function areaLabel() {
     const g = areaGeometry(), a = st.area;
     if (!g) return a.mode === "none" ? "Whole theater" : "Area not set";
-    return g.shape === "circle" ? `${g.radiusNM} NM around ${ddm(g.lat, g.lon)}` : `Box ${ddm(g.box.N, g.box.W)} – ${ddm(g.box.S, g.box.E)}`;
+    return g.shape === "circle" ? `${r1(g.radiusNM)} NM around ${ddm(g.lat, g.lon)}`
+      : `Box ${r1(a.wNM)} × ${r1(a.hNM)} NM centred ${ddm(a.boxLat, a.boxLon)}${Math.round(a.rot || 0) ? `, rotated ${Math.round(a.rot)}°` : ""}`;
   }
+  let rotating = false;
   function renderArea() {
-    const m = st.area.mode;
+    const m = st.area.mode, a = st.area;
     document.querySelectorAll("#areaMode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
-    document.getElementById("boxIn").classList.toggle("hidden", m !== "box");
     document.getElementById("pointIn").classList.toggle("hidden", m !== "point");
-    document.getElementById("pickBtn").classList.toggle("hidden", m === "none");
-    document.querySelectorAll("[data-a]").forEach(i => { i.value = st.area[i.dataset.a] ?? ""; });
+    document.getElementById("aoiHere").classList.toggle("hidden", m === "none");
+    document.getElementById("aoiRot0").classList.toggle("hidden", m !== "box" || !Math.round(a.rot || 0));
+    document.getElementById("aoiRead").textContent = m === "none" ? "Every REDFOR group counts." : areaLabel();
+    const ri = document.getElementById("radiusIn"); if (document.activeElement !== ri) ri.value = a.radius ? r1(a.radius) : "";
+    document.getElementById("aoiHint").textContent = m === "box" ? (rotating
+        ? "Rotate mode: drag the yellow handle to turn the box. Double-click the box again (or press Esc) to go back to resizing."
+        : "Drag the box to move it, a corner to resize it. Double-click the box to rotate it.")
+      : m === "point" ? "Drag the centre to move the circle, the edge handle to change the radius." : "";
+  }
+  // a new box or circle starts in the middle of what the map shows
+  function seedArea(mode) {
+    const a = st.area, b = map.getBounds(), c = map.getCenter();
+    const hNM = (b.getNorth() - b.getSouth()) * NM_DEG * 0.5, wNM = (b.getEast() - b.getWest()) * NM_DEG * Math.cos(c.lat * RAD) * 0.5;
+    if (mode === "box") Object.assign(a, { boxLat: c.lat, boxLon: c.lng, wNM, hNM, rot: a.rot || 0 });
+    else Object.assign(a, { lat: c.lat, lon: c.lng, radius: a.radius || Math.round(Math.min(wNM, hNM) / 2) });
   }
   document.getElementById("areaMode").onclick = e => { const m = e.target.closest("[data-mode]")?.dataset.mode; if (!m) return;
-    st.area.mode = m; picking = null; setPick(); renderArea(); drawMap(); touch(); };
-  document.querySelectorAll("[data-a]").forEach(i => i.addEventListener("input", () => { st.area[i.dataset.a] = i.value.trim(); drawMap(false); touch(); }));
-
-  // set the area by clicking the map: one click for a point, two corners for a box
-  let picking = null, firstCorner = null;
-  function setPick(msg) {
-    document.getElementById("pickHint").textContent = msg || "";
-    document.getElementById("pickBtn").textContent = picking ? "Cancel" : "Set on map";
-    map.getContainer().style.cursor = picking ? "crosshair" : "";
-  }
-  document.getElementById("pickBtn").onclick = () => {
-    if (picking) { picking = null; setPick(); return; }
-    picking = st.area.mode; firstCorner = null;
-    setPick(picking === "point" ? "Click the centre of the area on the map." : "Click one corner of the box, then the opposite corner.");
-  };
-  const fix = v => +v.toFixed(4);
+    st.area.mode = m; rotating = false;
+    if ((m === "box" && !boxSet(st.area)) || (m === "point" && !areaGeometry())) seedArea(m);
+    renderArea(); drawAoi(); touch(); };
+  document.getElementById("radiusIn").addEventListener("input", e => { const v = parseFloat(e.target.value);
+    if (v > 0) { st.area.radius = v; drawAoi(); renderArea(); touch(); } });
+  document.getElementById("aoiHere").onclick = () => { seedArea(st.area.mode); renderArea(); drawAoi(); touch(); };
+  document.getElementById("aoiRot0").onclick = () => { st.area.rot = 0; renderArea(); drawAoi(); touch(); };
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && rotating) { rotating = false; renderArea(); drawAoi(); } });
 
   // ---------- step 3: order of battle sources ----------
   function renderSources() {
@@ -355,17 +375,14 @@
   };
 
   // ---------- map preview ----------
-  const map = L.map("tmap", { zoomControl: true });
+  const map = L.map("tmap", { zoomControl: true, doubleClickZoom: false });
   L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, attribution: "© OpenTopoMap, © OpenStreetMap contributors" }).addTo(map);
-  const layer = L.layerGroup().addTo(map);
+  const layer = L.layerGroup().addTo(map), aoiLayer = L.layerGroup().addTo(map);
   const COLORS = { jiptl: "#e5534b", watchlist: "#f2d14b", outOfBMA: "#8ea1b3" };
-  // fit = false keeps the view still while coordinates are being typed or clicked
+  // fit = false keeps the view still
   function drawMap(fit = true) {
     layer.clearLayers();
-    const bma = areaGeometry(), pts = [];
-    if (bma) (bma.shape === "circle" ? L.circle([bma.lat, bma.lon], { radius: bma.radiusNM * 1852 }) : L.polygon(bma.polygon))
-      .setStyle({ color: "#ffffff", weight: 2.5, dashArray: "8 6", fillOpacity: .05, interactive: false }).bindTooltip("Area of interest").addTo(layer);
-    if (bma?.shape === "circle") L.circleMarker([bma.lat, bma.lon], { radius: 4, color: "#fff", weight: 2, fillColor: "#000", fillOpacity: 1, interactive: false }).addTo(layer);
+    const pts = [];
     if (st.results) ["outOfBMA", "watchlist", "jiptl"].forEach(k => st.results[k].forEach((g, i) => {
       pts.push([g.lat, g.lon]);
       // short rank labels keep a dense target area readable; click a dot for the details
@@ -377,22 +394,75 @@
     }));
     else st.imports.flatMap(f => f.rows).forEach(u => { pts.push([u.lat, u.lon]); L.circleMarker([u.lat, u.lon], { radius: 4, color: "#000", weight: 1, fillColor: "#f28c28", fillOpacity: .9 }).bindTooltip(`${u.group} · ${u.type}`).addTo(layer); });
     if (!fit) return;
-    const b = L.featureGroup(layer.getLayers());
-    if (layer.getLayers().length) map.fitBounds(b.getBounds(), { padding: [24, 24], maxZoom: 10 });
+    const b = L.featureGroup([...layer.getLayers(), ...aoiLayer.getLayers().filter(l => l.getBounds)]);
+    if (b.getLayers().length) map.fitBounds(b.getBounds(), { padding: [24, 24], maxZoom: 10 });
     else map.setView([42.2, 42.6], 7);
   }
-  map.on("click", e => {
-    if (!picking) return;
-    const { lat, lng } = e.latlng;
-    if (picking === "point") { Object.assign(st.area, { lat: String(fix(lat)), lon: String(fix(lng)), radius: st.area.radius || "40" }); picking = null; setPick(); }
-    else if (!firstCorner) { firstCorner = [lat, lng]; setPick("Now click the opposite corner."); return; }
-    else { Object.assign(st.area, { n: String(fix(Math.max(lat, firstCorner[0]))), s: String(fix(Math.min(lat, firstCorner[0]))),
-        w: String(fix(Math.min(lng, firstCorner[1]))), e: String(fix(Math.max(lng, firstCorner[1]))) }); picking = null; firstCorner = null; setPick(); }
-    renderArea(); drawMap(false); touch();
-  });
+  // ---------- area of interest on the map: drag the box or its corners; double-click to rotate ----------
+  const handle = (ll, cls, title) => L.marker(ll, { draggable: true, keyboard: false, title, icon: L.divIcon({ className: `aoi-h ${cls}`, iconSize: null }) }).addTo(aoiLayer);
+  const AOI_STYLE = { color: "#ffffff", weight: 2.5, dashArray: "8 6", fillOpacity: .07 };
+  let aoi = null;   // { shape, handles... } for the area currently drawn
+  function changed() { renderArea(); touch(); }
+  function drawAoi() {
+    aoiLayer.clearLayers(); aoi = null;
+    const a = st.area;
+    if (a.mode === "box" && boxSet(a)) {
+      const poly = L.polygon(boxCorners(a), { ...AOI_STYLE, bubblingMouseEvents: false }).addTo(aoiLayer);
+      poly.getElement()?.style.setProperty("cursor", rotating ? "pointer" : "move");
+      aoi = { poly };
+      if (rotating) {
+        // handle sits off the middle of the top edge, beyond the box
+        aoi.rot = handle(rotHandlePos(a), "rot", "Drag to rotate");
+        aoi.rot.on("drag", e => { const c = [a.boxLat, a.boxLon], [x, y] = toXY(c, [e.latlng.lat, e.latlng.lng]);
+          a.rot = ((Math.atan2(x, y) / RAD) + 360) % 360; updateAoi("rot"); renderArea(); }).on("dragend", () => { aoi.rot.setLatLng(rotHandlePos(a)); changed(); });
+      } else {
+        aoi.corners = boxCorners(a).map((ll, i) => handle(ll, "", "Drag to resize").on("drag", e => dragCorner(i, e.latlng)).on("dragend", changed));
+      }
+      // drag the whole box by its body
+      poly.on("mousedown", e => {
+        if (e.originalEvent.button !== 0) return;
+        L.DomEvent.stop(e); map.dragging.disable();
+        const start = e.latlng, c0 = [a.boxLat, a.boxLon];
+        const move = ev => { a.boxLat = c0[0] + ev.latlng.lat - start.lat; a.boxLon = c0[1] + ev.latlng.lng - start.lng; updateAoi(); };
+        const up = () => { map.off("mousemove", move); map.off("mouseup", up); document.removeEventListener("mouseup", up); map.dragging.enable(); changed(); };
+        map.on("mousemove", move); map.on("mouseup", up); document.addEventListener("mouseup", up);
+      });
+      poly.on("dblclick", e => { L.DomEvent.stop(e); rotating = !rotating; renderArea(); drawAoi(); });
+    } else if (a.mode === "point" && areaGeometry()) {
+      const circ = L.circle([a.lat, a.lon], { ...AOI_STYLE, radius: a.radius * 1852, interactive: false }).addTo(aoiLayer);
+      aoi = { circ };
+      aoi.centre = handle([a.lat, a.lon], "move", "Drag to move").on("drag", e => { a.lat = e.latlng.lat; a.lon = e.latlng.lng; updateAoi(); }).on("dragend", changed);
+      aoi.rad = handle(radHandlePos(a), "rad", "Drag to change the radius").on("drag", e => {
+        a.radius = Math.max(1, Math.hypot(...toXY([a.lat, a.lon], [e.latlng.lat, e.latlng.lng]))); updateAoi(true); renderArea(); })
+        .on("dragend", () => { aoi.rad.setLatLng(radHandlePos(a)); changed(); });
+    }
+  }
+  const rotHandlePos = a => toLL([a.boxLat, a.boxLon], rotCW([0, a.hNM / 2 + Math.max(3, a.hNM * 0.15)], a.rot || 0));
+  const radHandlePos = a => toLL([a.lat, a.lon], [a.radius, 0]);
+  // resize from one corner with the opposite corner held still, in the box's own (rotated) frame
+  function dragCorner(i, ll) {
+    const a = st.area, c = [a.boxLat, a.boxLon], opp = boxCorners(a)[(i + 2) % 4];
+    const o = toXY(c, opp), p = toXY(c, [ll.lat, ll.lng]);
+    const [dx, dy] = rotCW([p[0] - o[0], p[1] - o[1]], -(a.rot || 0));
+    a.wNM = Math.max(0.5, Math.abs(dx)); a.hNM = Math.max(0.5, Math.abs(dy));
+    const mid = [(p[0] + o[0]) / 2, (p[1] + o[1]) / 2], nc = toLL(c, mid);
+    a.boxLat = nc[0]; a.boxLon = nc[1];
+    updateAoi(i); renderArea();
+  }
+  // move shapes and handles in place (rebuilding mid-drag would drop the drag); skip = the handle being dragged
+  function updateAoi(skip) {
+    const a = st.area; if (!aoi) return;
+    if (aoi.poly) {
+      const cs = boxCorners(a); aoi.poly.setLatLngs(cs);
+      aoi.corners?.forEach((h, i) => { if (i !== skip) h.setLatLng(cs[i]); });
+      if (aoi.rot && skip !== "rot") aoi.rot.setLatLng(rotHandlePos(a));
+    }
+    if (aoi.circ) { aoi.circ.setLatLng([a.lat, a.lon]).setRadius(a.radius * 1852); if (skip !== true) aoi.rad.setLatLng(radHandlePos(a)); }
+    if (skip == null) renderArea();
+  }
 
   window.addEventListener("beforeunload", () => { save(); });
-  renderCycle(); renderArea(); renderSources(); renderResults(); setState(); drawMap();
+  renderCycle(); renderArea(); renderSources(); renderResults(); setState(); drawAoi(); drawMap();
 
   // first visit to a seeded campaign: pull in its sample REDFOR export
   if (saved.sampleCsv && !saved.sampleLoaded) {

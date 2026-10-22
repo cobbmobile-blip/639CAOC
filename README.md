@@ -85,7 +85,8 @@ Browser port of `OLD/tools/jiptl_pipeline/jiptl_generate.py`:
 
 1. **Key tasks & priorities** — the cycle config: Key Task weights and per-task caps, tier weights, default grades.
    Task 5 (CAS/TST) is continuous and never ranked.
-2. **Area of interest** — a box (N/S/E/W bounds) or a point + radius, typed in or set by clicking the page's map.
+2. **Area of interest** — set on the page's map: a box (drag it to move, drag a corner to resize, double-click it to
+   rotate with the yellow handle) or a point + radius (drag the centre and the edge handle, or type the radius).
    Defined on this page only; it is independent of the ACO and the theater map.
 3. **REDFOR order of battle** — Coalition Parser CSV exports (`Group, Unit, Type, Latitude, Longitude, Altitude (ft)`;
    DMS or decimal). `samples/iron_trident_redfor.csv` is an example.
