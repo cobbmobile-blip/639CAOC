@@ -250,7 +250,7 @@
       <a class="brand" href="${unit ? "unit.html" : "index.html"}">${LOGO}<span>VIRTUAL AOC<small>${opts.unit ? "OP STATUS · UNIT PORTAL" : "COMBINED AIR OPERATIONS CENTER"}</small></span></a>
       <nav class="topnav">${(unit
         ? [["unit.html", "Op Status"], ...(load().campaigns.some(c => c.jfacc?.group === unit.id) ? [["mission-file.html", "Mission file"], ["ato-request.html", "ATO requests"], ["debrief.html", "Debrief"]] : []), ["campaign-submit.html", "Submit a campaign"]]
-        : u ? [["index.html", "Dashboard"], ["rollup.html", "Rollup"], ["unit.html", "Op Status"], ["campaign-review.html", "Proposals" + (pending ? ` (${pending})` : "")]] : [])
+        : u ? [["index.html", "Dashboard"], ["rollup.html", "Rollup"], ["jceoi.html", "JCEOI"], ["unit.html", "Op Status"], ["campaign-review.html", "Proposals" + (pending ? ` (${pending})` : "")]] : [])
         .map(([href, label]) => `<a href="${href}" ${location.pathname.endsWith(href) ? 'aria-current="page"' : ""}>${label}</a>`).join("")}</nav>
       <span class="spacer"></span>
       <span class="zulu" id="zulu"></span>

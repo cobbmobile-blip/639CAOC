@@ -1,0 +1,943 @@
+{
+ "theater": "Falklands",
+ "source": "pydcs terrain data (dcs-retribution/pydcs@retribution, dcs/terrain/falklands/airports.py)",
+ "radios": [
+  {
+   "site": "Port Stanley",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.975,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Port Stanley",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Port Stanley",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Port Stanley",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mount Pleasant",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mount Pleasant",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mount Pleasant",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 133.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mount Pleasant",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "San Carlos FOB",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.175,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "San Carlos FOB",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "San Carlos FOB",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "San Carlos FOB",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Gallegos",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Gallegos",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Gallegos",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Gallegos",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Grande",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.225,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Grande",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Grande",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Grande",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ushuaia",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ushuaia",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ushuaia",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ushuaia",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ushuaia Helo Port",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.275,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ushuaia Helo Port",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ushuaia Helo Port",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ushuaia Helo Port",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Punta Arenas",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Punta Arenas",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Punta Arenas",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Punta Arenas",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pampa Guanaco",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pampa Guanaco",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pampa Guanaco",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pampa Guanaco",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "San Julian",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.775,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "San Julian",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "San Julian",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "San Julian",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Williams",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Williams",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Williams",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Williams",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Natales",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.825,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Natales",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Natales",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 128.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Natales",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "El Calafate",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "El Calafate",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "El Calafate",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "El Calafate",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Santa Cruz",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.875,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Santa Cruz",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Santa Cruz",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Puerto Santa Cruz",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Comandante Luis Piedrabuena",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Comandante Luis Piedrabuena",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Comandante Luis Piedrabuena",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Comandante Luis Piedrabuena",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tolhuin",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.925,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tolhuin",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tolhuin",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tolhuin",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Porvenir",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Porvenir",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Porvenir",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Porvenir",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Almirante Schroeders",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Almirante Schroeders",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Almirante Schroeders",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Almirante Schroeders",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 229.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Turbio",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Turbio",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Turbio",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Turbio",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Chico",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.025,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Chico",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Chico",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rio Chico",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Franco Bianco",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Franco Bianco",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Franco Bianco",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 128.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Franco Bianco",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Goose Green",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.075,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Goose Green",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Goose Green",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Goose Green",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hipico Flying Club",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hipico Flying Club",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hipico Flying Club",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 131.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hipico Flying Club",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 235.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gobernador Gregores",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gobernador Gregores",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gobernador Gregores",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gobernador Gregores",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "O'Higgins",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.125,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "O'Higgins",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "O'Higgins",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "O'Higgins",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gull Point",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gull Point",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gull Point",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gull Point",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 234.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  }
+ ],
+ "beacons": []
+}

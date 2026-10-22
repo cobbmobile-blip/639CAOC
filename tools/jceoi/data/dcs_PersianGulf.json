@@ -1,0 +1,1203 @@
+{
+ "theater": "Persian Gulf",
+ "source": "DCS World install, Mods/terrains/PersianGulf",
+ "radios": [
+  {
+   "site": "OMAA",
+   "callsigns": [
+    "OMAA"
+   ],
+   "radioId": "airfield22_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OIBA",
+   "callsigns": [
+    "OIBA"
+   ],
+   "radioId": "airfield1_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMAL",
+   "callsigns": [
+    "OMAL"
+   ],
+   "radioId": "airfield25_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.85,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMAD",
+   "callsigns": [
+    "OMAD"
+   ],
+   "radioId": "airfield23_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OIKB",
+   "callsigns": [
+    "OIKB"
+   ],
+   "radioId": "airfield2_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OIBL",
+   "callsigns": [
+    "OIBL"
+   ],
+   "radioId": "airfield3_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMAM",
+   "callsigns": [
+    "OMAM"
+   ],
+   "radioId": "airfield4_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMDB",
+   "callsigns": [
+    "OMDB"
+   ],
+   "radioId": "airfield5_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMDW",
+   "callsigns": [
+    "OMDW"
+   ],
+   "radioId": "airfield6_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMFJ",
+   "callsigns": [
+    "OMFJ"
+   ],
+   "radioId": "airfield7_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Havadarya",
+   "callsigns": [
+    "Havadarya"
+   ],
+   "radioId": "airfield9_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OIKJ",
+   "callsigns": [
+    "OIKJ"
+   ],
+   "radioId": "airfield27_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 136.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "KERMAN",
+   "callsigns": [
+    "KERMAN"
+   ],
+   "radioId": "airfield18_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Khasab",
+   "callsigns": [
+    "Khasab"
+   ],
+   "radioId": "airfield10_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kish",
+   "callsigns": [
+    "Kish"
+   ],
+   "radioId": "airfield24_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.65,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OISL",
+   "callsigns": [
+    "OISL"
+   ],
+   "radioId": "airfield11_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "LVA",
+   "callsigns": [
+    "LVA"
+   ],
+   "radioId": "airfield26_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 128.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMLW",
+   "callsigns": [
+    "OMLW"
+   ],
+   "radioId": "airfield29_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMDM",
+   "callsigns": [
+    "OMDM"
+   ],
+   "radioId": "airfield12_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Qeshm Island",
+   "callsigns": [
+    "Qeshm Island"
+   ],
+   "radioId": "airfield13_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMRK",
+   "callsigns": [
+    "OMRK"
+   ],
+   "radioId": "airfield28_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMNK",
+   "callsigns": [
+    "OMNK"
+   ],
+   "radioId": "airfield20_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 128.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "SharjahIntl",
+   "callsigns": [
+    "SharjahIntl"
+   ],
+   "radioId": "airfield14_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "SHIRAZ",
+   "callsigns": [
+    "SHIRAZ"
+   ],
+   "radioId": "airfield19_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OMSN",
+   "callsigns": [
+    "OMSN"
+   ],
+   "radioId": "airfield17_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OIBS",
+   "callsigns": [
+    "OIBS"
+   ],
+   "radioId": "airfield15_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 135.05,
+   "use": "ATC (ground/tower/approach)"
+  }
+ ],
+ "beacons": [
+  {
+   "site": "Kish",
+   "type": "VOR_DME",
+   "callsign": "KIS",
+   "mhz": 117.4,
+   "tacan": 121,
+   "lat": 26.525121,
+   "lon": 53.962624
+  },
+  {
+   "site": "DohaAirport",
+   "type": "VOR_DME",
+   "callsign": "DIA",
+   "mhz": 112.4,
+   "tacan": 71,
+   "lat": 25.241526,
+   "lon": 51.590504
+  },
+  {
+   "site": "HamadInternationalAirport",
+   "type": "VOR_DME",
+   "callsign": "DOH",
+   "mhz": 114.4,
+   "tacan": 91,
+   "lat": 25.246739,
+   "lon": 51.609075
+  },
+  {
+   "site": "DezfulAirport",
+   "type": "HOMER",
+   "callsign": "DZF",
+   "mhz": 0.293,
+   "tacan": null,
+   "lat": 32.437688,
+   "lon": 48.382055
+  },
+  {
+   "site": "AbadanIntAirport",
+   "type": "VOR_DME",
+   "callsign": "ABD",
+   "mhz": 115.1,
+   "tacan": 98,
+   "lat": 30.36944,
+   "lon": 48.225308
+  },
+  {
+   "site": "AhvazIntAirport",
+   "type": "VOR_DME",
+   "callsign": "AWZ",
+   "mhz": 114.0,
+   "tacan": 87,
+   "lat": 31.33368,
+   "lon": 48.753383
+  },
+  {
+   "site": "AghajariAirport",
+   "type": "VOR_DME",
+   "callsign": "AJR",
+   "mhz": 114.9,
+   "tacan": 96,
+   "lat": 30.747129,
+   "lon": 49.666614
+  },
+  {
+   "site": "BirjandIntAirport",
+   "type": "VOR_DME",
+   "callsign": "BJD",
+   "mhz": 113.5,
+   "tacan": 82,
+   "lat": 32.971711,
+   "lon": 59.188199
+  },
+  {
+   "site": "BushehrIntAirport",
+   "type": "VOR_DME",
+   "callsign": "BUZ",
+   "mhz": 117.45,
+   "tacan": 121,
+   "lat": 28.95439,
+   "lon": 50.822687
+  },
+  {
+   "site": "KonarakAirport",
+   "type": "VOR_DME",
+   "callsign": "CBH",
+   "mhz": 115.6,
+   "tacan": 103,
+   "lat": 25.442493,
+   "lon": 60.418338
+  },
+  {
+   "site": "IsfahanIntAirport",
+   "type": "VOR_DME",
+   "callsign": "ISN",
+   "mhz": 113.2,
+   "tacan": 79,
+   "lat": 32.7432,
+   "lon": 51.829935
+  },
+  {
+   "site": "KhoramabadAirport",
+   "type": "VOR_DME",
+   "callsign": "KRD",
+   "mhz": 113.75,
+   "tacan": 84,
+   "lat": 33.435603,
+   "lon": 48.291565
+  },
+  {
+   "site": "PersianGulfIntAirport",
+   "type": "VOR_DME",
+   "callsign": "PRG",
+   "mhz": 112.1,
+   "tacan": 58,
+   "lat": 27.360736,
+   "lon": 52.763921
+  },
+  {
+   "site": "YasoujAirport",
+   "type": "VOR_DME",
+   "callsign": "YSJ",
+   "mhz": 116.55,
+   "tacan": 112,
+   "lat": 30.692267,
+   "lon": 51.558332
+  },
+  {
+   "site": "BamAirport",
+   "type": "VOR_DME",
+   "callsign": "BAM",
+   "mhz": 114.9,
+   "tacan": 96,
+   "lat": 29.076448,
+   "lon": 58.45711
+  },
+  {
+   "site": "MahshahrAirport",
+   "type": "VOR_DME",
+   "callsign": "MAH",
+   "mhz": 115.8,
+   "tacan": 105,
+   "lat": 30.552476,
+   "lon": 49.15377
+  },
+  {
+   "site": "IranShahrAirport",
+   "type": "VOR_DME",
+   "callsign": "ISR",
+   "mhz": 117.0,
+   "tacan": 117,
+   "lat": 27.250878,
+   "lon": 60.743301
+  },
+  {
+   "site": "LamerdAirport",
+   "type": "VOR_DME",
+   "callsign": "LAM",
+   "mhz": 117.0,
+   "tacan": 117,
+   "lat": 27.373321,
+   "lon": 53.183399
+  },
+  {
+   "site": "SirjanAirport",
+   "type": "VOR_DME",
+   "callsign": "SRJ",
+   "mhz": 114.6,
+   "tacan": 93,
+   "lat": 29.556245,
+   "lon": 55.662874
+  },
+  {
+   "site": "YazdIntAirport",
+   "type": "VOR_DME",
+   "callsign": "YZD",
+   "mhz": 117.7,
+   "tacan": 124,
+   "lat": 31.905809,
+   "lon": 54.282602
+  },
+  {
+   "site": "ZabolAirport",
+   "type": "VOR_DME",
+   "callsign": "ZAL",
+   "mhz": 113.1,
+   "tacan": 78,
+   "lat": 31.098855,
+   "lon": 61.539211
+  },
+  {
+   "site": "ZahedanIntAirport",
+   "type": "VOR_DME",
+   "callsign": "ZDN",
+   "mhz": 116.0,
+   "tacan": 107,
+   "lat": 29.47862,
+   "lon": 60.897067
+  },
+  {
+   "site": "RafsanjanAirport",
+   "type": "VOR_DME",
+   "callsign": "RAF",
+   "mhz": 112.3,
+   "tacan": 70,
+   "lat": 30.301377,
+   "lon": 56.053985
+  },
+  {
+   "site": "SaravanAirport",
+   "type": "VOR_DME",
+   "callsign": "SRN",
+   "mhz": 114.1,
+   "tacan": 88,
+   "lat": 27.401091,
+   "lon": 62.314887
+  },
+  {
+   "site": "BuHasa",
+   "type": "DME",
+   "callsign": "BH",
+   "mhz": 309.0,
+   "tacan": null,
+   "lat": 23.610117,
+   "lon": 53.383057
+  },
+  {
+   "site": "AbuDhabiInt",
+   "type": "DME",
+   "callsign": "ADV",
+   "mhz": 114.25,
+   "tacan": 119,
+   "lat": 24.419118,
+   "lon": 54.672854
+  },
+  {
+   "site": "ABUDHABI",
+   "type": "VOR",
+   "callsign": "ADV",
+   "mhz": 114.25,
+   "tacan": null,
+   "lat": 24.441924,
+   "lon": 54.656381
+  },
+  {
+   "site": "Abumusa",
+   "type": "DME",
+   "callsign": "ABM",
+   "mhz": 0.285,
+   "tacan": 101,
+   "lat": 25.87814,
+   "lon": 55.02287
+  },
+  {
+   "site": "AlAinInt",
+   "type": "VOR_DME",
+   "callsign": "ALN",
+   "mhz": 112.6,
+   "tacan": 119,
+   "lat": 24.259134,
+   "lon": 55.606308
+  },
+  {
+   "site": "AlBateenInt",
+   "type": "VOR",
+   "callsign": "ALB",
+   "mhz": 114.0,
+   "tacan": 119,
+   "lat": 24.438753,
+   "lon": 54.446339
+  },
+  {
+   "site": "BandarAbbas",
+   "type": "VOR_DME",
+   "callsign": "BND",
+   "mhz": 117.2,
+   "tacan": 119,
+   "lat": 27.196943,
+   "lon": 56.366971
+  },
+  {
+   "site": "BandarAbbas",
+   "type": "HOMER",
+   "callsign": "BND",
+   "mhz": 0.25,
+   "tacan": null,
+   "lat": 27.215742,
+   "lon": 56.359493
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IBND",
+   "mhz": 109.9,
+   "tacan": null,
+   "lat": 27.19893,
+   "lon": 56.367921
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IBND",
+   "mhz": 109.9,
+   "tacan": null,
+   "lat": 27.228633,
+   "lon": 56.386212
+  },
+  {
+   "site": "BandarAbbas",
+   "type": "TACAN",
+   "callsign": "BND",
+   "mhz": null,
+   "tacan": 78,
+   "lat": 27.216956,
+   "lon": 56.381018
+  },
+  {
+   "site": "BandarEJask",
+   "type": "VOR_DME",
+   "callsign": "KHM",
+   "mhz": 116.3,
+   "tacan": null,
+   "lat": 25.653478,
+   "lon": 57.795989
+  },
+  {
+   "site": "JASK",
+   "type": "HOMER",
+   "callsign": "JSK",
+   "mhz": 0.349,
+   "tacan": null,
+   "lat": 25.652921,
+   "lon": 57.781546
+  },
+  {
+   "site": "",
+   "type": "TACAN",
+   "callsign": "JSK",
+   "mhz": null,
+   "tacan": 110,
+   "lat": 25.646221,
+   "lon": 57.783857
+  },
+  {
+   "site": "BandarLengeh",
+   "type": "HOMER",
+   "callsign": "LEN",
+   "mhz": 0.408,
+   "tacan": null,
+   "lat": 26.530575,
+   "lon": 54.831754
+  },
+  {
+   "site": "BandarLengeh",
+   "type": "VOR_DME",
+   "callsign": "LEN",
+   "mhz": 114.8,
+   "tacan": 95,
+   "lat": 26.536353,
+   "lon": 54.851123
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "MMA",
+   "mhz": 109.1,
+   "tacan": 28,
+   "lat": 24.24185,
+   "lon": 54.558813
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "LMA",
+   "mhz": 108.7,
+   "tacan": 24,
+   "lat": 24.23982,
+   "lon": 54.539683
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IMA",
+   "mhz": 111.1,
+   "tacan": 48,
+   "lat": 24.257237,
+   "lon": 54.536522
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "RMA",
+   "mhz": 108.7,
+   "tacan": 24,
+   "lat": 24.22081,
+   "lon": 54.569308
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "MMA",
+   "mhz": 109.1,
+   "tacan": 28,
+   "lat": 24.26012,
+   "lon": 54.530469
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "RMA",
+   "mhz": 108.7,
+   "tacan": 24,
+   "lat": 24.24266,
+   "lon": 54.534107
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "LMA",
+   "mhz": 108.7,
+   "tacan": 24,
+   "lat": 24.219277,
+   "lon": 54.56807
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IMA",
+   "mhz": 111.1,
+   "tacan": 48,
+   "lat": 24.236524,
+   "lon": 54.564789
+  },
+  {
+   "site": "AlDhafra",
+   "type": "VORTAC",
+   "callsign": "MA",
+   "mhz": 114.9,
+   "tacan": 96,
+   "lat": 24.246803,
+   "lon": 54.545386
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IDBW",
+   "mhz": 109.5,
+   "tacan": null,
+   "lat": 25.233579,
+   "lon": 55.398979
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IDBR",
+   "mhz": 110.1,
+   "tacan": null,
+   "lat": 25.24698,
+   "lon": 55.382285
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IDBE",
+   "mhz": 111.3,
+   "tacan": null,
+   "lat": 25.258581,
+   "lon": 55.353947
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IDBL",
+   "mhz": 110.9,
+   "tacan": null,
+   "lat": 25.267352,
+   "lon": 55.345444
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IDBL",
+   "mhz": 110.9,
+   "tacan": null,
+   "lat": 25.249872,
+   "lon": 55.378842
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IDBR",
+   "mhz": 110.1,
+   "tacan": null,
+   "lat": 25.264181,
+   "lon": 55.353679
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IDBE",
+   "mhz": 111.3,
+   "tacan": null,
+   "lat": 25.238494,
+   "lon": 55.392357
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IDBW",
+   "mhz": 109.5,
+   "tacan": null,
+   "lat": 25.252555,
+   "lon": 55.367372
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IJEA",
+   "mhz": 111.75,
+   "tacan": null,
+   "lat": 24.884666,
+   "lon": 55.182751
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IJWA",
+   "mhz": 109.75,
+   "tacan": null,
+   "lat": 24.888616,
+   "lon": 55.177872
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IJEA",
+   "mhz": 111.75,
+   "tacan": null,
+   "lat": 24.906703,
+   "lon": 55.145846
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IJWA",
+   "mhz": 109.75,
+   "tacan": null,
+   "lat": 24.908491,
+   "lon": 55.13947
+  },
+  {
+   "site": "Fujairah",
+   "type": "VOR_DME",
+   "callsign": "FJV",
+   "mhz": 113.8,
+   "tacan": 85,
+   "lat": 25.100651,
+   "lon": 56.354556
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IFJR",
+   "mhz": 111.5,
+   "tacan": null,
+   "lat": 25.105538,
+   "lon": 56.338172
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IFJR",
+   "mhz": 111.5,
+   "tacan": null,
+   "lat": 25.11971,
+   "lon": 56.303773
+  },
+  {
+   "site": "Havadarya",
+   "type": "TACAN",
+   "callsign": "HDR",
+   "mhz": 111.0,
+   "tacan": 47,
+   "lat": 27.160571,
+   "lon": 56.172924
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IBHD",
+   "mhz": 108.9,
+   "tacan": null,
+   "lat": 27.160724,
+   "lon": 56.186029
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IBHD",
+   "mhz": 108.9,
+   "tacan": null,
+   "lat": 27.157037,
+   "lon": 56.163095
+  },
+  {
+   "site": "Jiroft",
+   "type": "AIRPORT_HOMER",
+   "callsign": "JIR",
+   "mhz": 0.276,
+   "tacan": null,
+   "lat": 28.732118,
+   "lon": 57.67214
+  },
+  {
+   "site": "KERMAN",
+   "type": "TACAN",
+   "callsign": "KER",
+   "mhz": 122.5,
+   "tacan": 97,
+   "lat": 30.264595,
+   "lon": 56.957928
+  },
+  {
+   "site": "KERMAN",
+   "type": "VOR_DME",
+   "callsign": "KER",
+   "mhz": 112.0,
+   "tacan": 57,
+   "lat": 30.285146,
+   "lon": 56.943809
+  },
+  {
+   "site": "KERMAN",
+   "type": "DME",
+   "callsign": "KER",
+   "mhz": 290.0,
+   "tacan": null,
+   "lat": 30.265587,
+   "lon": 56.960809
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IBKS",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 26.158057,
+   "lon": 56.236991
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IBKS",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 26.177903,
+   "lon": 56.242914
+  },
+  {
+   "site": "KishIsland",
+   "type": "HOMER",
+   "callsign": "KIH",
+   "mhz": 0.201,
+   "tacan": null,
+   "lat": 26.527522,
+   "lon": 53.952435
+  },
+  {
+   "site": "KishIsland",
+   "type": "TACAN",
+   "callsign": "KIH",
+   "mhz": null,
+   "tacan": 112,
+   "lat": 26.523074,
+   "lon": 54.011059
+  },
+  {
+   "site": "LAR",
+   "type": "VOR_DME",
+   "callsign": "LAR",
+   "mhz": 117.9,
+   "tacan": null,
+   "lat": 27.674948,
+   "lon": 54.416221
+  },
+  {
+   "site": "LAR",
+   "type": "HOMER",
+   "callsign": "OISL",
+   "mhz": 0.224,
+   "tacan": null,
+   "lat": 27.669854,
+   "lon": 54.375895
+  },
+  {
+   "site": "LavanIsland",
+   "type": "VOR_DME",
+   "callsign": "LVA",
+   "mhz": 116.85,
+   "tacan": 115,
+   "lat": 26.812091,
+   "lon": 53.355979
+  },
+  {
+   "site": "LavanIsland",
+   "type": "HOMER",
+   "callsign": "LVA",
+   "mhz": 0.31,
+   "tacan": 0,
+   "lat": 26.800016,
+   "lon": 53.386456
+  },
+  {
+   "site": "LiwaAirbase",
+   "type": "VORTAC",
+   "callsign": "OMLW",
+   "mhz": 117.4,
+   "tacan": 121,
+   "lat": 23.667518,
+   "lon": 53.803688
+  },
+  {
+   "site": "Minhad",
+   "type": "TACAN",
+   "callsign": "MIN",
+   "mhz": 115.2,
+   "tacan": 99,
+   "lat": 25.02722,
+   "lon": 55.395556
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IMNW",
+   "mhz": 110.7,
+   "tacan": null,
+   "lat": 25.027125,
+   "lon": 55.388944
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IMNW",
+   "mhz": 110.7,
+   "tacan": null,
+   "lat": 25.027792,
+   "lon": 55.349815
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IMNR",
+   "mhz": 110.75,
+   "tacan": null,
+   "lat": 25.026616,
+   "lon": 55.34358
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IMNR",
+   "mhz": 110.75,
+   "tacan": null,
+   "lat": 25.028136,
+   "lon": 55.38255
+  },
+  {
+   "site": "GheshmIsland",
+   "type": "HOMER",
+   "callsign": "KHM",
+   "mhz": 0.233,
+   "tacan": null,
+   "lat": 26.762802,
+   "lon": 55.907839
+  },
+  {
+   "site": "GheshmIsland",
+   "type": "VOR_DME",
+   "callsign": "KHM",
+   "mhz": 117.1,
+   "tacan": null,
+   "lat": 26.762831,
+   "lon": 55.907816
+  },
+  {
+   "site": "RasAlKhaimah",
+   "type": "VOR_DME",
+   "callsign": "OMRK",
+   "mhz": 113.6,
+   "tacan": 83,
+   "lat": 25.588549,
+   "lon": 55.946619
+  },
+  {
+   "site": "SasAlNakheel",
+   "type": "VOR_DME",
+   "callsign": "SAS",
+   "mhz": 128.925,
+   "tacan": 119,
+   "lat": 24.450229,
+   "lon": 54.51429
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ISRE",
+   "mhz": 108.55,
+   "tacan": null,
+   "lat": 25.319219,
+   "lon": 55.538154
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ISHW",
+   "mhz": 111.95,
+   "tacan": null,
+   "lat": 25.341794,
+   "lon": 55.498918
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ISHW",
+   "mhz": 111.95,
+   "tacan": null,
+   "lat": 25.325,
+   "lon": 55.531791
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ISRE",
+   "mhz": 108.55,
+   "tacan": null,
+   "lat": 25.339053,
+   "lon": 55.507725
+  },
+  {
+   "site": "SHIRAZ",
+   "type": "VOR_DME",
+   "callsign": "SYZ",
+   "mhz": 117.8,
+   "tacan": 125,
+   "lat": 29.540193,
+   "lon": 52.588744
+  },
+  {
+   "site": "SHIRAZ",
+   "type": "TACAN",
+   "callsign": "SYZ1",
+   "mhz": 114.7,
+   "tacan": 94,
+   "lat": 29.541938,
+   "lon": 52.584714
+  },
+  {
+   "site": "SHIRAZ",
+   "type": "HOMER",
+   "callsign": "SR",
+   "mhz": 0.205,
+   "tacan": null,
+   "lat": 29.529239,
+   "lon": 52.599209
+  },
+  {
+   "site": "",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ISYZ",
+   "mhz": 108.5,
+   "tacan": null,
+   "lat": 29.529372,
+   "lon": 52.60542
+  },
+  {
+   "site": "",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ISYZ",
+   "mhz": 108.5,
+   "tacan": null,
+   "lat": 29.546777,
+   "lon": 52.564998
+  },
+  {
+   "site": "SirriIsland",
+   "type": "HOMER",
+   "callsign": "SIR",
+   "mhz": 0.3,
+   "tacan": null,
+   "lat": 25.901625,
+   "lon": 54.546971
+  },
+  {
+   "site": "SirriIsland",
+   "type": "VOR_DME",
+   "callsign": "SIR",
+   "mhz": 113.75,
+   "tacan": null,
+   "lat": 25.914373,
+   "lon": 54.534604
+  },
+  {
+   "site": "Kochak",
+   "type": "TACAN",
+   "callsign": "KCK",
+   "mhz": 114.2,
+   "tacan": 89,
+   "lat": 26.242384,
+   "lon": 55.145874
+  }
+ ]
+}

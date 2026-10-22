@@ -1,0 +1,727 @@
+{
+ "theater": "Iraq",
+ "source": "pydcs terrain data (dcs-retribution/pydcs@retribution, dcs/terrain/iraq/airports.py)",
+ "radios": [
+  {
+   "site": "Al-Asad Airbase",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Asad Airbase",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Asad Airbase",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 131.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Asad Airbase",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 363.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Baghdad International Airport",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.925,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Baghdad International Airport",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Baghdad International Airport",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Baghdad International Airport",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mosul International Airport",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mosul International Airport",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mosul International Airport",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mosul International Airport",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Erbil International Airport",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Erbil International Airport",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Erbil International Airport",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 128.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Erbil International Airport",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bashur Airport",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.975,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bashur Airport",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bashur Airport",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bashur Airport",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Qayyarah Airfield West",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Qayyarah Airfield West",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Qayyarah Airfield West",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Qayyarah Airfield West",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sulaimaniyah International Airport",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.025,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sulaimaniyah International Airport",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sulaimaniyah International Airport",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sulaimaniyah International Airport",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Balad Airbase",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Balad Airbase",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Balad Airbase",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Balad Airbase",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Taji Airport",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.075,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Taji Airport",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Taji Airport",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Taji Airport",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kirkuk International Airport",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.775,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kirkuk International Airport",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kirkuk International Airport",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 125.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kirkuk International Airport",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "K1 Base",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "K1 Base",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "K1 Base",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "K1 Base",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Sahra Airport",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.825,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Sahra Airport",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Sahra Airport",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Sahra Airport",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Taquddum Airport",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Taquddum Airport",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Taquddum Airport",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 135.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Taquddum Airport",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Salam Airbase",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.875,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Salam Airbase",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Salam Airbase",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Salam Airbase",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-2 Airbase",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-2 Airbase",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-2 Airbase",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-2 Airbase",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Main Airbase",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.125,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Main Airbase",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Main Airbase",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Main Airbase",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Southwest Airbase",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Southwest Airbase",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Southwest Airbase",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Southwest Airbase",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Northwest Airbase",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.175,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Northwest Airbase",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Northwest Airbase",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "H-3 Northwest Airbase",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Kut Airport",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Kut Airport",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Kut Airport",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 135.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Al-Kut Airport",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kharg Airfield",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.225,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kharg Airfield",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kharg Airfield",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kharg Airfield",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 325.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  }
+ ],
+ "beacons": []
+}

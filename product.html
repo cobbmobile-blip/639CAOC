@@ -11,6 +11,8 @@
 <script src="js/app.js"></script>
 <script>AOC.Auth.require();</script>
 <script src="js/products.js"></script>
+<script src="js/jceoi-data.js"></script>
+<script src="js/jceoi.js"></script>
 
 <main class="wrap">
   <div class="panel-head no-print" style="margin-bottom:16px">
@@ -227,7 +229,31 @@
     <div class="mx-tools"><button class="btn sm" data-mx="addcol" data-k="${k}">+ Column</button>
       <button class="btn sm" data-mx="addrow" data-k="${k}">+ Row</button>
       <button class="btn sm" data-mx="delrow" data-k="${k}" ${m.rows <= 1 ? "disabled" : ""}>− Last row</button></div>
-    <div class="hint">Each cell is a channel named by colour and row — e.g. RAZOR on 293.500 is WHITE 1.</div></div>`;
+    <div class="hint">Each cell is a channel named by colour and row — e.g. RAZOR on 293.500 is WHITE 1.</div>
+    ${AOC.JCEOI ? `<div class="mx-tools"><button class="btn sm" data-mx="jceoiFill" data-k="${k}" title="Put the JCEOI standard frequency in every empty channel">Fill empty from JCEOI</button>
+      <button class="btn sm ghost" data-mx="jceoiReset" data-k="${k}" title="Replace the whole matrix with the JCEOI standard net plan">Reset to JCEOI plan</button>
+      <a class="btn sm ghost" href="jceoi.html" target="_blank" rel="noopener">Open JCEOI →</a></div><div id="jceoiCheck">${jceoiCheck(m)}</div>` : ""}</div>`;
+  }
+  // every channel against the campaign theater's JCEOI register: documented frequencies within one channel are flagged
+  function jceoiCheck(m) {
+    const X = AOC.JCEOI, tk = X.theaterKey(campaign.theater), rows = [], chans = AOC.COMM.channels(m).filter(c => c.freq);
+    // the standard value in the channel's own band (an FM JTAC is compared with the FM standard)
+    const stdIn = (std, f) => { const b = X.bandOf(f); return [std.uhf, std.uhfAlt, std.vhf, std.fm, std.hf].find(x => x != null && X.bandOf(x) === b) ?? std.uhf; };
+    chans.forEach(c => {
+      const f = parseFloat(c.freq), std = X.net(c.id), hits = isFinite(f) ? X.conflicts(f, tk) : [];
+      const off = std && std.role === c.role && ![std.uhf, std.uhfAlt, std.vhf, std.fm, std.hf].some(x => x != null && Math.abs(x - f) < 1e-6);
+      const dup = chans.filter(o => o !== c && Math.abs(parseFloat(o.freq) - f) < 1e-6).map(o => o.id);
+      if (hits.length || off || dup.length || !isFinite(f)) rows.push({ c, hits, std: off ? stdIn(std, f) : null, dup, bad: !isFinite(f) });
+    });
+    const n = chans.length;
+    return `<div class="section-h">JCEOI check — ${esc(tk || campaign.theater)}${tk ? "" : " (no JCEOI register for this theater)"}</div>
+      ${X.inSync ? "" : `<p class="small" style="color:var(--warn)">The JCEOI data is out of step with this Comm Plan template — rebuild it (tools/jceoi/build.py) before relying on "JCEOI standard".</p>`}
+      ${!rows.length ? `<p class="small" style="color:var(--ok)">✓ All ${n} channels are clear of the ${esc(tk)} register and match the JCEOI standard plan.</p>` : `<table class="small"><tbody>${rows.map(({ c, hits, std, dup, bad }) =>
+        `<tr><td class="mono">${esc(c.id)}</td><td>${esc(c.role || "")} ${esc(c.callsign || "")}</td><td class="mono">${esc(c.freq)}</td><td>${bad ? `<span style="color:var(--warn)">not a frequency</span>`
+          : hits.length ? `<span style="color:var(--danger, #e5484d)">✕ ${hits.slice(0, 3).map(h => `${esc(h.site)} ${esc(h.use)} ${h.mhz.toFixed(3)}`).join("; ")}${hits.length > 3 ? ` +${hits.length - 3}` : ""}</span>` : ""}
+          ${dup.length ? ` <span style="color:var(--warn)">same frequency as ${dup.map(esc).join(", ")}</span>` : ""}
+          ${std != null ? ` <span class="muted">· JCEOI standard ${std.toFixed(3)}</span>` : ""}</td></tr>`).join("")}</tbody></table>
+        <p class="small muted">✕ = within one channel of a documented frequency in this theater. "JCEOI standard" = this channel differs from the standard plan (allowed; tankers and JTACs often change).</p>`}`;
   }
   function matrixAction(b) {
     const key = P.fields.find(f => f.type === "matrix").key, m = normalizeMatrix(key);
@@ -238,6 +264,16 @@
       const c = m.columns[+b.dataset.i];
       if (c.cells.some(x => x.role || x.callsign || x.freq) && !confirm(`Remove the ${c.color} column and its channels?`)) return;
       m.columns.splice(+b.dataset.i, 1);
+    } else if (b.dataset.mx === "jceoiFill" || b.dataset.mx === "jceoiReset") {
+      if (b.dataset.mx === "jceoiReset" && !confirm("Replace every channel with the JCEOI standard net plan?")) return;
+      const nets = AOC.JCEOI.data.nets;
+      if (b.dataset.mx === "jceoiReset") {
+        const order = [...new Set(nets.map(n => n.color))];
+        m.rows = Math.max(...nets.map(n => n.row));
+        m.columns = order.map(color => ({ title: nets.find(n => n.color === color).net, color, cells: Array.from({ length: m.rows }, (_, r) => ({})) }));
+      }
+      m.columns.forEach(col => col.cells.forEach((x, r) => { const n = nets.find(n => n.color === col.color && n.row === r + 1);
+        if (!n) return; if (!x.freq) x.freq = n.uhf.toFixed(3); if (!x.role) x.role = n.role; if (!x.callsign && n.callsign) x.callsign = n.callsign; }));
     } else if (b.dataset.mx === "addrow") m.rows++;
     else if (b.dataset.mx === "delrow" && m.rows > 1) {
       if (m.columns.some(c => { const x = c.cells[m.rows - 1] || {}; return x.role || x.callsign || x.freq; }) && !confirm(`Remove row ${m.rows} and its channels?`)) return;
@@ -261,6 +297,7 @@
     if (e.target.type === "checkbox" && /\.done$/.test(path)) { buildForm(); } // refresh the "n / m covered" count
     markDirty();
     if (/\.columns\.\d+\.color$/.test(path)) buildForm(); // recolour the column
+    else if (/\.columns\./.test(path) && document.getElementById("jceoiCheck")) document.getElementById("jceoiCheck").innerHTML = jceoiCheck(normalizeMatrix(path.split(".")[0]));
     // TDP convenience: picking a JIPTL target pre-fills its basic data
     if (pid === "tdp" && path === "targetId") {
       const t = jiptl.find(r => r.id === e.target.value);

@@ -1,0 +1,4291 @@
+{
+ "theater": "Germany (Cold War)",
+ "source": "pydcs terrain data (dcs-retribution/pydcs@retribution, dcs/terrain/germanycoldwar/airports.py)",
+ "radios": [
+  {
+   "site": "Wittstock",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.725,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wittstock",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wittstock",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wittstock",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Altes Lager",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Altes Lager",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Altes Lager",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Altes Lager",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Barth",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.625,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Barth",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Barth",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Barth",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zerbst",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zerbst",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zerbst",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zerbst",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bremen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.225,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bremen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bremen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bremen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Briest",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.175,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Briest",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Briest",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 135.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Briest",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Buckeburg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Buckeburg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Buckeburg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Buckeburg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Celle",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.075,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Celle",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Celle",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Celle",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Cochstedt",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.125,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Cochstedt",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Cochstedt",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Cochstedt",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Damgarten",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Damgarten",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Damgarten",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Damgarten",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fassberg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fassberg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fassberg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fassberg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Finow",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Finow",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Finow",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 125.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Finow",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Garz",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.325,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Garz",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Garz",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 132.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Garz",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gatow",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gatow",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gatow",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gatow",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Templin",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.575,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Templin",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Templin",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 128.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Templin",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gutersloh",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gutersloh",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gutersloh",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gutersloh",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hamburg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.925,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hamburg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hamburg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hamburg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hamburg Finkenwerder",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hamburg Finkenwerder",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hamburg Finkenwerder",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hamburg Finkenwerder",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hannover",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.525,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hannover",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hannover",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 120.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hannover",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Laage",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Laage",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Laage",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 129.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Laage",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Larz",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Larz",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Larz",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 129.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Larz",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mahlwinkel",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.775,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mahlwinkel",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mahlwinkel",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mahlwinkel",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Neubrandenburg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.275,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Neubrandenburg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Neubrandenburg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Neubrandenburg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Neuruppin",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.875,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Neuruppin",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Neuruppin",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Neuruppin",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Peenemunde",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.675,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Peenemunde",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Peenemunde",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Peenemunde",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schonefeld",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schonefeld",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schonefeld",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schonefeld",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Stendal",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Stendal",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Stendal",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Stendal",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tegel",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tegel",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tegel",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tegel",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tempelhof",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tempelhof",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tempelhof",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tempelhof",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tutow",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.425,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tutow",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tutow",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 125.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tutow",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Werneuchen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Werneuchen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Werneuchen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Werneuchen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wunstorf",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wunstorf",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wunstorf",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wunstorf",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bornholm",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.775,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bornholm",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bornholm",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bornholm",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 257.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Brand",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Brand",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Brand",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Brand",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Brandis",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Brandis",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Brandis",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Brandis",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Chojna",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Chojna",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Chojna",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Chojna",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 225.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Cologne",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.925,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Cologne",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Cologne",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Cologne",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dusseldorf",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dusseldorf",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dusseldorf",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dusseldorf",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Falkenberg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Falkenberg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Falkenberg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Falkenberg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Heidelberg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Heidelberg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Heidelberg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 142.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Heidelberg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 257.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kastrup",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kastrup",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kastrup",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kastrup",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kiel",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.625,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kiel",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kiel",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kiel",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Landstuhl",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Landstuhl",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Landstuhl",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 138.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Landstuhl",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 266.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mainz Finthen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mainz Finthen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mainz Finthen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mainz Finthen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 230.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sturup",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sturup",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sturup",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sturup",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Marxwalde",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Marxwalde",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Marxwalde",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 120.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Marxwalde",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Nordholz",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Nordholz",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Nordholz",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 142.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Nordholz",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 315.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Norvenich",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Norvenich",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Norvenich",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Norvenich",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 365.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Oranienburg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Oranienburg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Oranienburg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Oranienburg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 365.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Szczecin-Goleniow",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Szczecin-Goleniow",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Szczecin-Goleniow",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Szczecin-Goleniow",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 256.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Obermehler Schlotheim",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.775,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Obermehler Schlotheim",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Obermehler Schlotheim",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Obermehler Schlotheim",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Adelsheim",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Adelsheim",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Adelsheim",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Adelsheim",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 256.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Revinge",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.775,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Revinge",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Revinge",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 142.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Revinge",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 315.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gross Mohrdorf",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gross Mohrdorf",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gross Mohrdorf",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gross Mohrdorf",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Lubeck",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.825,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Lubeck",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Lubeck",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 128.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Lubeck",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kothen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kothen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kothen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 125.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kothen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dessau",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.825,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dessau",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dessau",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dessau",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Parchim",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.775,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Parchim",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Parchim",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 129.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Parchim",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Uetersen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Uetersen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Uetersen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Uetersen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tagra",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tagra",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tagra",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Tagra",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Luneburg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Luneburg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Luneburg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 136.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Luneburg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Northeim",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Northeim",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Northeim",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Northeim",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sperenberg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sperenberg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sperenberg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sperenberg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Uelzen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.825,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Uelzen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Uelzen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Uelzen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dedelow",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dedelow",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dedelow",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Dedelow",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kammermark",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.875,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kammermark",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kammermark",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Kammermark",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Weser Wumme",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Weser Wumme",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Weser Wumme",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Weser Wumme",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Braunschweig",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.925,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Braunschweig",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Braunschweig",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 120.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Braunschweig",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wismar",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wismar",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wismar",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wismar",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Waren Vielist",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.975,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Waren Vielist",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Waren Vielist",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Waren Vielist",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bienenfarm",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.025,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bienenfarm",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bienenfarm",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bienenfarm",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pinnow",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pinnow",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pinnow",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pinnow",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gardelegen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.075,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gardelegen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gardelegen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gardelegen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Glindbruchkippe",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Glindbruchkippe",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Glindbruchkippe",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Glindbruchkippe",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ummern",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.125,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ummern",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ummern",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ummern",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hildesheim",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hildesheim",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hildesheim",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hildesheim",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Verden-Scharnhorst",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.175,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Verden-Scharnhorst",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Verden-Scharnhorst",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Verden-Scharnhorst",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rinteln",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rinteln",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rinteln",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Rinteln",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Holzdorf",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.225,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Holzdorf",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Holzdorf",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Holzdorf",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Koblenz",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.275,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Koblenz",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Koblenz",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Koblenz",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Perwenitz",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Perwenitz",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Perwenitz",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Perwenitz",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sittensen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sittensen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sittensen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sittensen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sprendlingen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sprendlingen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sprendlingen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sprendlingen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Thurland",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Thurland",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Thurland",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Thurland",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 256.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zollschen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 5.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zollschen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zollschen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zollschen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 256.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hasselfelde",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hasselfelde",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hasselfelde",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hasselfelde",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Grosse Wiese",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.375,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Grosse Wiese",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Grosse Wiese",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Grosse Wiese",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fritzlar",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.425,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fritzlar",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fritzlar",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fritzlar",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hahn",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hahn",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hahn",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hahn",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sembach",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.475,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sembach",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sembach",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Sembach",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Allstedt",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Allstedt",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Allstedt",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 132.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Allstedt",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zweibrucken",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.525,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zweibrucken",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zweibrucken",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Zweibrucken",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Giebelstadt",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Giebelstadt",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Giebelstadt",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 135.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Giebelstadt",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schweinfurt",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schweinfurt",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schweinfurt",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schweinfurt",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Haina",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.625,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Haina",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Haina",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Haina",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Spangdahlem",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Spangdahlem",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Spangdahlem",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Spangdahlem",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Frankfurt",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.675,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Frankfurt",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Frankfurt",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Frankfurt",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bindersleben",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bindersleben",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bindersleben",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bindersleben",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ramstein",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.725,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ramstein",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ramstein",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 133.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ramstein",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fulda",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fulda",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fulda",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Fulda",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mendig",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mendig",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mendig",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Mendig",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Merseburg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.825,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Merseburg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Merseburg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Merseburg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wiesbaden",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.875,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wiesbaden",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wiesbaden",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Wiesbaden",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schkeuditz",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schkeuditz",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schkeuditz",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 129.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Schkeuditz",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bitburg",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.325,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bitburg",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bitburg",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bitburg",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Lubeck",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.475,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Lubeck",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Lubeck",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Lubeck",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Frankfurt",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Frankfurt",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Frankfurt",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Airracing Frankfurt",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pferdsfeld",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pferdsfeld",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pferdsfeld",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 132.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pferdsfeld",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.85,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Buchel",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.575,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Buchel",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Buchel",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Buchel",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Leipzig Mockau",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Leipzig Mockau",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Leipzig Mockau",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Leipzig Mockau",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bad Durkheim",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.975,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bad Durkheim",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.45,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bad Durkheim",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Bad Durkheim",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gelnhausen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gelnhausen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gelnhausen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Gelnhausen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Herrenteich",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Herrenteich",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.55,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Herrenteich",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Herrenteich",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.15,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hockenheim",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.05,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hockenheim",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hockenheim",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Hockenheim",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.2,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Langenselbold",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.875,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Langenselbold",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.65,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Langenselbold",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Langenselbold",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.25,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Walldorf",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.925,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Walldorf",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.7,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Walldorf",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Walldorf",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.3,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ober-Morlen",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ober-Morlen",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.75,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ober-Morlen",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Ober-Morlen",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.35,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pottschutthohe",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.025,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pottschutthohe",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.8,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pottschutthohe",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.6,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Pottschutthohe",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.4,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Worms",
+   "callsigns": [],
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.95,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Worms",
+   "callsigns": [],
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.9,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Worms",
+   "callsigns": [],
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.1,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  },
+  {
+   "site": "Worms",
+   "callsigns": [],
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.5,
+   "use": "ATC (ground/tower/approach)",
+   "tacan": null
+  }
+ ],
+ "beacons": []
+}

@@ -1,0 +1,2169 @@
+{
+ "theater": "Kola",
+ "source": "DCS World install, Mods/terrains/Kola",
+ "radios": [
+  {
+   "site": "BAS100",
+   "callsigns": [
+    "BAS100"
+   ],
+   "radioId": "airfield4_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "BAS100",
+   "callsigns": [
+    "BAS100"
+   ],
+   "radioId": "airfield4_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 257.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "BAS100",
+   "callsigns": [
+    "BAS100"
+   ],
+   "radioId": "airfield4_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "BAS100",
+   "callsigns": [
+    "BAS100"
+   ],
+   "radioId": "airfield4_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFET_Enontekio",
+   "callsigns": [
+    "Enontekio"
+   ],
+   "radioId": "airfield26_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFET_Enontekio",
+   "callsigns": [
+    "Enontekio"
+   ],
+   "radioId": "airfield26_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.85,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFET_Enontekio",
+   "callsigns": [
+    "Enontekio"
+   ],
+   "radioId": "airfield26_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFET_Enontekio",
+   "callsigns": [
+    "Enontekio"
+   ],
+   "radioId": "airfield26_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFIV_Ivalo",
+   "callsigns": [
+    "Ivalo"
+   ],
+   "radioId": "airfield18_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFIV_Ivalo",
+   "callsigns": [
+    "Ivalo"
+   ],
+   "radioId": "airfield18_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFIV_Ivalo",
+   "callsigns": [
+    "Ivalo"
+   ],
+   "radioId": "airfield18_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFIV_Ivalo",
+   "callsigns": [
+    "Ivalo"
+   ],
+   "radioId": "airfield18_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKE_Kemi_Tornio",
+   "callsigns": [
+    "KemiTornio"
+   ],
+   "radioId": "airfield3_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.275,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKE_Kemi_Tornio",
+   "callsigns": [
+    "KemiTornio"
+   ],
+   "radioId": "airfield3_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKE_Kemi_Tornio",
+   "callsigns": [
+    "KemiTornio"
+   ],
+   "radioId": "airfield3_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKE_Kemi_Tornio",
+   "callsigns": [
+    "KemiTornio"
+   ],
+   "radioId": "airfield3_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKS_Kuusamo",
+   "callsigns": [
+    "Kuusamo"
+   ],
+   "radioId": "airfield16_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.95,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKS_Kuusamo",
+   "callsigns": [
+    "Kuusamo"
+   ],
+   "radioId": "airfield16_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKS_Kuusamo",
+   "callsigns": [
+    "Kuusamo"
+   ],
+   "radioId": "airfield16_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.65,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKS_Kuusamo",
+   "callsigns": [
+    "Kuusamo"
+   ],
+   "radioId": "airfield16_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKT_Kittila",
+   "callsigns": [
+    "Kittila"
+   ],
+   "radioId": "airfield22_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.125,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKT_Kittila",
+   "callsigns": [
+    "Kittila"
+   ],
+   "radioId": "airfield22_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKT_Kittila",
+   "callsigns": [
+    "Kittila"
+   ],
+   "radioId": "airfield22_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.95,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFKT_Kittila",
+   "callsigns": [
+    "Kittila"
+   ],
+   "radioId": "airfield22_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFRO_Rovaniemi",
+   "callsigns": [
+    "Rovaniemi"
+   ],
+   "radioId": "airfield2_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFRO_Rovaniemi",
+   "callsigns": [
+    "Rovaniemi"
+   ],
+   "radioId": "airfield2_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.95,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFRO_Rovaniemi",
+   "callsigns": [
+    "Rovaniemi"
+   ],
+   "radioId": "airfield2_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFRO_Rovaniemi",
+   "callsigns": [
+    "Rovaniemi"
+   ],
+   "radioId": "airfield2_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFSO_Sodankyla",
+   "callsigns": [
+    "Sodankyla"
+   ],
+   "radioId": "airfield27_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.225,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFSO_Sodankyla",
+   "callsigns": [
+    "Sodankyla"
+   ],
+   "radioId": "airfield27_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFSO_Sodankyla",
+   "callsigns": [
+    "Sodankyla"
+   ],
+   "radioId": "airfield27_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "EFSO_Sodankyla",
+   "callsigns": [
+    "Sodankyla"
+   ],
+   "radioId": "airfield27_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENAN Andoya",
+   "callsigns": [
+    "Andoya"
+   ],
+   "radioId": "airfield20_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.075,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENAN Andoya",
+   "callsigns": [
+    "Andoya"
+   ],
+   "radioId": "airfield20_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENAN Andoya",
+   "callsigns": [
+    "Andoya"
+   ],
+   "radioId": "airfield20_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENAN Andoya",
+   "callsigns": [
+    "Andoya"
+   ],
+   "radioId": "airfield20_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENAT_Alta",
+   "callsigns": [
+    "Alta"
+   ],
+   "radioId": "airfield24_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENAT_Alta",
+   "callsigns": [
+    "Alta"
+   ],
+   "radioId": "airfield24_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENAT_Alta",
+   "callsigns": [
+    "Alta"
+   ],
+   "radioId": "airfield24_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 120.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENAT_Alta",
+   "callsigns": [
+    "Alta"
+   ],
+   "radioId": "airfield24_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENBO_Bodo",
+   "callsigns": [
+    "Bodo"
+   ],
+   "radioId": "airfield7_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.375,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENBO_Bodo",
+   "callsigns": [
+    "Bodo"
+   ],
+   "radioId": "airfield7_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENBO_Bodo",
+   "callsigns": [
+    "Bodo"
+   ],
+   "radioId": "airfield7_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENBO_Bodo",
+   "callsigns": [
+    "Bodo"
+   ],
+   "radioId": "airfield7_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.65,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENDU_Bardufoss",
+   "callsigns": [
+    "Bardufoss"
+   ],
+   "radioId": "airfield21_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENDU_Bardufoss",
+   "callsigns": [
+    "Bardufoss"
+   ],
+   "radioId": "airfield21_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.65,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENDU_Bardufoss",
+   "callsigns": [
+    "Bardufoss"
+   ],
+   "radioId": "airfield21_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENDU_Bardufoss",
+   "callsigns": [
+    "Bardufoss"
+   ],
+   "radioId": "airfield21_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENEV_Evenes",
+   "callsigns": [
+    "Evenes"
+   ],
+   "radioId": "airfield25_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.175,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENEV_Evenes",
+   "callsigns": [
+    "Evenes"
+   ],
+   "radioId": "airfield25_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENEV_Evenes",
+   "callsigns": [
+    "Evenes"
+   ],
+   "radioId": "airfield25_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENEV_Evenes",
+   "callsigns": [
+    "Evenes"
+   ],
+   "radioId": "airfield25_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENKR_Kirkenes",
+   "callsigns": [
+    "Kirkenes"
+   ],
+   "radioId": "airfield14_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENKR_Kirkenes",
+   "callsigns": [
+    "Kirkenes"
+   ],
+   "radioId": "airfield14_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENKR_Kirkenes",
+   "callsigns": [
+    "Kirkenes"
+   ],
+   "radioId": "airfield14_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 120.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENKR_Kirkenes",
+   "callsigns": [
+    "Kirkenes"
+   ],
+   "radioId": "airfield14_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENNA_Lakselv",
+   "callsigns": [
+    "Lakselv"
+   ],
+   "radioId": "airfield1_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENNA_Lakselv",
+   "callsigns": [
+    "Lakselv"
+   ],
+   "radioId": "airfield1_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENNA_Lakselv",
+   "callsigns": [
+    "Lakselv"
+   ],
+   "radioId": "airfield1_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENNA_Lakselv",
+   "callsigns": [
+    "Lakselv"
+   ],
+   "radioId": "airfield1_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENTC_Tromso",
+   "callsigns": [
+    "Troso"
+   ],
+   "radioId": "airfield37_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.875,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENTC_Tromso",
+   "callsigns": [
+    "Troso"
+   ],
+   "radioId": "airfield37_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 312.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENTC_Tromso",
+   "callsigns": [
+    "Troso"
+   ],
+   "radioId": "airfield37_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ENTC_Tromso",
+   "callsigns": [
+    "Troso"
+   ],
+   "radioId": "airfield37_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESNJ_Jokkmokk",
+   "callsigns": [
+    "Jokkmokk"
+   ],
+   "radioId": "airfield11_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.825,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESNJ_Jokkmokk",
+   "callsigns": [
+    "Jokkmokk"
+   ],
+   "radioId": "airfield11_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESNJ_Jokkmokk",
+   "callsigns": [
+    "Jokkmokk"
+   ],
+   "radioId": "airfield11_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESNJ_Jokkmokk",
+   "callsigns": [
+    "Jokkmokk"
+   ],
+   "radioId": "airfield11_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESNQ Kiruna",
+   "callsigns": [
+    "Kiruna"
+   ],
+   "radioId": "airfield5_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.325,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESNQ Kiruna",
+   "callsigns": [
+    "Kiruna"
+   ],
+   "radioId": "airfield5_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESNQ Kiruna",
+   "callsigns": [
+    "Kiruna"
+   ],
+   "radioId": "airfield5_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 130.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESNQ Kiruna",
+   "callsigns": [
+    "Kiruna"
+   ],
+   "radioId": "airfield5_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPA_Kallax",
+   "callsigns": [
+    "Kallax"
+   ],
+   "radioId": "airfield15_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.925,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPA_Kallax",
+   "callsigns": [
+    "Kallax"
+   ],
+   "radioId": "airfield15_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPA_Kallax",
+   "callsigns": [
+    "Kallax"
+   ],
+   "radioId": "airfield15_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 128.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPA_Kallax",
+   "callsigns": [
+    "Kallax"
+   ],
+   "radioId": "airfield15_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPE_Vidsel",
+   "callsigns": [
+    "Vidsel"
+   ],
+   "radioId": "airfield17_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.975,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPE_Vidsel",
+   "callsigns": [
+    "Vidsel"
+   ],
+   "radioId": "airfield17_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPE_Vidsel",
+   "callsigns": [
+    "Vidsel"
+   ],
+   "radioId": "airfield17_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPE_Vidsel",
+   "callsigns": [
+    "Vidsel"
+   ],
+   "radioId": "airfield17_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.85,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPG_Boden_Heli_Base",
+   "callsigns": [
+    "Boden"
+   ],
+   "radioId": "airfield34_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.475,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPG_Boden_Heli_Base",
+   "callsigns": [
+    "Boden"
+   ],
+   "radioId": "airfield34_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPG_Boden_Heli_Base",
+   "callsigns": [
+    "Boden"
+   ],
+   "radioId": "airfield34_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESPG_Boden_Heli_Base",
+   "callsigns": [
+    "Boden"
+   ],
+   "radioId": "airfield34_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESUK Kalixfors",
+   "callsigns": [
+    "Kalixfors"
+   ],
+   "radioId": "airfield13_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.875,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESUK Kalixfors",
+   "callsigns": [
+    "Kalixfors"
+   ],
+   "radioId": "airfield13_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 301.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESUK Kalixfors",
+   "callsigns": [
+    "Kalixfors"
+   ],
+   "radioId": "airfield13_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESUK Kalixfors",
+   "callsigns": [
+    "Kalixfors"
+   ],
+   "radioId": "airfield13_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.65,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESUT_Hemavan",
+   "callsigns": [
+    "Hemavan"
+   ],
+   "radioId": "airfield35_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.625,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESUT_Hemavan",
+   "callsigns": [
+    "Hemavan"
+   ],
+   "radioId": "airfield35_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESUT_Hemavan",
+   "callsigns": [
+    "Hemavan"
+   ],
+   "radioId": "airfield35_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ESUT_Hemavan",
+   "callsigns": [
+    "Hemavan"
+   ],
+   "radioId": "airfield35_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.95,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "RU-0059_Alakurtti",
+   "callsigns": [
+    "Alakourtti"
+   ],
+   "radioId": "airfield19_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.025,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "RU-0059_Alakurtti",
+   "callsigns": [
+    "Alakourtti"
+   ],
+   "radioId": "airfield19_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "RU-0059_Alakurtti",
+   "callsigns": [
+    "Alakourtti"
+   ],
+   "radioId": "airfield19_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "RU-0059_Alakurtti",
+   "callsigns": [
+    "Alakourtti"
+   ],
+   "radioId": "airfield19_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.95,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULAK_Severomorsk1",
+   "callsigns": [
+    "Severomorsk-1"
+   ],
+   "radioId": "airfield8_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULAK_Severomorsk1",
+   "callsigns": [
+    "Severomorsk-1"
+   ],
+   "radioId": "airfield8_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULAK_Severomorsk1",
+   "callsigns": [
+    "Severomorsk-1"
+   ],
+   "radioId": "airfield8_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULAK_Severomorsk1",
+   "callsigns": [
+    "Severomorsk-1"
+   ],
+   "radioId": "airfield8_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULMM_Emperor_Nicholas_II",
+   "callsigns": [
+    "Murmansk"
+   ],
+   "radioId": "airfield12_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.85,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULMM_Emperor_Nicholas_II",
+   "callsigns": [
+    "Murmansk"
+   ],
+   "radioId": "airfield12_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULMM_Emperor_Nicholas_II",
+   "callsigns": [
+    "Murmansk"
+   ],
+   "radioId": "airfield12_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULMM_Emperor_Nicholas_II",
+   "callsigns": [
+    "Murmansk"
+   ],
+   "radioId": "airfield12_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULPK_Kalevala",
+   "callsigns": [
+    "Kalevala"
+   ],
+   "radioId": "airfield32_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.775,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULPK_Kalevala",
+   "callsigns": [
+    "Kalevala"
+   ],
+   "radioId": "airfield32_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 301.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULPK_Kalevala",
+   "callsigns": [
+    "Kalevala"
+   ],
+   "radioId": "airfield32_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ULPK_Kalevala",
+   "callsigns": [
+    "Kalevala"
+   ],
+   "radioId": "airfield32_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "UMOE_Monchegorsk",
+   "callsigns": [
+    "Monchegorsk"
+   ],
+   "radioId": "airfield10_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "UMOE_Monchegorsk",
+   "callsigns": [
+    "Monchegorsk"
+   ],
+   "radioId": "airfield10_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "UMOE_Monchegorsk",
+   "callsigns": [
+    "Monchegorsk"
+   ],
+   "radioId": "airfield10_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "UMOE_Monchegorsk",
+   "callsigns": [
+    "Monchegorsk"
+   ],
+   "radioId": "airfield10_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "UOLE_Olenegorsk",
+   "callsigns": [
+    "Olenya"
+   ],
+   "radioId": "airfield9_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.425,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "UOLE_Olenegorsk",
+   "callsigns": [
+    "Olenya"
+   ],
+   "radioId": "airfield9_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "UOLE_Olenegorsk",
+   "callsigns": [
+    "Olenya"
+   ],
+   "radioId": "airfield9_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 131.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "UOLE_Olenegorsk",
+   "callsigns": [
+    "Olenya"
+   ],
+   "radioId": "airfield9_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMF_Afrikanda",
+   "callsigns": [
+    "Afrikanda"
+   ],
+   "radioId": "airfield33_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.775,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMF_Afrikanda",
+   "callsigns": [
+    "Afrikanda"
+   ],
+   "radioId": "airfield33_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 311.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMF_Afrikanda",
+   "callsigns": [
+    "Afrikanda"
+   ],
+   "radioId": "airfield33_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMF_Afrikanda",
+   "callsigns": [
+    "Afrikanda"
+   ],
+   "radioId": "airfield33_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLML_Luostari_Pechenga",
+   "callsigns": [
+    "Luostari Pechenga"
+   ],
+   "radioId": "airfield29_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLML_Luostari_Pechenga",
+   "callsigns": [
+    "Luostari Pechenga"
+   ],
+   "radioId": "airfield29_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 281.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLML_Luostari_Pechenga",
+   "callsigns": [
+    "Luostari Pechenga"
+   ],
+   "radioId": "airfield29_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLML_Luostari_Pechenga",
+   "callsigns": [
+    "Luostari Pechenga"
+   ],
+   "radioId": "airfield29_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMV_Severomorsk3",
+   "callsigns": [
+    "Severomorsk-3"
+   ],
+   "radioId": "airfield6_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMV_Severomorsk3",
+   "callsigns": [
+    "Severomorsk-3"
+   ],
+   "radioId": "airfield6_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMV_Severomorsk3",
+   "callsigns": [
+    "Severomorsk-3"
+   ],
+   "radioId": "airfield6_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMV_Severomorsk3",
+   "callsigns": [
+    "Severomorsk-3"
+   ],
+   "radioId": "airfield6_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMW_Kilpyavr",
+   "callsigns": [
+    "Kilpyavr"
+   ],
+   "radioId": "airfield28_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMW_Kilpyavr",
+   "callsigns": [
+    "Kilpyavr"
+   ],
+   "radioId": "airfield28_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.95,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMW_Kilpyavr",
+   "callsigns": [
+    "Kilpyavr"
+   ],
+   "radioId": "airfield28_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMW_Kilpyavr",
+   "callsigns": [
+    "Kilpyavr"
+   ],
+   "radioId": "airfield28_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMY_Koshka_Yavr",
+   "callsigns": [
+    "Koshka Yavr"
+   ],
+   "radioId": "airfield30_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.85,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMY_Koshka_Yavr",
+   "callsigns": [
+    "Koshka Yavr"
+   ],
+   "radioId": "airfield30_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 225.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMY_Koshka_Yavr",
+   "callsigns": [
+    "Koshka Yavr"
+   ],
+   "radioId": "airfield30_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLMY_Koshka_Yavr",
+   "callsigns": [
+    "Koshka Yavr"
+   ],
+   "radioId": "airfield30_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLPU_Poduzhemye",
+   "callsigns": [
+    "Poduzhemye"
+   ],
+   "radioId": "airfield31_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.925,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLPU_Poduzhemye",
+   "callsigns": [
+    "Poduzhemye"
+   ],
+   "radioId": "airfield31_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLPU_Poduzhemye",
+   "callsigns": [
+    "Poduzhemye"
+   ],
+   "radioId": "airfield31_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 120.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "XLPU_Poduzhemye",
+   "callsigns": [
+    "Poduzhemye"
+   ],
+   "radioId": "airfield31_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.45,
+   "use": "ATC (ground/tower/approach)"
+  }
+ ],
+ "beacons": [
+  {
+   "site": "SPO",
+   "type": "DME",
+   "callsign": "SPO",
+   "mhz": 115.9,
+   "tacan": 106,
+   "lat": 68.090876,
+   "lon": 21.691239
+  },
+  {
+   "site": "IL",
+   "type": "HOMER",
+   "callsign": "IL",
+   "mhz": 0.32,
+   "tacan": null,
+   "lat": 67.273887,
+   "lon": 14.724322
+  },
+  {
+   "site": "KM",
+   "type": "HOMER",
+   "callsign": "KMV",
+   "mhz": 0.445,
+   "tacan": null,
+   "lat": 64.947098,
+   "lon": 34.494417
+  },
+  {
+   "site": "I",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "I",
+   "mhz": 0.595,
+   "tacan": null,
+   "lat": 67.476008,
+   "lon": 33.541861
+  },
+  {
+   "site": "IO",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "IO",
+   "mhz": 1.21,
+   "tacan": null,
+   "lat": 67.493239,
+   "lon": 33.486301
+  },
+  {
+   "site": "TG",
+   "type": "HOMER",
+   "callsign": "TG",
+   "mhz": 0.346,
+   "tacan": null,
+   "lat": 67.146417,
+   "lon": 20.74422
+  },
+  {
+   "site": "OG",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "OG",
+   "mhz": 0.325,
+   "tacan": null,
+   "lat": 67.103345,
+   "lon": 20.950895
+  },
+  {
+   "site": "NAT",
+   "type": "VOR_DME",
+   "callsign": "NAT",
+   "mhz": 113.0,
+   "tacan": 77,
+   "lat": 66.746476,
+   "lon": 21.322729
+  },
+  {
+   "site": "enontekio",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ET",
+   "mhz": 111.3,
+   "tacan": null,
+   "lat": 68.368371,
+   "lon": 23.431362
+  },
+  {
+   "site": "enontekio",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ET",
+   "mhz": 111.3,
+   "tacan": null,
+   "lat": 68.352907,
+   "lon": 23.406158
+  },
+  {
+   "site": "IVALO",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "iv",
+   "mhz": 212.0,
+   "tacan": null,
+   "lat": 68.613852,
+   "lon": 27.420317
+  },
+  {
+   "site": "IVALO",
+   "type": "ILS_LOCALIZER",
+   "callsign": "iv",
+   "mhz": 212.0,
+   "tacan": null,
+   "lat": 68.597925,
+   "lon": 27.377829
+  },
+  {
+   "site": "kemi",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ke",
+   "mhz": 110.9,
+   "tacan": null,
+   "lat": 65.789776,
+   "lon": 24.582205
+  },
+  {
+   "site": "kemi",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ke",
+   "mhz": 110.9,
+   "tacan": null,
+   "lat": 65.768598,
+   "lon": 24.578158
+  },
+  {
+   "site": "KUUSAMO",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "KO",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 65.992218,
+   "lon": 29.223027
+  },
+  {
+   "site": "KUUSAMO",
+   "type": "ILS_LOCALIZER",
+   "callsign": "KO",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 65.978239,
+   "lon": 29.264668
+  },
+  {
+   "site": "KITTILA",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "KT",
+   "mhz": 111.9,
+   "tacan": null,
+   "lat": 67.693309,
+   "lon": 24.849231
+  },
+  {
+   "site": "KITTILA",
+   "type": "ILS_LOCALIZER",
+   "callsign": "KT",
+   "mhz": 111.9,
+   "tacan": null,
+   "lat": 67.714603,
+   "lon": 24.837988
+  },
+  {
+   "site": "ROVANIEMI",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ro",
+   "mhz": 111.7,
+   "tacan": null,
+   "lat": 66.551531,
+   "lon": 25.805009
+  },
+  {
+   "site": "rovaniemi",
+   "type": "VOR_DME",
+   "callsign": "ROI",
+   "mhz": 117.7,
+   "tacan": 124,
+   "lat": 66.562533,
+   "lon": 25.820399
+  },
+  {
+   "site": "ROVANIEMI",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "RO",
+   "mhz": 111.7,
+   "tacan": null,
+   "lat": 66.57442,
+   "lon": 25.845293
+  },
+  {
+   "site": "andoya",
+   "type": "VOR_DME",
+   "callsign": "and",
+   "mhz": 112.2,
+   "tacan": null,
+   "lat": 69.287831,
+   "lon": 16.141413
+  },
+  {
+   "site": "ANDOYA",
+   "type": "TACAN",
+   "callsign": "OYA",
+   "mhz": null,
+   "tacan": 28,
+   "lat": 69.286251,
+   "lon": 16.144315
+  },
+  {
+   "site": "alta",
+   "type": "ILS_LOCALIZER",
+   "callsign": "AT",
+   "mhz": 108.9,
+   "tacan": null,
+   "lat": 69.971912,
+   "lon": 23.391668
+  },
+  {
+   "site": "alta",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "AT",
+   "mhz": 108.9,
+   "tacan": null,
+   "lat": 69.981056,
+   "lon": 23.352695
+  },
+  {
+   "site": "alta",
+   "type": "VOR_DME",
+   "callsign": "ATA",
+   "mhz": 117.4,
+   "tacan": null,
+   "lat": 69.977414,
+   "lon": 23.371993
+  },
+  {
+   "site": "BODO",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "BO",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 67.266378,
+   "lon": 14.341383
+  },
+  {
+   "site": "BODO",
+   "type": "VOR_DME",
+   "callsign": "BDO",
+   "mhz": 117.55,
+   "tacan": 122,
+   "lat": 67.26656,
+   "lon": 14.364874
+  },
+  {
+   "site": "BODO",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "BD",
+   "mhz": 108.7,
+   "tacan": null,
+   "lat": 67.272442,
+   "lon": 14.391316
+  },
+  {
+   "site": "BODO",
+   "type": "TACAN",
+   "callsign": "BOO",
+   "mhz": null,
+   "tacan": 45,
+   "lat": 67.266299,
+   "lon": 14.361435
+  },
+  {
+   "site": "BODO",
+   "type": "ILS_LOCALIZER",
+   "callsign": "BO",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 67.272439,
+   "lon": 14.404079
+  },
+  {
+   "site": "BODO",
+   "type": "ILS_LOCALIZER",
+   "callsign": "BD",
+   "mhz": 108.7,
+   "tacan": null,
+   "lat": 67.272807,
+   "lon": 14.404359
+  },
+  {
+   "site": "BARDUFOSS",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "BF",
+   "mhz": 108.7,
+   "tacan": null,
+   "lat": 69.052032,
+   "lon": 18.561688
+  },
+  {
+   "site": "BARDUFOSS",
+   "type": "VOR_DME",
+   "callsign": "BDF",
+   "mhz": 114.2,
+   "tacan": 89,
+   "lat": 69.064825,
+   "lon": 18.466246
+  },
+  {
+   "site": "BARDUFOSS",
+   "type": "ILS_LOCALIZER",
+   "callsign": "BF",
+   "mhz": 108.7,
+   "tacan": null,
+   "lat": 69.057549,
+   "lon": 18.516214
+  },
+  {
+   "site": "EVENES",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ev",
+   "mhz": 108.9,
+   "tacan": null,
+   "lat": 68.500738,
+   "lon": 16.674327
+  },
+  {
+   "site": "EVENES",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ev",
+   "mhz": 108.9,
+   "tacan": null,
+   "lat": 68.47619,
+   "lon": 16.679865
+  },
+  {
+   "site": "EVENES",
+   "type": "VOR_DME",
+   "callsign": "EVD",
+   "mhz": 117.35,
+   "tacan": null,
+   "lat": 68.457275,
+   "lon": 16.681906
+  },
+  {
+   "site": "EVS",
+   "type": "TACAN",
+   "callsign": "Evenes",
+   "mhz": 134.0,
+   "tacan": 67,
+   "lat": 68.491937,
+   "lon": 16.673235
+  },
+  {
+   "site": "KIRKENES",
+   "type": "VOR_DME",
+   "callsign": "KIK",
+   "mhz": 112.0,
+   "tacan": null,
+   "lat": 69.723517,
+   "lon": 29.867316
+  },
+  {
+   "site": "KIRKENES",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "KR",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 69.725685,
+   "lon": 29.902477
+  },
+  {
+   "site": "KIRKENES",
+   "type": "ILS_LOCALIZER",
+   "callsign": "KR",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 69.721532,
+   "lon": 29.861209
+  },
+  {
+   "site": "banak",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ba",
+   "mhz": 108.3,
+   "tacan": 20,
+   "lat": 70.059883,
+   "lon": 24.978103
+  },
+  {
+   "site": "banak",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ba",
+   "mhz": 108.3,
+   "tacan": null,
+   "lat": 70.059666,
+   "lon": 24.979124
+  },
+  {
+   "site": "BANAK",
+   "type": "VOR_DME",
+   "callsign": "BNA",
+   "mhz": 114.4,
+   "tacan": 91,
+   "lat": 70.176266,
+   "lon": 24.948432
+  },
+  {
+   "site": "ENNA",
+   "type": "TACAN",
+   "callsign": "BNK",
+   "mhz": 111.0,
+   "tacan": 47,
+   "lat": 70.065619,
+   "lon": 24.969704
+  },
+  {
+   "site": "banak",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ba",
+   "mhz": 108.3,
+   "tacan": null,
+   "lat": 70.081661,
+   "lon": 24.970528
+  },
+  {
+   "site": "TC",
+   "type": "ILS_LOCALIZER",
+   "callsign": "tc",
+   "mhz": 110.9,
+   "tacan": null,
+   "lat": 69.670738,
+   "lon": 18.910561
+  },
+  {
+   "site": "TR",
+   "type": "ILS_LOCALIZER",
+   "callsign": "tr",
+   "mhz": 109.9,
+   "tacan": null,
+   "lat": 69.696189,
+   "lon": 18.927541
+  },
+  {
+   "site": "TR",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "TR",
+   "mhz": 109.9,
+   "tacan": null,
+   "lat": 69.688337,
+   "lon": 18.920056
+  },
+  {
+   "site": "TC",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "TC",
+   "mhz": 110.9,
+   "tacan": null,
+   "lat": 69.674612,
+   "lon": 18.915173
+  },
+  {
+   "site": "kiruna",
+   "type": "VOR_DME",
+   "callsign": "KRA",
+   "mhz": 115.2,
+   "tacan": 99,
+   "lat": 67.819159,
+   "lon": 20.337697
+  },
+  {
+   "site": "kiruna",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "nq",
+   "mhz": 110.3,
+   "tacan": 0,
+   "lat": 67.828273,
+   "lon": 20.351338
+  },
+  {
+   "site": "OP",
+   "type": "HOMER",
+   "callsign": "OP",
+   "mhz": 0.36,
+   "tacan": null,
+   "lat": 67.887545,
+   "lon": 20.452711
+  },
+  {
+   "site": "kiruna",
+   "type": "ILS_LOCALIZER",
+   "callsign": "nq",
+   "mhz": 110.3,
+   "tacan": 0,
+   "lat": 67.809341,
+   "lon": 20.314502
+  },
+  {
+   "site": "NX",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "nx",
+   "mhz": 111.5,
+   "tacan": null,
+   "lat": 65.587226,
+   "lon": 19.295169
+  },
+  {
+   "site": "ARV",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "arv",
+   "mhz": 109.35,
+   "tacan": null,
+   "lat": 65.597806,
+   "lon": 19.263059
+  },
+  {
+   "site": "NX",
+   "type": "ILS_LOCALIZER",
+   "callsign": "nx",
+   "mhz": 111.5,
+   "tacan": null,
+   "lat": 65.599936,
+   "lon": 19.251909
+  },
+  {
+   "site": "ARV",
+   "type": "ILS_LOCALIZER",
+   "callsign": "arv",
+   "mhz": 109.35,
+   "tacan": null,
+   "lat": 65.581383,
+   "lon": 19.308821
+  },
+  {
+   "site": "KALLAX",
+   "type": "ILS_LOCALIZER",
+   "callsign": "SPA",
+   "mhz": 109.9,
+   "tacan": null,
+   "lat": 65.556679,
+   "lon": 22.093108
+  },
+  {
+   "site": "KALLAX",
+   "type": "ILS_LOCALIZER",
+   "callsign": "PA",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 65.530817,
+   "lon": 22.150798
+  },
+  {
+   "site": "KALLAX",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "PA",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 65.553185,
+   "lon": 22.104544
+  },
+  {
+   "site": "KALLAX",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "SPA",
+   "mhz": 109.9,
+   "tacan": null,
+   "lat": 65.535287,
+   "lon": 22.144513
+  },
+  {
+   "site": "VIDSEL",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "VDL",
+   "mhz": 109.5,
+   "tacan": null,
+   "lat": 65.872232,
+   "lon": 20.169496
+  },
+  {
+   "site": "VIDSEL",
+   "type": "ILS_LOCALIZER",
+   "callsign": "VDL",
+   "mhz": 109.5,
+   "tacan": null,
+   "lat": 65.881272,
+   "lon": 20.120534
+  },
+  {
+   "site": "IRD",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ird",
+   "mhz": 108.5,
+   "tacan": null,
+   "lat": 68.794244,
+   "lon": 32.728113
+  },
+  {
+   "site": "IPF",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ipf",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 68.764782,
+   "lon": 32.782387
+  },
+  {
+   "site": "IRD",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ird",
+   "mhz": 108.5,
+   "tacan": null,
+   "lat": 68.774404,
+   "lon": 32.760946
+  },
+  {
+   "site": "IPF",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ipf",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 68.788632,
+   "lon": 32.734679
+  }
+ ]
+}

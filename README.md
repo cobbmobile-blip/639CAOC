@@ -28,6 +28,7 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS, Comm Plan, BDA) |
 | `tdp.html` | CAOC staff | TDP book: one target folder per JIPTL target, drafted from the nomination data |
 | `maap.html` | CAOC staff | MAAP: packages of ATO lines against JIPTL targets, with coverage and deconfliction checks; Apply to ATO |
+| `jceoi.html` | CAOC staff | vCAOC JCEOI 26-1: standard Blue net plan (the Comm Plan matrix, clear in every theater), preset load, per-theater frequency registers (DCS in-game + real-world), clear-channel pool, frequency check, `.xlsx` export |
 | `map.html` | CAOC staff | Theater map from the ACO: nav/spider/dest points, threats with DCS range rings, FLOT, FSCL, MRR, AR tracks, HVAA orbits, artillery ROZ |
 | `targeting.html` | CAOC staff | Target nomination (from the JIPTL): REDFOR order of battle → JIPTL, ported from the JIPTL pipeline |
 | `campaign-review.html` | CAOC staff (CFC decides) | Campaign proposal review queue |
@@ -78,6 +79,25 @@ host `.miz` update T-24h.
 
 The ACO overlay is drawn in DKS on the theater map and is never written into the `.miz`. The Comm Plan agencies are
 persistent for the campaign; normally only tankers and JTACs change, and the rollup lists what changed since the last export. **Cycle to next mission** moves the ATO day on and returns the daily products to Draft.
+
+## JCEOI (frequency registers and standard net plan)
+
+`jceoi.html` documents every known frequency in each DCS theater and gives a standard Blue net plan that is clear of
+all of them:
+
+- **Registers** for Caucasus, Nevada, Persian Gulf, Syria, Marianas, Sinai, Kola, Afghanistan, Iraq, Germany (Cold
+  War), Falklands, plus Balkans, Iraq South and Afghanistan North (in development — real-world data only so far).
+  In-game ATC radios and beacons come from the DCS install (or pydcs for maps not installed); real-world civil
+  frequencies from OurAirports; military UHF from FAA data (AirNav) for US bases and third-party listings, each marked
+  official / public / unverified / hobbyist.
+- **Net plan**: the Comm Plan (ACP) template itself — its 36 channels (TAC ADMIN, TANKERS, TACTICAL AIR, RESCUE, GROUND
+  COORD, SPARES) are read by the build, which stops on any mismatch. A new Comm Plan starts with these frequencies. Each
+  with UHF primary and alternate, a VHF-AM backup, and VHF-FM / HF where needed. RAZOR 293.500 stays WHITE 1. Guard is
+  standard and not a net.
+- The **Comm Plan** editor checks every channel against the campaign theater's register (and flags duplicates), and
+  can fill empty channels or reset the matrix from the JCEOI. Existing Comm Plans are never changed automatically.
+
+Rebuild the data with `tools/jceoi` (see its README); the build refuses to write a plan with any conflict.
 
 ## Target nomination (JIPTL pipeline)
 

@@ -1,0 +1,399 @@
+{
+ "theater": "Marianas",
+ "source": "DCS World install, Mods/terrains/MarianaIslands",
+ "radios": [
+  {
+   "site": "Andersen_AFB",
+   "callsigns": [
+    "PGUA"
+   ],
+   "radioId": "airfield6_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.85,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Andersen_AFB",
+   "callsigns": [
+    "PGUA"
+   ],
+   "radioId": "airfield6_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Andersen_AFB",
+   "callsigns": [
+    "PGUA"
+   ],
+   "radioId": "airfield6_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Andersen_AFB",
+   "callsigns": [
+    "PGUA"
+   ],
+   "radioId": "airfield6_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Antonio_B._Won_Pat_Int_Airport",
+   "callsigns": [
+    "PGUM"
+   ],
+   "radioId": "airfield4_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.825,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Antonio_B._Won_Pat_Int_Airport",
+   "callsigns": [
+    "PGUM"
+   ],
+   "radioId": "airfield4_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 340.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Antonio_B._Won_Pat_Int_Airport",
+   "callsigns": [
+    "PGUM"
+   ],
+   "radioId": "airfield4_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Antonio_B._Won_Pat_Int_Airport",
+   "callsigns": [
+    "PGUM"
+   ],
+   "radioId": "airfield4_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Rota_Int",
+   "callsigns": [
+    "PGRO"
+   ],
+   "radioId": "airfield1_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Rota_Int",
+   "callsigns": [
+    "PGRO"
+   ],
+   "radioId": "airfield1_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Rota_Int",
+   "callsigns": [
+    "PGRO"
+   ],
+   "radioId": "airfield1_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Rota_Int",
+   "callsigns": [
+    "PGRO"
+   ],
+   "radioId": "airfield1_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Saipan_Int",
+   "callsigns": [
+    "PGSN"
+   ],
+   "radioId": "airfield2_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.775,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Saipan_Int",
+   "callsigns": [
+    "PGSN"
+   ],
+   "radioId": "airfield2_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 256.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Saipan_Int",
+   "callsigns": [
+    "PGSN"
+   ],
+   "radioId": "airfield2_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 125.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Saipan_Int",
+   "callsigns": [
+    "PGSN"
+   ],
+   "radioId": "airfield2_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Tinian_Int",
+   "callsigns": [
+    "PGWT"
+   ],
+   "radioId": "airfield3_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Tinian_Int",
+   "callsigns": [
+    "PGWT"
+   ],
+   "radioId": "airfield3_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Tinian_Int",
+   "callsigns": [
+    "PGWT"
+   ],
+   "radioId": "airfield3_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.65,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Tinian_Int",
+   "callsigns": [
+    "PGWT"
+   ],
+   "radioId": "airfield3_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.5,
+   "use": "ATC (ground/tower/approach)"
+  }
+ ],
+ "beacons": [
+  {
+   "site": "MTMACAJNA",
+   "type": "HOMER",
+   "callsign": "AJA",
+   "mhz": 0.385,
+   "tacan": null,
+   "lat": 13.453405,
+   "lon": 144.736872
+  },
+  {
+   "site": "Nimitz",
+   "type": "VORTAC",
+   "callsign": "UNZ",
+   "mhz": 115.8,
+   "tacan": 105,
+   "lat": 13.454531,
+   "lon": 144.733321
+  },
+  {
+   "site": "Saipan",
+   "type": "HOMER",
+   "callsign": "SN",
+   "mhz": 0.312,
+   "tacan": null,
+   "lat": 15.111283,
+   "lon": 145.710437
+  },
+  {
+   "site": "Andersen",
+   "type": "TACAN",
+   "callsign": "UAM",
+   "mhz": null,
+   "tacan": 54,
+   "lat": 13.591233,
+   "lon": 144.9466
+  },
+  {
+   "site": "Andersen",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IPMY",
+   "mhz": 110.15,
+   "tacan": null,
+   "lat": 13.587732,
+   "lon": 144.943259
+  },
+  {
+   "site": "Andersen",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IUAM",
+   "mhz": 110.1,
+   "tacan": null,
+   "lat": 13.577585,
+   "lon": 144.919098
+  },
+  {
+   "site": "Andersen",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IYIG",
+   "mhz": 109.35,
+   "tacan": null,
+   "lat": 13.590338,
+   "lon": 144.940496
+  },
+  {
+   "site": "Andersen",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IAND",
+   "mhz": 109.3,
+   "tacan": null,
+   "lat": 13.580689,
+   "lon": 144.918753
+  },
+  {
+   "site": "Andersen",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IUAM",
+   "mhz": 110.1,
+   "tacan": null,
+   "lat": 13.589357,
+   "lon": 144.948539
+  },
+  {
+   "site": "Andersen",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IAND",
+   "mhz": 109.3,
+   "tacan": null,
+   "lat": 13.593463,
+   "lon": 144.945598
+  },
+  {
+   "site": "Andersen",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IYIG",
+   "mhz": 109.35,
+   "tacan": null,
+   "lat": 13.578646,
+   "lon": 144.911752
+  },
+  {
+   "site": "Andersen",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IPMY",
+   "mhz": 110.15,
+   "tacan": null,
+   "lat": 13.573797,
+   "lon": 144.912991
+  },
+  {
+   "site": "AntonioBWonPat",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IAWD",
+   "mhz": 110.9,
+   "tacan": null,
+   "lat": 13.493032,
+   "lon": 144.814772
+  },
+  {
+   "site": "AntonioBWonPat",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IAWD",
+   "mhz": 110.9,
+   "tacan": null,
+   "lat": 13.481585,
+   "lon": 144.785804
+  },
+  {
+   "site": "AntonioBWonPat",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IGUM",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 13.490096,
+   "lon": 144.813047
+  },
+  {
+   "site": "AntonioBWonPat",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IGUM",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 13.479205,
+   "lon": 144.786982
+  },
+  {
+   "site": "Rota",
+   "type": "HOMER",
+   "callsign": "GRO",
+   "mhz": 0.332,
+   "tacan": null,
+   "lat": 14.171648,
+   "lon": 145.239866
+  },
+  {
+   "site": "Saipan",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IGSN",
+   "mhz": 109.9,
+   "tacan": null,
+   "lat": 15.124488,
+   "lon": 145.743333
+  },
+  {
+   "site": "Saipan",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "PGSN",
+   "mhz": 109.9,
+   "tacan": null,
+   "lat": 15.116286,
+   "lon": 145.7203
+  }
+ ]
+}

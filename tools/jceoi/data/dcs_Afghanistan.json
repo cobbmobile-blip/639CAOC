@@ -1,0 +1,1593 @@
+{
+ "theater": "Afghanistan",
+ "source": "DCS World install, Mods/terrains/Afghanistan",
+ "radios": [
+  {
+   "site": "Bost",
+   "callsigns": [
+    "OABT"
+   ],
+   "radioId": "airfield8_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bost",
+   "callsigns": [
+    "OABT"
+   ],
+   "radioId": "airfield8_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 243.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bost",
+   "callsigns": [
+    "OABT"
+   ],
+   "radioId": "airfield8_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 131.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bost",
+   "callsigns": [
+    "OABT"
+   ],
+   "radioId": "airfield8_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Camp_Bastion",
+   "callsigns": [
+    "OAZI"
+   ],
+   "radioId": "airfield10_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Camp_Bastion",
+   "callsigns": [
+    "OAZI"
+   ],
+   "radioId": "airfield10_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Camp_Bastion",
+   "callsigns": [
+    "OAZI"
+   ],
+   "radioId": "airfield10_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Camp_Bastion",
+   "callsigns": [
+    "OAZI"
+   ],
+   "radioId": "airfield10_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Camp_Bastion_Heli",
+   "callsigns": [
+    "OAZI Heli"
+   ],
+   "radioId": "airfield13_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Camp_Bastion_Heli",
+   "callsigns": [
+    "OAZI Heli"
+   ],
+   "radioId": "airfield13_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Camp_Bastion_Heli",
+   "callsigns": [
+    "OAZI Heli"
+   ],
+   "radioId": "airfield13_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Camp_Bastion_Heli",
+   "callsigns": [
+    "OAZI Heli"
+   ],
+   "radioId": "airfield13_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Chaghcharan",
+   "callsigns": [
+    "CTAF"
+   ],
+   "radioId": "airfield5_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.825,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Chaghcharan",
+   "callsigns": [
+    "CTAF"
+   ],
+   "radioId": "airfield5_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Chaghcharan",
+   "callsigns": [
+    "CTAF"
+   ],
+   "radioId": "airfield5_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Chaghcharan",
+   "callsigns": [
+    "CTAF"
+   ],
+   "radioId": "airfield5_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Dwyer",
+   "callsigns": [
+    "YARDBIRD"
+   ],
+   "radioId": "airfield11_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.775,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Dwyer",
+   "callsigns": [
+    "YARDBIRD"
+   ],
+   "radioId": "airfield11_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 343.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Dwyer",
+   "callsigns": [
+    "YARDBIRD"
+   ],
+   "radioId": "airfield11_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Dwyer",
+   "callsigns": [
+    "YARDBIRD"
+   ],
+   "radioId": "airfield11_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Farah",
+   "callsigns": [
+    "OAFR"
+   ],
+   "radioId": "airfield2_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.975,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Farah",
+   "callsigns": [
+    "OAFR"
+   ],
+   "radioId": "airfield2_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Farah",
+   "callsigns": [
+    "OAFR"
+   ],
+   "radioId": "airfield2_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Farah",
+   "callsigns": [
+    "OAFR"
+   ],
+   "radioId": "airfield2_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.85,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Herat",
+   "callsigns": [
+    "OAHR"
+   ],
+   "radioId": "airfield1_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Herat",
+   "callsigns": [
+    "OAHR"
+   ],
+   "radioId": "airfield1_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 240.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Herat",
+   "callsigns": [
+    "OAHR"
+   ],
+   "radioId": "airfield1_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Herat",
+   "callsigns": [
+    "OAHR"
+   ],
+   "radioId": "airfield1_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kandahar",
+   "callsigns": [
+    "OAKN"
+   ],
+   "radioId": "airfield7_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.025,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kandahar",
+   "callsigns": [
+    "OAKN"
+   ],
+   "radioId": "airfield7_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 360.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kandahar",
+   "callsigns": [
+    "OAKN"
+   ],
+   "radioId": "airfield7_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 125.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kandahar",
+   "callsigns": [
+    "OAKN"
+   ],
+   "radioId": "airfield7_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.95,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kandahar_Heli",
+   "callsigns": [
+    "OAKN Heli"
+   ],
+   "radioId": "airfield15_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.95,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kandahar_Heli",
+   "callsigns": [
+    "OAKN Heli"
+   ],
+   "radioId": "airfield15_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 300.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kandahar_Heli",
+   "callsigns": [
+    "OAKN Heli"
+   ],
+   "radioId": "airfield15_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kandahar_Heli",
+   "callsigns": [
+    "OAKN Heli"
+   ],
+   "radioId": "airfield15_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Maymana_Zahiraddin_Faryabi",
+   "callsigns": [
+    "OAMN"
+   ],
+   "radioId": "airfield4_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.875,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Maymana_Zahiraddin_Faryabi",
+   "callsigns": [
+    "OAMN"
+   ],
+   "radioId": "airfield4_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Maymana_Zahiraddin_Faryabi",
+   "callsigns": [
+    "OAMN"
+   ],
+   "radioId": "airfield4_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Maymana_Zahiraddin_Faryabi",
+   "callsigns": [
+    "OAMN"
+   ],
+   "radioId": "airfield4_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.65,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Nimroz",
+   "callsigns": [
+    "OANZ"
+   ],
+   "radioId": "airfield12_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.85,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Nimroz",
+   "callsigns": [
+    "OANZ"
+   ],
+   "radioId": "airfield12_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Nimroz",
+   "callsigns": [
+    "OANZ"
+   ],
+   "radioId": "airfield12_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Nimroz",
+   "callsigns": [
+    "OANZ"
+   ],
+   "radioId": "airfield12_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Qala_i_Naw",
+   "callsigns": [
+    "OAQN"
+   ],
+   "radioId": "airfield6_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Qala_i_Naw",
+   "callsigns": [
+    "OAQN"
+   ],
+   "radioId": "airfield6_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Qala_i_Naw",
+   "callsigns": [
+    "OAQN"
+   ],
+   "radioId": "airfield6_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Qala_i_Naw",
+   "callsigns": [
+    "OAQN"
+   ],
+   "radioId": "airfield6_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Shindand",
+   "callsigns": [
+    "OASD"
+   ],
+   "radioId": "airfield3_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Shindand",
+   "callsigns": [
+    "OASD"
+   ],
+   "radioId": "airfield3_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 265.65,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Shindand",
+   "callsigns": [
+    "OASD"
+   ],
+   "radioId": "airfield3_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Shindand",
+   "callsigns": [
+    "OASD"
+   ],
+   "radioId": "airfield3_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Shindand_Heli",
+   "callsigns": [
+    "OASD Heliport"
+   ],
+   "radioId": "airfield14_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.925,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Shindand_Heli",
+   "callsigns": [
+    "OASD Heliport"
+   ],
+   "radioId": "airfield14_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 344.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Shindand_Heli",
+   "callsigns": [
+    "OASD Heliport"
+   ],
+   "radioId": "airfield14_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Shindand_Heli",
+   "callsigns": [
+    "OASD Heliport"
+   ],
+   "radioId": "airfield14_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Tarinkot",
+   "callsigns": [
+    "OATN"
+   ],
+   "radioId": "airfield9_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.075,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Tarinkot",
+   "callsigns": [
+    "OATN"
+   ],
+   "radioId": "airfield9_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Tarinkot",
+   "callsigns": [
+    "OATN"
+   ],
+   "radioId": "airfield9_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 128.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Tarinkot",
+   "callsigns": [
+    "OATN"
+   ],
+   "radioId": "airfield9_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Zaranj",
+   "callsigns": [
+    "OAZJ"
+   ],
+   "radioId": "airfield37_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.425,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Zaranj",
+   "callsigns": [
+    "OAZJ"
+   ],
+   "radioId": "airfield37_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Zaranj",
+   "callsigns": [
+    "OAZJ"
+   ],
+   "radioId": "airfield37_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Zaranj",
+   "callsigns": [
+    "OAZJ"
+   ],
+   "radioId": "airfield37_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bagram",
+   "callsigns": [
+    "OAIX"
+   ],
+   "radioId": "airfield16_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.125,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bagram",
+   "callsigns": [
+    "OAIX"
+   ],
+   "radioId": "airfield16_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 325.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bagram",
+   "callsigns": [
+    "OAIX"
+   ],
+   "radioId": "airfield16_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 120.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bagram",
+   "callsigns": [
+    "OAIX"
+   ],
+   "radioId": "airfield16_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bamyan",
+   "callsigns": [
+    "OABN"
+   ],
+   "radioId": "airfield18_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.325,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bamyan",
+   "callsigns": [
+    "OABN"
+   ],
+   "radioId": "airfield18_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.65,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bamyan",
+   "callsigns": [
+    "OABN"
+   ],
+   "radioId": "airfield18_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bamyan",
+   "callsigns": [
+    "OABN"
+   ],
+   "radioId": "airfield18_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "FOB_Salerno",
+   "callsigns": [
+    "OASL Salerno"
+   ],
+   "radioId": "airfield23_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.275,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "FOB_Salerno",
+   "callsigns": [
+    "OASL Salerno"
+   ],
+   "radioId": "airfield23_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 243.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "FOB_Salerno",
+   "callsigns": [
+    "OASL Salerno"
+   ],
+   "radioId": "airfield23_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "FOB_Salerno",
+   "callsigns": [
+    "OASL Salerno"
+   ],
+   "radioId": "airfield23_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gardez",
+   "callsigns": [
+    "OAGZ"
+   ],
+   "radioId": "airfield20_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gardez",
+   "callsigns": [
+    "OAGZ"
+   ],
+   "radioId": "airfield20_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gardez",
+   "callsigns": [
+    "OAGZ"
+   ],
+   "radioId": "airfield20_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gardez",
+   "callsigns": [
+    "OAGZ"
+   ],
+   "radioId": "airfield20_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Ghazni_Heliport",
+   "callsigns": [
+    "OAGN"
+   ],
+   "radioId": "airfield21_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Ghazni_Heliport",
+   "callsigns": [
+    "OAGN"
+   ],
+   "radioId": "airfield21_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Ghazni_Heliport",
+   "callsigns": [
+    "OAGN"
+   ],
+   "radioId": "airfield21_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Ghazni_Heliport",
+   "callsigns": [
+    "OAGN"
+   ],
+   "radioId": "airfield21_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Jalalabad",
+   "callsigns": [
+    "OAJL"
+   ],
+   "radioId": "airfield19_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Jalalabad",
+   "callsigns": [
+    "OAJL"
+   ],
+   "radioId": "airfield19_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 231.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Jalalabad",
+   "callsigns": [
+    "OAJL"
+   ],
+   "radioId": "airfield19_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 129.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Jalalabad",
+   "callsigns": [
+    "OAJL"
+   ],
+   "radioId": "airfield19_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kabul",
+   "callsigns": [
+    "OAKB"
+   ],
+   "radioId": "airfield17_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kabul",
+   "callsigns": [
+    "OAKB"
+   ],
+   "radioId": "airfield17_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 284.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kabul",
+   "callsigns": [
+    "OAKB"
+   ],
+   "radioId": "airfield17_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 120.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Kabul",
+   "callsigns": [
+    "OAKB"
+   ],
+   "radioId": "airfield17_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Khost_Dirt_Airfield",
+   "callsigns": [
+    "KHTD"
+   ],
+   "radioId": "airfield25_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.225,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Khost_Dirt_Airfield",
+   "callsigns": [
+    "KHTD"
+   ],
+   "radioId": "airfield25_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Khost_Dirt_Airfield",
+   "callsigns": [
+    "KHTD"
+   ],
+   "radioId": "airfield25_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Khost_Dirt_Airfield",
+   "callsigns": [
+    "KHTD"
+   ],
+   "radioId": "airfield25_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sharana",
+   "callsigns": [
+    "OASA"
+   ],
+   "radioId": "airfield22_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.175,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sharana",
+   "callsigns": [
+    "OASA"
+   ],
+   "radioId": "airfield22_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sharana",
+   "callsigns": [
+    "OASA"
+   ],
+   "radioId": "airfield22_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sharana",
+   "callsigns": [
+    "OASA"
+   ],
+   "radioId": "airfield22_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Urgoon_Heliport",
+   "callsigns": [
+    "URGHelli"
+   ],
+   "radioId": "airfield24_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Urgoon_Heliport",
+   "callsigns": [
+    "URGHelli"
+   ],
+   "radioId": "airfield24_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Urgoon_Heliport",
+   "callsigns": [
+    "URGHelli"
+   ],
+   "radioId": "airfield24_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Urgoon_Heliport",
+   "callsigns": [
+    "URGHelli"
+   ],
+   "radioId": "airfield24_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.2,
+   "use": "ATC (ground/tower/approach)"
+  }
+ ],
+ "beacons": [
+  {
+   "site": "Gilgit",
+   "type": "HOMER",
+   "callsign": "GT",
+   "mhz": 0.324,
+   "tacan": null,
+   "lat": 35.920161,
+   "lon": 74.335056
+  },
+  {
+   "site": "Peshawar",
+   "type": "HOMER",
+   "callsign": "PS",
+   "mhz": 0.308,
+   "tacan": null,
+   "lat": 33.990832,
+   "lon": 71.502676
+  },
+  {
+   "site": "Dushanbe",
+   "type": "VOR_DME",
+   "callsign": "DNB",
+   "mhz": 113.6,
+   "tacan": 83,
+   "lat": 38.541666,
+   "lon": 68.810835
+  },
+  {
+   "site": "Dangara",
+   "type": "DME",
+   "callsign": "DNR",
+   "mhz": 114.1,
+   "tacan": 88,
+   "lat": 38.263064,
+   "lon": 69.221936
+  },
+  {
+   "site": "Zahedan",
+   "type": "TACAN",
+   "callsign": "ZAH",
+   "mhz": null,
+   "tacan": 76,
+   "lat": 29.463496,
+   "lon": 60.904502
+  },
+  {
+   "site": "Muzaffarabad",
+   "type": "HOMER",
+   "callsign": "MF",
+   "mhz": 0.207,
+   "tacan": null,
+   "lat": 34.342169,
+   "lon": 73.506678
+  },
+  {
+   "site": "Quetta",
+   "type": "HOMER",
+   "callsign": "QT",
+   "mhz": 0.348,
+   "tacan": null,
+   "lat": 30.234162,
+   "lon": 66.948841
+  },
+  {
+   "site": "Zhob",
+   "type": "VOR_DME",
+   "callsign": "ZB",
+   "mhz": 115.7,
+   "tacan": 104,
+   "lat": 31.355997,
+   "lon": 69.459835
+  },
+  {
+   "site": "Zhob",
+   "type": "HOMER",
+   "callsign": "ZB",
+   "mhz": 0.245,
+   "tacan": null,
+   "lat": 31.355832,
+   "lon": 69.455001
+  },
+  {
+   "site": "Fayzobod",
+   "type": "HOMER",
+   "callsign": "JD",
+   "mhz": 0.475,
+   "tacan": null,
+   "lat": 38.543889,
+   "lon": 69.313893
+  },
+  {
+   "site": "Multan",
+   "type": "HOMER",
+   "callsign": "MT",
+   "mhz": 0.387,
+   "tacan": null,
+   "lat": 30.194,
+   "lon": 71.412838
+  },
+  {
+   "site": "Murgab",
+   "type": "DME",
+   "callsign": "MRB",
+   "mhz": 114.7,
+   "tacan": 94,
+   "lat": 38.055823,
+   "lon": 74.509189
+  },
+  {
+   "site": "DeraGhaziKhan",
+   "type": "HOMER",
+   "callsign": "DG",
+   "mhz": 0.322,
+   "tacan": null,
+   "lat": 29.962166,
+   "lon": 70.490336
+  },
+  {
+   "site": "Zahedan",
+   "type": "VOR_DME",
+   "callsign": "ZDN",
+   "mhz": 116.0,
+   "tacan": 107,
+   "lat": 29.486813,
+   "lon": 60.901703
+  },
+  {
+   "site": "Sheikhupura",
+   "type": "HOMER",
+   "callsign": "SP",
+   "mhz": 0.317,
+   "tacan": null,
+   "lat": 31.700671,
+   "lon": 73.999003
+  },
+  {
+   "site": "DIKhan",
+   "type": "HOMER",
+   "callsign": "DI",
+   "mhz": 0.286,
+   "tacan": null,
+   "lat": 31.908665,
+   "lon": 70.888507
+  },
+  {
+   "site": "Bahawalpur",
+   "type": "HOMER",
+   "callsign": "BW",
+   "mhz": 0.332,
+   "tacan": null,
+   "lat": 29.349814,
+   "lon": 71.709538
+  },
+  {
+   "site": "DIKhan",
+   "type": "VOR",
+   "callsign": "DI",
+   "mhz": 113.1,
+   "tacan": null,
+   "lat": 31.912663,
+   "lon": 70.885678
+  },
+  {
+   "site": "Parachinar",
+   "type": "HOMER",
+   "callsign": "PC",
+   "mhz": 0.273,
+   "tacan": null,
+   "lat": 33.905337,
+   "lon": 70.072498
+  },
+  {
+   "site": "Sarakhs",
+   "type": "DME",
+   "callsign": "SRS",
+   "mhz": 334.0,
+   "tacan": 108,
+   "lat": 36.495338,
+   "lon": 61.074234
+  },
+  {
+   "site": "Peshawar",
+   "type": "VOR_DME",
+   "callsign": "PS",
+   "mhz": 114.3,
+   "tacan": 90,
+   "lat": 33.978165,
+   "lon": 71.517007
+  },
+  {
+   "site": "Termez",
+   "type": "VOR_DME",
+   "callsign": "TRZ",
+   "mhz": 113.4,
+   "tacan": 81,
+   "lat": 37.286652,
+   "lon": 67.317681
+  },
+  {
+   "site": "Faisalabad",
+   "type": "HOMER",
+   "callsign": "FA",
+   "mhz": 0.212,
+   "tacan": null,
+   "lat": 31.370168,
+   "lon": 72.99501
+  },
+  {
+   "site": "Multan",
+   "type": "VOR",
+   "callsign": "MT",
+   "mhz": 116.7,
+   "tacan": null,
+   "lat": 30.193997,
+   "lon": 71.416173
+  },
+  {
+   "site": "Islamabad",
+   "type": "VOR_DME",
+   "callsign": "BTR",
+   "mhz": 114.6,
+   "tacan": 93,
+   "lat": 33.544359,
+   "lon": 72.855992
+  },
+  {
+   "site": "Rawalakot",
+   "type": "HOMER",
+   "callsign": "RT",
+   "mhz": 0.295,
+   "tacan": null,
+   "lat": 33.847499,
+   "lon": 73.799178
+  },
+  {
+   "site": "Bokhtar",
+   "type": "DME",
+   "callsign": "KTB",
+   "mhz": 114.5,
+   "tacan": 92,
+   "lat": 37.859725,
+   "lon": 68.861943
+  },
+  {
+   "site": "Islamabad",
+   "type": "VOR_DME",
+   "callsign": "RN",
+   "mhz": 112.1,
+   "tacan": 58,
+   "lat": 33.605998,
+   "lon": 73.126008
+  },
+  {
+   "site": "Oktyabrskiy",
+   "type": "HOMER",
+   "callsign": "PR",
+   "mhz": 0.31,
+   "tacan": null,
+   "lat": 38.537777,
+   "lon": 68.394456
+  },
+  {
+   "site": "Kulob",
+   "type": "DME",
+   "callsign": "KLB",
+   "mhz": 114.4,
+   "tacan": 91,
+   "lat": 37.984459,
+   "lon": 69.801663
+  },
+  {
+   "site": "Zahedan",
+   "type": "HOMER",
+   "callsign": "ZD",
+   "mhz": 0.224,
+   "tacan": null,
+   "lat": 29.470986,
+   "lon": 60.896222
+  },
+  {
+   "site": "SaiduSharif",
+   "type": "HOMER",
+   "callsign": "SS",
+   "mhz": 0.357,
+   "tacan": null,
+   "lat": 34.800011,
+   "lon": 72.350008
+  },
+  {
+   "site": "Islamabad",
+   "type": "HOMER",
+   "callsign": "RN",
+   "mhz": 0.344,
+   "tacan": null,
+   "lat": 33.611225,
+   "lon": 73.108306
+  },
+  {
+   "site": "Quetta",
+   "type": "VOR_DME",
+   "callsign": "QT",
+   "mhz": 114.7,
+   "tacan": 94,
+   "lat": 30.257832,
+   "lon": 66.936007
+  },
+  {
+   "site": "Kerki",
+   "type": "HOMER",
+   "callsign": "FK",
+   "mhz": 0.469,
+   "tacan": null,
+   "lat": 37.84196,
+   "lon": 65.128378
+  },
+  {
+   "site": "Zabol",
+   "type": "VOR_DME",
+   "callsign": "ZAL",
+   "mhz": 113.0,
+   "tacan": 78,
+   "lat": 31.095501,
+   "lon": 61.541844
+  },
+  {
+   "site": "Kerki",
+   "type": "VOR_DME",
+   "callsign": "LBK",
+   "mhz": 109.4,
+   "tacan": null,
+   "lat": 37.800043,
+   "lon": 65.143229
+  },
+  {
+   "site": "Bastion",
+   "type": "HOMER",
+   "callsign": "BS",
+   "mhz": 0.423,
+   "tacan": null,
+   "lat": 31.838947,
+   "lon": 64.219237
+  },
+  {
+   "site": "Bastion",
+   "type": "TACAN",
+   "callsign": "BAS",
+   "mhz": 115.1,
+   "tacan": 98,
+   "lat": 31.829349,
+   "lon": 64.217023
+  },
+  {
+   "site": "Dwyer",
+   "type": "TACAN",
+   "callsign": "ADY",
+   "mhz": null,
+   "tacan": 46,
+   "lat": 31.090132,
+   "lon": 64.06698
+  },
+  {
+   "site": "Herat",
+   "type": "VOR_DME",
+   "callsign": "AHR",
+   "mhz": 116.2,
+   "tacan": 109,
+   "lat": 34.206865,
+   "lon": 62.232903
+  },
+  {
+   "site": "Herat",
+   "type": "HOMER",
+   "callsign": "HRT",
+   "mhz": 0.412,
+   "tacan": null,
+   "lat": 34.211313,
+   "lon": 62.231559
+  },
+  {
+   "site": "Herat",
+   "type": "TACAN",
+   "callsign": "HRT",
+   "mhz": null,
+   "tacan": 54,
+   "lat": 34.207308,
+   "lon": 62.225658
+  },
+  {
+   "site": "Kandahar",
+   "type": "TACAN",
+   "callsign": "KAF",
+   "mhz": null,
+   "tacan": 75,
+   "lat": 31.503058,
+   "lon": 65.845986
+  },
+  {
+   "site": "Kandahar",
+   "type": "VOR_DME",
+   "callsign": "KDR",
+   "mhz": 116.0,
+   "tacan": 107,
+   "lat": 31.49423,
+   "lon": 65.825174
+  },
+  {
+   "site": "Shindand",
+   "type": "TACAN",
+   "callsign": "ASD",
+   "mhz": 111.1,
+   "tacan": 48,
+   "lat": 33.390852,
+   "lon": 62.262116
+  },
+  {
+   "site": "Bagram",
+   "type": "VORTAC",
+   "callsign": "BGM",
+   "mhz": 112.7,
+   "tacan": 74,
+   "lat": 34.950386,
+   "lon": 69.271494
+  },
+  {
+   "site": "Kabul",
+   "type": "VOR_DME",
+   "callsign": "KBL",
+   "mhz": 112.0,
+   "tacan": 57,
+   "lat": 34.545599,
+   "lon": 69.29036
+  },
+  {
+   "site": "Kabul",
+   "type": "TACAN",
+   "callsign": "OKB",
+   "mhz": 133.8,
+   "tacan": 65,
+   "lat": 34.565961,
+   "lon": 69.205973
+  }
+ ]
+}

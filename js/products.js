@@ -311,7 +311,15 @@
     ["GROUND COORD", "PURPLE", ["ASOC", "JTAC/FAC(A) 1", "JTAC/FAC(A) 2", "JTAC/FAC(A) 3", "CAS COORD", "SPARE"]],
     ["SPARES", "GRAY", ["SPARE", "SPARE", "SPARE", "SPARE", "SPARE", "SPARE"]]
   ];
-  const blankMatrix = () => ({ rows: 6, columns: COMM_TEMPLATE.map(([title, color, roles]) => ({ title, color, cells: roles.map(role => ({ role })) })) });
+  // A new Comm Plan is the template with the JCEOI standard frequencies filled in (when the JCEOI is loaded and was
+  // built from this same template); campaign-specific changes are made from there.
+  const blankMatrix = () => {
+    const J = window.AOC.JCEOI?.inSync ? window.AOC.JCEOI : null;
+    return { rows: Math.max(...COMM_TEMPLATE.map(t => t[2].length)), columns: COMM_TEMPLATE.map(([title, color, roles]) => ({ title, color, cells: roles.map((role, i) => {
+      const n = J?.net(`${color} ${i + 1}`);
+      return n ? { role, ...(n.callsign ? { callsign: n.callsign } : {}), freq: n.uhf.toFixed(3) } : { role };
+    }) })) };
+  };
   // Every filled cell as a named channel, e.g. WHITE 1 = RAZOR, TAC COORD, 293.500
   const channels = m => (m?.columns || []).flatMap(c => (c.cells || []).slice(0, m.rows).map((cell, i) => ({ id: `${c.color} ${i + 1}`, col: c, ...cell })))
     .filter(ch => ch.role || ch.callsign || ch.freq);
@@ -443,7 +451,7 @@
   };
 
   window.AOC.PRODUCTS = P;
-  window.AOC.COMM = { COLORS: COMM_COLORS, cellStyle, blankMatrix, channels };
+  window.AOC.COMM = { COLORS: COMM_COLORS, TEMPLATE: COMM_TEMPLATE, cellStyle, blankMatrix, channels };
   window.AOC.FUTURE = FUTURE;
   window.AOC.MILESTONES = MILESTONES;
   window.AOC.STAGES = STAGES;

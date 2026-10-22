@@ -1,0 +1,545 @@
+{
+ "theater": "Nevada",
+ "source": "DCS World install, Mods/terrains/Nevada",
+ "radios": [
+  {
+   "site": "IndianSprings",
+   "callsigns": [
+    "IndianSprings"
+   ],
+   "radioId": "airfield1_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 360.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "IndianSprings",
+   "callsigns": [
+    "IndianSprings"
+   ],
+   "radioId": "airfield1_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Henderson",
+   "callsigns": [
+    "Henderson"
+   ],
+   "radioId": "airfield8_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 125.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Lasvegas",
+   "callsigns": [
+    "Lasvegas"
+   ],
+   "radioId": "airfield3_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 257.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Lasvegas",
+   "callsigns": [
+    "Lasvegas"
+   ],
+   "radioId": "airfield3_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Bullhead",
+   "callsigns": [
+    "Bullhead"
+   ],
+   "radioId": "airfield10_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "NellisControl",
+   "callsigns": [
+    "NellisControl"
+   ],
+   "radioId": "airfield4_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 327.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "NellisControl",
+   "callsigns": [
+    "NellisControl"
+   ],
+   "radioId": "airfield4_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 132.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "NorthLasVegas",
+   "callsigns": [
+    "NorthLasVegas"
+   ],
+   "radioId": "airfield15_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 360.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "NorthLasVegas",
+   "callsigns": [
+    "NorthLasVegas"
+   ],
+   "radioId": "airfield15_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 125.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Silverbow",
+   "callsigns": [
+    "Silverbow"
+   ],
+   "radioId": "airfield18_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 257.95,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Silverbow",
+   "callsigns": [
+    "Silverbow"
+   ],
+   "radioId": "airfield18_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.75,
+   "use": "ATC (ground/tower/approach)"
+  }
+ ],
+ "beacons": [
+  {
+   "site": "Creech",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ICRR",
+   "mhz": 108.7,
+   "tacan": 24,
+   "lat": 36.585008,
+   "lon": -115.691917
+  },
+  {
+   "site": "Creech",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ICRR",
+   "mhz": 108.7,
+   "tacan": 24,
+   "lat": 36.583327,
+   "lon": -115.661273
+  },
+  {
+   "site": "Creech",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ICRS",
+   "mhz": 108.5,
+   "tacan": 22,
+   "lat": 36.582666,
+   "lon": -115.666218
+  },
+  {
+   "site": "Creech",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ICRS",
+   "mhz": 108.5,
+   "tacan": 22,
+   "lat": 36.593576,
+   "lon": -115.676693
+  },
+  {
+   "site": "Creech",
+   "type": "TACAN",
+   "callsign": "INS",
+   "mhz": null,
+   "tacan": 87,
+   "lat": 36.585001,
+   "lon": -115.670334
+  },
+  {
+   "site": "Groom-Lake",
+   "type": "ILS_LOCALIZER",
+   "callsign": "GLRI",
+   "mhz": 109.3,
+   "tacan": 30,
+   "lat": 37.250797,
+   "lon": -115.801637
+  },
+  {
+   "site": "Groom-Lake",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "GLRI",
+   "mhz": 109.3,
+   "tacan": 30,
+   "lat": 37.22,
+   "lon": -115.787349
+  },
+  {
+   "site": "Groom-Lake",
+   "type": "TACAN",
+   "callsign": "GRL",
+   "mhz": null,
+   "tacan": 18,
+   "lat": 37.231778,
+   "lon": -115.802638
+  },
+  {
+   "site": "McCarran-International",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "I-RLE",
+   "mhz": 111.75,
+   "tacan": null,
+   "lat": 36.072917,
+   "lon": -115.12971
+  },
+  {
+   "site": "McCarran-International",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "I-LAS",
+   "mhz": 110.3,
+   "tacan": 40,
+   "lat": 36.075638,
+   "lon": -115.129735
+  },
+  {
+   "site": "McCarran-International",
+   "type": "ILS_LOCALIZER",
+   "callsign": "I-RLE",
+   "mhz": 111.75,
+   "tacan": null,
+   "lat": 36.073641,
+   "lon": -115.164803
+  },
+  {
+   "site": "McCarran-International",
+   "type": "ILS_LOCALIZER",
+   "callsign": "I-LAS",
+   "mhz": 110.3,
+   "tacan": 40,
+   "lat": 36.076361,
+   "lon": -115.171993
+  },
+  {
+   "site": "McCarran-International",
+   "type": "VORTAC",
+   "callsign": "LAS",
+   "mhz": 116.9,
+   "tacan": 116,
+   "lat": 36.079576,
+   "lon": -115.159816
+  },
+  {
+   "site": "Nellis",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IDIQ",
+   "mhz": 109.1,
+   "tacan": null,
+   "lat": 36.242368,
+   "lon": -115.023073
+  },
+  {
+   "site": "Nellis",
+   "type": "TACAN",
+   "callsign": "LSV",
+   "mhz": null,
+   "tacan": 12,
+   "lat": 36.244644,
+   "lon": -115.025113
+  },
+  {
+   "site": "Nellis",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IDIQ",
+   "mhz": 109.1,
+   "tacan": null,
+   "lat": 36.222242,
+   "lon": -115.047062
+  },
+  {
+   "site": "North-Las-Vegas",
+   "type": "ILS_LOCALIZER",
+   "callsign": "I-HWG",
+   "mhz": 110.7,
+   "tacan": null,
+   "lat": 36.203486,
+   "lon": -115.185139
+  },
+  {
+   "site": "North-Las-Vegas",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "I-HWG",
+   "mhz": 110.7,
+   "tacan": null,
+   "lat": 36.211096,
+   "lon": -115.193207
+  },
+  {
+   "site": "Tonopah-Test-Range",
+   "type": "ILS_LOCALIZER",
+   "callsign": "I-RVP",
+   "mhz": 108.3,
+   "tacan": null,
+   "lat": 37.778583,
+   "lon": -116.770052
+  },
+  {
+   "site": "Tonopah-Test-Range",
+   "type": "ILS_LOCALIZER",
+   "callsign": "I-UVV",
+   "mhz": 111.7,
+   "tacan": null,
+   "lat": 37.817221,
+   "lon": -116.790522
+  },
+  {
+   "site": "Tonopah-Test-Range",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "I-UVV",
+   "mhz": 111.7,
+   "tacan": null,
+   "lat": 37.784512,
+   "lon": -116.775037
+  },
+  {
+   "site": "Tonopah-Test-Range",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "I-RVP",
+   "mhz": 108.3,
+   "tacan": null,
+   "lat": 37.811765,
+   "lon": -116.789423
+  },
+  {
+   "site": "Silverbow",
+   "type": "VORTAC",
+   "callsign": "TQQ",
+   "mhz": 113.0,
+   "tacan": 77,
+   "lat": 37.790475,
+   "lon": -116.779233
+  },
+  {
+   "site": "StGeorge",
+   "type": "VOR_DME",
+   "callsign": "UTI",
+   "mhz": 108.6,
+   "tacan": 23,
+   "lat": 37.088212,
+   "lon": -113.592167
+  },
+  {
+   "site": "GrandCanyon",
+   "type": "VOR_DME",
+   "callsign": "GCN",
+   "mhz": 113.1,
+   "tacan": 78,
+   "lat": 35.960444,
+   "lon": -112.145901
+  },
+  {
+   "site": "Kingman",
+   "type": "VOR_DME",
+   "callsign": "IGM",
+   "mhz": 108.8,
+   "tacan": 25,
+   "lat": 35.260535,
+   "lon": -113.93413
+  },
+  {
+   "site": "ColoradoCity",
+   "type": "AIRPORT_HOMER",
+   "callsign": "AZC",
+   "mhz": 0.403,
+   "tacan": null,
+   "lat": 36.959895,
+   "lon": -113.008973
+  },
+  {
+   "site": "Meggi",
+   "type": "AIRPORT_HOMER",
+   "callsign": "EC",
+   "mhz": 0.217,
+   "tacan": null,
+   "lat": 37.791252,
+   "lon": -113.020879
+  },
+  {
+   "site": "Daggett",
+   "type": "VORTAC",
+   "callsign": "DAG",
+   "mhz": 113.2,
+   "tacan": 79,
+   "lat": 34.962384,
+   "lon": -116.578128
+  },
+  {
+   "site": "Hector",
+   "type": "VORTAC",
+   "callsign": "HEC",
+   "mhz": 112.7,
+   "tacan": 74,
+   "lat": 34.797214,
+   "lon": -116.462929
+  },
+  {
+   "site": "Needles",
+   "type": "VORTAC",
+   "callsign": "EED",
+   "mhz": 115.2,
+   "tacan": 99,
+   "lat": 34.765927,
+   "lon": -114.473902
+  },
+  {
+   "site": "Milford",
+   "type": "VORTAC",
+   "callsign": "MLF",
+   "mhz": 112.1,
+   "tacan": 58,
+   "lat": 38.360356,
+   "lon": -113.013233
+  },
+  {
+   "site": "GOFFS",
+   "type": "VORTAC",
+   "callsign": "GFS",
+   "mhz": 114.4,
+   "tacan": 91,
+   "lat": 35.131167,
+   "lon": -115.1765
+  },
+  {
+   "site": "Tonopah",
+   "type": "VORTAC",
+   "callsign": "TPH",
+   "mhz": 117.2,
+   "tacan": 119,
+   "lat": 38.030667,
+   "lon": -117.0335
+  },
+  {
+   "site": "Mina",
+   "type": "VORTAC",
+   "callsign": "MVA",
+   "mhz": 115.1,
+   "tacan": 98,
+   "lat": 38.565333,
+   "lon": -118.032833
+  },
+  {
+   "site": "WilsonCreek",
+   "type": "VORTAC",
+   "callsign": "ILC",
+   "mhz": 116.3,
+   "tacan": 110,
+   "lat": 38.250167,
+   "lon": -114.394167
+  },
+  {
+   "site": "CedarCity",
+   "type": "VORTAC",
+   "callsign": "CDC",
+   "mhz": 117.3,
+   "tacan": 120,
+   "lat": 37.787333,
+   "lon": -113.068167
+  },
+  {
+   "site": "BryceCanyon",
+   "type": "VORTAC",
+   "callsign": "BCE",
+   "mhz": 112.8,
+   "tacan": 75,
+   "lat": 37.689167,
+   "lon": -112.303833
+  },
+  {
+   "site": "MormonMesa",
+   "type": "VORTAC",
+   "callsign": "MMM",
+   "mhz": 114.3,
+   "tacan": 90,
+   "lat": 36.769333,
+   "lon": -114.2775
+  },
+  {
+   "site": "Beatty",
+   "type": "VORTAC",
+   "callsign": "BTY",
+   "mhz": 114.7,
+   "tacan": 94,
+   "lat": 36.800583,
+   "lon": -116.747647
+  },
+  {
+   "site": "Bishop",
+   "type": "VORTAC",
+   "callsign": "BIH",
+   "mhz": 109.6,
+   "tacan": 33,
+   "lat": 37.377,
+   "lon": -118.3665
+  },
+  {
+   "site": "Coaldale",
+   "type": "VORTAC",
+   "callsign": "OAL",
+   "mhz": 117.7,
+   "tacan": 124,
+   "lat": 38.003333,
+   "lon": -117.7705
+  },
+  {
+   "site": "PeachSprings",
+   "type": "VORTAC",
+   "callsign": "PGS",
+   "mhz": 112.0,
+   "tacan": 57,
+   "lat": 35.624667,
+   "lon": -113.5445
+  },
+  {
+   "site": "BoulderCity",
+   "type": "VORTAC",
+   "callsign": "BLD",
+   "mhz": 116.7,
+   "tacan": 114,
+   "lat": 35.995752,
+   "lon": -114.863607
+  },
+  {
+   "site": "Mercury",
+   "type": "AIRPORT_HOMER",
+   "callsign": "MCY",
+   "mhz": 0.326,
+   "tacan": null,
+   "lat": 36.627456,
+   "lon": -116.027531
+  }
+ ]
+}

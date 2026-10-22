@@ -1,0 +1,2456 @@
+{
+ "theater": "Caucasus",
+ "source": "DCS World install, Mods/terrains/Caucasus",
+ "radios": [
+  {
+   "site": "Anapa",
+   "callsigns": [
+    "Anapa"
+   ],
+   "radioId": "airfield12_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Anapa",
+   "callsigns": [
+    "Anapa"
+   ],
+   "radioId": "airfield12_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 250.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Anapa",
+   "callsigns": [
+    "Anapa"
+   ],
+   "radioId": "airfield12_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Anapa",
+   "callsigns": [
+    "Anapa"
+   ],
+   "radioId": "airfield12_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Batumi",
+   "callsigns": [
+    "Batumi",
+    "Druzhinnik"
+   ],
+   "radioId": "airfield22_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.25,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Batumi",
+   "callsigns": [
+    "Batumi",
+    "Druzhinnik"
+   ],
+   "radioId": "airfield22_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 260.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Batumi",
+   "callsigns": [
+    "Batumi",
+    "Druzhinnik"
+   ],
+   "radioId": "airfield22_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 131.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Batumi",
+   "callsigns": [
+    "Batumi",
+    "Druzhinnik"
+   ],
+   "radioId": "airfield22_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Beslan",
+   "callsigns": [
+    "Beslan",
+    "Stavok"
+   ],
+   "radioId": "airfield32_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.75,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Beslan",
+   "callsigns": [
+    "Beslan",
+    "Stavok"
+   ],
+   "radioId": "airfield32_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 270.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Beslan",
+   "callsigns": [
+    "Beslan",
+    "Stavok"
+   ],
+   "radioId": "airfield32_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 141.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Beslan",
+   "callsigns": [
+    "Beslan",
+    "Stavok"
+   ],
+   "radioId": "airfield32_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gelendzhik",
+   "callsigns": [
+    "Gelendzhik",
+    "Maslenka"
+   ],
+   "radioId": "airfield17_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gelendzhik",
+   "callsigns": [
+    "Gelendzhik",
+    "Maslenka"
+   ],
+   "radioId": "airfield17_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 255.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gelendzhik",
+   "callsigns": [
+    "Gelendzhik",
+    "Maslenka"
+   ],
+   "radioId": "airfield17_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 126.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gelendzhik",
+   "callsigns": [
+    "Gelendzhik",
+    "Maslenka"
+   ],
+   "radioId": "airfield17_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gudauta",
+   "callsigns": [
+    "Gudauta",
+    "Lachuga"
+   ],
+   "radioId": "airfield21_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gudauta",
+   "callsigns": [
+    "Gudauta",
+    "Lachuga"
+   ],
+   "radioId": "airfield21_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 259.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gudauta",
+   "callsigns": [
+    "Gudauta",
+    "Lachuga"
+   ],
+   "radioId": "airfield21_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 130.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Gudauta",
+   "callsigns": [
+    "Gudauta",
+    "Lachuga"
+   ],
+   "radioId": "airfield21_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "KOBULETI",
+   "callsigns": [
+    "Kobuleti"
+   ],
+   "radioId": "airfield24_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.35,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "KOBULETI",
+   "callsigns": [
+    "Kobuleti"
+   ],
+   "radioId": "airfield24_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 262.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "KOBULETI",
+   "callsigns": [
+    "Kobuleti"
+   ],
+   "radioId": "airfield24_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 133.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "KOBULETI",
+   "callsigns": [
+    "Kobuleti"
+   ],
+   "radioId": "airfield24_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krasnodar",
+   "callsigns": [
+    "Krasnodar",
+    "Volokno"
+   ],
+   "radioId": "airfield13_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krasnodar",
+   "callsigns": [
+    "Krasnodar",
+    "Volokno"
+   ],
+   "radioId": "airfield13_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 251.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krasnodar",
+   "callsigns": [
+    "Krasnodar",
+    "Volokno"
+   ],
+   "radioId": "airfield13_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 122.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krasnodar",
+   "callsigns": [
+    "Krasnodar",
+    "Volokno"
+   ],
+   "radioId": "airfield13_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krasnodar_P",
+   "callsigns": [
+    "Krasnodar",
+    "Pashkovsky"
+   ],
+   "radioId": "airfield19_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krasnodar_P",
+   "callsigns": [
+    "Krasnodar",
+    "Pashkovsky"
+   ],
+   "radioId": "airfield19_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 257.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krasnodar_P",
+   "callsigns": [
+    "Krasnodar",
+    "Pashkovsky"
+   ],
+   "radioId": "airfield19_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 128.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krasnodar_P",
+   "callsigns": [
+    "Krasnodar",
+    "Pashkovsky"
+   ],
+   "radioId": "airfield19_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krymsk",
+   "callsigns": [
+    "Krymsk",
+    "Taymyr"
+   ],
+   "radioId": "airfield15_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krymsk",
+   "callsigns": [
+    "Krymsk",
+    "Taymyr"
+   ],
+   "radioId": "airfield15_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 253.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krymsk",
+   "callsigns": [
+    "Krymsk",
+    "Taymyr"
+   ],
+   "radioId": "airfield15_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 124.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Krymsk",
+   "callsigns": [
+    "Krymsk",
+    "Taymyr"
+   ],
+   "radioId": "airfield15_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "KUTAISI",
+   "callsigns": [
+    "Kutaisi"
+   ],
+   "radioId": "airfield25_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "KUTAISI",
+   "callsigns": [
+    "Kutaisi"
+   ],
+   "radioId": "airfield25_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 263.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "KUTAISI",
+   "callsigns": [
+    "Kutaisi"
+   ],
+   "radioId": "airfield25_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "KUTAISI",
+   "callsigns": [
+    "Kutaisi"
+   ],
+   "radioId": "airfield25_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Lochini",
+   "callsigns": [
+    "Lochini"
+   ],
+   "radioId": "airfield29_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Lochini",
+   "callsigns": [
+    "Lochini"
+   ],
+   "radioId": "airfield29_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 267.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Lochini",
+   "callsigns": [
+    "Lochini"
+   ],
+   "radioId": "airfield29_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 138.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Lochini",
+   "callsigns": [
+    "Lochini"
+   ],
+   "radioId": "airfield29_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Maykop",
+   "callsigns": [
+    "Khanskaya",
+    "Sokrat"
+   ],
+   "radioId": "airfield16_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.95,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Maykop",
+   "callsigns": [
+    "Khanskaya",
+    "Sokrat"
+   ],
+   "radioId": "airfield16_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 254.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Maykop",
+   "callsigns": [
+    "Khanskaya",
+    "Sokrat"
+   ],
+   "radioId": "airfield16_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 125.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Maykop",
+   "callsigns": [
+    "Khanskaya",
+    "Sokrat"
+   ],
+   "radioId": "airfield16_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "MinVody",
+   "callsigns": [
+    "Minvody"
+   ],
+   "radioId": "airfield26_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.45,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "MinVody",
+   "callsigns": [
+    "Minvody"
+   ],
+   "radioId": "airfield26_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 264.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "MinVody",
+   "callsigns": [
+    "Minvody"
+   ],
+   "radioId": "airfield26_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 135.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "MinVody",
+   "callsigns": [
+    "Minvody"
+   ],
+   "radioId": "airfield26_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Mozdok",
+   "callsigns": [
+    "Assistent",
+    "Mozdok"
+   ],
+   "radioId": "airfield28_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.55,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Mozdok",
+   "callsigns": [
+    "Assistent",
+    "Mozdok"
+   ],
+   "radioId": "airfield28_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 266.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Mozdok",
+   "callsigns": [
+    "Assistent",
+    "Mozdok"
+   ],
+   "radioId": "airfield28_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 137.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Mozdok",
+   "callsigns": [
+    "Assistent",
+    "Mozdok"
+   ],
+   "radioId": "airfield28_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Nalchick",
+   "callsigns": [
+    "Nalchik"
+   ],
+   "radioId": "airfield27_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Nalchick",
+   "callsigns": [
+    "Nalchik"
+   ],
+   "radioId": "airfield27_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 265.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Nalchick",
+   "callsigns": [
+    "Nalchik"
+   ],
+   "radioId": "airfield27_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 136.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Nalchick",
+   "callsigns": [
+    "Nalchik"
+   ],
+   "radioId": "airfield27_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 41.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Novorossiysk",
+   "callsigns": [
+    "Myskhako",
+    "Novorossiysk"
+   ],
+   "radioId": "airfield14_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 3.85,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Novorossiysk",
+   "callsigns": [
+    "Myskhako",
+    "Novorossiysk"
+   ],
+   "radioId": "airfield14_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 252.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Novorossiysk",
+   "callsigns": [
+    "Myskhako",
+    "Novorossiysk"
+   ],
+   "radioId": "airfield14_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 123.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Novorossiysk",
+   "callsigns": [
+    "Myskhako",
+    "Novorossiysk"
+   ],
+   "radioId": "airfield14_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 38.8,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Senaki",
+   "callsigns": [
+    "Kolkhi",
+    "Tzokot"
+   ],
+   "radioId": "airfield23_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.3,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Senaki",
+   "callsigns": [
+    "Kolkhi",
+    "Tzokot"
+   ],
+   "radioId": "airfield23_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 261.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Senaki",
+   "callsigns": [
+    "Kolkhi",
+    "Tzokot"
+   ],
+   "radioId": "airfield23_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 132.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Senaki",
+   "callsigns": [
+    "Kolkhi",
+    "Tzokot"
+   ],
+   "radioId": "airfield23_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sochi",
+   "callsigns": [
+    "Sochi"
+   ],
+   "radioId": "airfield18_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.05,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sochi",
+   "callsigns": [
+    "Sochi"
+   ],
+   "radioId": "airfield18_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 256.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sochi",
+   "callsigns": [
+    "Sochi"
+   ],
+   "radioId": "airfield18_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sochi",
+   "callsigns": [
+    "Sochi"
+   ],
+   "radioId": "airfield18_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 39.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sukhumi",
+   "callsigns": [
+    "Sukhumi",
+    "Uklad"
+   ],
+   "radioId": "airfield20_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.15,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sukhumi",
+   "callsigns": [
+    "Sukhumi",
+    "Uklad"
+   ],
+   "radioId": "airfield20_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 258.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sukhumi",
+   "callsigns": [
+    "Sukhumi",
+    "Uklad"
+   ],
+   "radioId": "airfield20_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 129.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Sukhumi",
+   "callsigns": [
+    "Sukhumi",
+    "Uklad"
+   ],
+   "radioId": "airfield20_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 40.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "TbilisiMilitary",
+   "callsigns": [
+    "Soganlug"
+   ],
+   "radioId": "airfield30_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.65,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "TbilisiMilitary",
+   "callsigns": [
+    "Soganlug"
+   ],
+   "radioId": "airfield30_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 268.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "TbilisiMilitary",
+   "callsigns": [
+    "Soganlug"
+   ],
+   "radioId": "airfield30_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 139.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "TbilisiMilitary",
+   "callsigns": [
+    "Soganlug"
+   ],
+   "radioId": "airfield30_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Vaziani",
+   "callsigns": [
+    "Vaziani"
+   ],
+   "radioId": "airfield31_0",
+   "band": "HF",
+   "mod": "AM",
+   "mhz": 4.7,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Vaziani",
+   "callsigns": [
+    "Vaziani"
+   ],
+   "radioId": "airfield31_0",
+   "band": "UHF",
+   "mod": "AM",
+   "mhz": 269.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Vaziani",
+   "callsigns": [
+    "Vaziani"
+   ],
+   "radioId": "airfield31_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 140.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Vaziani",
+   "callsigns": [
+    "Vaziani"
+   ],
+   "radioId": "airfield31_0",
+   "band": "VHF-FM",
+   "mod": "AM",
+   "mhz": 42.2,
+   "use": "ATC (ground/tower/approach)"
+  }
+ ],
+ "beacons": [
+  {
+   "site": "Anapa-Vityazevo",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "AP",
+   "mhz": 0.443,
+   "tacan": null,
+   "lat": 45.039907,
+   "lon": 37.396435
+  },
+  {
+   "site": "Anapa-Vityazevo",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "P",
+   "mhz": 0.215,
+   "tacan": null,
+   "lat": 45.022628,
+   "lon": 37.372401
+  },
+  {
+   "site": "Anapa-Vityazevo",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "AN",
+   "mhz": 0.443,
+   "tacan": null,
+   "lat": 44.969992,
+   "lon": 37.299308
+  },
+  {
+   "site": "Anapa-Vityazevo",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "N",
+   "mhz": 0.215,
+   "tacan": null,
+   "lat": 44.987288,
+   "lon": 37.323297
+  },
+  {
+   "site": "Batumi",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ILU",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 41.601731,
+   "lon": 41.612203
+  },
+  {
+   "site": "Batumi",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ILU",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 41.613985,
+   "lon": 41.591406
+  },
+  {
+   "site": "Batumi",
+   "type": "TACAN",
+   "callsign": "BTM",
+   "mhz": 977.0,
+   "tacan": 16,
+   "lat": 41.610899,
+   "lon": 41.600419
+  },
+  {
+   "site": "Batumi",
+   "type": "AIRPORT_HOMER",
+   "callsign": "LU",
+   "mhz": 0.43,
+   "tacan": null,
+   "lat": 41.602594,
+   "lon": 41.613238
+  },
+  {
+   "site": "Beslan",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "CX",
+   "mhz": 1.05,
+   "tacan": null,
+   "lat": 43.2155,
+   "lon": 44.539874
+  },
+  {
+   "site": "Beslan",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "C",
+   "mhz": 0.25,
+   "tacan": null,
+   "lat": 43.210717,
+   "lon": 44.5721
+  },
+  {
+   "site": "Beslan",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ICH",
+   "mhz": 110.5,
+   "tacan": null,
+   "lat": 43.202754,
+   "lon": 44.62558
+  },
+  {
+   "site": "Beslan",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ICH",
+   "mhz": 110.5,
+   "tacan": null,
+   "lat": 43.2068,
+   "lon": 44.591083
+  },
+  {
+   "site": "Gelendzhik",
+   "type": "AIRPORT_HOMER",
+   "callsign": "GN",
+   "mhz": 1.0,
+   "tacan": null,
+   "lat": 44.569658,
+   "lon": 38.008795
+  },
+  {
+   "site": "Gelendzhik",
+   "type": "VOR",
+   "callsign": "GN",
+   "mhz": 114.3,
+   "tacan": 90,
+   "lat": 44.572498,
+   "lon": 38.012222
+  },
+  {
+   "site": "Gudauta",
+   "type": "AIRPORT_HOMER_WITH_MARKER",
+   "callsign": "XC",
+   "mhz": 0.395,
+   "tacan": null,
+   "lat": 43.099003,
+   "lon": 40.578961
+  },
+  {
+   "site": "Kobuleti",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "KT",
+   "mhz": 0.87,
+   "tacan": null,
+   "lat": 41.918616,
+   "lon": 41.802928
+  },
+  {
+   "site": "Kobuleti",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "T",
+   "mhz": 0.49,
+   "tacan": null,
+   "lat": 41.924494,
+   "lon": 41.834303
+  },
+  {
+   "site": "Kobuleti",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IKB",
+   "mhz": 111.5,
+   "tacan": null,
+   "lat": 41.932878,
+   "lon": 41.879171
+  },
+  {
+   "site": "Kobuleti",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IKB",
+   "mhz": 111.5,
+   "tacan": null,
+   "lat": 41.927403,
+   "lon": 41.85314
+  },
+  {
+   "site": "Kobuleti",
+   "type": "TACAN",
+   "callsign": "KBL",
+   "mhz": 1154.0,
+   "tacan": 67,
+   "lat": 41.93077,
+   "lon": 41.86197
+  },
+  {
+   "site": "Krasnodar-Center",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "O",
+   "mhz": 0.303,
+   "tacan": null,
+   "lat": 45.086491,
+   "lon": 38.969263
+  },
+  {
+   "site": "Krasnodar-Center",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "M",
+   "mhz": 0.303,
+   "tacan": null,
+   "lat": 45.087368,
+   "lon": 38.911608
+  },
+  {
+   "site": "Krasnodar-Center",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "OC",
+   "mhz": 0.625,
+   "tacan": null,
+   "lat": 45.085828,
+   "lon": 39.012047
+  },
+  {
+   "site": "Krasnodar-Center",
+   "type": "PRMG_GLIDESLOPE",
+   "callsign": "MB",
+   "mhz": null,
+   "tacan": 38,
+   "lat": 45.085808,
+   "lon": 38.928677
+  },
+  {
+   "site": "Krasnodar-Center",
+   "type": "PRMG_LOCALIZER",
+   "callsign": "MB",
+   "mhz": null,
+   "tacan": 38,
+   "lat": 45.08652,
+   "lon": 38.967638
+  },
+  {
+   "site": "Krasnodar-Center",
+   "type": "RSBN",
+   "callsign": "MB",
+   "mhz": null,
+   "tacan": 40,
+   "lat": 45.083171,
+   "lon": 38.927839
+  },
+  {
+   "site": "Krasnodar-Center",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "MB",
+   "mhz": 0.625,
+   "tacan": null,
+   "lat": 45.087925,
+   "lon": 38.873594
+  },
+  {
+   "site": "Krasnodar-Pashkovsky",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "KR",
+   "mhz": 0.493,
+   "tacan": null,
+   "lat": 45.006796,
+   "lon": 39.133081
+  },
+  {
+   "site": "Krasnodar-Pashkovsky",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "K",
+   "mhz": 0.24,
+   "tacan": null,
+   "lat": 45.021929,
+   "lon": 39.159769
+  },
+  {
+   "site": "Krasnodar-Pashkovsky",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "LD",
+   "mhz": 0.493,
+   "tacan": null,
+   "lat": 45.069032,
+   "lon": 39.243028
+  },
+  {
+   "site": "Krasnodar-Pashkovsky",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "L",
+   "mhz": 0.24,
+   "tacan": null,
+   "lat": 45.053921,
+   "lon": 39.216297
+  },
+  {
+   "site": "Krasnodar-Pashkovsky",
+   "type": "VOR",
+   "callsign": "KN",
+   "mhz": 115.8,
+   "tacan": 105,
+   "lat": 45.020832,
+   "lon": 39.163887
+  },
+  {
+   "site": "Krymsk",
+   "type": "PRMG_LOCALIZER",
+   "callsign": "KW",
+   "mhz": null,
+   "tacan": 26,
+   "lat": 44.952449,
+   "lon": 37.974655
+  },
+  {
+   "site": "Krymsk",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "KW",
+   "mhz": 0.408,
+   "tacan": null,
+   "lat": 45.004894,
+   "lon": 38.043726
+  },
+  {
+   "site": "Krymsk",
+   "type": "RSBN",
+   "callsign": "KW",
+   "mhz": null,
+   "tacan": 28,
+   "lat": 44.966653,
+   "lon": 37.996805
+  },
+  {
+   "site": "Krymsk",
+   "type": "PRMG_LOCALIZER",
+   "callsign": "OX",
+   "mhz": null,
+   "tacan": 26,
+   "lat": 44.982907,
+   "lon": 38.01474
+  },
+  {
+   "site": "Krymsk",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "K",
+   "mhz": 0.803,
+   "tacan": null,
+   "lat": 44.983041,
+   "lon": 38.014927
+  },
+  {
+   "site": "Krymsk",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "OX",
+   "mhz": 0.408,
+   "tacan": null,
+   "lat": 44.933004,
+   "lon": 37.949089
+  },
+  {
+   "site": "Krymsk",
+   "type": "PRMG_GLIDESLOPE",
+   "callsign": "KW",
+   "mhz": null,
+   "tacan": 26,
+   "lat": 44.975894,
+   "lon": 38.004094
+  },
+  {
+   "site": "Krymsk",
+   "type": "PRMG_GLIDESLOPE",
+   "callsign": "OX",
+   "mhz": null,
+   "tacan": 26,
+   "lat": 44.960886,
+   "lon": 37.984323
+  },
+  {
+   "site": "Krymsk",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "O",
+   "mhz": 0.803,
+   "tacan": null,
+   "lat": 44.951723,
+   "lon": 37.973692
+  },
+  {
+   "site": "Kutaisi",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IKS",
+   "mhz": 109.75,
+   "tacan": null,
+   "lat": 42.179695,
+   "lon": 42.49782
+  },
+  {
+   "site": "Kutaisi",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IKS",
+   "mhz": 109.75,
+   "tacan": null,
+   "lat": 42.175142,
+   "lon": 42.470274
+  },
+  {
+   "site": "Kutaisi",
+   "type": "AIRPORT_HOMER_WITH_MARKER",
+   "callsign": "TI",
+   "mhz": 0.477,
+   "tacan": null,
+   "lat": 42.174289,
+   "lon": 42.454567
+  },
+  {
+   "site": "Kutaisi",
+   "type": "TACAN",
+   "callsign": "KTS",
+   "mhz": 1005.0,
+   "tacan": 44,
+   "lat": 42.178443,
+   "lon": 42.479213
+  },
+  {
+   "site": "Kutaisi",
+   "type": "VOR",
+   "callsign": "KT",
+   "mhz": 113.6,
+   "tacan": 83,
+   "lat": 42.174389,
+   "lon": 42.455276
+  },
+  {
+   "site": "Tbilisi-Lochini",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "BP",
+   "mhz": 0.342,
+   "tacan": null,
+   "lat": 41.703274,
+   "lon": 44.909623
+  },
+  {
+   "site": "Tbilisi-Lochini",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "B",
+   "mhz": 0.923,
+   "tacan": null,
+   "lat": 41.685992,
+   "lon": 44.931895
+  },
+  {
+   "site": "Tbilisi-Lochini",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IVP",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 41.657953,
+   "lon": 44.967988
+  },
+  {
+   "site": "Tbilisi-Lochini",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IVP",
+   "mhz": 110.3,
+   "tacan": null,
+   "lat": 41.674907,
+   "lon": 44.944184
+  },
+  {
+   "site": "Tbilisi-Lochini",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "NA",
+   "mhz": 0.211,
+   "tacan": null,
+   "lat": 41.633231,
+   "lon": 44.999778
+  },
+  {
+   "site": "Tbilisi-Lochini",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "N",
+   "mhz": 0.435,
+   "tacan": null,
+   "lat": 41.650521,
+   "lon": 44.977543
+  },
+  {
+   "site": "Tbilisi-Lochini",
+   "type": "ILS_LOCALIZER",
+   "callsign": "INA",
+   "mhz": 108.9,
+   "tacan": null,
+   "lat": 41.678562,
+   "lon": 44.941458
+  },
+  {
+   "site": "Tbilisi-Lochini",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "INA",
+   "mhz": 108.9,
+   "tacan": null,
+   "lat": 41.661608,
+   "lon": 44.965264
+  },
+  {
+   "site": "Tbilisi-Lochini",
+   "type": "VOR",
+   "callsign": "TB",
+   "mhz": 113.7,
+   "tacan": 84,
+   "lat": 41.670555,
+   "lon": 44.946945
+  },
+  {
+   "site": "Tbilisi-Lochini",
+   "type": "TACAN",
+   "callsign": "GTB",
+   "mhz": 986.0,
+   "tacan": 25,
+   "lat": 41.670577,
+   "lon": 44.930298
+  },
+  {
+   "site": "Maykop-Khanskaya",
+   "type": "RSBN",
+   "callsign": "DG",
+   "mhz": null,
+   "tacan": 34,
+   "lat": 44.679754,
+   "lon": 40.035455
+  },
+  {
+   "site": "Maykop-Khanskaya",
+   "type": "PRMG_GLIDESLOPE",
+   "callsign": "DG",
+   "mhz": null,
+   "tacan": 36,
+   "lat": 44.67207,
+   "lon": 40.024984
+  },
+  {
+   "site": "Maykop-Khanskaya",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "R",
+   "mhz": 0.591,
+   "tacan": null,
+   "lat": 44.698086,
+   "lon": 40.057981
+  },
+  {
+   "site": "Maykop-Khanskaya",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "RK",
+   "mhz": 0.289,
+   "tacan": null,
+   "lat": 44.717443,
+   "lon": 40.084181
+  },
+  {
+   "site": "Maykop-Khanskaya",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "D",
+   "mhz": 0.591,
+   "tacan": null,
+   "lat": 44.664391,
+   "lon": 40.012421
+  },
+  {
+   "site": "Maykop-Khanskaya",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "DG",
+   "mhz": 0.289,
+   "tacan": null,
+   "lat": 44.645015,
+   "lon": 39.986269
+  },
+  {
+   "site": "Maykop-Khanskaya",
+   "type": "PRMG_LOCALIZER",
+   "callsign": "DG",
+   "mhz": null,
+   "tacan": 36,
+   "lat": 44.697894,
+   "lon": 40.057712
+  },
+  {
+   "site": "MineralnyeVody",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "NR",
+   "mhz": 0.583,
+   "tacan": null,
+   "lat": 44.198946,
+   "lon": 43.14453
+  },
+  {
+   "site": "MineralnyeVody",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "N",
+   "mhz": 0.283,
+   "tacan": null,
+   "lat": 44.211867,
+   "lon": 43.116226
+  },
+  {
+   "site": "MineralnyeVody",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IMW",
+   "mhz": 109.3,
+   "tacan": null,
+   "lat": 44.238297,
+   "lon": 43.058263
+  },
+  {
+   "site": "MineralnyeVody",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IMW",
+   "mhz": 109.3,
+   "tacan": null,
+   "lat": 44.220503,
+   "lon": 43.10009
+  },
+  {
+   "site": "MineralnyeVody",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "MD",
+   "mhz": 0.583,
+   "tacan": null,
+   "lat": 44.256747,
+   "lon": 43.017738
+  },
+  {
+   "site": "MineralnyeVody",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "D",
+   "mhz": 0.283,
+   "tacan": null,
+   "lat": 44.243846,
+   "lon": 43.046088
+  },
+  {
+   "site": "MineralnyeVody",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IMD",
+   "mhz": 111.7,
+   "tacan": null,
+   "lat": 44.217421,
+   "lon": 43.104064
+  },
+  {
+   "site": "MineralnyeVody",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IMD",
+   "mhz": 111.7,
+   "tacan": null,
+   "lat": 44.235217,
+   "lon": 43.06224
+  },
+  {
+   "site": "MineralnyeVody",
+   "type": "VOR",
+   "callsign": "MN",
+   "mhz": 117.1,
+   "tacan": 118,
+   "lat": 44.239445,
+   "lon": 43.054165
+  },
+  {
+   "site": "Mozdok",
+   "type": "PRMG_LOCALIZER",
+   "callsign": "MK",
+   "mhz": null,
+   "tacan": 22,
+   "lat": 43.792027,
+   "lon": 44.572203
+  },
+  {
+   "site": "Mozdok",
+   "type": "PRMG_GLIDESLOPE",
+   "callsign": "MZ",
+   "mhz": null,
+   "tacan": 22,
+   "lat": 43.791251,
+   "lon": 44.586565
+  },
+  {
+   "site": "Mozdok",
+   "type": "RSBN",
+   "callsign": "MZ",
+   "mhz": null,
+   "tacan": 20,
+   "lat": 43.790367,
+   "lon": 44.602658
+  },
+  {
+   "site": "Mozdok",
+   "type": "PRMG_GLIDESLOPE",
+   "callsign": "MK",
+   "mhz": null,
+   "tacan": 22,
+   "lat": 43.790905,
+   "lon": 44.618731
+  },
+  {
+   "site": "Mozdok",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "R",
+   "mhz": 1.065,
+   "tacan": null,
+   "lat": 43.791336,
+   "lon": 44.635898
+  },
+  {
+   "site": "Mozdok",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "D",
+   "mhz": 1.065,
+   "tacan": null,
+   "lat": 43.792126,
+   "lon": 44.563089
+  },
+  {
+   "site": "Mozdok",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "DO",
+   "mhz": 0.525,
+   "tacan": null,
+   "lat": 43.79238,
+   "lon": 44.538494
+  },
+  {
+   "site": "Mozdok",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "RM",
+   "mhz": 0.525,
+   "tacan": null,
+   "lat": 43.790945,
+   "lon": 44.670692
+  },
+  {
+   "site": "Mozdok",
+   "type": "PRMG_LOCALIZER",
+   "callsign": "MZ",
+   "mhz": null,
+   "tacan": 22,
+   "lat": 43.791382,
+   "lon": 44.632072
+  },
+  {
+   "site": "Nalchik",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "NL",
+   "mhz": 0.718,
+   "tacan": null,
+   "lat": 43.535011,
+   "lon": 43.692885
+  },
+  {
+   "site": "Nalchik",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "N",
+   "mhz": 0.35,
+   "tacan": null,
+   "lat": 43.524039,
+   "lon": 43.663409
+  },
+  {
+   "site": "Nalchik",
+   "type": "ILS_LOCALIZER",
+   "callsign": "INL",
+   "mhz": 110.5,
+   "tacan": null,
+   "lat": 43.508738,
+   "lon": 43.622345
+  },
+  {
+   "site": "Nalchik",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "INL",
+   "mhz": 110.5,
+   "tacan": null,
+   "lat": 43.518429,
+   "lon": 43.645107
+  },
+  {
+   "site": "Senaki-Kolkhi",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "BI",
+   "mhz": 0.335,
+   "tacan": null,
+   "lat": 42.249592,
+   "lon": 41.986317
+  },
+  {
+   "site": "Senaki-Kolkhi",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "B",
+   "mhz": 0.688,
+   "tacan": null,
+   "lat": 42.245075,
+   "lon": 42.018251
+  },
+  {
+   "site": "Senaki-Kolkhi",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ITS",
+   "mhz": 108.9,
+   "tacan": null,
+   "lat": 42.238667,
+   "lon": 42.0634
+  },
+  {
+   "site": "Senaki-Kolkhi",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ITS",
+   "mhz": 108.9,
+   "tacan": null,
+   "lat": 42.241309,
+   "lon": 42.03708
+  },
+  {
+   "site": "Senaki-Kolkhi",
+   "type": "TACAN",
+   "callsign": "TSK",
+   "mhz": 992.0,
+   "tacan": 31,
+   "lat": 42.242087,
+   "lon": 42.04702
+  },
+  {
+   "site": "Sochi-Adler",
+   "type": "AIRPORT_HOMER_WITH_MARKER",
+   "callsign": "CO",
+   "mhz": 0.761,
+   "tacan": null,
+   "lat": 43.435164,
+   "lon": 39.911051
+  },
+  {
+   "site": "Sochi-Adler",
+   "type": "ILS_LOCALIZER",
+   "callsign": "ISO",
+   "mhz": 111.1,
+   "tacan": null,
+   "lat": 43.450492,
+   "lon": 39.960744
+  },
+  {
+   "site": "Sochi-Adler",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "ISO",
+   "mhz": 111.1,
+   "tacan": null,
+   "lat": 43.439082,
+   "lon": 39.927967
+  },
+  {
+   "site": "Sukhumi-Babushara",
+   "type": "ILS_FAR_HOMER",
+   "callsign": "AV",
+   "mhz": 0.489,
+   "tacan": null,
+   "lat": 42.833582,
+   "lon": 41.184697
+  },
+  {
+   "site": "Sukhumi-Babushara",
+   "type": "ILS_NEAR_HOMER",
+   "callsign": "A",
+   "mhz": 0.995,
+   "tacan": null,
+   "lat": 42.846418,
+   "lon": 41.156849
+  },
+  {
+   "site": "Vaziani",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IVZ",
+   "mhz": 108.75,
+   "tacan": null,
+   "lat": 41.619095,
+   "lon": 45.037014
+  },
+  {
+   "site": "Vaziani",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IVZ",
+   "mhz": 108.75,
+   "tacan": null,
+   "lat": 41.635125,
+   "lon": 45.019459
+  },
+  {
+   "site": "Vaziani",
+   "type": "ILS_LOCALIZER",
+   "callsign": "IVI",
+   "mhz": 108.75,
+   "tacan": null,
+   "lat": 41.639015,
+   "lon": 45.017397
+  },
+  {
+   "site": "Vaziani",
+   "type": "ILS_GLIDESLOPE",
+   "callsign": "IVI",
+   "mhz": 108.75,
+   "tacan": null,
+   "lat": 41.622985,
+   "lon": 45.03495
+  },
+  {
+   "site": "Vaziani",
+   "type": "TACAN",
+   "callsign": "VAS",
+   "mhz": 983.0,
+   "tacan": 22,
+   "lat": 41.630707,
+   "lon": 45.02734
+  },
+  {
+   "site": "Ust-Labinks",
+   "type": "HOMER",
+   "callsign": "NZ",
+   "mhz": 0.33,
+   "tacan": null,
+   "lat": 45.226576,
+   "lon": 39.65415
+  },
+  {
+   "site": "Chervonoglinskoye",
+   "type": "HOMER",
+   "callsign": "AR",
+   "mhz": 0.44,
+   "tacan": null,
+   "lat": 45.949908,
+   "lon": 29.383333
+  },
+  {
+   "site": "Dmitrovka",
+   "type": "HOMER",
+   "callsign": "DM",
+   "mhz": 0.69,
+   "tacan": null,
+   "lat": 45.489353,
+   "lon": 35.058601
+  },
+  {
+   "site": "Agoy",
+   "type": "HOMER",
+   "callsign": "AG",
+   "mhz": 0.381,
+   "tacan": null,
+   "lat": 44.133242,
+   "lon": 39.034429
+  },
+  {
+   "site": "Maykop",
+   "type": "HOMER",
+   "callsign": "MA",
+   "mhz": 0.682,
+   "tacan": null,
+   "lat": 44.622965,
+   "lon": 40.146927
+  },
+  {
+   "site": "Herson",
+   "type": "HOMER",
+   "callsign": "HS",
+   "mhz": 1.065,
+   "tacan": null,
+   "lat": 46.666575,
+   "lon": 32.499994
+  },
+  {
+   "site": "Smolenkaya",
+   "type": "HOMER",
+   "callsign": "SM",
+   "mhz": 0.662,
+   "tacan": null,
+   "lat": 44.787409,
+   "lon": 38.796373
+  },
+  {
+   "site": "Kislovodsk",
+   "type": "HOMER",
+   "callsign": "KW",
+   "mhz": 0.995,
+   "tacan": null,
+   "lat": 43.941577,
+   "lon": 42.649979
+  },
+  {
+   "site": "Taganrog",
+   "type": "HOMER",
+   "callsign": "TC",
+   "mhz": 0.47,
+   "tacan": null,
+   "lat": 47.249909,
+   "lon": 38.833317
+  },
+  {
+   "site": "Feodosiya",
+   "type": "HOMER",
+   "callsign": "IL",
+   "mhz": 0.3005,
+   "tacan": null,
+   "lat": 45.014353,
+   "lon": 35.419712
+  },
+  {
+   "site": "Shyriaeve",
+   "type": "HOMER",
+   "callsign": "SH",
+   "mhz": 0.389,
+   "tacan": null,
+   "lat": 47.403241,
+   "lon": 30.279998
+  },
+  {
+   "site": "Odessa",
+   "type": "HOMER",
+   "callsign": "OD",
+   "mhz": 0.348,
+   "tacan": null,
+   "lat": 46.306297,
+   "lon": 30.661109
+  },
+  {
+   "site": "Yalta",
+   "type": "HOMER",
+   "callsign": "BS",
+   "mhz": 0.3005,
+   "tacan": null,
+   "lat": 46.879909,
+   "lon": 37.33693
+  },
+  {
+   "site": "Stavropol",
+   "type": "HOMER",
+   "callsign": "KT",
+   "mhz": 0.73,
+   "tacan": null,
+   "lat": 45.121577,
+   "lon": 42.181646
+  },
+  {
+   "site": "Yegorlykskaya",
+   "type": "HOMER",
+   "callsign": "ER",
+   "mhz": 0.435,
+   "tacan": null,
+   "lat": 46.583243,
+   "lon": 40.666647
+  },
+  {
+   "site": "Komisarivka",
+   "type": "HOMER",
+   "callsign": "KM",
+   "mhz": 0.95,
+   "tacan": null,
+   "lat": 46.266575,
+   "lon": 35.016657
+  },
+  {
+   "site": "Skadovsk",
+   "type": "HOMER",
+   "callsign": "SK",
+   "mhz": 0.68,
+   "tacan": null,
+   "lat": 46.133242,
+   "lon": 32.91666
+  },
+  {
+   "site": "Gali",
+   "type": "HOMER",
+   "callsign": "DA",
+   "mhz": 0.525,
+   "tacan": null,
+   "lat": 42.59991,
+   "lon": 41.783315
+  },
+  {
+   "site": "Mukhrani",
+   "type": "HOMER",
+   "callsign": "DF",
+   "mhz": 0.52,
+   "tacan": null,
+   "lat": 41.916577,
+   "lon": 44.565533
+  },
+  {
+   "site": "Ladozhskaya",
+   "type": "HOMER",
+   "callsign": "RF",
+   "mhz": 0.324,
+   "tacan": null,
+   "lat": 45.283243,
+   "lon": 39.916649
+  },
+  {
+   "site": "Teplorechensky",
+   "type": "HOMER",
+   "callsign": "FM",
+   "mhz": 1.182,
+   "tacan": null,
+   "lat": 44.15491,
+   "lon": 43.533311
+  },
+  {
+   "site": "Kalaus",
+   "type": "HOMER",
+   "callsign": "BJ",
+   "mhz": 0.735,
+   "tacan": null,
+   "lat": 43.466578,
+   "lon": 45.216642
+  },
+  {
+   "site": "Nikolaev-Kulbakino",
+   "type": "HOMER",
+   "callsign": "NK",
+   "mhz": 1.03,
+   "tacan": null,
+   "lat": 46.933241,
+   "lon": 32.099995
+  },
+  {
+   "site": "Manychsky",
+   "type": "HOMER",
+   "callsign": "MN",
+   "mhz": 0.705,
+   "tacan": null,
+   "lat": 47.049909,
+   "lon": 40.366647
+  },
+  {
+   "site": "Kerch",
+   "type": "HOMER",
+   "callsign": "KC",
+   "mhz": 1.05,
+   "tacan": null,
+   "lat": 45.366575,
+   "lon": 36.399988
+  },
+  {
+   "site": "TaganrogYuzhny",
+   "type": "HOMER",
+   "callsign": "TY",
+   "mhz": 0.72,
+   "tacan": null,
+   "lat": 47.199909,
+   "lon": 38.849984
+  },
+  {
+   "site": "Ali",
+   "type": "HOMER",
+   "callsign": "AL",
+   "mhz": 0.353,
+   "tacan": null,
+   "lat": 42.096021,
+   "lon": 43.644701
+  },
+  {
+   "site": "Elista",
+   "type": "HOMER",
+   "callsign": "SA",
+   "mhz": 0.311,
+   "tacan": null,
+   "lat": 46.373244,
+   "lon": 44.333308
+  },
+  {
+   "site": "Ryazanskaya",
+   "type": "HOMER",
+   "callsign": "XT",
+   "mhz": 0.312,
+   "tacan": null,
+   "lat": 44.966576,
+   "lon": 39.56665
+  },
+  {
+   "site": "Kakhovka",
+   "type": "HOMER",
+   "callsign": "KH",
+   "mhz": 0.485,
+   "tacan": null,
+   "lat": 46.808241,
+   "lon": 33.496659
+  },
+  {
+   "site": "Vesely",
+   "type": "HOMER",
+   "callsign": "WS",
+   "mhz": 0.641,
+   "tacan": null,
+   "lat": 47.116576,
+   "lon": 40.716647
+  },
+  {
+   "site": "Odessa",
+   "type": "HOMER",
+   "callsign": "WR",
+   "mhz": 0.3095,
+   "tacan": null,
+   "lat": 46.496019,
+   "lon": 30.723886
+  },
+  {
+   "site": "Armavir",
+   "type": "HOMER",
+   "callsign": "VM",
+   "mhz": 0.74,
+   "tacan": null,
+   "lat": 44.966576,
+   "lon": 41.116648
+  },
+  {
+   "site": "Grozny",
+   "type": "HOMER",
+   "callsign": "WK",
+   "mhz": 0.83,
+   "tacan": null,
+   "lat": 43.383244,
+   "lon": 45.699975
+  },
+  {
+   "site": "Tiraspol",
+   "type": "HOMER",
+   "callsign": "TH",
+   "mhz": 0.515,
+   "tacan": null,
+   "lat": 46.866575,
+   "lon": 29.599999
+  },
+  {
+   "site": "Simferopol",
+   "type": "HOMER",
+   "callsign": "KC",
+   "mhz": 0.58,
+   "tacan": null,
+   "lat": 44.749908,
+   "lon": 33.566659
+  },
+  {
+   "site": "Sultanskoye",
+   "type": "HOMER",
+   "callsign": "SN",
+   "mhz": 0.866,
+   "tacan": null,
+   "lat": 44.591577,
+   "lon": 42.666645
+  },
+  {
+   "site": "Buyalyk",
+   "type": "HOMER",
+   "callsign": "DW",
+   "mhz": 0.625,
+   "tacan": null,
+   "lat": 46.899908,
+   "lon": 30.699997
+  },
+  {
+   "site": "Sarmakovo",
+   "type": "HOMER",
+   "callsign": "SR",
+   "mhz": 0.907,
+   "tacan": null,
+   "lat": 43.74991,
+   "lon": 43.116645
+  },
+  {
+   "site": "Tendrovskiy",
+   "type": "HOMER",
+   "callsign": "TD",
+   "mhz": 0.3095,
+   "tacan": null,
+   "lat": 46.318519,
+   "lon": 31.522774
+  },
+  {
+   "site": "Sukhoy",
+   "type": "HOMER",
+   "callsign": "SH",
+   "mhz": 0.862,
+   "tacan": null,
+   "lat": 47.09991,
+   "lon": 41.349979
+  },
+  {
+   "site": "Dzhubga",
+   "type": "HOMER",
+   "callsign": "DV",
+   "mhz": 0.42,
+   "tacan": null,
+   "lat": 44.320464,
+   "lon": 38.701374
+  },
+  {
+   "site": "Genichesk",
+   "type": "HOMER",
+   "callsign": "GE",
+   "mhz": 0.3005,
+   "tacan": null,
+   "lat": 46.182408,
+   "lon": 34.816102
+  },
+  {
+   "site": "Primorsko-Akhtarsk",
+   "type": "HOMER",
+   "callsign": "GW",
+   "mhz": 0.92,
+   "tacan": null,
+   "lat": 46.049909,
+   "lon": 38.233318
+  },
+  {
+   "site": "Yasnaya",
+   "type": "HOMER",
+   "callsign": "QG",
+   "mhz": 0.435,
+   "tacan": null,
+   "lat": 46.883243,
+   "lon": 40.666647
+  },
+  {
+   "site": "Alushta",
+   "type": "HOMER",
+   "callsign": "AL",
+   "mhz": 0.384,
+   "tacan": null,
+   "lat": 44.674908,
+   "lon": 34.398325
+  },
+  {
+   "site": "Dobrushyn",
+   "type": "HOMER",
+   "callsign": "DO",
+   "mhz": 1.175,
+   "tacan": null,
+   "lat": 45.377964,
+   "lon": 33.36166
+  },
+  {
+   "site": "Bolshevik",
+   "type": "HOMER",
+   "callsign": "ND",
+   "mhz": 0.507,
+   "tacan": null,
+   "lat": 45.766576,
+   "lon": 40.233315
+  },
+  {
+   "site": "Peredovay",
+   "type": "HOMER",
+   "callsign": "PR",
+   "mhz": 1.21,
+   "tacan": null,
+   "lat": 44.116576,
+   "lon": 41.466648
+  },
+  {
+   "site": "Parutine",
+   "type": "HOMER",
+   "callsign": "PA",
+   "mhz": 0.905,
+   "tacan": null,
+   "lat": 46.694908,
+   "lon": 31.904995
+  },
+  {
+   "site": "Gori",
+   "type": "HOMER",
+   "callsign": "OE",
+   "mhz": 0.462,
+   "tacan": null,
+   "lat": 42.016577,
+   "lon": 44.1322
+  },
+  {
+   "site": "Liubymivka",
+   "type": "HOMER",
+   "callsign": "LY",
+   "mhz": 0.67,
+   "tacan": null,
+   "lat": 45.624908,
+   "lon": 34.898324
+  },
+  {
+   "site": "Mariupol",
+   "type": "HOMER",
+   "callsign": "MA",
+   "mhz": 0.77,
+   "tacan": null,
+   "lat": 47.083242,
+   "lon": 37.449986
+  },
+  {
+   "site": "Akhilleon",
+   "type": "HOMER",
+   "callsign": "AH",
+   "mhz": 0.3005,
+   "tacan": null,
+   "lat": 45.439909,
+   "lon": 36.853043
+  },
+  {
+   "site": "Nikolaev-Matveyevka",
+   "type": "HOMER",
+   "callsign": "NK",
+   "mhz": 1.03,
+   "tacan": null,
+   "lat": 47.087408,
+   "lon": 31.973051
+  },
+  {
+   "site": "Melitopol",
+   "type": "HOMER",
+   "callsign": "NE",
+   "mhz": 0.74,
+   "tacan": null,
+   "lat": 46.866575,
+   "lon": 35.299989
+  },
+  {
+   "site": "TchervonoLissya",
+   "type": "HOMER",
+   "callsign": "LE",
+   "mhz": 0.395,
+   "tacan": null,
+   "lat": 44.833242,
+   "lon": 34.249992
+  },
+  {
+   "site": "Tikhoretsk",
+   "type": "HOMER",
+   "callsign": "UH",
+   "mhz": 0.528,
+   "tacan": null,
+   "lat": 45.833243,
+   "lon": 40.083315
+  },
+  {
+   "site": "Rostov-Na-Donu",
+   "type": "HOMER",
+   "callsign": "RE",
+   "mhz": 0.32,
+   "tacan": null,
+   "lat": 47.224909,
+   "lon": 39.769982
+  },
+  {
+   "site": "Lazarevskoye",
+   "type": "HOMER",
+   "callsign": "LA",
+   "mhz": 0.307,
+   "tacan": null,
+   "lat": 43.917131,
+   "lon": 39.337484
+  },
+  {
+   "site": "Berdyansk",
+   "type": "HOMER",
+   "callsign": "BD",
+   "mhz": 0.342,
+   "tacan": null,
+   "lat": 46.816575,
+   "lon": 36.766654
+  },
+  {
+   "site": "Kropotkin",
+   "type": "HOMER",
+   "callsign": "KP",
+   "mhz": 0.214,
+   "tacan": null,
+   "lat": 45.449909,
+   "lon": 40.566648
+  },
+  {
+   "site": "Lymans-Ke",
+   "type": "HOMER",
+   "callsign": "LA",
+   "mhz": 0.75,
+   "tacan": null,
+   "lat": 46.666575,
+   "lon": 29.999999
+  },
+  {
+   "site": "Krasny",
+   "type": "HOMER",
+   "callsign": "KS",
+   "mhz": 1.025,
+   "tacan": null,
+   "lat": 47.199909,
+   "lon": 40.349981
+  }
+ ]
+}

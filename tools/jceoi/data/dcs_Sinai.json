@@ -1,0 +1,183 @@
+{
+ "theater": "Sinai",
+ "source": "DCS World install, Mods/terrains/Sinai",
+ "radios": [
+  {
+   "site": "ABR",
+   "callsigns": [
+    "ABR"
+   ],
+   "radioId": "airfield26_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.5,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Ismailia",
+   "callsigns": [
+    "Ismailia"
+   ],
+   "radioId": "airfield4_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "BGN",
+   "callsigns": [
+    "BGN"
+   ],
+   "radioId": "airfield24_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 134.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "BSF",
+   "callsigns": [
+    "BSF"
+   ],
+   "radioId": "airfield33_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 127.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "BEAI",
+   "callsigns": [
+    "BEAI"
+   ],
+   "radioId": "airfield35_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "CAI",
+   "callsigns": [
+    "CAI"
+   ],
+   "radioId": "airfield17_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.1,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "SPX",
+   "callsigns": [
+    "SPX"
+   ],
+   "radioId": "airfield18_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 131.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "RIH",
+   "callsigns": [
+    "RIH"
+   ],
+   "radioId": "airfield29_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "ELGO",
+   "callsigns": [
+    "ELGO"
+   ],
+   "radioId": "airfield30_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.2,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Hurghada",
+   "callsigns": [
+    "Hurghada"
+   ],
+   "radioId": "airfield38_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.6,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "Nevatim",
+   "callsigns": [
+    "Nevatim"
+   ],
+   "radioId": "airfield8_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 132.4,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "OVD",
+   "callsigns": [
+    "OVD"
+   ],
+   "radioId": "airfield10_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 129.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "RAM",
+   "callsigns": [
+    "RAM"
+   ],
+   "radioId": "airfield41_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 119.0,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "SHM",
+   "callsigns": [
+    "SHM"
+   ],
+   "radioId": "airfield42_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "STC",
+   "callsigns": [
+    "STC"
+   ],
+   "radioId": "airfield25_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 121.9,
+   "use": "ATC (ground/tower/approach)"
+  },
+  {
+   "site": "CCE",
+   "callsigns": [
+    "CCE"
+   ],
+   "radioId": "airfield13_0",
+   "band": "VHF-AM",
+   "mod": "AM",
+   "mhz": 118.9,
+   "use": "ATC (ground/tower/approach)"
+  }
+ ],
+ "beacons": []
+}
