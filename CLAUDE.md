@@ -26,17 +26,22 @@ thunder, keepers, ridge, support — code `unit-demo`.
 | Page | Purpose |
 |---|---|
 | `login.html`, `index.html` | Staff sign-in; campaign dashboard (products, CFACC deliverables tracker, ATO line requests, requests, groups) |
-| `product.html?p=<id>` | Product builder + live document preview: `ci aod jiptl tdp ato aco spins acp bda` |
+| `rollup.html` | CAOC rollup: deadline timeline, readiness, the single PUBLISH (+ DKS Overlay / Agencies exports), Cycle to next mission |
+| `product.html?p=<id>` | Product builder + live document preview: `pcon ci aod jiptl tdp maap ato aco spins acp bda` (`tdp`, `maap` are built on their own pages) |
+| `tdp.html`, `maap.html` | TDP book (folder per JIPTL target); MAAP (packages, checks, Apply to ATO) |
 | `map.html` | Theater map (opened from the ACO) |
 | `targeting.html` | Target nomination — browser port of `OLD/tools/jiptl_pipeline/jiptl_generate.py` |
 | `campaign-review.html` | CFC review of campaign proposals |
 | `unit-login.html`, `unit.html` | Group sign-in; Op Status (status only) |
 | `ato-request.html` | Group JFACC/LNO requests ATO lines from a `.miz` or a form |
+| `mission-file.html` | Host mission file intake: versioned draft .miz → BLUE flights (ATO requests), REDFOR (target nomination), theater calibration |
+| `debrief.html` | Host unit enters the post-mission debrief |
 | `campaign-submit.html` | Group submits a campaign proposal |
 
 `js/app.js` storage/auth/roles/chrome · `js/data.js` seed data · `js/products.js` product schemas + renderers
 (product registry: add a product = add an entry) · `js/proposal.js` proposal wizard · `js/targeting.js` JIPTL
-pipeline · `js/ato.js` ATO lines, `.miz` reader, Discord payloads, commit · `css/styles.css` 3 themes.
+pipeline · `js/ato.js` ATO lines, `.miz` reader, Discord payloads, commit · `js/package.js` deadlines, DKS
+exports, PUBLISH, cycle · `css/styles.css` 3 themes. Deadline defaults: `MILESTONES` in `js/products.js`.
 
 When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload the seed.
 
@@ -50,6 +55,18 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
 - Product flow: Draft → Review → Approved → Published. Publishing freezes a versioned snapshot; groups only ever see
   released versions. Any saved edit returns the product to Draft and needs re-approval.
 - **Products apply to a whole group**, never to individual flights.
+- **The CAOC only builds products.** It does not play in the campaign and never edits the host's `.miz`.
+  Readiness, the mass brief and running the mission are the **host unit's alone** — the site only shows their dates.
+- Process order: proposal → planning conference (PCON checklist) → host draft .miz + ATO line requests → CI → AOD →
+  JIPTL → TDPs → MAAP → Human lines committed → **ACO + theater map** (after commits, before the ATO is final; airspace
+  from the conference) → ATO final → SPINS → **Comm Plan last** →
+  CFACC approvals → one **PUBLISH** on the rollup, **no later than T-72h** (products to all active groups + optional
+  DKS exports) → host builds .miz / runs the mission → host **debrief** → CAOC **cycles** to the next mission.
+- DKS exports are options of PUBLISH: **ACO + theater map → DKS Overlay** (drawn on the DKS theater map; never written
+  into the .miz) and **Comm Plan → DKS Manage Agencies** (persistent theater frequencies for the whole campaign;
+  normally only tankers and JTACs change — the rollup shows changes since the last export). No host ".miz sheet".
+- Mission cycle assumes weekly missions: ~4 days from mission to the next PUBLISH (deadlines in `MILESTONES`).
+- PCON (planning conference) is internal: approved, never released to groups.
 - **Op Status is status-only** — no request/submission forms on it.
 
 ## Product decisions (keep unless the user says otherwise)
@@ -57,6 +74,8 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
 - **Comm Plan** is a campaign-long **comm matrix**: colored columns (nets), rows numbered top-down; a channel is
   `<COLOR> <row>` (e.g. RAZOR 293.500 = WHITE 1). Channel list columns: NET, CHANNEL, CALLSIGN, ROLE, FREQ.
   No TACAN/navaids section. **Check-in & comm procedures live in SPINS**, not the Comm Plan.
+  Template nets: TAC ADMIN (TAC COORD, TAC ADMIN, C2/AWACS, GCI, host C2), TANKERS, TACTICAL AIR, RESCUE, GROUND COORD,
+  SPARES. **Guard is standard and not listed**; airfield/ATC frequencies stay out.
   "Publish to DKS Agencies" sends every channel with a frequency as a selectable default agency
   (name = callsign, else `<ROLE> <CHANNEL>`).
 - **SPINS** includes a Weapons Restrictions section.
@@ -68,7 +87,9 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
 - **Tanker track** = USAF AR anchor: left-hand racetrack, default 50 × 20 NM (adjustable), **no centerline**;
   ARCP at the start of the refuel leg; **ARIP optional, ~10 NM before the orbit ENTRY**; ENTRY and EXIT points.
 - **Target nomination**: area of interest is a **box or point + radius defined on that page** — it is **not** taken
-  from the ACO, theater map or any BMA. REDFOR comes from Coalition Parser CSVs. Score = key-task weight + tier
+  from the ACO, theater map or any BMA. REDFOR comes from Coalition Parser CSVs or the host's mission file (`js/miz.js`).
+  .miz x/y → lat/lon only for **calibrated** theaters (Persian Gulf built in; others fitted once from a Coalition
+  Parser CSV of the same mission, max 25 m). **Never hand-enter or guess a projection.** Score = key-task weight + tier
   weight; cap per task; numbers T10001+; SAM sites are named after their doctrinally-critical unit.
 - **ATO lines**: the JFACC/LNO requests lines (from the group's `.miz`: player slots → Human, others → AI, or a form).
   AI lines go straight on the ATO. Human lines are posted via the existing Discord bot to every active registered

@@ -50,7 +50,7 @@
             <button class="btn sm" id="json">Download .json</button>
             <button class="btn sm" id="print">Print / PDF</button>
             <button class="btn sm hidden" id="dks" disabled title="DKS integration coming soon — will push this matrix to the DKS comm page">Send to DKS</button>
-            <button class="btn sm hidden" id="dksAgencies" title="Preview the agencies that will populate DKS “Manage Agencies”">Publish to DKS Agencies…</button>
+            <button class="btn sm hidden" id="dksAgencies" title="Preview the agencies that will populate DKS “Manage Agencies”">DKS Agencies preview…</button>
           </div>
         </div>
         <article class="doc" id="doc"></article>
@@ -85,6 +85,11 @@
     const nb = document.getElementById("nomBtn");
     nb.href = `targeting.html?c=${encodeURIComponent(cid)}`; nb.classList.remove("hidden");
   }
+  // products built on their own page (TDP book, MAAP): this page keeps the preview and the approval workflow
+  if (P.page) {
+    const nb = document.getElementById("nomBtn");
+    nb.href = `${P.page.href}?c=${encodeURIComponent(cid)}`; nb.textContent = `${P.page.label} →`; nb.classList.remove("hidden");
+  }
   // Products with a comm matrix need the full width, and get the (future) DKS hand-off
   if (P.fields.some(f => f.type === "matrix")) {
     document.querySelector(".builder").style.gridTemplateColumns = "minmax(0, 1fr)";
@@ -111,7 +116,7 @@
       ${dirty || Store.status(cid, pid) !== "published" ? `<p class="small" style="color:var(--warn)">Only the released, approved Comm Plan should go to DKS — publish this version first.</p>` : ""}
       <div class="toolbar" style="justify-content:flex-end;margin-top:12px">
         <button class="btn" data-x>Close</button>
-        <button class="btn primary" disabled title="Waiting on the DKS integration">Publish to DKS — integration coming soon</button></div></div>`;
+        <a class="btn primary" href="rollup.html?c=${encodeURIComponent(cid)}" title="DKS exports go out with PUBLISH on the CAOC rollup">Export with PUBLISH on the rollup →</a></div></div>`;
     document.body.appendChild(back);
     back.onclick = e => { if (e.target === back || e.target.closest("[data-x]")) back.remove(); };
   };
@@ -171,11 +176,29 @@
           <button data-del="${f.key}.${i}" title="Delete row">✕</button></td></tr>`).join("")}</tbody></table></div>
         <button class="btn sm" data-add="${f.key}" style="margin-top:6px">+ Add row</button>${hint}</div>`;
       else if (f.type === "matrix") html += matrixEditor(f);
+      else if (f.type === "checklist") html += checklistEditor(f);
       else if (f.type === "jiptl") html += `<div class="field"><label>${esc(f.label)}</label><input data-path="${f.key}" list="jiptlList" value="${esc(v)}">${hint}</div>`;
       else html += `<div class="field"><label>${esc(f.label)}</label><input data-path="${f.key}" value="${esc(v)}">${hint}</div>`;
     });
     closeHalf();
+    if (P.page && !P.fields.length) html = `<p class="muted">This product is built on its own page. Use it to edit; come back here to submit for review, approve and publish.</p>
+      <a class="btn primary" href="${P.page.href}?c=${encodeURIComponent(cid)}">${esc(P.page.label)} →</a>`;
     form.innerHTML = html;
+  }
+
+  // ---------- checklist editor: [{ section, item, done, notes }], seeded from the schema's item list ----------
+  function checklistEditor(f) {
+    if (!data[f.key]?.length) data[f.key] = f.items.flatMap(([section, items]) => items.map(item => ({ section, item, done: false, notes: "" })));
+    const list = data[f.key], done = list.filter(x => x.done).length;
+    let html = `<div class="field"><label>${esc(f.label)} — ${done} / ${list.length} covered</label>`, last = null;
+    list.forEach((x, i) => {
+      if (x.section !== last) { html += `<div class="section-h" style="margin:14px 0 6px">${esc(x.section)}</div>`; last = x.section; }
+      html += `<div style="display:grid;grid-template-columns:22px minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center;padding:4px 0;border-top:1px solid var(--line)">
+        <input type="checkbox" data-path="${f.key}.${i}.done" ${x.done ? "checked" : ""} style="width:auto">
+        <span style="font-size:13.5px">${esc(x.item)}</span>
+        <input data-path="${f.key}.${i}.notes" value="${esc(x.notes)}" placeholder="Decision / notes" style="padding:4px 8px;font-size:12.5px"></div>`;
+    });
+    return html + `</div>`;
   }
 
   // ---------- comm matrix editor: one coloured column per net, channels numbered top-down ----------
@@ -234,7 +257,8 @@
   form.addEventListener("input", e => {
     const path = e.target.dataset.path;
     if (!path) return;
-    setPath(path, e.target.value);
+    setPath(path, e.target.type === "checkbox" ? e.target.checked : e.target.value);
+    if (e.target.type === "checkbox" && /\.done$/.test(path)) { buildForm(); } // refresh the "n / m covered" count
     markDirty();
     if (/\.columns\.\d+\.color$/.test(path)) buildForm(); // recolour the column
     // TDP convenience: picking a JIPTL target pre-fills its basic data

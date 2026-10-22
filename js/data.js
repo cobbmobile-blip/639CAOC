@@ -41,8 +41,14 @@ window.AOC_SEED = {
       atoPeriod: "0600Z–0559Z",
       nextEvent: "2026-10-22T20:00:00Z",
       jfacc: { callsign: "SABRE", group: "g1", discord: "sabre#1016" },
+      // host debriefs by ATO day (entered on debrief.html by the host unit)
+      debriefs: { "7": { by: "g1", user: "SABRE", when: "2026-10-20T00:30:00Z", progress: "On plan", tacview: "", objectives: "Phase II air superiority over the Rioni valley: SA-11 damaged, EWR destroyed.",
+        redLosses: "New SA-15 reported 3 NM west of Samtredia (VIPER 3 RWR, 0718Z).", notes: "Fuel depot not attacked (weather) — needs a re-attack.",
+        misreps: [{ msn: "7101", callsign: "VIPER 1", target: "IT-0017", flown: "Yes", result: "Hit — damaged", remarks: "" }, { msn: "7102", callsign: "DUDE 1", target: "IT-0031", flown: "Yes", result: "Hit — destroyed", remarks: "" },
+          { msn: "7103", callsign: "SPRINGFIELD 3", target: "IT-0045", flown: "No — aborted", result: "", remarks: "Weather" }],
+        bda: [{ target: "IT-0017", status: "Moderate damage", reattack: "Yes", notes: "" }, { target: "IT-0031", status: "Destroyed", reattack: "No", notes: "TGP video" }], losses: [] } },
       groups: ["g1", "g2", "g3", "g4", "g6", "g7", "g8", "g10", "g11", "g12", "g13", "g9"], // g9 joined by committing to line 8601
-      status: { ci: "published", aod: "published", jiptl: "approved", tdp: "draft", ato: "published", aco: "review", spins: "published", acp: "published", bda: "draft" },
+      status: { pcon: "approved", ci: "published", aod: "published", jiptl: "approved", tdp: "draft", maap: "approved", ato: "published", aco: "review", spins: "published", acp: "published", bda: "draft" },
       // seed release history (version + time) for products already published
       releases: {
         ci: { v: 1, when: "2026-10-12T12:00:00Z" },
@@ -352,7 +358,9 @@ window.AOC_SEED = {
           { id: "IT-0052", name: "Armour Assembly Area GOLD", task: "4", grade: "C", cat: "Armor", loc: "38T KM 822 755", effect: "Attrit 30%" }
         ]
       },
-      tdp: {
+      // TDP book: one folder per JIPTL target (built on tdp.html)
+      tdp: { folders: {
+        "IT-0044": { status: "ready", grade: "B",
         targetId: "IT-0044",
         name: "Road Bridge LIMA (Rioni)",
         category: "LOC — Bridge",
@@ -371,7 +379,72 @@ window.AOC_SEED = {
         ],
         collateral: "Village 1.1 km south. Attack axis east-to-west, release no lower than 15,000 ft.",
         imagery: "Recon pod imagery from 18 OCT available on SRS/Discord #intel.",
-        bda: "Post-strike TGP video required; request TARPS pass within 6 hours."
+        bda: "Post-strike TGP video required; request TARPS pass within 6 hours." },
+        "IT-0012": { status: "draft", grade: "A", targetId: "IT-0012", name: "SA-10 Battery KUTAISI EAST", category: "SAM (long range)", coords: "N42°16.200' E042°49.200'",
+          mgrs: "38T LM 012 845", elev: "", description: "SA-10 battery: 5P85 TELARs, 30N6 Flap Lid tracking radar, 64N6 Big Bird search radar, command post.",
+          effect: "Destroy — supports key task 1 (air superiority over the Rioni valley)",
+          dmpis: [{ id: "A", desc: "30N6 Flap Lid (critical — names the target)", coords: "N42°16.200' E042°49.200'", weapon: "AGM-88C / GBU-31" },
+            { id: "B", desc: "64N6 Big Bird search radar", coords: "N42°16.260' E042°49.050'", weapon: "GBU-31" }],
+          threats: [{ sys: "SA-15 Tor (point defence)", loc: "0.8 NM, 045°", range: "SAM (short range)" }], collateral: "", imagery: "", bda: "TGP video of every engagement / tracking radar; follow-up ISR within 6 h." }
+      } },
+      // Planning conference with the host JFACC (internal; feeds the ACO and every later product)
+      pcon: {
+        date: "2026-09-28 2000Z", attendees: "OVERLORD (CFACC), ATLAS (CFC), SABRE (host JFACC, Viper Sqn), CHALICE, WIZARD, DARKSTAR",
+        items: [
+          {section: "Campaign basics",item: "Operation name, theater/map and era confirmed",done: true,notes: ""},
+          {section: "Campaign basics",item: "First mission date (T-0), start time (Z) and event cadence",done: true,notes: ""},
+          {section: "Campaign basics",item: "Number of events / ATO days and campaign end condition",done: true,notes: ""},
+          {section: "Campaign basics",item: "Planning timeline and deadlines agreed (see CAOC rollup)",done: true,notes: ""},
+          {section: "People and channels",item: "Group JFACC and deputy confirmed as the CAOC's points of contact",done: true,notes: ""},
+          {section: "People and channels",item: "CAOC leads named for each product (CFACC owns approval)",done: true,notes: ""},
+          {section: "People and channels",item: "REDFOR commander (own / other group / CAOC-appointed / none)",done: true,notes: ""},
+          {section: "People and channels",item: "Discord channels for planning, ATO line posts and debrief",done: true,notes: ""},
+          {section: "Intent and objectives",item: "Commander's Intent draft reviewed (purpose, method, end state)",done: true,notes: ""},
+          {section: "Intent and objectives",item: "Key tasks and their priority / weights for targeting",done: true,notes: ""},
+          {section: "Intent and objectives",item: "Win, loss and draw conditions are measurable",done: true,notes: ""},
+          {section: "Intent and objectives",item: "ROE posture and default weapons control status",done: true,notes: ""},
+          {section: "Forces and ATO lines",item: "BLUE order of battle, bases / carrier",done: true,notes: ""},
+          {section: "Forces and ATO lines",item: "Which flights are Human (posted for commitment) vs AI",done: true,notes: ""},
+          {section: "Forces and ATO lines",item: "ATO line request plan: airframes, numbers, mission types",done: true,notes: ""},
+          {section: "Forces and ATO lines",item: "Support assets: AWACS/GCI, tankers, JTAC, CSAR — Human or AI",done: true,notes: ""},
+          {section: "REDFOR and threat",item: "REDFOR order of battle source (the host .miz)",done: true,notes: ""},
+          {section: "REDFOR and threat",item: "Threat level, IADS laydown, Red air (AI / human)",done: true,notes: ""},
+          {section: "Airspace (feeds the ACO)",item: "Area of operations and initial FLOT / FSCL trace",done: true,notes: ""},
+          {section: "Airspace (feeds the ACO)",item: "CAP stations and HVAA (AWACS) orbits",done: true,notes: ""},
+          {section: "Airspace (feeds the ACO)",item: "Tanker tracks: locations, size (default 50 × 20 NM), altitudes",done: true,notes: ""},
+          {section: "Airspace (feeds the ACO)",item: "Kill boxes, ROZs, MRR corridors, restricted areas",done: true,notes: ""},
+          {section: "Airspace (feeds the ACO)",item: "Artillery / fire support areas and MAXORDs",done: true,notes: ""},
+          {section: "Targeting",item: "Area of interest for target nomination (box or point + radius)",done: true,notes: ""},
+          {section: "Targeting",item: "Target priorities and collateral restrictions",done: true,notes: ""},
+          {section: "Targeting",item: "TDP depth: which grades get full target folders",done: true,notes: ""},
+          {section: "Comms (built last)",item: "SRS server and tactical nets needed (TAC COORD, TAC ADMIN, C2, A/A, tankers, JTAC, rescue)",done: true,notes: ""},
+          {section: "Comms (built last)",item: "Spare channels per net; airfield / ATC frequencies stay out of the comm plan",done: true,notes: ""},
+          {section: "Comms (built last)",item: "Datalink / IFF conventions",done: true,notes: ""},
+          {section: "SPINS inputs",item: "Weapons restrictions",done: true,notes: ""},
+          {section: "SPINS inputs",item: "Code words and authentication",done: true,notes: ""},
+          {section: "SPINS inputs",item: "CSAR plan and divert fields",done: true,notes: ""},
+          {section: "Mission file and products",item: "Host .miz due date and version (CAOC extracts BLUE flights and REDFOR from it)",done: true,notes: ""},
+          {section: "Mission file and products",item: "Mods / scripts required",done: true,notes: ""},
+          {section: "Mission file and products",item: "Products wanted (default: all CAOC products)",done: true,notes: ""},
+          {section: "Mission file and products",item: "Publish date and how the host receives the package",done: true,notes: ""}
+        ],
+        actions: [{ action: "Send the draft .miz with REDFOR laid in", owner: "SABRE", due: "2026-10-02" },
+          { action: "Build the ACO and theater map from the agreed airspace", owner: "CHALICE", due: "2026-10-05" }],
+        notes: "Host runs readiness, the mass brief and the mission. The CAOC builds and publishes the products only."
+      },
+      // MAAP: packages from the ATO lines against the JIPTL (built on maap.html)
+      maap: {
+        packages: [
+          { name: "A", tot: "0720Z", push: "0650Z", targets: ["IT-0012", "IT-0017", "IT-0044", "IT-0045"], lines: ["8101", "8102", "8103", "8104", "8105", "8601"], notes: "SEAD/DEAD opens the corridor for the strikers",
+            strike: ["8102", "8601"], sead: ["8101", "8104"], escort: ["8103", "8105"], tanker: [] },
+          { name: "B", tot: "1100Z", push: "1030Z", targets: ["IT-0045"], lines: ["8111", "8112", "8113", "8114", "8115"], notes: "Re-attack of the fuel depot",
+            strike: ["8112", "8113"], sead: ["8114", "8115"], escort: ["8111"], tanker: [] }
+        ],
+        lineLabels: { "8101": "8101 VIPER 1 (4× F-16C SEAD)", "8102": "8102 DUDE 1 (2× F-15E AI)", "8103": "8103 SPRINGFIELD 1 (4× F/A-18C Escort)",
+          "8104": "8104 KNIGHT 1 (4× F-16C DEAD)", "8105": "8105 EAGLE 1 (4× F-15C OCA)", "8601": "8601 RUNNER 1 (4× F-15E Strike)",
+          "8111": "8111 MISTRAL 1 (2× M-2000C Escort)", "8112": "8112 BEAST 1 (2× AV-8B AI)", "8113": "8113 DUDE 3 (2× F-15E AI)",
+          "8114": "8114 VIPER 5 (2× F-16C SEAD)", "8115": "8115 TBD (2× F-16C SEAD)" },
+        coverage: "4 of 6 (IT-0012, IT-0017, IT-0044, IT-0045)"
       },
       ato: {
         atoDay: "8",

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — TDP Book</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .blay { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 1000px) { .blay { grid-template-columns: minmax(0, 1fr); } }
+  .blay > * { min-width: 0; }
+  .tlist button { width: 100%; text-align: left; display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 8px; align-items: center;
+    background: none; border: 0; border-top: 1px solid var(--line); color: var(--text); font: inherit; font-size: 13px; padding: 8px 4px; cursor: pointer; }
+  .tlist button[aria-current="true"] { background: var(--panel-2); }
+  .st { font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+  .st.none { color: var(--muted); } .st.draft { color: var(--warn); } .st.ready { color: var(--ok); }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>AOC.Auth.require();</script>
+<script src="js/products.js"></script>
+<script src="js/targeting.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px">
+    <div>
+      <a class="small" id="back" href="#">← TDP product (review, approval, publish)</a>
+      <h1 style="margin-top:4px" id="title">TDP book</h1>
+      <div class="muted small">One target folder per JIPTL target. Draft folders are pre-filled from the target nomination data (composition, DMPIs, nearby threats); the analyst completes and marks each one ready.</div>
+    </div>
+    <div class="toolbar"><span class="small" id="state"></span><button class="btn primary" id="saveBtn">Save book</button></div>
+  </div>
+  <div class="blay">
+    <section class="panel">
+      <div class="panel-head"><h2>JIPTL targets</h2><span class="muted small" id="counts"></span></div>
+      <div class="toolbar" style="margin-bottom:8px">
+        <label class="small" style="margin:0;text-transform:none;letter-spacing:0;color:var(--text)">Folders for grades</label>
+        <select id="grades" style="width:auto;padding:4px 6px;font-size:12px"><option value="A">A</option><option value="AB" selected>A–B</option><option value="ABC">A–C</option><option value="ABCD">All</option></select>
+        <button class="btn sm" id="draftAll">Draft missing folders</button>
+      </div>
+      <div class="tlist" id="list"></div>
+    </section>
+    <section class="panel" id="editor"><p class="muted">Pick a target.</p></section>
+  </div>
+</main>
+
+<script>
+  const { Store, esc, toast, zulu, PRODUCTS, TARGETING: TG } = AOC;
+  AOC.renderChrome();
+  const cid = new URLSearchParams(location.search).get("c") || Store.currentCampaignId();
+  const campaign = Store.campaign(cid);
+  document.getElementById("back").href = `product.html?p=tdp&c=${encodeURIComponent(cid)}`;
+  document.getElementById("title").textContent = `TDP book · OP ${campaign.opName}`;
+
+  const FIELDS = PRODUCTS.tdp.folderFields;
+  const raw = Store.content(cid, "tdp") || {};
+  // a book: { folders: { [targetId]: folder } }; an older single-folder TDP becomes the book's first folder
+  const book = raw.folders ? structuredClone(raw) : { folders: raw.targetId ? { [raw.targetId]: { ...structuredClone(raw), status: "ready" } } : {} };
+  const jiptl = Store.content(cid, "jiptl")?.rows || [];
+  const nom = Store.content(cid, "targeting")?.results;   // target nomination output, when the JIPTL came from it
+  const allGroups = nom ? [...nom.jiptl, ...nom.watchlist, ...nom.outOfBMA, ...(nom.continuous || []), ...(nom.dropped || [])] : [];
+  let selected = jiptl[0]?.id || null, dirty = false;
+
+  const ddm = (lat, lng) => { const f = (v, p, n, w) => { const a = Math.abs(v), d = Math.floor(a); return `${v >= 0 ? p : n}${String(d).padStart(w, "0")}°${((a - d) * 60).toFixed(3).padStart(6, "0")}'`; };
+    return `${f(lat, "N", "S", 2)} ${f(lng, "E", "W", 3)}`; };
+  const bearing = (a, b, c, d) => { const y = Math.sin((d - b) * Math.PI / 180) * Math.cos(c * Math.PI / 180),
+    x = Math.cos(a * Math.PI / 180) * Math.sin(c * Math.PI / 180) - Math.sin(a * Math.PI / 180) * Math.cos(c * Math.PI / 180) * Math.cos((d - b) * Math.PI / 180);
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360; };
+  const unitName = t => TG.BUILTIN_UNITS[t]?.name || t;
+  const markDirty = () => { dirty = true; const s = document.getElementById("state"); s.textContent = "Unsaved changes"; s.style.color = "var(--warn)"; };
+  const BDA_REQ = { "SAM (long range)": "TGP video of every engagement / tracking radar; follow-up ISR within 6 h to confirm no re-occupation.",
+    "SAM (medium range)": "TGP video of each TELAR / fire-control radar; RWR check on the next sortie.", "Aircraft": "TGP or recce imagery of shelters / parking.",
+    "C2": "Imagery of the node; watch for emissions moving elsewhere.", "Logistics": "Count of vehicles destroyed; road movement check." };
+
+  // draft one folder from the JIPTL row plus whatever the nomination run knows about that group
+  function draftFolder(row) {
+    const g = allGroups.find(x => x.targetNumber === row.id);
+    const f = { targetId: row.id, name: row.name, grade: row.grade || "", category: row.cat || g?.category || "", coords: row.loc || (g ? ddm(g.lat, g.lon) : ""),
+      mgrs: "", elev: "", effect: [row.effect, row.task && `Supports key task ${row.task}`].filter(Boolean).join(" — "), status: "draft",
+      description: "", dmpis: [], threats: [], collateral: "", imagery: "", bda: BDA_REQ[row.cat] || "Post-strike TGP video; follow-up ISR as required." };
+    if (g) {
+      const comp = Object.entries(g.composition);
+      f.description = `${g.unitName} — DCS group "${g.group}". ${g.unitCount} unit${g.unitCount > 1 ? "s" : ""}: ${comp.map(([t, n]) => `${n}× ${unitName(t)}`).join(", ")}.`;
+      // critical unit first (the one that names the group), then the rest
+      f.dmpis = comp.sort(([a], [b]) => (a === g.repType ? -1 : b === g.repType ? 1 : 0))
+        .map(([t, n], i) => ({ id: String.fromCharCode(65 + i), desc: `${n}× ${unitName(t)}${t === g.repType ? " (critical — names the target)" : ""}`, coords: ddm(g.lat, g.lon), weapon: "" }));
+      f.threats = allGroups.filter(o => o !== g && /SAM|AAA/.test(o.category))
+        .map(o => ({ o, d: TG.haversineNM(g.lat, g.lon, o.lat, o.lon) })).filter(x => x.d <= 20).sort((a, b) => a.d - b.d)
+        .map(({ o, d }) => ({ sys: o.unitName, loc: `${d.toFixed(1)} NM, ${String(Math.round(bearing(g.lat, g.lon, o.lat, o.lon))).padStart(3, "0")}° (${o.targetNumber || o.group})`, range: o.category }));
+      f.imagery = `REDFOR from the host .miz via target nomination (${zulu(new Date(nom.when))}). DMPI coordinates are the group centre — refine per unit from the .miz.`;
+    }
+    return f;
+  }
+
+  const want = () => document.getElementById("grades").value;
+  function renderList() {
+    const fs = book.folders, n = s => jiptl.filter(r => (fs[r.id]?.status || "none") === s).length;
+    document.getElementById("counts").textContent = `${n("ready")} ready · ${n("draft")} draft · ${n("none")} none`;
+    document.getElementById("list").innerHTML = jiptl.length ? jiptl.map((r, i) => { const s = fs[r.id]?.status || "none";
+      return `<button data-id="${esc(r.id)}" aria-current="${r.id === selected}"><span class="mono small">${i + 1}. ${esc(r.id)}</span>
+        <span>${esc(r.name)}<div class="muted small">Grade ${esc(r.grade || "—")} · ${esc(r.cat || "")}</div></span><span class="st ${s}">${s === "none" ? (want().includes(r.grade) ? "needed" : "—") : s}</span></button>`; }).join("")
+      : `<p class="muted">The JIPTL is empty — build it on the Target nomination page first.</p>`;
+  }
+  document.getElementById("list").onclick = e => { const b = e.target.closest("[data-id]"); if (b) { selected = b.dataset.id; renderList(); renderEditor(); } };
+  document.getElementById("grades").onchange = renderList;
+  document.getElementById("draftAll").onclick = () => {
+    const todo = jiptl.filter(r => want().includes(r.grade || "D") && !book.folders[r.id]);
+    todo.forEach(r => { book.folders[r.id] = draftFolder(r); });
+    markDirty(); renderList(); renderEditor(); toast(todo.length ? `Drafted ${todo.length} folders` : "Every target in those grades already has a folder");
+  };
+
+  // ---------- folder editor ----------
+  function input(f, v, path) {
+    if (f.type === "textarea") return `<textarea data-p="${path}">${esc(v)}</textarea>`;
+    return `<input data-p="${path}" value="${esc(v)}" ${f.type === "jiptl" ? "disabled" : ""}>`;
+  }
+  function renderEditor() {
+    const el = document.getElementById("editor"), row = jiptl.find(r => r.id === selected);
+    if (!row) { el.innerHTML = `<p class="muted">Pick a target.</p>`; return; }
+    const f = book.folders[row.id];
+    if (!f) { el.innerHTML = `<div class="panel-head"><h2>${esc(row.id)} · ${esc(row.name)}</h2></div><p class="muted">No folder yet.</p>
+      <button class="btn primary" data-draft>Draft folder from nomination data</button>`; return; }
+    let html = `<div class="panel-head"><div><h2>${esc(row.id)} · ${esc(row.name)}</h2><div class="muted small">Grade ${esc(row.grade || "—")} · ${esc(row.cat || "")}</div></div>
+      <div class="toolbar"><button class="btn sm" data-redraft title="Rebuild from the nomination data (replaces this folder)">Re-draft</button>
+      <button class="btn sm ${f.status === "ready" ? "" : "primary"}" data-ready>${f.status === "ready" ? "Mark draft" : "Mark ready"}</button></div></div>`, half = false;
+    FIELDS.forEach(fd => {
+      if (fd.type === "section") { if (half) { html += "</div>"; half = false; } html += `<div class="section-h">${esc(fd.label)}</div>`; return; }
+      if (fd.type === "table") { if (half) { html += "</div>"; half = false; }
+        html += `<div class="field"><label>${esc(fd.label)}</label><div class="grid-edit"><table style="min-width:0"><thead><tr>${fd.columns.map(c => `<th>${esc(c.label)}</th>`).join("")}<th></th></tr></thead>
+          <tbody>${(f[fd.key] || []).map((r, i) => `<tr>${fd.columns.map(c => `<td><input data-p="${fd.key}.${i}.${c.key}" value="${esc(r[c.key])}"></td>`).join("")}
+          <td class="rowact"><button data-del="${fd.key}.${i}">✕</button></td></tr>`).join("")}</tbody></table></div>
+          <button class="btn sm" data-add="${fd.key}" style="margin-top:6px">+ Add row</button></div>`; return; }
+      if (fd.half && !half) { html += `<div class="row2">`; half = true; } else if (!fd.half && half) { html += "</div>"; half = false; }
+      html += `<div class="field"><label>${esc(fd.label)}</label>${input(fd, f[fd.key] ?? "", fd.key)}</div>`;
+    });
+    if (half) html += "</div>";
+    el.innerHTML = html;
+  }
+  const editor = document.getElementById("editor");
+  editor.addEventListener("input", e => {
+    const p = e.target.dataset.p; if (!p) return;
+    const parts = p.split("."); let o = book.folders[selected];
+    for (let i = 0; i < parts.length - 1; i++) o = o[parts[i]];
+    o[parts.at(-1)] = e.target.value; markDirty();
+  });
+  editor.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return; const row = jiptl.find(r => r.id === selected), f = book.folders[selected];
+    if (b.hasAttribute("data-draft")) book.folders[selected] = draftFolder(row);
+    else if (b.hasAttribute("data-redraft")) { if (!confirm("Replace this folder with a fresh draft from the nomination data?")) return; book.folders[selected] = draftFolder(row); }
+    else if (b.hasAttribute("data-ready")) f.status = f.status === "ready" ? "draft" : "ready";
+    else if (b.dataset.add) (f[b.dataset.add] = f[b.dataset.add] || []).push({});
+    else if (b.dataset.del) { const [k, i] = b.dataset.del.split("."); f[k].splice(+i, 1); }
+    else return;
+    markDirty(); renderList(); renderEditor();
+  });
+
+  // saving the book makes the TDP product a draft again, so the CFACC approves what changed
+  document.getElementById("saveBtn").onclick = () => {
+    Store.setContent(cid, "tdp", structuredClone(book));
+    Store.setStatus(cid, "tdp", "draft");
+    const fs = Object.values(book.folders);
+    Store.log(cid, `TDP book saved (${fs.filter(f => f.status === "ready").length} ready / ${fs.length} folders)`);
+    dirty = false; const s = document.getElementById("state"); s.textContent = "Saved — submit for review on the TDP product"; s.style.color = "var(--ok)"; toast("TDP book saved");
+  };
+  window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+  renderList(); renderEditor();
+</script>
+</body>
+</html>

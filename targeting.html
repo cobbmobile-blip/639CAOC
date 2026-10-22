@@ -44,6 +44,8 @@
 <script>AOC.Auth.require();</script>
 <script src="js/products.js"></script>
 <script src="js/targeting.js"></script>
+<script src="js/ato.js"></script>
+<script src="js/miz.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
 <main class="wrap">
@@ -93,6 +95,8 @@
       <div class="step">
         <h3>3 · REDFOR order of battle</h3>
         <div id="imports"></div>
+        <div class="src"><span>Host mission file <span class="muted small" id="hostMizInfo"></span></span>
+          <button class="btn sm" id="hostMizBtn">Use REDFOR from it</button></div>
         <div class="src"><span>Coalition Parser CSV <span class="muted small">(Group, Unit, Type, Latitude, Longitude)</span></span>
           <label class="btn sm" style="margin:0;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text)">Import CSV…<input type="file" id="csvIn" accept=".csv,text/csv" multiple hidden></label></div>
         <div class="src"><span>Unit table: <b id="tableName"></b></span>
@@ -218,10 +222,27 @@
   function renderSources() {
     document.getElementById("imports").innerHTML = st.imports.map((f, i) => `<div class="src"><span>📄 ${esc(f.name)} <span class="muted small">${f.rows.length} units</span></span>
       <button class="btn sm ghost danger" data-rmimp="${i}">Remove</button></div>`).join("");
+    renderHostMiz();
     document.getElementById("tableName").textContent = st.table ? `${st.table.name} (${Object.keys(st.table.units).length} types) + built-in`
       : `built-in (${Object.keys(TG.BUILTIN_UNITS).length} DCS types)`;
   }
   document.getElementById("imports").onclick = e => { const i = e.target.dataset.rmimp; if (i != null) { st.imports.splice(+i, 1); renderSources(); touch(); } };
+  // the host's latest .miz: its REDFOR replaces any earlier mission-file import (coordinates need a calibrated theater)
+  function renderHostMiz() {
+    const cur = AOC.MIZ.current(cid), el = document.getElementById("hostMizInfo"), btn = document.getElementById("hostMizBtn");
+    const have = st.imports.find(f => f.hostMiz);
+    el.textContent = !cur ? "(none received yet)" : `v${cur.v} · ${cur.name} · ${cur.red.length} RED units${AOC.MIZ.projection(cur.theatre) ? "" : ` · ${cur.theatre} not calibrated`}${have ? ` · using v${have.hostMiz}` : ""}`;
+    btn.disabled = !cur || !cur.red.length;
+  }
+  document.getElementById("hostMizBtn").onclick = () => {
+    const cur = AOC.MIZ.current(cid), rows = AOC.MIZ.redRows(cur);
+    if (!rows) { toast(`${cur.theatre} isn't calibrated yet — calibrate it on the Mission file page first`); return; }
+    // the same units in a CSV and the .miz would be counted twice
+    const others = st.imports.filter(f => !f.hostMiz);
+    st.imports = others.length && confirm(`Replace the other REDFOR source${others.length > 1 ? "s" : ""} (${others.map(f => f.name).join(", ")}) with the mission file?\nCancel keeps them alongside it.`) ? [] : others;
+    st.imports.unshift({ name: `Host mission file v${cur.v} — ${cur.name}`, rows, hostMiz: cur.v });
+    toast(`${rows.length} REDFOR units from mission file v${cur.v}`); renderSources(); touch();
+  };
   document.getElementById("csvIn").onchange = async e => {
     for (const f of e.target.files) {
       const r = TG.parseCSV(await f.text(), f.name);

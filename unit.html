@@ -52,6 +52,7 @@
 </script>
 <script src="js/products.js"></script>
 <script src="js/ato.js"></script>
+<script src="js/package.js"></script>
 
 <main class="wrap">
   <section class="campaign-head">
@@ -67,6 +68,8 @@
   </section>
 
   <section class="kpis" id="kpis"></section>
+
+  <section class="panel hidden" id="hostPanel" style="margin-bottom:16px"></section>
 
   <section class="panel" id="groupPanel" style="margin-bottom:16px"></section>
 
@@ -202,6 +205,26 @@
     ].map(([v, l]) => `<div class="panel kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
   }
 
+  // the campaign package: every group sees the release and what went to DKS; the host (the campaign's JFACC group)
+  // also sees its deadlines and the debrief page. Readiness, the mass brief and the mission are the host's alone.
+  function renderHost() {
+    const c = camp(), el = document.getElementById("hostPanel"), rel = c.packageRelease, PK = AOC.PACKAGE;
+    const host = staff || (me && c.jfacc?.group === me.id);
+    if (!rel && !host) { el.classList.add("hidden"); return; }
+    el.classList.remove("hidden");
+    let html = `<div class="panel-head"><div><h2>Campaign package ${rel ? `v${rel.version}` : ""}</h2><div class="muted small">${rel
+      ? `Published ${esc(zulu(new Date(rel.when)))} by ${esc(rel.by)} for ATO day ${esc(rel.atoDay)}: ${rel.current.map(p => `${esc(PRODUCTS[p.pid]?.code)} v${p.v}`).join(", ")}`
+        + (c.dks?.overlay || c.dks?.agencies ? `<br>In DKS: ${[c.dks.overlay && `ACO Overlay v${c.dks.overlay.v}`, c.dks.agencies && `Manage Agencies v${c.dks.agencies.v} (${c.dks.agencies.list.length} agencies)`].filter(Boolean).join(" · ")}` : "")
+      : "The CAOC has not published the package yet."}</div></div>
+      ${host ? `<div class="toolbar"><a class="btn sm" href="mission-file.html?c=${encodeURIComponent(cid)}">Mission file${c.missionFiles?.length ? ` v${c.missionFiles.length}` : ""}</a><a class="btn sm primary" href="debrief.html?c=${encodeURIComponent(cid)}">Enter mission debrief</a></div>` : ""}</div>`;
+    if (host) {
+      const ms = PK.milestones(cid, PK.mode(c)).filter(x => (x.owner !== "CAOC" || x.id === "publish") && x.due > Date.now() - 864e5).slice(0, 5);
+      html += `<div class="section-h">Your next deadlines (host) and the CAOC PUBLISH</div><ul class="list">${ms.map(x => `<li><span class="dot ${["overdue", "soon"].includes(x.state) ? "warn" : "off"}"></span>
+        <div class="grow"><b>${esc(x.label)}</b><div class="muted small">${esc(zulu(x.due))}${x.owner === "GROUPS" ? " · all groups" : ""}</div></div></li>`).join("") || `<li class="muted">No host deadlines coming up.</li>`}</ul>`;
+    }
+    el.innerHTML = html;
+  }
+
   // the campaign's JFACC group sees the state of every ATO line it requested (filled as units commit on Discord)
   function requestsHtml() {
     if (!me || camp().jfacc?.group !== me.id) return "";
@@ -324,7 +347,7 @@
       receive(pid, s); render();
     }  });
 
-  function render() { renderHeader(); renderGroupPanel(); renderBoard(); renderMatrix(); renderLines(); }
+  function render() { renderHeader(); renderHost(); renderGroupPanel(); renderBoard(); renderMatrix(); renderLines(); }
   if (!cid) document.querySelector("main").innerHTML = `<div class="panel">Your group isn't assigned to any campaign yet. Contact the AOC.</div>`;
   else render();
 </script>

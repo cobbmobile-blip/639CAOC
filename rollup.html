@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — CAOC Rollup</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .rlay { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 1100px) { .rlay { grid-template-columns: minmax(0, 1fr); } }
+  .rlay > * { min-width: 0; }
+  .tl td, .tl th, .rt td, .rt th { font-size: 12px; padding: 5px 6px; vertical-align: top; }
+  .own { font: 600 10px var(--mono); letter-spacing: .05em; padding: 1px 6px; border: 1px solid var(--line); border-radius: 999px; }
+  .own.HOST, .own.GROUPS { color: var(--info); border-color: var(--info); }
+  .ms { font: 600 11px var(--mono); text-transform: uppercase; }
+  .ms.done { color: var(--ok); } .ms.overdue { color: var(--danger, #e5484d); } .ms.soon { color: var(--warn); } .ms.upcoming, .ms.host, .ms.past { color: var(--muted); }
+  .tl input { width: 64px; padding: 2px 4px; font-size: 12px; }
+  .bar { position: relative; height: 34px; border-top: 1px solid var(--line); margin: 18px 0 6px; }
+  .bar .tick { position: absolute; top: -6px; width: 2px; height: 12px; background: var(--muted); }
+  .bar .tick.CAOC { background: var(--accent); } .bar .tick.HOST, .bar .tick.GROUPS { background: var(--info); }
+  .bar .now { position: absolute; top: -14px; width: 2px; height: 28px; background: var(--warn); }
+  .bar .lbl { position: absolute; top: 10px; font: 10px var(--mono); color: var(--muted); transform: translateX(-50%); white-space: nowrap; }
+  .pub { border: 1px solid var(--accent); }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>AOC.Auth.require();</script>
+<script src="js/products.js"></script>
+<script src="js/ato.js"></script>
+<script src="js/package.js"></script>
+<script src="js/miz.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px">
+    <div><h1 id="title">CAOC rollup</h1>
+      <div class="muted small">Everything the CAOC owes this campaign, against the deadline timeline. One PUBLISH, no later than T-72h before the mission, releases the approved products to the groups and exports the ACO overlay and Comm Plan agencies to DKS.</div></div>
+    <div class="toolbar"><select id="camp" style="width:auto"></select></div>
+  </div>
+
+  <section class="panel pub">
+    <div class="panel-head"><div><h2>Package</h2><div class="muted small" id="relInfo"></div></div>
+      <div class="toolbar"><button class="btn" id="cycleBtn">Cycle to next mission…</button><button class="btn primary" id="pubBtn">PUBLISH package</button></div></div>
+    <div id="pubSummary"></div>
+  </section>
+
+  <div class="rlay">
+    <section class="panel">
+      <div class="panel-head"><div><h2>Deadline timeline</h2><div class="muted small" id="t0"></div></div>
+        <div class="toolbar"><div class="seg" id="modeSeg"><button data-m="build">Campaign build</button><button data-m="cycle">Mission cycle</button></div>
+          <button class="btn sm" id="editBtn">Edit deadlines</button></div></div>
+      <div id="bar"></div>
+      <div class="table-scroll"><table class="tl"><thead><tr><th>T</th><th>Due</th><th>Deliverable</th><th>Owner</th><th>Status</th></tr></thead><tbody id="tl"></tbody></table></div>
+      <p class="muted small">HOST items are the host unit's alone (readiness, mass brief, running the mission, the .miz). The CAOC only shows their dates.</p>
+    </section>
+    <div>
+      <section class="panel"><div class="panel-head"><h2>Product readiness</h2><span class="muted small" id="readyN"></span></div>
+        <div class="table-scroll"><table class="rt"><thead><tr><th>Product</th><th>Status</th><th>Approved</th><th>Released</th></tr></thead><tbody id="ready"></tbody></table></div></section>
+      <section class="panel"><div class="panel-head"><h2>ATO lines</h2><a class="small" href="index.html">Dashboard →</a></div><div id="lines"></div></section>
+      <section class="panel"><div class="panel-head"><h2>Host mission file</h2><a class="small" id="mfLink" href="mission-file.html">Open →</a></div><div id="mfile"></div></section>
+      <section class="panel"><div class="panel-head"><h2>Debriefs from the host</h2></div><div id="debriefs"></div></section>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-head"><div><h2>DKS exports</h2><div class="muted small">Sent as options of PUBLISH. The Overlay is drawn on the DKS theater map; it is not written into the host's .miz.
+      Agencies are the campaign's persistent theater frequencies — normally only tankers and JTACs change.</div></div></div>
+    <div id="dks"></div>
+  </section>
+</main>
+
+<script>
+  const { Store, Auth, esc, toast, zulu, PRODUCTS, STATUS_LABEL, PACKAGE: PK, ATO } = AOC;
+  AOC.renderChrome();
+  let cid = Store.currentCampaignId(), m, editing = false;
+  const camp = document.getElementById("camp");
+  camp.innerHTML = Store.db.campaigns.map(c => `<option value="${esc(c.id)}">OP ${esc(c.opName)}</option>`).join("");
+  camp.value = Store.campaign(cid).id; cid = camp.value;
+  camp.onchange = () => { cid = camp.value; Store.setCurrentCampaign(cid); m = null; render(); };
+  const fmt = d => isNaN(d) ? "—" : `${String(d.getUTCDate()).padStart(2, "0")}${String(d.getUTCHours()).padStart(2, "0")}${String(d.getUTCMinutes()).padStart(2, "0")}Z ${d.toLocaleString("en-US", { month: "short", timeZone: "UTC" }).toUpperCase()}`;
+  const tlabel = PK.tlabel;
+  const STATE = { done: "Done", overdue: "Overdue", soon: "Due soon", upcoming: "Upcoming", host: "Host", past: "Past" };
+  const table = (rows, cols) => rows.length ? `<div class="table-scroll"><table class="rt"><thead><tr>${cols.map(([, l]) => `<th>${esc(l)}</th>`).join("")}</tr></thead>
+    <tbody>${rows.map(r => `<tr>${cols.map(([k]) => `<td>${esc(r[k])}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : `<p class="muted small">None.</p>`;
+
+  function render() {
+    const c = Store.campaign(cid); m = m || PK.mode(c);
+    document.getElementById("title").textContent = `CAOC rollup · OP ${c.opName}`;
+    document.querySelectorAll("#modeSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.m === m)));
+    const base = PK.t0(c, m);
+    document.getElementById("t0").textContent = m === "build" ? `T-0 = first mission ${fmt(base)} (D-day ${c.dday})` : `T-0 = next mission, ATO day ${c.atoDay}: ${fmt(base)}`;
+
+    // timeline
+    const ms = PK.milestones(cid, m), lo = Math.min(...ms.map(x => x.offset)), hi = Math.max(0, ...ms.map(x => x.offset)), span = hi - lo || 1;
+    const nowOff = (Date.now() - base) / 864e5, pos = o => `${((o - lo) / span) * 100}%`;
+    document.getElementById("bar").innerHTML = `<div class="bar">${ms.map(x => `<span class="tick ${x.owner}" style="left:${pos(x.offset)}" title="${esc(tlabel(x.offset))} ${esc(x.label)}"></span>`).join("")}
+      ${nowOff >= lo && nowOff <= hi ? `<span class="now" style="left:${pos(nowOff)}" title="Now"></span>` : ""}
+      ${[...new Set([lo, Math.round((lo + hi) / 2), hi])].map(o => `<span class="lbl" style="left:${pos(o)}">${tlabel(o)}</span>`).join("")}</div>`;
+    document.getElementById("tl").innerHTML = ms.map(x => `<tr><td class="mono">${editing ? `<input type="number" step="0.5" data-off="${esc(x.id)}" value="${x.offset}">` : esc(tlabel(x.offset))}</td>
+      <td class="mono">${esc(fmt(x.due))}</td><td>${esc(x.label)}</td><td><span class="own ${x.owner}">${x.owner}</span></td><td class="ms ${x.state}">${STATE[x.state]}</td></tr>`).join("");
+    document.getElementById("editBtn").textContent = editing ? "Done editing" : "Edit deadlines";
+
+    // readiness
+    const want = PK.wanted(c), ready = want.filter(pid => Store.status(cid, pid) === "approved");
+    document.getElementById("readyN").textContent = `${ready.length} approved, waiting for PUBLISH`;
+    document.getElementById("ready").innerHTML = ["pcon", ...want].filter(pid => PRODUCTS[pid]).map(pid => { const s = Store.status(cid, pid), a = Store.approval(cid, pid), sh = Store.shared(cid, pid);
+      return `<tr><td><a href="product.html?p=${pid}&c=${encodeURIComponent(cid)}">${esc(PRODUCTS[pid].code)}</a> <span class="muted">${esc(PRODUCTS[pid].name)}</span>${PK.INTERNAL.has(pid) ? ' <span class="muted small">(internal)</span>' : ""}</td>
+        <td><span class="badge ${s}">${esc(STATUS_LABEL[s] || s)}</span></td><td class="small">${a ? `${esc(a.by)} ${esc(a.role)}` : "—"}</td>
+        <td class="small">${sh ? `v${sh.version} · ${esc(zulu(new Date(sh.when)))}` : "—"}</td></tr>`; }).join("");
+
+    // ATO lines
+    const ls = ATO.lines(cid), n = s => ls.filter(l => l.status === s).length;
+    document.getElementById("lines").innerHTML = ls.length ? `<p class="small">${ls.length} requested · <b>${n("open")}</b> open · ${n("committed")} committed · ${n("ai")} AI · commit by ${esc(ls[0].commitBy || "—")}</p>
+      ${table(ls.filter(l => l.status === "open").map(l => ({ msn: l.msn, a: `${l.num}× ${l.airframe}`, role: l.role, tot: l.tot })), [["msn", "Open MSN"], ["a", "Aircraft"], ["role", "Role"], ["tot", "TOT"]])}`
+      : `<p class="muted small">No ATO lines requested by the host JFACC yet.</p>`;
+
+    // host mission file
+    const mf = AOC.MIZ.current(cid);
+    document.getElementById("mfLink").href = `mission-file.html?c=${encodeURIComponent(cid)}`;
+    document.getElementById("mfile").innerHTML = mf ? `<p class="small"><b>v${mf.v}</b> ${esc(mf.name)} · ${esc(zulu(new Date(mf.when)))} · ${mf.flights.length} BLUE flights · ${mf.red.length} RED units ·
+      ${AOC.MIZ.projection(mf.theatre) ? "coordinates calibrated" : `<span style="color:var(--warn)">${esc(mf.theatre)} not calibrated</span>`}${mf.notes ? `<br><span class="muted">${esc(mf.notes)}</span>` : ""}</p>`
+      : `<p class="muted small">The host hasn't sent its draft .miz yet.</p>`;
+    // debriefs
+    const db = Object.entries(c.debriefs || {}).sort((a, b) => b[0] - a[0]);
+    document.getElementById("debriefs").innerHTML = db.length ? db.map(([day, d]) => `<p class="small"><b>ATO day ${esc(day)}</b> — from ${esc(Store.group(d.by)?.name || d.by)} (${esc(d.user || "")}) ${esc(zulu(new Date(d.when)))} ·
+      ${d.misreps.filter(x => x.flown === "Yes").length}/${d.misreps.length} lines flown · ${d.bda.length} BDA · ${esc(d.progress || "")}${d.notes ? `<br><span class="muted">${esc(d.notes)}</span>` : ""}</p>`).join("")
+      : `<p class="muted small">None yet. The host enters it on their Debrief page after each mission.</p>`;
+
+    // publish summary
+    const rel = c.packageRelease, notReady = want.filter(pid => !["approved", "published"].includes(Store.status(cid, pid)));
+    document.getElementById("relInfo").textContent = rel ? `Last PUBLISH: v${rel.version} for ATO day ${rel.atoDay}, ${zulu(new Date(rel.when))} by ${rel.by}` : "Not published yet";
+    document.getElementById("pubSummary").innerHTML = `<p class="small">${ready.length ? `Ready to release: <b>${ready.map(p => esc(PRODUCTS[p].code)).join(", ")}</b>.` : "Nothing new approved."}
+      ${notReady.length ? ` Not approved yet: <span style="color:var(--warn)">${notReady.map(p => esc(PRODUCTS[p].code)).join(", ")}</span>.` : " Every product is approved or released."}
+      PUBLISH goes to ${c.groups.filter(g => Store.group(g)?.status === "active").length} active groups${rel?.dks?.length ? ` · last DKS export: ${esc(rel.dks.join(", "))}` : ""}.</p>`;
+    const can = Auth.can("publish");
+    document.getElementById("pubBtn").disabled = !can; document.getElementById("pubBtn").title = can ? "" : "CFACC or CFC only";
+    document.getElementById("cycleBtn").disabled = !can || !(c.atoDay > 0);
+
+    // DKS exports
+    const ex = PK.dksExports(cid), ov = ex.overlay, ag = ex.agencies, since = l => l ? `last sent v${l.v} ${esc(zulu(new Date(l.when)))} by ${esc(l.by)}` : "never sent";
+    const chg = ag.changes;
+    document.getElementById("dks").innerHTML = `<div class="section-h">Overlay — ACO + theater map <span class="muted small">(${since(ov.last)}${ov.ready ? "" : " · ACO not approved"})</span></div>
+      <p class="small">${ov.measures.length} ACO measures · ${ov.shapes.length} map shapes · ${ov.points.length} points. <a href="map.html?c=${encodeURIComponent(cid)}">Theater map →</a></p>
+      ${table(ov.measures, [["name", "Measure"], ["type", "Type"], ["alt", "Alt"], ["time", "Time"]])}
+      <div class="section-h">Manage Agencies — Comm Plan <span class="muted small">(${since(ag.last)}${ag.ready ? "" : " · Comm Plan not approved"})</span></div>
+      <p class="small">${chg == null ? `${ag.list.length} agencies; all go to DKS on the first export.` : chg.length ? `<span style="color:var(--warn)">${chg.length} change${chg.length > 1 ? "s" : ""} since the last export:</span> ` +
+        chg.map(x => `${x.kind} ${esc(x.channel)} ${esc(x.name)} ${esc(x.freq)}${x.was ? ` (was ${esc(x.was)})` : ""}`).join("; ") : "No changes since the last export — no need to re-send."}</p>
+      ${table(ag.list.map(a => ({ ...a, v: a.volatile ? "may change" : "" })), [["net", "Net"], ["channel", "Channel"], ["name", "Agency"], ["role", "Role"], ["freq", "Freq"], ["v", ""]])}`;
+  }
+
+  document.getElementById("modeSeg").onclick = e => { const b = e.target.closest("[data-m]"); if (b) { m = b.dataset.m; render(); } };
+  document.getElementById("editBtn").onclick = () => { editing = !editing; render(); };
+  document.getElementById("tl").addEventListener("change", e => {
+    const id = e.target.dataset.off; if (!id) return; const c = Store.campaign(cid);
+    c.milestoneOffsets = c.milestoneOffsets || {}; (c.milestoneOffsets[m] = c.milestoneOffsets[m] || {})[id] = +e.target.value; Store.save(); render();
+  });
+
+  // PUBLISH: products to the groups, and the DKS exports as options (agencies pre-ticked only when something changed)
+  document.getElementById("pubBtn").onclick = () => {
+    const c = Store.campaign(cid), want = PK.wanted(c), ready = want.filter(pid => Store.status(cid, pid) === "approved");
+    const notReady = want.filter(pid => !["approved", "published"].includes(Store.status(cid, pid))), ex = PK.dksExports(cid);
+    const agChanged = ex.agencies.changes == null || ex.agencies.changes.length > 0, late = Date.now() > PK.t0(c, m).getTime() - 3 * 864e5;
+    const back = document.createElement("div"); back.className = "modal-back";
+    back.innerHTML = `<div class="panel modal"><h2>PUBLISH package v${(c.packageRelease?.version || 0) + 1}</h2>
+      ${late ? `<p class="small" style="color:var(--warn)">Inside T-72h — the host has less than three days to build and brief.</p>` : ""}
+      <label class="check-row"><input type="checkbox" id="oProd" ${ready.length ? "checked" : "disabled"}> Release approved products to the groups — ${ready.length ? esc(ready.map(p => PRODUCTS[p].code).join(", ")) : "none waiting"}</label>
+      ${notReady.length ? `<p class="small muted" style="margin:0 0 8px 26px">Not approved, stays back: ${esc(notReady.map(p => PRODUCTS[p].code).join(", "))}</p>` : ""}
+      <label class="check-row"><input type="checkbox" id="oOv" ${ex.overlay.ready ? (ex.overlay.last ? "" : "checked") : "disabled"}> Export ACO + theater map to DKS Overlay ${ex.overlay.ready ? (ex.overlay.last ? `<span class="muted small">(last v${ex.overlay.last.v})</span>` : "") : `<span class="muted small">(ACO not approved)</span>`}</label>
+      <label class="check-row"><input type="checkbox" id="oAg" ${ex.agencies.ready ? (agChanged ? "checked" : "") : "disabled"}> Export Comm Plan to DKS Manage Agencies <span class="muted small">${!ex.agencies.ready ? "(Comm Plan not approved)" : ex.agencies.changes == null ? `(first export, ${ex.agencies.list.length} agencies)` : agChanged ? `(${ex.agencies.changes.length} change${ex.agencies.changes.length > 1 ? "s" : ""})` : "(no changes)"}</span></label>
+      <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>PUBLISH</button></div></div>`;
+    document.body.appendChild(back);
+    back.querySelector("[data-x]").onclick = () => back.remove();
+    back.querySelector("[data-ok]").onclick = () => {
+      const opts = { products: back.querySelector("#oProd").checked, overlay: back.querySelector("#oOv").checked, agencies: back.querySelector("#oAg").checked };
+      if (!opts.products && !opts.overlay && !opts.agencies) { toast("Nothing selected"); return; }
+      const rel = PK.publish(cid, opts); back.remove();
+      toast(`Package v${rel.version}: ${rel.products.length} products${rel.dks.length ? ", DKS " + rel.dks.join(", ") : ""}`); render();
+    };
+  };
+  document.getElementById("cycleBtn").onclick = () => {
+    const c = Store.campaign(cid), have = c.debriefs?.[c.atoDay];
+    const back = document.createElement("div"); back.className = "modal-back";
+    const next = new Date(new Date(c.nextEvent).getTime() + 7 * 864e5).toISOString().slice(0, 16);
+    back.innerHTML = `<div class="panel modal"><h2>Cycle to ATO day ${+c.atoDay + 1}</h2>
+      <p class="small">${have ? `The host's debrief for ATO day ${esc(c.atoDay)} is in.` : `<span style="color:var(--warn)">No host debrief for ATO day ${esc(c.atoDay)} yet.</span> Usually you wait for it — it drives BDA and the next JIPTL.`}</p>
+      <p class="muted small">AOD, JIPTL, TDP, MAAP, ATO and BDA go back to draft for the new cycle. Released versions stay with the groups until the next PUBLISH.</p>
+      <div class="field"><label>Next mission (UTC)</label><input type="datetime-local" id="nx" value="${next}"></div>
+      <div class="toolbar" style="justify-content:flex-end"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>Cycle</button></div></div>`;
+    document.body.appendChild(back);
+    back.querySelector("[data-x]").onclick = () => back.remove();
+    back.querySelector("[data-ok]").onclick = () => { PK.cycle(cid, new Date(back.querySelector("#nx").value + "Z").toISOString()); back.remove(); m = "cycle"; render(); toast(`Now planning ATO day ${Store.campaign(cid).atoDay}`); };
+  };
+  render();
+</script>
+</body>
+</html>

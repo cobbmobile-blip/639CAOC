@@ -24,12 +24,17 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 |---|---|---|
 | `login.html` | CAOC staff | Staff sign-in |
 | `index.html` | CAOC staff | Campaign dashboard: products, deliverables tracker (CFACC), requests, groups |
-| `product.html?p=<id>` | CAOC staff | Product builder + live preview (CI, AOD, JIPTL, TDP, ATO, ACO, SPINS, Comm Plan, BDA) |
+| `rollup.html` | CAOC staff (CFACC/CFC publish) | CAOC rollup: deadline timeline (campaign build / mission cycle), product readiness, ATO lines, host debriefs, DKS export preview (Overlay, Agencies changes), the one **PUBLISH** button and **Cycle to next mission** |
+| `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS, Comm Plan, BDA) |
+| `tdp.html` | CAOC staff | TDP book: one target folder per JIPTL target, drafted from the nomination data |
+| `maap.html` | CAOC staff | MAAP: packages of ATO lines against JIPTL targets, with coverage and deconfliction checks; Apply to ATO |
 | `map.html` | CAOC staff | Theater map from the ACO: nav/spider/dest points, threats with DCS range rings, FLOT, FSCL, MRR, AR tracks, HVAA orbits, artillery ROZ |
 | `targeting.html` | CAOC staff | Target nomination (from the JIPTL): REDFOR order of battle → JIPTL, ported from the JIPTL pipeline |
 | `campaign-review.html` | CAOC staff (CFC decides) | Campaign proposal review queue |
 | `unit-login.html` | Participating groups | Group sign-in |
 | `unit.html` | Groups (staff can observe) | Op Status: product board, distribution matrix, ATO lines, group pack download; the JFACC group also sees its ATO line requests filling |
+| `mission-file.html` | Host unit (staff can read) | Host mission file intake: upload the draft `.miz` (and every new version); BLUE flights → ATO requests, REDFOR → target nomination; per-theater coordinate calibration |
+| `debrief.html` | Host unit (campaign's JFACC group) | Post-mission debrief: lines flown, BDA, losses, progress — feeds the CAOC's next cycle |
 | `ato-request.html` | Campaign's Group JFACC / LNO | Request ATO lines from the group's `.miz` (player slots → Human, rest → AI) or a form; Human lines are posted on Discord for commitment |
 | `campaign-submit.html` | Groups | Campaign proposal wizard (JFACC, intent, win/loss, REDFOR, schedule…) |
 
@@ -43,6 +48,36 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 - **CFC** — manages the CAOC, decides on campaign proposals, can assist the CFACC.
 - **CFACC** — makes sure every deliverable is built and approved; approves and publishes.
 - **Group JFACC** — elected by the sponsoring group; manages the campaign and is the CAOC's single POC.
+
+## Campaign process
+
+The CAOC builds products only. The host unit builds and runs its own `.miz`, readiness, the mass brief and the mission.
+Default deadlines (editable per campaign on the rollup), T-0 = first mission:
+
+| T | Step | Owner |
+|---|---|---|
+| T-42 | Proposal approved (CFC) | CAOC |
+| T-35 | Planning conference — PCON checklist | CAOC + host JFACC |
+| T-30 | Draft `.miz` with REDFOR to the CAOC | Host |
+| T-28 | ATO line requests | Host |
+| T-26 / T-24 | Commander's Intent / AOD (with the host JFACC) | CAOC |
+| T-21 | JIPTL (target nomination) | CAOC |
+| T-18 | TDP book (grade A/B folders ready) | CAOC |
+| T-16 | MAAP | CAOC |
+| T-10 | Human ATO lines committed | Groups |
+| T-8 | ACO + theater map (after line commits, from the conference airspace) | CAOC |
+| T-7 / T-6 | ATO final / SPINS | CAOC |
+| T-5 | Comm Plan — built last | CAOC |
+| **T-72h** | CFACC approvals → **PUBLISH**, no later than 72 hours out: products to groups, optional DKS exports (ACO → DKS Overlay, Comm Plan → DKS Manage Agencies) | CAOC |
+| T-24h → T-0 | Final `.miz`, readiness, mass brief, first mission | Host |
+| T+1 | Debrief | Host |
+
+Between missions (weekly missions, about 4 days from one mission to the next PUBLISH; T-0 = next mission): debrief T-6.5,
+BDA + AOD T-6, JIPTL T-5.5, TDP T-5, MAAP T-4.5, commits T-4, ATO + tanker/JTAC frequency changes T-3.5, **PUBLISH T-72h**,
+host `.miz` update T-24h.
+
+The ACO overlay is drawn in DKS on the theater map and is never written into the `.miz`. The Comm Plan agencies are
+persistent for the campaign; normally only tankers and JTACs change, and the rollup lists what changed since the last export. **Cycle to next mission** moves the ATO day on and returns the daily products to Draft.
 
 ## Target nomination (JIPTL pipeline)
 
@@ -62,7 +97,11 @@ Browser port of `OLD/tools/jiptl_pipeline/jiptl_generate.py`:
 
 The built-in unit table covers ~130 common DCS types. Load the full
 `OLD/tools/jiptl_pipeline/config/unit_classification.json` on the page to use the complete catalogue.
-`.miz` intake still needs the Python `OLD/tools/jiptl_pipeline/miz_intake.py` (calibrated theater projection).
+REDFOR can also come from the host's mission file (*Use REDFOR from it* on step 3). A `.miz` stores positions as map x/y, so
+conversion needs a calibrated theater projection — the browser port of `OLD/tools/jiptl_pipeline/theater_projection.py`.
+Persian Gulf is calibrated (657-point fit, ~1 m). Any other theater is **refused, never guessed**, until it is calibrated
+once on the Mission file page from a Coalition Parser CSV of the same mission (units paired by group + unit name,
+Transverse Mercator fit; accepted only if the worst unit is within 25 m).
 
 ## ATO line requests (Discord commit)
 
@@ -91,6 +130,7 @@ commits, so the request page's *Discord post* preview has "Commit as …" button
 - `js/ato.js` — ATO line registry, `.miz` reader (zip + Lua table parser), Discord payloads, commit logic
 - `samples/iron_trident_redfor.csv` — sample Coalition Parser export for the demo campaign
 - `samples/iron_trident_viper.miz` — sample sponsor `.miz` for ATO line requests
+- `samples/iron_trident_host_draft.miz` — sample host draft `.miz` (BLUE flights + REDFOR) for the Mission file page. **Synthetic:** its x/y were generated from the sample CSV with a made-up projection, so use it with `iron_trident_redfor.csv` to demo calibration — never as a real Caucasus calibration
 - `docs/ATO_Discord_Integration.md` — contract for the Discord bot (post, commit, filled/cancelled)
 - `css/styles.css` — three visual styles (Ops Floor, Night Vision, Staff Paper)
 

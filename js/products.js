@@ -28,6 +28,53 @@
 
   const P = {};
 
+  // Initial planning conference: CAOC leads + the host Group JFACC, held right after the CFC accepts a campaign.
+  // Its decisions drive everything after it — the ACO is built straight from the airspace section.
+  const PCON_ITEMS = [
+    ["Campaign basics", ["Operation name, theater/map and era confirmed", "First mission date (T-0), start time (Z) and event cadence",
+      "Number of events / ATO days and campaign end condition", "Planning timeline and deadlines agreed (see CAOC rollup)"]],
+    ["People and channels", ["Group JFACC and deputy confirmed as the CAOC's points of contact", "CAOC leads named for each product (CFACC owns approval)",
+      "REDFOR commander (own / other group / CAOC-appointed / none)", "Discord channels for planning, ATO line posts and debrief"]],
+    ["Intent and objectives", ["Commander's Intent draft reviewed (purpose, method, end state)", "Key tasks and their priority / weights for targeting",
+      "Win, loss and draw conditions are measurable", "ROE posture and default weapons control status"]],
+    ["Forces and ATO lines", ["BLUE order of battle, bases / carrier", "Which flights are Human (posted for commitment) vs AI",
+      "ATO line request plan: airframes, numbers, mission types", "Support assets: AWACS/GCI, tankers, JTAC, CSAR — Human or AI"]],
+    ["REDFOR and threat", ["REDFOR order of battle source (the host .miz)", "Threat level, IADS laydown, Red air (AI / human)"]],
+    ["Airspace (feeds the ACO)", ["Area of operations and initial FLOT / FSCL trace", "CAP stations and HVAA (AWACS) orbits",
+      "Tanker tracks: locations, size (default 50 × 20 NM), altitudes", "Kill boxes, ROZs, MRR corridors, restricted areas",
+      "Artillery / fire support areas and MAXORDs"]],
+    ["Targeting", ["Area of interest for target nomination (box or point + radius)", "Target priorities and collateral restrictions",
+      "TDP depth: which grades get full target folders"]],
+    ["Comms (built last)", ["SRS server and tactical nets needed (TAC COORD, TAC ADMIN, C2, A/A, tankers, JTAC, rescue)",
+      "Spare channels per net; airfield / ATC frequencies stay out of the comm plan", "Datalink / IFF conventions"]],
+    ["SPINS inputs", ["Weapons restrictions", "Code words and authentication", "CSAR plan and divert fields"]],
+    ["Mission file and products", ["Host .miz due date and version (CAOC extracts BLUE flights and REDFOR from it)",
+      "Mods / scripts required", "Products wanted (default: all CAOC products)", "Publish date and how the host receives the package"]]
+  ];
+  P.pcon = {
+    code: "PCON", name: "Planning Conference", owner: "CFACC / host JFACC", stage: 1,
+    desc: "Initial planning conference checklist with the host JFACC — its airspace decisions build the ACO.",
+    fields: [
+      { type: "section", label: "Conference" },
+      { key: "date", label: "Held (DTG)", type: "text", half: true },
+      { key: "attendees", label: "Attendees", type: "text", half: true, hint: "Host JFACC, deputy, CFACC, product leads" },
+      { key: "items", label: "Checklist", type: "checklist", items: PCON_ITEMS },
+      { key: "actions", label: "Action items", type: "table", columns: [
+        { key: "action", label: "Action" }, { key: "owner", label: "Owner", w: 120 }, { key: "due", label: "Due", w: 110 }] },
+      { key: "notes", label: "Other notes", type: "textarea" }
+    ],
+    render: (d, ctx) => {
+      const items = d.items || [], done = items.filter(x => x.done).length;
+      const bySec = {}; items.forEach(x => (bySec[x.section] = bySec[x.section] || []).push(x));
+      return `${head("INITIAL PLANNING CONFERENCE", ctx, esc(d.date))}
+      ${kv([["ATTENDEES", d.attendees], ["COVERED", `${done} of ${items.length} items`]])}
+      ${Object.entries(bySec).map(([s, xs]) => `<h2>${esc(s.toUpperCase())}</h2><table><tbody>${xs.map(x =>
+        `<tr><td style="width:24px;text-align:center">${x.done ? "☑" : "☐"}</td><td>${esc(x.item)}</td><td>${esc(x.notes)}</td></tr>`).join("")}</tbody></table>`).join("")}
+      <h2>ACTION ITEMS</h2>${table([["action", "ACTION"], ["owner", "OWNER"], ["due", "DUE"]], d.actions)}
+      ${para("NOTES", d.notes)}${sig(ctx)}`;
+    }
+  };
+
   P.ci = {
     code: "CI", name: "Commander's Intent", owner: "Campaign JFACC / Strategy", stage: 1,
     desc: "JFACC purpose, method and end state that frames every other product.",
@@ -112,10 +159,9 @@
     }
   };
 
-  P.tdp = {
-    code: "TDP", name: "Target Development Package", owner: "ISR & Targeting", stage: 3,
-    desc: "Detailed target folder: description, DMPIs, threats, weaponeering and CDE notes.",
-    fields: [
+  // TDP book: one target folder per JIPTL target (content.tdp.folders[targetId]), built on tdp.html.
+  // TDP_FOLDER lists the fields of one folder; the book is approved and released as one product.
+  const TDP_FOLDER = [
       { type: "section", label: "Target" },
       { key: "targetId", label: "Target ID", type: "jiptl", half: true, hint: "Pick from the JIPTL or type a new ID" },
       { key: "name", label: "Target name", type: "text", half: true },
@@ -134,13 +180,25 @@
       { key: "collateral", label: "Collateral / attack restrictions", type: "textarea" },
       { key: "imagery", label: "Imagery & intel sources", type: "textarea" },
       { key: "bda", label: "BDA requirements", type: "textarea" }
-    ],
-    render: (d, ctx) => `${head("TARGET DEVELOPMENT PACKAGE", ctx, `${esc(d.targetId)} — ${esc(d.name)}`)}
-      <h2>1. TARGET DATA</h2>${kv([["TARGET ID", d.targetId], ["NAME", d.name], ["CATEGORY", d.category], ["LAT/LONG", d.coords], ["MGRS", d.mgrs], ["ELEVATION", d.elev]])}
-      ${para("2. DESCRIPTION", d.description)}${para("3. DESIRED EFFECT", d.effect)}
-      <h2>4. DMPIs</h2>${table([["id", "DMPI"], ["desc", "DESCRIPTION"], ["coords", "COORDINATES"], ["weapon", "WEAPON"]], d.dmpis)}
-      <h2>5. THREATS</h2>${table([["sys", "SYSTEM"], ["loc", "LOCATION"], ["range", "RANGE/ALT"]], d.threats)}
-      ${para("6. COLLATERAL / RESTRICTIONS", d.collateral)}${para("7. IMAGERY & SOURCES", d.imagery)}${para("8. BDA REQUIREMENTS", d.bda)}${sig(ctx)}`
+  ];
+  // older single-folder TDPs (targetId at the top level) read as a one-folder book
+  const tdpFolders = d => d.folders ? Object.values(d.folders) : d.targetId ? [d] : [];
+  const folderHtml = f => `<h2>TP ${esc(f.targetId)} — ${esc((f.name || "").toUpperCase())}${f.grade ? ` · GRADE ${esc(f.grade)}` : ""}</h2>
+      ${kv([["TARGET ID", f.targetId], ["CATEGORY", f.category], ["LAT/LONG", f.coords], ["MGRS", f.mgrs], ["ELEVATION", f.elev], ["STATUS", f.status === "ready" ? "Ready" : "Draft"]])}
+      ${para("Description", f.description)}${para("Desired effect", f.effect)}
+      <h2>DMPIs</h2>${table([["id", "DMPI"], ["desc", "DESCRIPTION"], ["coords", "COORDINATES"], ["weapon", "WEAPON"]], f.dmpis)}
+      <h2>Threats in target area</h2>${table([["sys", "SYSTEM"], ["loc", "LOCATION"], ["range", "RANGE/ALT"]], f.threats)}
+      ${para("Collateral / restrictions", f.collateral)}${para("Imagery & sources", f.imagery)}${para("BDA requirements", f.bda)}`;
+  P.tdp = {
+    code: "TDP", name: "Target Development Packages", owner: "ISR & Targeting", stage: 3, page: { href: "tdp.html", label: "Open TDP book" },
+    desc: "Target folders for the JIPTL's priority targets: description, DMPIs, threats, weaponeering and restrictions.",
+    folderFields: TDP_FOLDER, fields: [],
+    render: (d, ctx) => {
+      const fs = tdpFolders(d).sort((a, b) => (a.status === "ready" ? 0 : 1) - (b.status === "ready" ? 0 : 1));
+      return `${head("TARGET DEVELOPMENT PACKAGES", ctx, `${fs.length} target folder${fs.length === 1 ? "" : "s"}`)}
+      ${table([["targetId", "TGT #"], ["name", "TARGET"], ["grade", "GRADE"], ["category", "CATEGORY"], ["_s", "STATUS", f => f.status === "ready" ? "Ready" : "Draft"]], fs)}
+      ${fs.map(folderHtml).join("")}${sig(ctx)}`;
+    }
   };
 
   P.ato = {
@@ -243,9 +301,17 @@
     PURPLE: ["#7030a0", "#ffffff"], RED: ["#c00000", "#ffffff"], ORANGE: ["#f28c28", "#000000"], GRAY: ["#a6a6a6", "#000000"], BLACK: ["#1a1a1a", "#ffffff"]
   };
   const cellStyle = color => { const [bg, ink] = COMM_COLORS[color] || COMM_COLORS.WHITE; return `background:${bg};color:${ink}`; };
-  const blankMatrix = () => ({ rows: 6, columns: [
-    ["TAC ADMIN", "WHITE"], ["TANKERS", "BLUE"], ["TACTICAL AIR", "YELLOW"], ["RESCUE", "GREEN"], ["GROUND COORD", "PURPLE"]
-  ].map(([title, color]) => ({ title, color, cells: Array.from({ length: 6 }, () => ({})) })) });
+  // New comm plans start from the tactical-spectrum template: no Guard (standard everywhere) and no airfield/ATC
+  // frequencies; every net keeps spare rows, plus a whole spare net.
+  const COMM_TEMPLATE = [
+    ["TAC ADMIN", "WHITE", ["TAC COORD", "TAC ADMIN", "C2 / AWACS", "GCI", "HOST C2", "SPARE"]],
+    ["TANKERS", "BLUE", ["BOOM 1", "BOOM 2", "DROGUE 1", "DROGUE 2", "MPRS", "SPARE"]],
+    ["TACTICAL AIR", "YELLOW", ["CHECK IN", "PKG COMMON", "STRIKE", "SEAD", "DCA", "SPARE"]],
+    ["RESCUE", "GREEN", ["CSAR / PRCC", "RESCORT", "SAR", "ISR", "SPARE", "SPARE"]],
+    ["GROUND COORD", "PURPLE", ["ASOC", "JTAC/FAC(A) 1", "JTAC/FAC(A) 2", "JTAC/FAC(A) 3", "CAS COORD", "SPARE"]],
+    ["SPARES", "GRAY", ["SPARE", "SPARE", "SPARE", "SPARE", "SPARE", "SPARE"]]
+  ];
+  const blankMatrix = () => ({ rows: 6, columns: COMM_TEMPLATE.map(([title, color, roles]) => ({ title, color, cells: roles.map(role => ({ role })) })) });
   // Every filled cell as a named channel, e.g. WHITE 1 = RAZOR, TAC COORD, 293.500
   const channels = m => (m?.columns || []).flatMap(c => (c.cells || []).slice(0, m.rows).map((cell, i) => ({ id: `${c.color} ${i + 1}`, col: c, ...cell })))
     .filter(ch => ch.role || ch.callsign || ch.freq);
@@ -314,12 +380,71 @@
   };
 
   // Placeholders for products to be defined later (shown on the dashboard as "planned")
-  const FUTURE = [
-    { code: "MAAP", name: "Master Air Attack Plan", stage: 4, desc: "Packaging and timing of sorties against JIPTL targets." }
-  ];
+  // MAAP: packages built on maap.html from the JIPTL (what to hit) and the ATO lines (who flies);
+  // "Apply to ATO" writes each line's package, target and TOT onto the ATO.
+  P.maap = {
+    code: "MAAP", name: "Master Air Attack Plan", owner: "Combat Plans", stage: 4, page: { href: "maap.html", label: "Open MAAP" },
+    desc: "Packages: which ATO lines strike which JIPTL targets, with support, tankers and TOTs.",
+    fields: [],
+    render: (d, ctx) => {
+      // line labels are stored with the MAAP when it's saved, so the released document reads on its own
+      const pk = d.packages || [], L = msn => (d.lineLabels || {})[msn] || msn;
+      return `${head("MASTER AIR ATTACK PLAN", ctx, `ATO DAY ${esc(ctx.campaign.atoDay)}`)}
+      ${kv([["PACKAGES", String(pk.length)], ["JIPTL TARGETS COVERED", d.coverage || ""]])}
+      ${pk.map(p => `<h2>PACKAGE ${esc(p.name)} — TOT ${esc(p.tot || "TBD")}${p.push ? ` · PUSH ${esc(p.push)}` : ""}</h2>
+        ${kv([["TARGETS", (p.targets || []).join(", ")], ["STRIKE", (p.strike || []).map(L).join("; ")], ["SEAD / DEAD", (p.sead || []).map(L).join("; ")],
+          ["ESCORT / SWEEP", (p.escort || []).map(L).join("; ")], ["TANKER", (p.tanker || []).map(L).join("; ")], ["NOTES", p.notes]])}`).join("") || "<p>No packages yet.</p>"}
+      ${sig(ctx)}`;
+    }
+  };
+
+  const FUTURE = [];
+
+  // Deadlines, in days relative to T-0. Build: T-0 = first mission (campaign.dday). Cycle: T-0 = next mission (campaign.nextEvent).
+  // PUBLISH is due no later than T-72h, leaving the host three days to build the .miz and brief.
+  // The mission cycle assumes weekly missions: about 4 days from one mission to the next PUBLISH.
+  // owner CAOC = staff builds it; HOST = host unit / its JFACC only (the CAOC tracks the date, never does the work).
+  // check: a product id (done once approved or published) or a special key handled by the rollup page.
+  const MILESTONES = {
+    build: [
+      { id: "proposal", label: "Campaign proposal approved by the CFC", owner: "CAOC", offset: -42, check: "proposal" },
+      { id: "pcon", label: "Planning conference held (checklist complete)", owner: "CAOC", offset: -35, check: "pcon" },
+      { id: "mizDraft", label: "Host sends the draft .miz (REDFOR laid in) to the CAOC", owner: "HOST", offset: -30, check: "mizDraft" },
+      { id: "lineReq", label: "Host JFACC requests ATO lines", owner: "HOST", offset: -28, check: "lineReq" },
+      { id: "ci", label: "Commander's Intent", owner: "CAOC", offset: -26, check: "ci" },
+      { id: "aod", label: "AOD (with the host JFACC)", owner: "CAOC", offset: -24, check: "aod" },
+      { id: "jiptl", label: "JIPTL (target nomination)", owner: "CAOC", offset: -21, check: "jiptl" },
+      { id: "tdp", label: "TDP book — grade A/B folders ready", owner: "CAOC", offset: -18, check: "tdp" },
+      { id: "maap", label: "MAAP — packages built", owner: "CAOC", offset: -16, check: "maap" },
+      { id: "lineCommit", label: "Human ATO lines committed by groups", owner: "GROUPS", offset: -10, check: "lineCommit" },
+      { id: "aco", label: "ACO + theater map (lines committed; from the planning conference airspace)", owner: "CAOC", offset: -8, check: "aco" },
+      { id: "ato", label: "ATO finalised", owner: "CAOC", offset: -7, check: "ato" },
+      { id: "spins", label: "SPINS (with the host JFACC)", owner: "CAOC", offset: -6, check: "spins" },
+      { id: "acp", label: "Comm Plan — built last", owner: "CAOC", offset: -5, check: "acp" },
+      { id: "publish", label: "CFACC approvals → PUBLISH (products, DKS Overlay, DKS Agencies) — no later than T-72h", owner: "CAOC", offset: -3, check: "publish" },
+      { id: "mizBuild", label: "Host builds the final .miz", owner: "HOST", offset: -1 },
+      { id: "brief", label: "Readiness, mass brief and first mission", owner: "HOST", offset: 0 },
+      { id: "debrief", label: "Host enters the mission debrief", owner: "HOST", offset: 1, check: "debrief" }
+    ],
+    cycle: [
+      { id: "debrief", label: "Host enters the last mission's debrief", owner: "HOST", offset: -6.5, check: "debrief" },
+      { id: "bda", label: "BDA / MISREP rollup", owner: "CAOC", offset: -6, check: "bda" },
+      { id: "aod", label: "AOD for the next ATO day", owner: "CAOC", offset: -6, check: "aod" },
+      { id: "jiptl", label: "JIPTL update (re-attacks, new targets)", owner: "CAOC", offset: -5.5, check: "jiptl" },
+      { id: "tdp", label: "TDP updates", owner: "CAOC", offset: -5, check: "tdp" },
+      { id: "maap", label: "MAAP", owner: "CAOC", offset: -4.5, check: "maap" },
+      { id: "lineCommit", label: "Human ATO lines committed", owner: "GROUPS", offset: -4, check: "lineCommit" },
+      { id: "ato", label: "ATO finalised", owner: "CAOC", offset: -3.5, check: "ato" },
+      { id: "acp", label: "Tanker / JTAC frequency changes and SPINS changes (if any)", owner: "CAOC", offset: -3.5 },
+      { id: "publish", label: "PUBLISH (products, DKS exports if changed) — no later than T-72h", owner: "CAOC", offset: -3, check: "publish" },
+      { id: "mizBuild", label: "Host updates the .miz", owner: "HOST", offset: -1 },
+      { id: "brief", label: "Mass brief and mission", owner: "HOST", offset: 0 }
+    ]
+  };
 
   window.AOC.PRODUCTS = P;
   window.AOC.COMM = { COLORS: COMM_COLORS, cellStyle, blankMatrix, channels };
   window.AOC.FUTURE = FUTURE;
+  window.AOC.MILESTONES = MILESTONES;
   window.AOC.STAGES = STAGES;
 })();

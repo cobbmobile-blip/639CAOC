@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Mission File</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .mt td, .mt th { font-size: 12px; padding: 4px 6px; }
+  .cur { color: var(--ok); font-weight: 600; }
+  .warnt { color: var(--warn); }
+  .kv { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; margin-bottom: 10px; }
+  .kv b { font-weight: 600; }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  // the host unit (campaign's JFACC group) submits; AOC staff can read and calibrate
+  if (!AOC.UnitAuth.group() && !AOC.Auth.user()) location.replace("unit-login.html");
+</script>
+<script src="js/products.js"></script>
+<script src="js/ato.js"></script>
+<script src="js/targeting.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="js/miz.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px">
+    <div><a class="small" id="back" href="unit.html">← Op Status</a>
+      <h1 style="margin-top:4px" id="title">Host mission file</h1>
+      <div class="muted small">The host sends its draft .miz here, and a new version whenever it changes. The CAOC reads REDFOR from it for target nomination;
+        the host JFACC requests ATO lines from its BLUE flights. The CAOC never edits the .miz.</div></div>
+    <div class="toolbar"><select id="camp" style="width:auto"></select></div>
+  </div>
+
+  <section class="panel" id="upPanel">
+    <div class="panel-head"><div><h2>Send a new version</h2><div class="muted small" id="upSub"></div></div>
+      <label class="btn primary" style="margin:0;text-transform:none;letter-spacing:0;font-size:13px">Choose .miz…<input type="file" id="mizIn" accept=".miz,.zip" hidden></label></div>
+    <div id="preview"></div>
+  </section>
+
+  <section class="panel hidden" id="calPanel"></section>
+
+  <section class="panel"><div class="panel-head"><h2>Versions</h2><span class="muted small" id="vN"></span></div><div id="versions"></div></section>
+  <section class="panel" id="curPanel"></section>
+</main>
+
+<script>
+  const { Store, UnitAuth, Auth, esc, toast, zulu, MIZ, TARGETING: TG } = AOC;
+  AOC.renderChrome({ unit: true });
+  const me = UnitAuth.group(), staff = me ? null : Auth.user();
+  const camps = me ? Store.db.campaigns.filter(c => c.jfacc?.group === me.id) : Store.db.campaigns;
+  let cid = new URLSearchParams(location.search).get("c") || (() => { try { return localStorage.getItem("aoc.unitCampaign"); } catch { return null; } })();
+  if (!camps.some(c => c.id === cid)) cid = staff ? Store.currentCampaignId() : camps[0]?.id;
+  const sel = document.getElementById("camp");
+  sel.innerHTML = camps.map(c => `<option value="${esc(c.id)}">OP ${esc(c.opName)}</option>`).join("");
+  if (staff) document.getElementById("back").href = "rollup.html";
+  let pending = null, calib = null;
+  const camp = () => Store.campaign(cid);
+  const isHost = () => me && camp().jfacc?.group === me.id;
+
+  const countBy = (list, k) => Object.entries(list.reduce((m, x) => (m[x[k]] = (m[x[k]] || 0) + 1, m), {})).map(([a, n]) => `${n} ${a}`).join(", ");
+  const groupsOf = list => new Set(list.map(u => u.group)).size;
+  function summary(mf) {
+    const p = MIZ.projection(mf.theatre), hum = mf.flights.filter(f => f.crew === "Human").length;
+    return `<div class="kv"><span>Theater <b>${esc(mf.theatre || "?")}</b></span><span>Mission date <b>${esc(mf.date || "—")}</b></span>
+      <span>BLUE <b>${mf.flights.length} flights</b> (${hum} Human, ${mf.flights.length - hum} AI)</span>
+      <span>RED <b>${groupsOf(mf.red)} groups / ${mf.red.length} units</b>${mf.red.length ? ` (${esc(countBy(mf.red, "cat"))})` : ""}</span>
+      <span>Coordinates ${p ? `<b class="cur">calibrated</b>` : `<b class="warnt">not calibrated for ${esc(mf.theatre)}</b>`}</span></div>`;
+  }
+  const flightsTable = fl => fl.length ? `<div class="table-scroll"><table class="mt"><thead><tr><th>Group</th><th>Aircraft</th><th>Crew</th><th>Task</th><th>Callsign</th><th>Start</th></tr></thead><tbody>
+    ${fl.map(f => `<tr><td>${esc(f.group)}</td><td>${f.num}× ${esc(f.airframe)}</td><td>${esc(f.crew)}</td><td>${esc(f.role || f.task)}</td><td>${esc(f.callsign)}</td><td>${esc(f.start)}</td></tr>`).join("")}</tbody></table></div>` : `<p class="muted small">No BLUE flights.</p>`;
+  function diffText(d) {
+    if (!d) return "First version.";
+    const parts = [d.flightsAdded.length && `flights added: ${d.flightsAdded.join(", ")}`, d.flightsRemoved.length && `flights removed: ${d.flightsRemoved.join(", ")}`,
+      d.redAdded.length && `RED groups added: ${d.redAdded.join(", ")}`, d.redRemoved.length && `RED groups removed: ${d.redRemoved.join(", ")}`, d.redMoved && `${d.redMoved} RED units moved`].filter(Boolean);
+    return parts.length ? parts.join(" · ") : "No changes to flights or REDFOR.";
+  }
+
+  function render() {
+    const c = camp(), cur = MIZ.current(cid), fs = MIZ.files(cid);
+    sel.value = cid;
+    document.getElementById("title").textContent = `Host mission file · OP ${c.opName}`;
+    document.getElementById("upPanel").classList.toggle("hidden", !isHost());
+    document.getElementById("upSub").textContent = `Next: version ${fs.length + 1}. The file itself stays with the host; this page keeps what was read from it.`;
+    document.getElementById("preview").innerHTML = pending ? `${summary(pending)}
+      <p class="small"><b>Changes from v${cur?.v || "—"}:</b> ${esc(diffText(MIZ.diff(cur, pending)))}</p>
+      <div class="section-h">BLUE flights</div>${flightsTable(pending.flights)}
+      <div class="field" style="margin-top:10px"><label>Notes for the CAOC</label><textarea id="notes" placeholder="What changed in this version"></textarea></div>
+      <div class="toolbar"><button class="btn primary" id="sendBtn">Send as version ${fs.length + 1}</button><button class="btn" id="dropBtn">Discard</button></div>`
+      : `<p class="muted small">Choose your draft .miz (REDFOR laid in). Nothing is sent until you press Send.</p>`;
+    // versions
+    document.getElementById("vN").textContent = fs.length ? `current v${cur.v}` : "none yet";
+    document.getElementById("versions").innerHTML = fs.length ? `<div class="table-scroll"><table class="mt"><thead><tr><th>V</th><th>File</th><th>Received</th><th>From</th><th>BLUE</th><th>RED</th><th>Changes</th><th>Notes</th></tr></thead><tbody>
+      ${[...fs].reverse().map((f, i, all) => `<tr><td class="${f === cur ? "cur" : ""}">v${f.v}${f === cur ? " ✓" : ""}</td><td>${esc(f.name)}</td><td>${esc(zulu(new Date(f.when)))}</td><td>${esc(f.user || "")}</td>
+        <td>${f.flights.length}</td><td>${f.red.length}</td><td class="small">${esc(diffText(MIZ.diff(all[i + 1], f)))}</td><td class="small">${esc(f.notes || "")}</td></tr>`).join("")}</tbody></table></div>`
+      : `<p class="muted small">The host hasn't sent a mission file yet.</p>`;
+    // current version detail
+    const cp = document.getElementById("curPanel");
+    if (!cur) { cp.innerHTML = `<div class="panel-head"><h2>Current version</h2></div><p class="muted small">None.</p>`; }
+    else {
+      const rows = MIZ.redRows(cur);
+      cp.innerHTML = `<div class="panel-head"><div><h2>Current version · v${cur.v}</h2><div class="muted small">${esc(cur.name)}</div></div>
+        <div class="toolbar">${staff ? `<a class="btn sm" href="targeting.html?c=${encodeURIComponent(cid)}">Target nomination →</a>` : ""}
+          ${isHost() ? `<a class="btn sm" href="ato-request.html">Request ATO lines from it →</a>` : ""}</div></div>${summary(cur)}
+        <div class="section-h">REDFOR (${rows ? "lat/lon" : "map x/y — not converted"})</div>
+        <div class="table-scroll" style="max-height:320px"><table class="mt"><thead><tr><th>Group</th><th>Unit</th><th>DCS type</th><th>Category</th><th>${rows ? "Lat" : "x"}</th><th>${rows ? "Lon" : "y"}</th></tr></thead><tbody>
+        ${cur.red.map((u, i) => `<tr><td>${esc(u.group)}</td><td>${esc(u.unit)}</td><td class="mono">${esc(u.type)}</td><td>${esc(u.cat)}</td>
+          <td class="mono">${rows ? rows[i].lat.toFixed(5) : Math.round(u.x)}</td><td class="mono">${rows ? rows[i].lon.toFixed(5) : Math.round(u.y)}</td></tr>`).join("") || `<tr><td colspan="6" class="muted">No RED units.</td></tr>`}</tbody></table></div>
+        <div class="section-h">BLUE flights</div>${flightsTable(cur.flights)}`;
+    }
+    renderCal();
+  }
+
+  // ---------- calibration: needed once per theater, from a Coalition Parser CSV of the same mission ----------
+  function renderCal() {
+    const mf = pending || MIZ.current(cid), el = document.getElementById("calPanel");
+    if (!mf || !mf.red.length || MIZ.projection(mf.theatre)) { el.classList.add("hidden"); return; }
+    el.classList.remove("hidden");
+    el.innerHTML = `<div class="panel-head"><div><h2>Calibrate coordinates for ${esc(mf.theatre)}</h2>
+      <div class="muted small">A .miz stores positions as map x/y. There is no calibrated conversion for ${esc(mf.theatre)} yet, so REDFOR can't go to target nomination.
+        Load a Coalition Parser CSV export of <b>this same mission</b>: units are paired by name and the map projection is fitted to them. This is done once per theater.</div></div>
+      <label class="btn" style="margin:0;text-transform:none;letter-spacing:0;font-size:13px">Coalition Parser CSV…<input type="file" id="csvIn" accept=".csv,text/csv" hidden></label></div>
+      ${calib ? `<p class="small">${calib.pairs} units paired · RMS <b>${calib.rms.toFixed(1)} m</b> · worst <b>${calib.max.toFixed(1)} m</b>
+        ${calib.ok ? ` — <span class="cur">good fit</span>` : ` — <span class="warnt">${esc(calib.why)}</span>`}</p>
+        <div class="toolbar"><button class="btn primary" id="calSave" ${calib.ok ? "" : "disabled"}>Save calibration for ${esc(mf.theatre)}</button></div>` : ""}`;
+    document.getElementById("csvIn").onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      const r = TG.parseCSV(await f.text(), f.name);
+      if (r.error) { toast(r.error); return; }
+      const byName = {}; mf.red.forEach(u => { byName[`${u.group}|${u.unit}`] = u; });
+      const pairs = r.rows.map(q => ({ q, u: byName[`${q.group}|${q.unit}`] })).filter(x => x.u).map(({ q, u }) => ({ x: u.x, y: u.y, lat: q.lat, lon: q.lon }));
+      if (pairs.length < 10) { calib = { pairs: pairs.length, rms: NaN, max: NaN, ok: false, why: "need at least 10 units with the same group and unit names in both files" }; renderCal(); return; }
+      const fit = MIZ.fit(pairs);
+      // the Persian Gulf calibration fits to ~1 m; anything worse than 25 m means the files don't match
+      calib = { ...fit, pairs: pairs.length, csv: f.name, ok: fit.max <= 25, why: "worst unit is off by more than 25 m — is the CSV from this same mission?" };
+      renderCal();
+    };
+    const sv = document.getElementById("calSave");
+    if (sv) sv.onclick = () => {
+      MIZ.saveProjection(mf.theatre, calib.p, `${calib.pairs}-point fit vs ${mf.name} / ${calib.csv}, max residual ${calib.max.toFixed(1)}m, RMS ${calib.rms.toFixed(1)}m`);
+      Store.log(cid, `Coordinate calibration saved for ${mf.theatre} (${calib.pairs} units, RMS ${calib.rms.toFixed(1)} m)`, me ? camp().jfacc?.callsign : staff?.callsign);
+      calib = null; toast(`${mf.theatre} calibrated`); render();
+    };
+  }
+
+  // ---------- events ----------
+  sel.onchange = () => { cid = sel.value; try { localStorage.setItem("aoc.unitCampaign", cid); } catch {} pending = null; calib = null; render(); };
+  document.getElementById("mizIn").onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try { pending = { name: f.name, size: f.size, ...(await MIZ.read(f)) }; calib = null; }
+    catch (err) { toast(`Couldn't read ${f.name}: ${err.message}`); pending = null; }
+    e.target.value = ""; render();
+  };
+  document.getElementById("preview").addEventListener("click", e => {
+    if (e.target.id === "dropBtn") { pending = null; render(); }
+    if (e.target.id === "sendBtn") {
+      const c = camp(), rec = MIZ.submit(cid, { ...pending, by: me.id, user: c.jfacc?.callsign || me.contact, notes: document.getElementById("notes").value.trim() });
+      pending = null; toast(`Version ${rec.v} sent to the CAOC`); render();
+    }
+  });
+  render();
+</script>
+</body>
+</html>

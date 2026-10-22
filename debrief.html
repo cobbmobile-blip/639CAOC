@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Mission Debrief</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .dt td, .dt th { font-size: 12px; padding: 4px 6px; vertical-align: middle; }
+  .dt input, .dt select { padding: 3px 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  // the host unit (the campaign's JFACC group) enters the debrief; AOC staff can read it
+  if (!AOC.UnitAuth.group() && !AOC.Auth.user()) location.replace("unit-login.html");
+</script>
+<script src="js/products.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px">
+    <div><a class="small" href="unit.html">← Op Status</a>
+      <h1 style="margin-top:4px" id="title">Mission debrief</h1>
+      <div class="muted small">After the mission, the host enters what happened. The CAOC uses it for the BDA rollup, the next JIPTL and the next ATO day.</div></div>
+    <div class="toolbar"><span class="small" id="state"></span><button class="btn primary" id="sendBtn">Send debrief to the CAOC</button></div>
+  </div>
+  <div id="body"></div>
+</main>
+
+<script>
+  const { Store, UnitAuth, Auth, esc, toast, zulu } = AOC;
+  AOC.renderChrome({ unit: true });
+  const me = UnitAuth.group(), staff = me ? null : Auth.user();
+  const cid = new URLSearchParams(location.search).get("c") || (() => { try { return localStorage.getItem("aoc.unitCampaign"); } catch { return null; } })() || Store.currentCampaignId();
+  const c = Store.campaign(cid);
+  const isHost = me && c.jfacc?.group === me.id, readOnly = !isHost;
+  const day = String(c.atoDay);
+  document.getElementById("title").textContent = `Mission debrief · OP ${c.opName} · ATO day ${day}`;
+
+  const missions = c.shared?.ato?.data?.missions || [];
+  const jiptl = (c.shared?.jiptl?.data || Store.content(cid, "jiptl"))?.rows || [];
+  const tgts = [...new Set(missions.map(m => m.target).filter(t => jiptl.some(r => r.id === t)))];
+  const prev = c.debriefs?.[day];
+  const d = prev ? structuredClone(prev) : {
+    misreps: missions.map(m => ({ msn: m.msn, callsign: m.callsign, target: m.target, flown: "", result: "", remarks: "" })),
+    bda: tgts.map(t => ({ target: t, status: "", reattack: "", notes: "" })),
+    losses: [], progress: "", objectives: "", redLosses: "", tacview: "", notes: ""
+  };
+  const opts = (list, v) => list.map(o => `<option ${o === v ? "selected" : ""}>${esc(o)}</option>`).join("");
+  const FLOWN = ["", "Yes", "No — not filled", "No — aborted", "No — cancelled"];
+  const BDA = ["", "No damage", "Light damage", "Moderate damage", "Severe damage", "Destroyed", "Unknown"];
+  const RE = ["", "Yes", "No", "Pending"];
+  const name = t => jiptl.find(r => r.id === t)?.name || "";
+
+  function render() {
+    const dis = readOnly ? "disabled" : "";
+    document.getElementById("body").innerHTML = `
+      ${readOnly ? `<p class="small" style="color:var(--warn)">Read only — only the host unit (${esc(Store.group(c.jfacc?.group)?.name || "the campaign's JFACC group")}) enters the debrief.</p>` : ""}
+      ${prev ? `<p class="small muted">Sent ${esc(zulu(new Date(prev.when)))} by ${esc(prev.user || "")}. You can correct and re-send.</p>` : ""}
+      <section class="panel"><div class="panel-head"><h2>Lines flown (MISREP)</h2><span class="muted small">${missions.length} lines on the released ATO</span></div>
+        <div class="table-scroll"><table class="dt"><thead><tr><th>MSN</th><th>Callsign</th><th>Target</th><th>Flown?</th><th>Result</th><th>Remarks</th></tr></thead><tbody>
+        ${d.misreps.map((r, i) => `<tr><td class="mono">${esc(r.msn)}</td><td>${esc(r.callsign)}</td><td>${esc(r.target)}</td>
+          <td><select data-p="misreps.${i}.flown" ${dis}>${opts(FLOWN, r.flown)}</select></td>
+          <td><input data-p="misreps.${i}.result" value="${esc(r.result)}" placeholder="Hit — destroyed" ${dis}></td>
+          <td><input data-p="misreps.${i}.remarks" value="${esc(r.remarks)}" ${dis}></td></tr>`).join("") || `<tr><td colspan="6" class="muted">No released ATO.</td></tr>`}</tbody></table></div></section>
+      <section class="panel"><div class="panel-head"><h2>Targets (BDA)</h2><span class="muted small">JIPTL targets tasked on the ATO</span></div>
+        <div class="table-scroll"><table class="dt"><thead><tr><th>Target</th><th>Name</th><th>Damage</th><th>Re-attack?</th><th>Notes / evidence</th></tr></thead><tbody>
+        ${d.bda.map((r, i) => `<tr><td class="mono">${esc(r.target)}</td><td>${esc(name(r.target))}</td>
+          <td><select data-p="bda.${i}.status" ${dis}>${opts(BDA, r.status)}</select></td><td><select data-p="bda.${i}.reattack" ${dis}>${opts(RE, r.reattack)}</select></td>
+          <td><input data-p="bda.${i}.notes" value="${esc(r.notes)}" placeholder="TGP video in #bda" ${dis}></td></tr>`).join("") || `<tr><td colspan="5" class="muted">No JIPTL targets on the ATO.</td></tr>`}</tbody></table></div></section>
+      <section class="panel"><div class="panel-head"><h2>Blue losses</h2>${readOnly ? "" : `<button class="btn sm" data-addloss>+ Loss</button>`}</div>
+        <div class="table-scroll"><table class="dt"><thead><tr><th>Callsign</th><th>Aircraft</th><th>Cause</th><th>Crew</th><th></th></tr></thead><tbody>
+        ${d.losses.map((r, i) => `<tr>${["callsign", "aircraft", "cause", "crew"].map(k => `<td><input data-p="losses.${i}.${k}" value="${esc(r[k])}" ${dis}></td>`).join("")}
+          <td class="rowact">${readOnly ? "" : `<button data-delloss="${i}">✕</button>`}</td></tr>`).join("") || `<tr><td colspan="5" class="muted">None.</td></tr>`}</tbody></table></div></section>
+      <section class="panel"><div class="panel-head"><h2>Campaign progress</h2></div>
+        <div class="row2"><div class="field"><label>Overall</label><select data-p="progress" ${dis}>${opts(["", "Ahead of plan", "On plan", "Behind plan", "Objective achieved", "Campaign lost"], d.progress)}</select></div>
+          <div class="field"><label>Tacview / recording link</label><input data-p="tacview" value="${esc(d.tacview)}" ${dis}></div></div>
+        <div class="field"><label>Objectives / win-loss conditions</label><textarea data-p="objectives" ${dis}>${esc(d.objectives)}</textarea></div>
+        <div class="field"><label>Red losses and new threats seen</label><textarea data-p="redLosses" ${dis}>${esc(d.redLosses)}</textarea></div>
+        <div class="field"><label>Notes for the CAOC (next mission)</label><textarea data-p="notes" ${dis}>${esc(d.notes)}</textarea></div></section>`;
+  }
+  const body = document.getElementById("body");
+  const set = (p, v) => { const k = p.split("."); let o = d; for (let i = 0; i < k.length - 1; i++) o = o[k[i]]; o[k.at(-1)] = v;
+    const s = document.getElementById("state"); s.textContent = "Not sent"; s.style.color = "var(--warn)"; };
+  body.addEventListener("input", e => { if (e.target.dataset.p) set(e.target.dataset.p, e.target.value); });
+  body.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.hasAttribute("data-addloss")) d.losses.push({ callsign: "", aircraft: "", cause: "", crew: "" });
+    else if (b.dataset.delloss) d.losses.splice(+b.dataset.delloss, 1); else return;
+    render();
+  });
+  const sendBtn = document.getElementById("sendBtn");
+  if (readOnly) sendBtn.classList.add("hidden");
+  // the debrief also seeds the CAOC's BDA/MISREP rollup as a draft for ISR to finish
+  sendBtn.onclick = () => {
+    if (d.misreps.some(r => !r.flown) && !confirm("Some lines have no 'Flown?' answer. Send anyway?")) return;
+    c.debriefs = c.debriefs || {};
+    c.debriefs[day] = { ...structuredClone(d), by: me.id, user: c.jfacc?.callsign || me.contact, when: new Date().toISOString() };
+    Store.save();
+    const bda = Store.content(cid, "bda") || {};
+    Store.setContent(cid, "bda", { ...bda, atoDay: day,
+      misreps: d.misreps.filter(r => r.flown).map(r => { const m = missions.find(x => x.msn === r.msn) || {};
+        return { msn: r.msn, callsign: r.callsign, target: r.target, tot: r.flown === "Yes" ? m.tot || "" : "—", ord: "", result: r.flown === "Yes" ? r.result : "Not flown", remarks: r.remarks }; }),
+      bda: d.bda.filter(r => r.status).map(r => ({ target: r.target, phase: "Phase 1 — Physical", status: r.status, source: "Host debrief", reattack: r.reattack })),
+      threats: d.redLosses || bda.threats || "" });
+    Store.setStatus(cid, "bda", "draft");
+    Store.log(cid, `Mission debrief for ATO day ${day} received from ${me.name}`, c.jfacc?.callsign || me.contact);
+    const s = document.getElementById("state"); s.textContent = "Sent to the CAOC"; s.style.color = "var(--ok)"; toast("Debrief sent to the CAOC");
+  };
+  render();
+</script>
+</body>
+</html>

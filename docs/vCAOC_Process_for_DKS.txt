@@ -15,6 +15,7 @@ CONTENTS
        4.3 ATO line requests -> Discord post with Commit button
        4.4 Group pack -> DKS
        4.5 Things that are done in DKS, not on the site
+       4.6 Campaign package PUBLISH -> DKS
   5. Data formats (fields you will receive)
   6. Repo layout and paths (files moved!)
   7. Prototype limits / what a real backend needs
@@ -69,29 +70,69 @@ approval goes back to Draft and needs re-approval.
 --------------------------------------------------------------------------------
 3. THE CAMPAIGN CYCLE, END TO END
 --------------------------------------------------------------------------------
-  1. A group submits a campaign proposal (campaign-submit.html): sponsor and
-     Group JFACC, scenario, PvE/PvP/Mixed, REDFOR commander (own / another
-     group / CAOC-appointed / none), Commander's Intent, win/loss/draw
-     conditions, schedule, forces and slots, rules/server, CAOC support
-     wanted (incl. "DKS mission-planning support?").
-  2. The CFC reviews it (campaign-review.html) and accepts, returns or
-     declines it. Accepting creates the campaign, drafts its Commander's
-     Intent and sets the CFACC's deliverables list.
-  3. CAOC staff build the products (product.html?p=ci|aod|jiptl|tdp|ato|aco|
-     spins|acp|bda); the CFACC approves and publishes them to groups.
-  4. JIPTL: built on the Target nomination page (targeting.html), a browser
-     port of the 639CAOC JIPTL pipeline (see OLD/tools/jiptl_pipeline). A
-     REDFOR order of battle (Coalition Parser CSV) is classified by DCS
-     unit type, grouped, kept inside an area of interest (a box or a point
-     plus radius, defined on that page), scored by key-task weight plus
-     value tier, capped per task, and numbered T10001, T10002, ...
-  5. ATO: the Group JFACC requests ATO lines from the group's .miz or a
-     form. Human lines are posted on Discord. Units commit. The ATO fills.
-     (Section 4.3.)
-  6. ACO + theater map, Comm Plan, SPINS are built and released.
-  7. Groups pull everything from Op Status (unit.html); planning goes on in
-     DKS.
-  8. BDA/MISREP rollup feeds the next cycle.
+The CAOC only BUILDS PRODUCTS. It does not play in the campaign, does not edit
+the host's .miz, and does not run readiness, the mass brief or the mission --
+those are the host unit's alone. Deadlines (days before T-0 = first mission)
+are on the CAOC rollup page (rollup.html) and are editable per campaign.
+
+  1. Proposal (T-42). A group submits a campaign (campaign-submit.html); the
+     CFC accepts, returns or declines it (campaign-review.html). Accepting
+     creates the campaign and the CFACC's deliverables list.
+  2. Planning conference (T-35). CAOC + host JFACC work through the PCON
+     checklist (product "Planning Conference", internal, never released):
+     basics, people/channels, intent, forces and ATO lines, REDFOR, airspace,
+     targeting, comms, SPINS inputs, mission file.
+  3. In parallel after the conference:
+       - Host sends the draft .miz with REDFOR laid in (T-30)   [HOST]
+         on mission-file.html: versioned; the page keeps the BLUE flights
+         (-> ATO line requests) and REDFOR units (-> target nomination);
+         each version shows what changed. Map x/y become lat/lon only for a
+         calibrated theater (Persian Gulf built in; others calibrated once
+         from a Coalition Parser CSV of the same mission).
+       - Host JFACC requests ATO lines (T-28)                    [HOST]
+  4. Commander's Intent (T-26), AOD with the host JFACC (T-24).
+  5. JIPTL (T-21) on the Target nomination page (targeting.html): REDFOR
+     order of battle -> classify -> group -> area of interest (box or point +
+     radius on that page) -> score (key-task + tier weight) -> cap -> T10001...
+  6. TDP book (T-18) on tdp.html: one target folder per JIPTL target. "Draft
+     missing folders" pre-fills from the nomination data: coordinates,
+     composition, DMPIs (critical unit first), threats within 20 NM (SAM/AAA,
+     range and bearing), BDA requirement by category. Analyst completes each
+     folder and marks it Ready; the book is approved as the TDP product.
+  7. MAAP (T-16) on maap.html: packages (name, TOT, push, JIPTL targets) built
+     from the ATO lines; each line sits in a column by role (strike, SEAD/
+     DEAD, escort/sweep, tanker). Live checks: grade A target not covered,
+     line in two packages, no TOT / target / strike / SEAD, line TOT more than
+     20 min off the package TOT, open Human line, standing line (DCA/CAS/AEW)
+     inside a package, one tanker feeding packages under 30 min apart.
+     "Apply to ATO" writes the package letters onto the ATO (ATO -> draft).
+  8. Human ATO lines committed by groups via Discord (T-10).
+     ACO + theater map (T-8): built once the lines are committed, from the
+     airspace agreed at the planning conference, before the ATO is final.
+     ATO final (T-7).
+  9. SPINS with the host JFACC (T-6).
+ 10. Comm Plan -- built LAST, once everything else is final (T-5). TAC ADMIN
+     net carries TAC COORD and TAC ADMIN; Guard is standard and not listed;
+     airfield/ATC frequencies stay out.
+ 11. CFACC approvals, then ONE PUBLISH on the CAOC rollup, NO LATER THAN
+     T-72h: every approved product -> every active campaign group
+     (versioned), plus two optional DKS exports (section 4.6):
+       - ACO + theater map -> DKS OVERLAY (drawn on the DKS theater map for
+         that mission; it does NOT go into the .miz)
+       - Comm Plan -> DKS MANAGE AGENCIES (persistent theater frequencies for
+         the whole campaign; normally only tankers and JTACs change)
+ 12. HOST ONLY: builds the final .miz (T-24h), readiness, mass brief, first
+     mission (T-0).
+ 13. HOST debrief (T+1) on debrief.html: per ATO line flown/result/remarks,
+     BDA per JIPTL target (damage, re-attack), Blue losses, Red losses / new
+     threats, campaign progress, Tacview link, notes. It seeds the CAOC's BDA
+     rollup as a draft.
+ 14. CAOC "Cycle to next mission" (rollup): ATO day + 1, next mission date,
+     AOD/JIPTL/TDP/MAAP/ATO/BDA back to draft. Mission cycle (weekly
+     missions; about 4 days from one mission to the next PUBLISH), days
+     before the next mission: debrief T-6.5, BDA + AOD T-6, JIPTL T-5.5,
+     TDP T-5, MAAP T-4.5, line commits T-4, ATO + tanker/JTAC frequency and
+     SPINS changes T-3.5, PUBLISH T-72h, host .miz update T-24h, mission T-0.
 
 --------------------------------------------------------------------------------
 4. WHERE DKS PLUGS IN
@@ -252,7 +293,8 @@ Flow:
 DCS task -> mission: CAP/Intercept->DCA, Fighter Sweep->OCA, Escort, SEAD,
   CAS, Ground Attack/Runway Attack/Pinpoint/Antiship->Strike, Refueling->AR,
   AWACS->AEW, Reconnaissance->ISR, Transport->Airlift, AFAC->SCAR.
-Sample mission: samples/iron_trident_viper.miz.
+Sample mission: samples/iron_trident_viper.miz. The JFACC can also use the
+mission file already sent on mission-file.html ("Use mission file vN").
 
 In the prototype, the request page's "Discord post" preview has "Commit as
 <group>" buttons that call the same commit logic, standing in for the bot.
@@ -268,6 +310,24 @@ A "Send to DKS" button (placeholder) is meant to hand that pack to DKS.
   - Waypoints / flight routes
   - IPs, target points and bullseye
   (These were removed from the theater map on purpose.)
+  - The host .miz itself (the CAOC never edits it)
+
+4.6 CAMPAIGN PACKAGE PUBLISH -> DKS
+-----------------------------------
+PUBLISH (rollup.html, due NLT T-72h) has three ticks: release products,
+export Overlay, export Agencies. Overlay is pre-ticked on its first export;
+Agencies is pre-ticked only when the Comm Plan changed since the last export
+(the rollup lists added / changed / removed channels; tanker and JTAC
+channels are marked "may change"). Each export is versioned per campaign.
+Events queued (prototype: db.dksOutbox; formats to be agreed):
+  overlay.update     { campaign_id, operation, ato_day, overlay_version,
+                       measures: [ACO measures], points: [...],
+                       shapes: [...] }   -> DKS Overlay for that mission
+                                            (not written into the .miz)
+  agencies.update    { agencies_version, agencies: [{ name, role, channel,
+                       net, freq }], changes: [{ kind, channel, ... }] | null }
+                                         -> DKS Manage Agencies
+  package.published  { package, products: [{ pid, v }] }
 
 --------------------------------------------------------------------------------
 5. DATA FORMATS (FIELDS YOU WILL RECEIVE)

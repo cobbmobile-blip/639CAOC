@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — MAAP</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .mlay { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
+  @media (max-width: 1100px) { .mlay { grid-template-columns: minmax(0, 1fr); } }
+  .mlay > * { min-width: 0; }
+  .pkg { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin-bottom: 12px; background: var(--panel-2); }
+  .pkg h3 { margin: 0; font: 600 14px var(--mono); }
+  .row4 { display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 10px; }
+  @media (max-width: 700px) { .row4 { grid-template-columns: 1fr 1fr; } }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; font-size: 12px; cursor: pointer; user-select: none; }
+  .chip input { margin: 0; width: auto; }
+  .chip.on { border-color: var(--accent); color: var(--accent); }
+  .lines td, .lines th { font-size: 12px; padding: 4px 6px; }
+  .bucket { font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .warn { color: var(--warn); } .bad { color: var(--danger, #e5484d); } .ok { color: var(--ok); }
+  .checks li { margin: 4px 0; font-size: 13px; }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>AOC.Auth.require();</script>
+<script src="js/products.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px">
+    <div>
+      <a class="small" id="back" href="#">← MAAP product (review, approval, publish)</a>
+      <h1 style="margin-top:4px" id="title">MAAP</h1>
+      <div class="muted small">Build packages from the ATO lines against the JIPTL. Checks on the right update as you go. "Apply to ATO" writes the package letters onto the ATO missions.</div>
+    </div>
+    <div class="toolbar"><span class="small" id="state"></span>
+      <button class="btn" id="fromAto" title="Start packages from the package letters already on the ATO">Start from ATO</button>
+      <button class="btn" id="addPkg">+ Package</button>
+      <button class="btn" id="applyBtn">Apply to ATO</button>
+      <button class="btn primary" id="saveBtn">Save MAAP</button></div>
+  </div>
+  <div class="mlay">
+    <section id="pkgs"></section>
+    <aside>
+      <section class="panel"><div class="panel-head"><h2>Checks</h2></div><ul class="checks" id="checks"></ul></section>
+      <section class="panel"><div class="panel-head"><h2>JIPTL coverage</h2><span class="muted small" id="cov"></span></div><div id="coverage"></div></section>
+      <section class="panel"><div class="panel-head"><h2>Unassigned ATO lines</h2><span class="muted small" id="poolN"></span></div>
+        <div class="muted small" style="margin-bottom:6px">Standing lines (DCA, CAS, AEW) usually stay out of packages.</div><div id="pool"></div></section>
+    </aside>
+  </div>
+</main>
+
+<script>
+  const { Store, esc, toast, PRODUCTS } = AOC;
+  AOC.renderChrome();
+  const cid = new URLSearchParams(location.search).get("c") || Store.currentCampaignId();
+  const campaign = Store.campaign(cid);
+  document.getElementById("back").href = `product.html?p=maap&c=${encodeURIComponent(cid)}`;
+  document.getElementById("title").textContent = `MAAP · OP ${campaign.opName} · ATO day ${campaign.atoDay}`;
+
+  const ato = Store.content(cid, "ato") || { missions: [] };
+  const missions = ato.missions || [];
+  const jiptl = Store.content(cid, "jiptl")?.rows || [];
+  const maap = structuredClone(Store.content(cid, "maap") || { packages: [] });
+  maap.packages = maap.packages || [];
+  let dirty = false;
+
+  // which column of the package a line sits in, from its ATO role
+  const bucket = role => /SEAD|DEAD/i.test(role) ? "sead" : /Escort|OCA|Sweep/i.test(role) ? "escort" : /^AR$|Tanker/i.test(role) ? "tanker" : "strike";
+  const BUCKETS = [["strike", "Strike"], ["sead", "SEAD / DEAD"], ["escort", "Escort / sweep"], ["tanker", "Tanker"]];
+  const STANDING = /DCA|CAS|AEW|ISR/i;
+  const byMsn = msn => missions.find(m => m.msn === msn);
+  const label = m => m ? `${m.msn} ${m.callsign || "TBD"} (${m.num}× ${m.type} ${m.role})` : "";
+  const mins = t => { const m = String(t || "").match(/(\d{2})(\d{2})Z/); return m ? +m[1] * 60 + +m[2] : null; };
+  const assigned = () => new Set(maap.packages.flatMap(p => p.lines || []));
+  const markDirty = () => { dirty = true; const s = document.getElementById("state"); s.textContent = "Unsaved changes"; s.style.color = "var(--warn)"; };
+  // older MAAPs stored the lines per column; this page keeps one list per package
+  maap.packages.forEach(p => { if (!p.lines) p.lines = BUCKETS.flatMap(([k]) => p[k] || []); });
+
+  function renderPkgs() {
+    const used = assigned(), free = missions.filter(m => !used.has(m.msn));
+    document.getElementById("pkgs").innerHTML = maap.packages.map((p, i) => `<div class="pkg" data-i="${i}">
+      <div class="panel-head" style="margin-bottom:8px"><h3>PACKAGE ${esc(p.name || "?")}</h3><button class="btn sm ghost" data-delpkg>Delete package</button></div>
+      <div class="row4">
+        <div class="field"><label>Name</label><input data-k="name" value="${esc(p.name)}"></div>
+        <div class="field"><label>TOT</label><input data-k="tot" value="${esc(p.tot)}" placeholder="0720Z"></div>
+        <div class="field"><label>Push</label><input data-k="push" value="${esc(p.push)}" placeholder="0650Z"></div>
+        <div class="field"><label>Notes</label><input data-k="notes" value="${esc(p.notes)}"></div>
+      </div>
+      <div class="field"><label>Targets (JIPTL)</label><div class="chips">${jiptl.map(r => { const on = (p.targets || []).includes(r.id);
+        return `<label class="chip ${on ? "on" : ""}"><input type="checkbox" data-tgt="${esc(r.id)}" ${on ? "checked" : ""}>${esc(r.id)} <span class="muted">${esc(r.grade || "")}</span></label>`; }).join("") || `<span class="muted small">JIPTL is empty.</span>`}</div></div>
+      <div class="field"><label>Lines</label>
+        <table class="lines"><thead><tr><th>Column</th><th>MSN</th><th>Callsign</th><th>Group</th><th>Aircraft</th><th>Role</th><th>Line TOT</th><th>Target on ATO</th><th></th></tr></thead><tbody>
+        ${BUCKETS.flatMap(([k, lbl]) => (p.lines || []).map(byMsn).filter(m => m && bucket(m.role) === k).map(m => `<tr><td class="bucket">${lbl}</td><td class="mono">${esc(m.msn)}</td>
+          <td>${esc(m.callsign || "TBD")}</td><td>${esc(Store.group(m.group)?.name || (m.lineId ? "open line" : "—"))}</td><td>${esc(m.num)}× ${esc(m.type)}</td><td>${esc(m.role)}</td>
+          <td class="mono">${esc(m.tot)}</td><td>${esc(m.target)}</td><td class="rowact"><button data-unline="${esc(m.msn)}">✕</button></td></tr>`)).join("")
+          || `<tr><td colspan="9" class="muted">No lines yet.</td></tr>`}</tbody></table>
+        <select data-addline style="margin-top:6px;width:auto"><option value="">+ Add a line…</option>${free.map(m => `<option value="${esc(m.msn)}">${esc(label(m))}</option>`).join("")}</select>
+      </div></div>`).join("") || `<section class="panel"><p class="muted">No packages yet. Start from the ATO's package letters, or add one.</p></section>`;
+    renderSide();
+  }
+
+  function checks() {
+    const out = [], ps = maap.packages;
+    const seen = {}; ps.forEach(p => (p.lines || []).forEach(l => (seen[l] = seen[l] || []).push(p.name)));
+    Object.entries(seen).filter(([, v]) => v.length > 1).forEach(([l, v]) => out.push(["bad", `Line ${l} is in packages ${v.join(" and ")}.`]));
+    const names = ps.map(p => p.name); names.filter((n, i) => names.indexOf(n) !== i).forEach(n => out.push(["bad", `Two packages are named ${n}.`]));
+    ps.forEach(p => {
+      const ls = (p.lines || []).map(byMsn).filter(Boolean), tot = mins(p.tot);
+      if (!p.tot) out.push(["warn", `Package ${p.name}: no TOT.`]);
+      if (!(p.targets || []).length) out.push(["warn", `Package ${p.name}: no JIPTL target.`]);
+      if (!ls.some(m => bucket(m.role) === "strike")) out.push(["warn", `Package ${p.name}: no strike line.`]);
+      if (ls.length && !ls.some(m => bucket(m.role) === "sead")) out.push(["warn", `Package ${p.name}: no SEAD/DEAD support.`]);
+      // tankers are on station well before the package, so only shooters and support are held to the TOT
+      ls.filter(m => bucket(m.role) !== "tanker" && tot != null && mins(m.tot) != null && Math.abs(mins(m.tot) - tot) > 20)
+        .forEach(m => out.push(["warn", `Line ${m.msn} TOT ${m.tot} is more than 20 min from package ${p.name} TOT ${p.tot}.`]));
+      ls.filter(m => m.lineId && !m.group).forEach(m => out.push(["warn", `Line ${m.msn} is an open Human line — not committed yet.`]));
+      ls.filter(m => STANDING.test(m.role)).forEach(m => out.push(["warn", `Line ${m.msn} (${m.role}) is a standing line inside package ${p.name}.`]));
+    });
+    // a tanker feeding packages whose TOTs are within 30 min of each other
+    const tk = {}; ps.forEach(p => (p.lines || []).map(byMsn).filter(Boolean).forEach(m => { if (m.tanker && m.tanker !== "—") ((tk[m.tanker] = tk[m.tanker] || {})[p.name] = mins(p.tot)); }));
+    Object.entries(tk).forEach(([t, by]) => { const e = Object.entries(by).filter(([, v]) => v != null);
+      for (let i = 0; i < e.length; i++) for (let j = i + 1; j < e.length; j++) if (Math.abs(e[i][1] - e[j][1]) < 30)
+        out.push(["warn", `${t} refuels packages ${e[i][0]} and ${e[j][0]} with TOTs under 30 min apart.`]); });
+    jiptl.filter(r => r.grade === "A" && !ps.some(p => (p.targets || []).includes(r.id))).forEach(r => out.push(["bad", `Grade A target ${r.id} ${r.name} is not in any package.`]));
+    return out;
+  }
+
+  function renderSide() {
+    const cs = checks();
+    document.getElementById("checks").innerHTML = cs.length ? cs.map(([c, t]) => `<li class="${c}">${c === "bad" ? "✕" : "!"} ${esc(t)}</li>`).join("") : `<li class="ok">✓ No conflicts found.</li>`;
+    const cov = jiptl.map(r => ({ r, p: maap.packages.filter(p => (p.targets || []).includes(r.id)).map(p => p.name) }));
+    document.getElementById("cov").textContent = `${cov.filter(c => c.p.length).length} / ${jiptl.length} covered`;
+    document.getElementById("coverage").innerHTML = `<table class="lines"><tbody>${cov.map(({ r, p }) => `<tr><td class="mono">${esc(r.id)}</td><td>${esc(r.name)}</td><td>${esc(r.grade || "")}</td>
+      <td class="${p.length ? "ok" : r.grade === "A" ? "bad" : "muted"}">${p.length ? "Pkg " + esc(p.join(", ")) : "—"}</td></tr>`).join("")}</tbody></table>`;
+    const used = assigned(), free = missions.filter(m => !used.has(m.msn));
+    document.getElementById("poolN").textContent = `${free.length} lines`;
+    document.getElementById("pool").innerHTML = `<table class="lines"><tbody>${free.map(m => `<tr><td class="mono">${esc(m.msn)}</td><td>${esc(m.callsign || "TBD")}</td>
+      <td>${esc(m.role)}</td><td class="mono">${esc(m.tot)}</td></tr>`).join("")}</tbody></table>`;
+  }
+
+  const pkgEl = document.getElementById("pkgs");
+  pkgEl.addEventListener("input", e => {
+    const i = e.target.closest("[data-i]")?.dataset.i, k = e.target.dataset.k; if (i == null || !k) return;
+    maap.packages[i][k] = e.target.value; markDirty();
+    if (k === "name") e.target.closest(".pkg").querySelector("h3").textContent = `PACKAGE ${e.target.value || "?"}`;
+    renderSide();
+  });
+  pkgEl.addEventListener("change", e => {
+    const i = e.target.closest("[data-i]")?.dataset.i; if (i == null) return; const p = maap.packages[i];
+    if (e.target.dataset.tgt) { const t = e.target.dataset.tgt; p.targets = e.target.checked ? [...(p.targets || []), t] : (p.targets || []).filter(x => x !== t); }
+    else if (e.target.hasAttribute("data-addline") && e.target.value) p.lines.push(e.target.value);
+    else return;
+    markDirty(); renderPkgs();
+  });
+  pkgEl.addEventListener("click", e => {
+    const b = e.target.closest("button"); const i = b?.closest("[data-i]")?.dataset.i; if (!b || i == null) return;
+    if (b.dataset.unline) maap.packages[i].lines = maap.packages[i].lines.filter(l => l !== b.dataset.unline);
+    else if (b.hasAttribute("data-delpkg")) { if (!confirm(`Delete package ${maap.packages[i].name}?`)) return; maap.packages.splice(i, 1); }
+    else return;
+    markDirty(); renderPkgs();
+  });
+  document.getElementById("addPkg").onclick = () => {
+    const taken = new Set(maap.packages.map(p => p.name)); let n = 0; while (taken.has(String.fromCharCode(65 + n))) n++;
+    maap.packages.push({ name: String.fromCharCode(65 + n), tot: "", push: "", targets: [], lines: [], notes: "" }); markDirty(); renderPkgs();
+  };
+  document.getElementById("fromAto").onclick = () => {
+    if (maap.packages.length && !confirm("Replace the current packages with the package letters on the ATO?")) return;
+    const letters = [...new Set(missions.map(m => m.pkg).filter(p => p && p !== "—"))].sort();
+    maap.packages = letters.map(L => { const ls = missions.filter(m => m.pkg === L), tots = ls.map(m => mins(m.tot)).filter(v => v != null);
+      const t = tots.length ? Math.max(...tots) : null, hhmm = v => `${String(Math.floor(v / 60) % 24).padStart(2, "0")}${String(v % 60).padStart(2, "0")}Z`;
+      return { name: L, tot: t != null ? hhmm(t) : "", push: t != null ? hhmm(t - 30 + 1440) : "", lines: ls.map(m => m.msn),
+        targets: [...new Set(ls.map(m => m.target).filter(x => jiptl.some(r => r.id === x)))], notes: "" }; });
+    markDirty(); renderPkgs(); toast(`${letters.length} packages from the ATO`);
+  };
+
+  // what the released MAAP document reads from: columns and line labels frozen at save time
+  function snapshot() {
+    const out = structuredClone(maap); out.lineLabels = {};
+    out.packages.forEach(p => { BUCKETS.forEach(([k]) => { p[k] = p.lines.filter(l => bucket(byMsn(l)?.role || "") === k); }); p.lines.forEach(l => { out.lineLabels[l] = label(byMsn(l)) || l; }); });
+    const cov = jiptl.filter(r => out.packages.some(p => (p.targets || []).includes(r.id)));
+    out.coverage = `${cov.length} of ${jiptl.length}${cov.length ? ` (${cov.map(r => r.id).join(", ")})` : ""}`;
+    return out;
+  }
+  function save() {
+    Store.setContent(cid, "maap", snapshot()); Store.setStatus(cid, "maap", "draft");
+    Store.log(cid, `MAAP saved (${maap.packages.length} packages)`);
+    dirty = false; const s = document.getElementById("state"); s.textContent = "Saved — submit for review on the MAAP product"; s.style.color = "var(--ok)";
+  }
+  document.getElementById("saveBtn").onclick = () => { save(); toast("MAAP saved"); };
+  // the ATO follows the MAAP: package letters on, stale letters off; the ATO goes back to draft for re-approval
+  document.getElementById("applyBtn").onclick = () => {
+    const bad = checks().filter(([c]) => c === "bad");
+    if (bad.length && !confirm(`${bad.length} blocking check(s) open. Apply anyway?`)) return;
+    const names = new Set(maap.packages.map(p => p.name)), inPkg = {}; maap.packages.forEach(p => p.lines.forEach(l => { inPkg[l] = p; }));
+    let n = 0;
+    missions.forEach(m => { const p = inPkg[m.msn];
+      if (p) { if (m.pkg !== p.name) { m.pkg = p.name; n++; } if (bucket(m.role) !== "strike" && !jiptl.some(r => r.id === m.target)) m.target = `Pkg ${p.name}`; }
+      else if (names.has(m.pkg) || /^[A-Z]$/.test(m.pkg || "")) { m.pkg = "—"; n++; } });
+    Store.setContent(cid, "ato", ato); Store.setStatus(cid, "ato", "draft"); save();
+    Store.log(cid, `MAAP applied to the ATO (${n} lines changed) — ATO back to draft`);
+    toast(`Applied: ${n} ATO lines changed. ATO is back to draft for re-approval.`);
+  };
+  window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+  renderPkgs();
+</script>
+</body>
+</html>

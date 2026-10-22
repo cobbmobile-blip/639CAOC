@@ -191,5 +191,5 @@
 
   const STATUS = { open: ["Open — awaiting commit", "warn"], committed: ["Committed", "ok"], ai: ["AI — sponsor builds", "off"], cancelled: ["Cancelled", "off"] };
 
-  window.AOC.ATO = { AIRFRAMES, ROLES, STATUS, lines, line, recipients, flies, nextMsn, request, commit, cancel, release, discordPayload, readMiz, parseLuaTable };
+  window.AOC.ATO = { AIRFRAMES, ROLES, STATUS, lines, line, recipients, flies, nextMsn, request, commit, cancel, release, discordPayload, readMiz, mizFlights, parseLuaTable };
 })();

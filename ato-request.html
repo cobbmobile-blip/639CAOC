@@ -36,6 +36,7 @@
 <script src="js/products.js"></script>
 <script src="js/ato.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="js/miz.js"></script>
 
 <main class="wrap">
   <section class="campaign-head">
@@ -84,7 +85,8 @@
       <div class="grid" style="align-content:start">
         <section class="panel">
           <div class="panel-head"><div><h2>From your .miz</h2><div class="muted small">Load your group's mission file: player slots become <b>Human</b> lines, the rest <b>AI</b>. Tick the flights to request.</div></div>
-            <label class="btn" style="margin:0;text-transform:none;letter-spacing:0;font-size:13px;color:var(--text)">Load .miz…<input type="file" id="mizIn" accept=".miz,.zip" hidden></label></div>
+            <div class="toolbar">${AOC.MIZ.current(cid) ? `<button class="btn primary" id="hostMiz">Use mission file v${AOC.MIZ.current(cid).v}</button>` : `<a class="btn" href="mission-file.html?c=${encodeURIComponent(cid)}">Send your mission file…</a>`}
+            <label class="btn" style="margin:0;text-transform:none;letter-spacing:0;font-size:13px;color:var(--text)">Load another .miz…<input type="file" id="mizIn" accept=".miz,.zip" hidden></label></div></div>
           <div id="miz"></div>
         </section>
         <section class="panel">
@@ -130,6 +132,11 @@
       toast(l.status === "open" ? `Line ${l.msn} posted to ${l.recipients.length} groups` : `AI line ${l.msn} added to the ATO`);
       f.reset(); upd(); renderLines(); renderMiz();
     };
+    // the version the CAOC already has (mission-file.html) — the usual source for line requests
+    const hm = document.getElementById("hostMiz");
+    if (hm) hm.onclick = () => { const cur = AOC.MIZ.current(cid);
+      miz = { name: `${cur.name} (mission file v${cur.v})`, theatre: cur.theatre, date: cur.date, flights: structuredClone(cur.flights), redFlights: 0 };
+      toast(`Mission file v${cur.v}: ${miz.flights.length} BLUE flights`); renderMiz(); };
     document.getElementById("mizIn").onchange = async e => {
       const file = e.target.files[0]; if (!file) return;
       try { miz = { name: file.name, ...(await ATO.readMiz(file)) }; toast(`${file.name}: ${miz.flights.length} BLUE flights`); }
