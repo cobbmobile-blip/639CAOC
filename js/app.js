@@ -228,9 +228,8 @@
   }
   const STATUS_LABEL = { none: "Not started", draft: "Draft", review: "In review", approved: "Approved", published: "Published" };
 
-  const LOGO = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-    <circle cx="16" cy="16" r="13"/><circle cx="16" cy="16" r="6" stroke-dasharray="2 2"/>
-    <path d="M16 3v6M16 23v6M3 16h6M23 16h6"/><path d="M16 16 L25 9" stroke-width="2.5"/></svg>`;
+  // the v639th CAOC patch (sized by .brand .logo in styles.css)
+  const LOGO = `<img class="logo" src="img/v639-caoc-patch.webp" alt="v639th CAOC patch" width="28" height="28">`;
 
   // ---------- Chrome ----------
   function renderChrome(opts = {}) {
