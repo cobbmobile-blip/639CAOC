@@ -86,7 +86,8 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
   **FSCL**: solid black line, "FSCL" with establishing HQ and effective DTG at both ends.
 - **Tanker track** = USAF AR anchor: left-hand racetrack, default 50 × 20 NM (adjustable), **no centerline**;
   ARCP at the start of the refuel leg; **ARIP optional, ~10 NM before the orbit ENTRY**; ENTRY and EXIT points.
-- **Target nomination**: area of interest is a **box or point + radius defined on that page** — it is **not** taken
+- **Target nomination**: the area is called the **AO (Area of Operations)** and is labelled "AO" on the map; it is a
+  **box (drag / resize / double-click to rotate) or point + radius defined on that page** — it is **not** taken
   from the ACO, theater map or any BMA. REDFOR comes from Coalition Parser CSVs or the host's mission file (`js/miz.js`).
   .miz x/y → lat/lon only for **calibrated** theaters (Persian Gulf built in; others fitted once from a Coalition
   Parser CSV of the same mission, max 25 m). **Never hand-enter or guess a projection.** Score = key-task weight + tier

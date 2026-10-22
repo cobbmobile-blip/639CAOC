@@ -43,7 +43,7 @@
     ["Airspace (feeds the ACO)", ["Area of operations and initial FLOT / FSCL trace", "CAP stations and HVAA (AWACS) orbits",
       "Tanker tracks: locations, size (default 50 × 20 NM), altitudes", "Kill boxes, ROZs, MRR corridors, restricted areas",
       "Artillery / fire support areas and MAXORDs"]],
-    ["Targeting", ["Area of interest for target nomination (box or point + radius)", "Target priorities and collateral restrictions",
+    ["Targeting", ["AO (Area of Operations) for target nomination (box or point + radius)", "Target priorities and collateral restrictions",
       "TDP depth: which grades get full target folders"]],
     ["Comms (built last)", ["SRS server and tactical nets needed (TAC COORD, TAC ADMIN, C2, A/A, tankers, JTAC, rescue)",
       "Spare channels per net; airfield / ATC frequencies stay out of the comm plan", "Datalink / IFF conventions"]],
@@ -150,7 +150,7 @@
       const rows = (d.rows || []).map((r, i) => ({ ...r, task: r.task || r.obj, _r: i + 1 }));
       const kt = d.cycle?.keyTasks;
       return `${head("JOINT INTEGRATED PRIORITIZED TARGET LIST", ctx, `ATO DAY ${esc(ctx.campaign.atoDay)}`)}
-      ${d.cycle ? kv([["AREA OF INTEREST", d.cycle.bma || "Whole theater"], ["NOMINATED", d.cycle.generated ? window.AOC.zulu(new Date(d.cycle.generated)) : ""]]) : ""}
+      ${d.cycle ? kv([["AO (AREA OF OPERATIONS)", d.cycle.bma || "Whole theater"], ["NOMINATED", d.cycle.generated ? window.AOC.zulu(new Date(d.cycle.generated)) : ""]]) : ""}
       ${kt ? `<h2>KEY TASKS</h2>${table([["k", "TASK"], ["name", "KEY TASK"], ["weight", "WEIGHT"], ["cap", "CAP"]],
         Object.entries(kt).filter(([k]) => k !== "5").map(([k, t]) => ({ k, ...t })))}` : ""}
       <h2>TARGETS</h2>

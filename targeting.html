@@ -41,6 +41,7 @@
   .aoi-h.move { border-radius: 50%; background: #000; border-color: #fff; cursor: move; }
   .aoi-h.rot { border-radius: 50%; background: #f2d14b; cursor: grab; }
   .aoi-h.rad { border-radius: 50%; }
+  .aoi-lbl { background: none; border: 0; color: #fff; font: 700 15px var(--mono); letter-spacing: .08em; white-space: nowrap; text-shadow: 0 0 3px #000, 0 0 3px #000; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -58,7 +59,7 @@
     <div>
       <a class="small" id="back" href="#">← JIPTL</a>
       <h1 style="margin-top:4px" id="title">Target nomination</h1>
-      <div class="muted small">REDFOR order of battle → classify → keep inside the area of interest → score by Key Task + value tier → cap per task → JIPTL. Ported from the 639CAOC JIPTL pipeline.</div>
+      <div class="muted small">REDFOR order of battle → classify → keep inside the AO (Area of Operations) → score by Key Task + value tier → cap per task → JIPTL. Ported from the 639CAOC JIPTL pipeline.</div>
     </div>
     <div class="toolbar">
       <span class="small" id="state"></span>
@@ -78,7 +79,7 @@
       </div>
 
       <div class="step">
-        <h3>2 · Area of interest</h3>
+        <h3>2 · Area of Operations (AO)</h3>
         <div class="seg" role="group" aria-label="Area shape" id="areaMode">
           <button data-mode="box">Box</button><button data-mode="point">Point + radius</button><button data-mode="none">Whole theater</button>
         </div>
@@ -107,7 +108,7 @@
     <section class="panel">
       <div id="tmap"></div>
       <div class="tabs" id="tabs"></div>
-      <div class="table-scroll" id="results"><p class="muted">Set the area and sources, then <b>Run nomination</b>.</p></div>
+      <div class="table-scroll" id="results"><p class="muted">Set the AO and sources, then <b>Run nomination</b>.</p></div>
     </section>
   </div>
 </main>
@@ -124,7 +125,7 @@
   const saved = Store.content(cid, "targeting") || {};
   const st = {
     cycle: structuredClone(saved.cycle || TG.DEFAULT_CYCLE),
-    // area of interest, owned by this page: { mode: "box" | "point" | "none", n, s, w, e, lat, lon, radius }
+    // AO (Area of Operations), owned by this page: { mode: "box" | "point" | "none", ... } (shapes in step 2 below)
     area: saved.area || { mode: "box" },
     imports: saved.imports || [],    // [{ name, rows }]
     table: saved.table || null,      // { name, units } when a unit_classification.json is loaded
@@ -170,7 +171,7 @@
     renderCycle(); touch(); toast(`Loaded ${Math.min(4, kts.length)} key tasks from the Commander's Intent`);
   };
 
-  // ---------- step 2: area of interest (a box or a point + radius, set on the map) ----------
+  // ---------- step 2: AO, Area of Operations (a box or a point + radius, set on the map) ----------
   // box: { mode: "box", lat, lon (centre), wNM, hNM, rot (degrees clockwise from north) }; point: { mode: "point", lat, lon, radius }
   const NM_DEG = 60, RAD = Math.PI / 180;
   (function migrateArea() {
@@ -203,9 +204,9 @@
   const r1 = v => Math.round(v * 10) / 10;
   function areaLabel() {
     const g = areaGeometry(), a = st.area;
-    if (!g) return a.mode === "none" ? "Whole theater" : "Area not set";
-    return g.shape === "circle" ? `${r1(g.radiusNM)} NM around ${ddm(g.lat, g.lon)}`
-      : `Box ${r1(a.wNM)} × ${r1(a.hNM)} NM centred ${ddm(a.boxLat, a.boxLon)}${Math.round(a.rot || 0) ? `, rotated ${Math.round(a.rot)}°` : ""}`;
+    if (!g) return a.mode === "none" ? "Whole theater" : "AO not set";
+    return g.shape === "circle" ? `AO ${r1(g.radiusNM)} NM around ${ddm(g.lat, g.lon)}`
+      : `AO ${r1(a.wNM)} × ${r1(a.hNM)} NM centred ${ddm(a.boxLat, a.boxLon)}${Math.round(a.rot || 0) ? `, rotated ${Math.round(a.rot)}°` : ""}`;
   }
   let rotating = false;
   function renderArea() {
@@ -217,9 +218,9 @@
     document.getElementById("aoiRead").textContent = m === "none" ? "Every REDFOR group counts." : areaLabel();
     const ri = document.getElementById("radiusIn"); if (document.activeElement !== ri) ri.value = a.radius ? r1(a.radius) : "";
     document.getElementById("aoiHint").textContent = m === "box" ? (rotating
-        ? "Rotate mode: drag the yellow handle to turn the box. Double-click the box again (or press Esc) to go back to resizing."
-        : "Drag the box to move it, a corner to resize it. Double-click the box to rotate it.")
-      : m === "point" ? "Drag the centre to move the circle, the edge handle to change the radius." : "";
+        ? "Rotate mode: drag the yellow handle to turn the AO. Double-click the AO again (or press Esc) to go back to resizing."
+        : "Drag the AO to move it, a corner to resize it. Double-click the AO to rotate it.")
+      : m === "point" ? "Drag the centre to move the AO, the edge handle to change its radius." : "";
   }
   // a new box or circle starts in the middle of what the map shows
   function seedArea(mode) {
@@ -289,12 +290,12 @@
   document.getElementById("runBtn").onclick = () => {
     const units = st.imports.flatMap(f => f.rows);
     if (!units.length) { toast("No REDFOR units — import a Coalition Parser CSV first"); return; }
-    if (st.area.mode !== "none" && !areaGeometry()) { toast("Finish the area of interest (or choose Whole theater)"); return; }
+    if (st.area.mode !== "none" && !areaGeometry()) { toast("Set the AO (or choose Whole theater)"); return; }
     if (st.results?.edited && !confirm("Running again replaces your re-grades and re-ordering. Continue?")) return;
     const r = TG.run(units, { cycle: st.cycle, bma: areaGeometry(), table: unitTable() });
     st.results = { when: new Date().toISOString(), bmaName: areaLabel(), unitsIn: units.length, ...r, edited: false };
     dirty = false; save(); setState(); tab = "jiptl"; renderResults(); drawMap();
-    toast(`${r.jiptl.length} targets on the JIPTL · ${r.watchlist.length} watchlist · ${r.outOfBMA.length} outside the area`);
+    toast(`${r.jiptl.length} targets on the JIPTL · ${r.watchlist.length} watchlist · ${r.outOfBMA.length} outside the AO`);
   };
 
   // ---------- results ----------
@@ -304,7 +305,7 @@
     const r = st.results, el = document.getElementById("results"), tabs = document.getElementById("tabs");
     if (!r) { tabs.innerHTML = ""; return; }
     const unc = Object.entries(r.unclassified);
-    const T = [["jiptl", "JIPTL", r.jiptl.length], ["watchlist", "Watchlist", r.watchlist.length], ["outOfBMA", "Outside area", r.outOfBMA.length],
+    const T = [["jiptl", "JIPTL", r.jiptl.length], ["watchlist", "Watchlist", r.watchlist.length], ["outOfBMA", "Outside AO", r.outOfBMA.length],
       ["unclassified", "Unclassified types", unc.length], ["notTargets", "Not targets", r.continuous.length + r.dropped.length]];
     tabs.innerHTML = T.map(([k, l, n]) => `<button data-tab="${k}" aria-selected="${k === tab}">${l} (${n})</button>`).join("");
     if (tab === "unclassified") {
@@ -316,8 +317,8 @@
     const list = rowsFor(tab), isJ = tab === "jiptl";
     const capsLeft = {}; // show the cut line per task on the JIPTL
     el.innerHTML = `<p class="note">${{ jiptl: "Ranked by score, capped per key task. Re-grade or re-order lines, cut a line to the watchlist, then send to the JIPTL for CFACC approval.",
-        watchlist: "Inside the area of interest and nominate-eligible, but cut by a key task's cap. Promote a line to put it on the JIPTL.",
-        outOfBMA: "Classified targets outside the area of interest — kept for traceability. Promote one to include it anyway.",
+        watchlist: "Inside the AO and nominate-eligible, but cut by a key task's cap. Promote a line to put it on the JIPTL.",
+        outOfBMA: "Classified targets outside the AO — kept for traceability. Promote one to include it anyway.",
         notTargets: "Task 5 (continuous CAS/TST) and groups below the value floor (dismounts, clutter) — never ranked." }[tab]}</p>
       ${list.length ? `<table class="res"><thead><tr>${isJ ? "<th>#</th>" : ""}<th>Target</th><th>Unit / group</th><th>Task</th><th>Grade</th><th>Category</th><th>Tier</th><th>Score</th><th>Units</th><th>Location</th><th>Source</th><th></th></tr></thead>
       <tbody>${list.map((g, i) => `<tr>
@@ -387,7 +388,7 @@
       pts.push([g.lat, g.lon]);
       // short rank labels keep a dense target area readable; click a dot for the details
       const m = L.circleMarker([g.lat, g.lon], { radius: k === "jiptl" ? 7 : 5, color: "#000", weight: 1.5, fillColor: COLORS[k], fillOpacity: .95 })
-        .bindPopup(`<b>${esc(g.targetNumber)} · ${esc(g.unitName)}</b><br>${esc(g.group)}<br>Task ${esc(g.task)} · ${esc(g.tier)}${g.score != null ? ` · score ${g.score} · grade ${esc(g.grade)}` : ""}<br>${{ jiptl: `JIPTL rank #${i + 1}`, watchlist: "Watchlist", outOfBMA: "Outside the area of interest" }[k]}`);
+        .bindPopup(`<b>${esc(g.targetNumber)} · ${esc(g.unitName)}</b><br>${esc(g.group)}<br>Task ${esc(g.task)} · ${esc(g.tier)}${g.score != null ? ` · score ${g.score} · grade ${esc(g.grade)}` : ""}<br>${{ jiptl: `JIPTL rank #${i + 1}`, watchlist: "Watchlist", outOfBMA: "Outside the AO" }[k]}`);
       if (k === "jiptl") m.bindTooltip(`#${i + 1}`, { permanent: true, direction: "right", offset: [6, 0], className: "t-lbl" });
       else m.bindTooltip(`${g.targetNumber} ${g.unitName}`, { className: "t-lbl" });
       m.addTo(layer);
@@ -398,16 +399,21 @@
     if (b.getLayers().length) map.fitBounds(b.getBounds(), { padding: [24, 24], maxZoom: 10 });
     else map.setView([42.2, 42.6], 7);
   }
-  // ---------- area of interest on the map: drag the box or its corners; double-click to rotate ----------
+  // ---------- the AO on the map: drag the box or its corners; double-click to rotate ----------
   const handle = (ll, cls, title) => L.marker(ll, { draggable: true, keyboard: false, title, icon: L.divIcon({ className: `aoi-h ${cls}`, iconSize: null }) }).addTo(aoiLayer);
   const AOI_STYLE = { color: "#ffffff", weight: 2.5, dashArray: "8 6", fillOpacity: .07 };
-  let aoi = null;   // { shape, handles... } for the area currently drawn
+  let aoi = null, aoiLbl = null;   // { shape, handles... } for the AO currently drawn; its "AO" map label
+  const aoiLabel = ll => { aoiLbl = L.marker(ll, { interactive: false, keyboard: false, icon: L.divIcon({ className: "aoi-lbl", html: `<span style="display:inline-block;transform:translate(-50%,-50%)">AO</span>`, iconSize: null }) }).addTo(aoiLayer); };
+  // inside the north-west corner of the (rotated) box, clear of the handle, or inside the north edge of the circle
+  const aoiLblPos = a => a.mode === "box" ? toLL([a.boxLat, a.boxLon], rotCW([-a.wNM * 0.38, a.hNM * 0.36], a.rot || 0))
+    : toLL([a.lat, a.lon], [0, a.radius * 0.8]);
   function changed() { renderArea(); touch(); }
   function drawAoi() {
-    aoiLayer.clearLayers(); aoi = null;
+    aoiLayer.clearLayers(); aoi = null; aoiLbl = null;
     const a = st.area;
     if (a.mode === "box" && boxSet(a)) {
       const poly = L.polygon(boxCorners(a), { ...AOI_STYLE, bubblingMouseEvents: false }).addTo(aoiLayer);
+      aoiLabel(aoiLblPos(a));
       poly.getElement()?.style.setProperty("cursor", rotating ? "pointer" : "move");
       aoi = { poly };
       if (rotating) {
@@ -430,6 +436,7 @@
       poly.on("dblclick", e => { L.DomEvent.stop(e); rotating = !rotating; renderArea(); drawAoi(); });
     } else if (a.mode === "point" && areaGeometry()) {
       const circ = L.circle([a.lat, a.lon], { ...AOI_STYLE, radius: a.radius * 1852, interactive: false }).addTo(aoiLayer);
+      aoiLabel(aoiLblPos(a));
       aoi = { circ };
       aoi.centre = handle([a.lat, a.lon], "move", "Drag to move").on("drag", e => { a.lat = e.latlng.lat; a.lon = e.latlng.lng; updateAoi(); }).on("dragend", changed);
       aoi.rad = handle(radHandlePos(a), "rad", "Drag to change the radius").on("drag", e => {
@@ -452,6 +459,7 @@
   // move shapes and handles in place (rebuilding mid-drag would drop the drag); skip = the handle being dragged
   function updateAoi(skip) {
     const a = st.area; if (!aoi) return;
+    aoiLbl?.setLatLng(aoiLblPos(a));
     if (aoi.poly) {
       const cs = boxCorners(a); aoi.poly.setLatLngs(cs);
       aoi.corners?.forEach((h, i) => { if (i !== skip) h.setLatLng(cs[i]); });

@@ -85,15 +85,15 @@ Browser port of `OLD/tools/jiptl_pipeline/jiptl_generate.py`:
 
 1. **Key tasks & priorities** — the cycle config: Key Task weights and per-task caps, tier weights, default grades.
    Task 5 (CAS/TST) is continuous and never ranked.
-2. **Area of interest** — set on the page's map: a box (drag it to move, drag a corner to resize, double-click it to
+2. **AO (Area of Operations)** — set on the page's map and labelled "AO" there: a box (drag it to move, drag a corner to resize, double-click it to
    rotate with the yellow handle) or a point + radius (drag the centre and the edge handle, or type the radius).
    Defined on this page only; it is independent of the ACO and the theater map.
 3. **REDFOR order of battle** — Coalition Parser CSV exports (`Group, Unit, Type, Latitude, Longitude, Altitude (ft)`;
    DMS or decimal). `samples/iron_trident_redfor.csv` is an example.
 4. **Run** — classify each DCS type, group by DCS group, name the group after its doctrinally-critical unit
-   (e.g. an SA-11 by its TELARs, an SA-6 by its 1S91 radar), keep groups inside the area of interest,
+   (e.g. an SA-11 by its TELARs, an SA-6 by its 1S91 radar), keep groups inside the AO,
    score = task weight + tier weight, rank, cap per task, number `T10001…`.
-5. **Review** — tabs for JIPTL / Watchlist (cut by caps) / Outside area / Unclassified types / Not targets;
+5. **Review** — tabs for JIPTL / Watchlist (cut by caps) / Outside AO / Unclassified types / Not targets;
    re-grade, re-order, cut or promote lines, then **Send to JIPTL** (the JIPTL returns to Draft for CFACC approval).
 
 The built-in unit table covers ~130 common DCS types. Load the full

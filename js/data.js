@@ -414,7 +414,7 @@ window.AOC_SEED = {
           {section: "Airspace (feeds the ACO)",item: "Tanker tracks: locations, size (default 50 × 20 NM), altitudes",done: true,notes: ""},
           {section: "Airspace (feeds the ACO)",item: "Kill boxes, ROZs, MRR corridors, restricted areas",done: true,notes: ""},
           {section: "Airspace (feeds the ACO)",item: "Artillery / fire support areas and MAXORDs",done: true,notes: ""},
-          {section: "Targeting",item: "Area of interest for target nomination (box or point + radius)",done: true,notes: ""},
+          {section: "Targeting",item: "AO (Area of Operations) for target nomination (box or point + radius)",done: true,notes: ""},
           {section: "Targeting",item: "Target priorities and collateral restrictions",done: true,notes: ""},
           {section: "Targeting",item: "TDP depth: which grades get full target folders",done: true,notes: ""},
           {section: "Comms (built last)",item: "SRS server and tactical nets needed (TAC COORD, TAC ADMIN, C2, A/A, tankers, JTAC, rescue)",done: true,notes: ""},
@@ -520,7 +520,7 @@ window.AOC_SEED = {
         ],
         emergency: "Lost comms: squawk 7600, proceed to the lost-comms holding point (Kobuleti overhead FL150), then recover via the published MRR."
       },
-      // Target nomination settings: its own area of interest (a box over Kutaisi–Senaki–Samtredia) and a sample
+      // Target nomination settings: its own AO, Area of Operations (a box over Kutaisi–Senaki–Samtredia) and a sample
       // Coalition Parser export. Independent of the ACO / theater map.
       targeting: { area: { mode: "box", n: "42.45", s: "41.98", w: "41.85", e: "43.00", lat: "42.20", lon: "42.45", radius: "30" },
         sampleCsv: "samples/iron_trident_redfor.csv" },

@@ -92,7 +92,7 @@ are on the CAOC rollup page (rollup.html) and are editable per campaign.
        - Host JFACC requests ATO lines (T-28)                    [HOST]
   4. Commander's Intent (T-26), AOD with the host JFACC (T-24).
   5. JIPTL (T-21) on the Target nomination page (targeting.html): REDFOR
-     order of battle -> classify -> group -> area of interest (box or point +
+     order of battle -> classify -> group -> AO, Area of Operations (box or point +
      radius on that page) -> score (key-task + tier weight) -> cap -> T10001...
   6. TDP book (T-18) on tdp.html: one target folder per JIPTL target. "Draft
      missing folders" pre-fills from the nomination data: coordinates,
