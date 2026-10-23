@@ -104,6 +104,9 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
   .miz x/y → lat/lon only for **calibrated** theaters (Persian Gulf built in; others fitted once from a Coalition
   Parser CSV of the same mission, max 25 m). **Never hand-enter or guess a projection.** Score = key-task weight + tier
   weight; cap per task; numbers T10001+; SAM sites are named after their doctrinally-critical unit.
+- **IFF plan** (`tools/jceoi/data/iff.json` → `js/jceoi-data.js` `iff`; `js/iff.js`): reserved codes and their blocks are
+  never assigned; campaigns own Mode 3/A blocks (`campaign.iff.blocks`); ATO rows carry `m1`, `m3` (lead), `m3last`,
+  optional `m2`. The Mode 1 table is the vCAOC's own scheme (real assignments are not public).
 - **TACAN scrub** reports only (the CAOC never edits the .miz). Planned values: tanker tracks on the theater map
   (`tacanCh`, `tacanMode`, `tacanCs`) and the SPINS `naval` table. Map TACANs come from the JCEOI DCS beacon list.
 - **ATO lines**: the JFACC/LNO requests lines (from the group's `.miz`: player slots → Human, others → AI, or a form).

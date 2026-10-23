@@ -216,7 +216,8 @@
         { key: "type", label: "Acft", w: 90 }, { key: "num", label: "#", w: 40 },
         { key: "crew", label: "Crew", type: "select", options: ["Human", "AI"], w: 80 },
         { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD", "DEAD", "AI", "CAS", "SCAR", "Escort", "Strike", "ISR", "AR", "AEW", "CSAR", "Airlift"] },
-        { key: "tot", label: "TOT / On-sta", w: 90 }, { key: "target", label: "Target / Area", type: "jiptl" }, { key: "tanker", label: "Tanker" }] }
+        { key: "tot", label: "TOT / On-sta", w: 90 }, { key: "target", label: "Target / Area", type: "jiptl" }, { key: "tanker", label: "Tanker" },
+        { key: "m1", label: "M1", w: 50 }, { key: "m3", label: "M3 lead", w: 70 }, { key: "m3last", label: "M3 last", w: 70 }, { key: "m2", label: "M2", w: 110 }] }
     ],
     render: (d, ctx) => {
       const rows = d.missions || [];
@@ -227,9 +228,12 @@
       return `${head("AIR TASKING ORDER", ctx, `ATO DAY ${esc(d.atoDay)}`)}
       ${kv([["EFFECTIVE", d.period], ["SORTIES", String(rows.reduce((s, r) => s + (parseInt(r.num) || 0), 0))]])}
       ${para("GENERAL INSTRUCTIONS", d.general)}
-      <h2>MASTER MISSION LIST</h2>${table([["msn", "MSN"], ["pkg", "PKG"], ["group", "UNIT", unitOf], ["callsign", "CALLSIGN"], ["type", "ACFT"], ["num", "#"], ["crew", "CREW", r => r.crew || "Human"], ["role", "MSN TYPE"], ["tot", "TOT"], ["target", "TGT/AREA"], ["tanker", "AR"]], rows)}
+      <h2>MASTER MISSION LIST</h2>${table([["msn", "MSN"], ["pkg", "PKG"], ["group", "UNIT", unitOf], ["callsign", "CALLSIGN"], ["type", "ACFT"], ["num", "#"], ["crew", "CREW", r => r.crew || "Human"], ["role", "MSN TYPE"], ["tot", "TOT"], ["target", "TGT/AREA"], ["tanker", "AR"],
+        ["m1", "M1"], ["m3", "M3", r => r.m3 ? `${r.m3}${r.m3last ? ` / ${r.m3last}` : ""}` : ""]], rows)}
+      ${rows.some(r => r.m3) ? `<p>IFF: lead squawks the M3 code; the last member of a non-standard flight squawks the second code; all others standby. Mode 4 and IFF procedures per SPINS.</p>` : ""}
       ${Object.entries(byGroup).map(([g, rs]) => `<h2>${g === "_ai" ? "AI LINES — BUILT BY THE SPONSOR IN THE .MIZ" : g ? `TASKED UNIT: ${esc((ctx.group(g)?.name || g).toUpperCase())}` : "OPEN LINES — POSTED FOR COMMITMENT"}</h2>
-        ${table([["msn", "MSN"], ["callsign", "CALLSIGN"], ["num", "#"], ["role", "TYPE"], ["tot", "TOT"], ["target", "TGT/AREA"], ["tanker", "AR"]], rs)}`).join("")}
+        ${table([["msn", "MSN"], ["callsign", "CALLSIGN"], ["num", "#"], ["role", "TYPE"], ["tot", "TOT"], ["target", "TGT/AREA"], ["tanker", "AR"],
+          ["m1", "M1"], ["m3", "M3 LEAD / LAST", r => r.m3 ? `${r.m3}${r.m3last ? ` / ${r.m3last}` : ""}` : ""], ["m2", "M2"]], rs)}`).join("")}
       ${sig(ctx)}`;
     }
   };
@@ -285,7 +289,12 @@
       { key: "diverts", label: "Divert airfields", type: "table", columns: [
         { key: "field", label: "Airfield" }, { key: "tacan", label: "TACAN", w: 80 }, { key: "freq", label: "Tower freq", w: 100 },
         { key: "rwy", label: "Runway", w: 80 }, { key: "notes", label: "Notes" }] },
-      { key: "emergency", label: "Emergency / lost comms", type: "textarea" }
+      { key: "emergency", label: "Emergency / lost comms", type: "textarea" },
+      { type: "section", label: "IFF / SIF" },
+      { key: "mode4", label: "Mode 4", type: "text", hint: "Default from the JCEOI IFF plan: code A until 0000Z, then code B" },
+      { key: "iffProc", label: "IFF procedures", type: "textarea", hint: "Mode 1 / Mode 3 codes are on each ATO line; the campaign's Mode 3/A blocks are in the Comm Plan" },
+      { key: "iffOff", label: "IFF-off areas", type: "table", columns: [
+        { key: "area", label: "Area" }, { key: "alt", label: "Altitudes", w: 120 }, { key: "time", label: "Times", w: 120 }, { key: "notes", label: "Notes / authority" }] }
     ],
     render: (d, ctx) => `${head("SPECIAL INSTRUCTIONS (SPINS)", ctx, esc(d.version))}
       ${kv([["EFFECTIVE", d.period], ["BULLSEYE", d.bullseye], ["DEFAULT WCS", d.wcs]])}
@@ -297,7 +306,22 @@
       ${(d.naval || []).length ? `<h2>7a. CARRIERS &amp; SHIPS — TACAN / ICLS</h2>${table([["ship", "SHIP"], ["hull", "TYPE"], ["tacan", "TACAN"], ["tacanCs", "IDENT"], ["icls", "ICLS"], ["notes", "NOTES"]],
         d.naval.map(r => ({ ...r, tacan: r.tacanCh ? `${r.tacanCh}${r.tacanMode || ""}` : "" })))}` : ""}${para("8. CSAR", d.csar)}
       <h2>9. DIVERT AIRFIELDS</h2>${table([["field", "AIRFIELD"], ["tacan", "TACAN"], ["freq", "TWR"], ["rwy", "RWY"], ["notes", "NOTES"]], d.diverts)}
-      ${para("10. EMERGENCY / LOST COMMS", d.emergency)}${sig(ctx)}`
+      ${para("10. EMERGENCY / LOST COMMS", d.emergency)}
+      ${d.mode4 || d.iffProc || (d.iffOff || []).length || iffRules(ctx).length ? `<h2>11. IFF / SIF</h2>${kv([["MODE 4", d.mode4]])}${d.iffProc ? `<p>${esc(d.iffProc)}</p>` : ""}
+        ${iffRules(ctx).length ? `<p><b>${esc(ctx.campaign.theater.toUpperCase())}:</b> ${iffRules(ctx).map(esc).join(" ")}</p>` : ""}
+        ${(d.iffOff || []).length ? table([["area", "IFF-OFF AREA"], ["alt", "ALTITUDES"], ["time", "TIMES"], ["notes", "NOTES"]], d.iffOff) : ""}` : ""}${sig(ctx)}`
+  };
+
+  // theater IFF rules (e.g. NTTR) from the JCEOI IFF plan, when the page has it
+  const iffRules = ctx => window.AOC.IFF ? window.AOC.IFF.theaterRules(window.AOC.JCEOI?.theaterKey(ctx.campaign.theater)) : [];
+  // the campaign's IFF plan for the Comm Plan document: Mode 3/A blocks and the Mode 1 table
+  const iffPlanHtml = ctx => {
+    const I = window.AOC.IFF; if (!I) return "";
+    const bl = ctx.campaign.iff?.blocks || [];
+    return `<h2>IFF / SIF</h2>${kv([["MODE 3/A BLOCKS", bl.length ? bl.map(b => `${b}00–${b}77`).join(", ") : "Assigned with the ATO"],
+      ["MODE 3/A PER LINE", "Lead = slot code ending in 1; last member of a non-standard flight = lead + (n − 1); others standby"],
+      ["MODE 1", ctx.campaign.iff?.rotateMode1 ? "By mission type, sub-role digit rotates each ATO day" : "By mission type"], ["MODE 4", "Per SPINS"]])}
+      ${table([["family", "MISSION FAMILY"], ["codes", "MODE 1 CODES"]], I.data.mode1.families.map(f => ({ family: `${f.digit}x ${f.family}`, codes: f.codes.map(([c, r]) => `${c} ${r}`).join(" · ") })))}`;
   };
 
   // Comm matrix colors: [background, ink]. Fixed so the printed product looks the same in every theme.
@@ -353,7 +377,7 @@
       ${kv([["SRS", d.srs]])}
       <h2>1. COMM MATRIX</h2><div class="cm-wrap">${grid}</div>
       <h2>2. CHANNEL LIST</h2>${table([["_c", "NET", r => r.col.title], ["id", "CHANNEL"], ["callsign", "CALLSIGN"], ["role", "ROLE"], ["freq", "FREQ"]], channels(m))}
-      <p>Check-in and comm procedures: see SPINS.</p>${sig(ctx)}`;
+      <p>Check-in and comm procedures: see SPINS.</p>${iffPlanHtml(ctx)}${sig(ctx)}`;
     }
   };
 

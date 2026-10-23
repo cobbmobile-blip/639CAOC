@@ -80,6 +80,26 @@ host `.miz` update T-24h.
 The ACO overlay is drawn in DKS on the theater map and is never written into the `.miz`. The Comm Plan agencies are
 persistent for the campaign; normally only tankers and JTACs change, and the rollup lists what changed since the last export. **Cycle to next mission** moves the ATO day on and returns the daily products to Draft.
 
+## IFF / SIF plan
+
+The JCEOI carries an IFF code plan (`tools/jceoi/data/iff.json`, checked by the build; `js/iff.js` on the site):
+
+- **Reserved Mode 3/A codes** never assigned: 0000, 1200, 1202, 1255, 1277, 2000, 4000, 7000, 7400, 7500, the 7600 and
+  7700 series, 7777 (FAA AIM 4-1-20, ICAO practice). Their blocks (00, 12, 20, 40, 70, 74–77) are never given out.
+- **Mode 3/A campaign blocks**: each campaign takes its own 2-digit blocks (BB00–BB77; four by default, editable on
+  the ATO, never another campaign's). Each ATO line takes a slot: the lead squawks BBC1, the last member of a
+  non-standard flight BBC1 + (n − 1), others standby — the NELLISAFBI 11-250 §4.3.2 pattern.
+- **Mode 1 by mission type** (the vCAOC's own scheme): first digit = family (1 counter-air, 2 strike/AI, 3 SEAD/DEAD,
+  4 CAS/FAC(A), 5 AR, 6 C2/ISR/AEW, 7 rescue/airlift), second digit 0–3 = sub-role; optional daily rotation.
+- **Mode 2** optional per airframe (group number + aircraft), for full-IFF modules only.
+- **Mode 4 and IFF procedures** default into SPINS section 11 (with IFF-off areas); the Comm Plan prints the campaign's
+  blocks and the Mode 1 table; Nevada adds the NTTR rules (tactical Mode 3 on range, never 1200).
+- **Checks** on the ATO (live) and on the Comm Plan: octal, Mode 1 second digit 0–3, reserved and non-discrete codes,
+  last-member code and slot, outside the campaign's blocks, duplicates within the ATO and with other campaigns.
+- The JCEOI page has an **IFF / SIF** tab (reserved register, blocks per campaign, Mode 1 table, code checker) and three
+  IFF sheets in the `.xlsx`.
+- In DCS, Mode 4 is coalition-based for most aircraft; SRS's transponder overlay and LotATC carry Mode 1 / 3 to GCIs.
+
 ## TACAN / ICLS scrub (mission file)
 
 Every host `.miz` version is scrubbed for beacons (`js/tacan.js`). It reports only — the host fixes their own file:

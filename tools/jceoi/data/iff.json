@@ -1,0 +1,64 @@
+{
+  "_note": "vCAOC IFF/SIF code plan. Codes are 4-digit (Mode 2, Mode 3/A) or 2-digit (Mode 1) octal. Real Mode 1 assignments are theater/ATO specific and not public: the Mode 1 table here is the vCAOC's own scheme. Reserved Mode 3/A codes follow the FAA AIM 4-1-20 and ICAO practice.",
+  "sources": {
+    "FAA AIM 4-1-20": "https://www.faa.gov/air_traffic/publications/atpubs/aim_html/chap4_section_1.html",
+    "FAA JO 7110.66 (NBCAP)": "https://www.faa.gov/documentLibrary/media/Order/FINAL_Order_7110_66E_NBCAP.pdf",
+    "ICAO practice (secondary)": "https://migflug.com/afterburner/?p=22328429",
+    "NELLISAFBI 11-250 §4.3": "https://static.e-publishing.af.mil/production/1/nellisafb/publication/nellisafbi11-250/nellisafbi11-250.pdf",
+    "AFMAN 13-212V1 NTTR Add A §3.1.3, Att 16": "https://static.e-publishing.af.mil/production/1/nellisafb/publication/afi13-212v1_accsup_nttrsup_add_a/afman13-212v1_nttr_add_a.pdf"
+  },
+  "reserved": [
+    { "from": "0000", "to": "0000", "use": "Never assigned (ICAO)", "src": "ICAO practice (secondary)", "conf": "public" },
+    { "from": "1200", "to": "1200", "use": "VFR (US)", "src": "FAA AIM 4-1-20", "conf": "official" },
+    { "from": "1202", "to": "1202", "use": "VFR gliders (US)", "src": "FAA AIM 4-1-20", "conf": "official" },
+    { "from": "1255", "to": "1255", "use": "Firefighting aircraft (US)", "src": "FAA AIM 4-1-20", "conf": "official" },
+    { "from": "1277", "to": "1277", "use": "VFR search and rescue (US)", "src": "FAA AIM 4-1-20", "conf": "official" },
+    { "from": "2000", "to": "2000", "use": "Entering SSR airspace without an assigned code (ICAO)", "src": "ICAO practice (secondary)", "conf": "public" },
+    { "from": "4000", "to": "4000", "use": "Military in restricted / warning areas when no other code is assigned (US)", "src": "FAA AIM 4-1-20", "conf": "official" },
+    { "from": "7000", "to": "7000", "use": "VFR (ICAO regions)", "src": "ICAO practice (secondary)", "conf": "public" },
+    { "from": "7400", "to": "7400", "use": "Unmanned aircraft lost link", "src": "ICAO practice (secondary)", "conf": "public" },
+    { "from": "7500", "to": "7500", "use": "Unlawful interference (hijack)", "src": "FAA AIM 4-1-20", "conf": "official" },
+    { "from": "7600", "to": "7677", "use": "Lost communications series (special indicators)", "src": "FAA AIM 4-1-20", "conf": "official" },
+    { "from": "7700", "to": "7777", "use": "Emergency series (special indicators); 7777 never used by civil aircraft", "src": "FAA AIM 4-1-20", "conf": "official" }
+  ],
+  "blocksExcluded": {
+    "_note": "A block is the first two octal digits (64 blocks of 64 codes). These blocks are never given to a campaign because they hold reserved or special codes.",
+    "blocks": ["00", "12", "20", "40", "70", "74", "75", "76", "77"]
+  },
+  "mode3": {
+    "_note": "Each ATO line takes one slot of a campaign block: slot C of block BB covers BBC0-BBC7. The flight lead squawks BBC1; the last member of a non-standard flight squawks BBC1 + (n - 1), as in NELLISAFBI 11-250 §4.3.2 (lead 6411, #4 6414); all others squawk standby. Slot 0 is not used, so nothing ends in 00 and BB00 (non-discrete) is never assigned.",
+    "slotsPerBlock": 7,
+    "maxFlightSize": 7,
+    "blocksPerCampaignDefault": 4
+  },
+  "mode1": {
+    "_note": "First digit = mission family, second digit (0-3) = sub-role. Optional daily rotation adds the ATO day to the second digit (mod 4).",
+    "families": [
+      { "digit": 1, "family": "Counter-air", "codes": [["10", "DCA"], ["11", "OCA"], ["12", "Escort"], ["13", "Spare counter-air"]] },
+      { "digit": 2, "family": "Strike / air interdiction", "codes": [["20", "Strike"], ["21", "AI"], ["22", "Spare strike"], ["23", "Spare strike"]] },
+      { "digit": 3, "family": "SEAD / DEAD", "codes": [["30", "SEAD"], ["31", "DEAD"], ["32", "Spare SEAD"], ["33", "Spare SEAD"]] },
+      { "digit": 4, "family": "CAS / FAC(A)", "codes": [["40", "CAS"], ["41", "SCAR"], ["42", "FAC(A)"], ["43", "Spare CAS"]] },
+      { "digit": 5, "family": "Air refuelling", "codes": [["50", "AR"], ["51", "Spare AR"], ["52", "Spare AR"], ["53", "Spare AR"]] },
+      { "digit": 6, "family": "C2 / ISR / AEW", "codes": [["60", "AEW"], ["61", "ISR"], ["62", "Spare C2"], ["63", "Spare C2"]] },
+      { "digit": 7, "family": "Rescue / airlift", "codes": [["70", "CSAR"], ["71", "Airlift"], ["72", "Spare"], ["73", "Spare"]] }
+    ]
+  },
+  "mode2": {
+    "_note": "Optional, per airframe: first two digits = the registered group's number (octal), last two = aircraft in the group (01-77). Only modules with a full IFF use it (Heatblur F-14 / F-4E / Viggen, F-15E)."
+  },
+  "mode4": {
+    "default": "Mode 4 ON. Code A until 0000Z, then code B. In DCS most aircraft answer friend/foe by coalition, so this is discipline and realism, not separation.",
+    "procedures": "Mode 3/C and Mode 4 on from takeoff to landing. Flight lead squawks the ATO Mode 3; the last member of a non-standard flight squawks the ATO last-member code; all others standby. Mode 1 per the ATO mission line. Squawk 7600 lost comms, 7700 emergency. Mode S flight ID = ATO callsign where the aircraft supports it. Turn IFF off only in published IFF-off areas."
+  },
+  "theaterRules": {
+    "Nevada": {
+      "rules": [
+        "On range: all aircraft squawk Mode C and a tactical Mode 3 — never 1200 (AFMAN 13-212V1 NTTR Add A §3.1.3).",
+        "Lead squawks the assigned discrete Mode 3/C; the last member of a non-standard flight squawks lead + n; others standby (NELLISAFBI 11-250 §4.3.2).",
+        "Into the NAS: last member squawks the lead's first two digits + 00 (NELLISAFBI 11-250 §4.3.3).",
+        "IFF-off operations only when authorized through NTTR scheduling, in the NTTR IFF-off area (AFMAN 13-212V1 NTTR Add A Att 16)."
+      ],
+      "src": "AFMAN 13-212V1 NTTR Add A §3.1.3, Att 16"
+    }
+  }
+}

@@ -30,6 +30,7 @@
 <script src="js/products.js"></script>
 <script src="js/jceoi-data.js"></script>
 <script src="js/jceoi.js"></script>
+<script src="js/iff.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <main class="wrap">
@@ -50,8 +51,8 @@
   AOC.renderChrome();
   const J = X.data;
   document.getElementById("title").textContent = `${J.title}`;
-  const TABS = [["plan", "Net plan"], ["presets", "Preset load"], ["nttr", "Nevada (NTTR plan)"], ["register", "Theater registers"], ["pool", "Clear channels"], ["check", "Check a frequency"], ["about", "Sources & coverage"]];
-  let tab = location.hash === "#nttr" ? "nttr" : (() => { try { return localStorage.getItem("aoc.jceoiTab") || "plan"; } catch { return "plan"; } })();
+  const TABS = [["plan", "Net plan"], ["presets", "Preset load"], ["nttr", "Nevada (NTTR plan)"], ["iff", "IFF / SIF"], ["register", "Theater registers"], ["pool", "Clear channels"], ["check", "Check a frequency"], ["about", "Sources & coverage"]];
+  let tab = ["#nttr", "#iff"].includes(location.hash) ? location.hash.slice(1) : (() => { try { return localStorage.getItem("aoc.jceoiTab") || "plan"; } catch { return "plan"; } })();
   const f3 = f => f == null ? "—" : (+f).toFixed(3);
   const KIND = { nttr: "NTTR assigned", dcs: "DCS ATC", "dcs-nav": "DCS nav", civil: "Real-world civil", nav: "Real-world nav", military: "Real-world military", common: "Common / standard", guard: "Guard" };
   const allFreqs = n => ["uhf", "uhfAlt", "vhf", "fm", "hf"].map(k => n[k]).filter(v => v != null);
@@ -138,6 +139,42 @@
         <p class="small muted">Sources: ${Object.entries(p.sources).map(([k, v]) => /^https?:/.test(v) ? `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(k)}</a>` : `${esc(k)} — ${esc(v)}`).join(" · ")}.
           Table A20.2 unit attribution follows the PDF's reading order; the frequencies are exact. For simulation only.</p>`;
     },
+    iff() {
+      const I = AOC.IFF, D = I.data, v = state.iff, tbl = (head, rows) => `<div class="table-scroll"><table class="jt"><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+      const camps = AOC.Store.db.campaigns.map(c => ({ c, bl: c.iff?.blocks || [] }));
+      // what a typed code is: octal?, reserved?, in an excluded block?, which campaign / ATO line has it
+      let res = "";
+      if (v) {
+        const code = v.trim(), hit = I.reservedHit(code), blk = code.slice(0, 2), owner = camps.find(x => x.bl.includes(blk));
+        const uses = AOC.Store.db.campaigns.flatMap(c => (AOC.Store.content(c.id, "ato")?.missions || []).filter(m => m.m3 === code || m.m3last === code).map(m => `OP ${c.opName} MSN ${m.msn} (${m.m3 === code ? "lead" : "last member"})`));
+        res = !I.octal(code, 4) ? `<span class="bad">Not a 4-digit octal code (digits 0–7).</span>`
+          : `${hit ? `<span class="bad">Reserved: ${esc(hit.use)} (${esc(hit.src)}).</span>` : D.blocksExcluded.blocks.includes(blk) ? `<span class="warnt">In excluded block ${esc(blk)} (holds reserved or special codes).</span>` : `<span class="ok">Not reserved.</span>`}
+            ${code.endsWith("00") ? ` <span class="warnt">Non-discrete (ends in 00).</span>` : ""}
+            ${owner ? ` Block ${esc(blk)} belongs to OP ${esc(owner.c.opName)}.` : D.blocksExcluded.blocks.includes(blk) ? "" : ` Block ${esc(blk)} is free.`}
+            ${uses.length ? ` In use: ${esc(uses.join("; "))}.` : ""}`;
+      }
+      return `<p class="small">${esc(D._note)}</p>
+        <div class="filters"><div><label>Check a Mode 3/A code</label><input id="iffIn" value="${esc(v)}" placeholder="e.g. 1321" maxlength="4"></div></div>
+        ${v ? `<p class="small">${res}</p>` : ""}
+        <div class="section-h">Reserved Mode 3/A codes — never assigned</div>
+        ${tbl(["Code(s)", "Use", "Source", "Confidence"], D.reserved.map(r => `<tr><td class="mono">${r.from}${r.to !== r.from ? `–${r.to}` : ""}</td><td>${esc(r.use)}</td><td>${esc(r.src)}</td><td>${esc(r.conf)}</td></tr>`))}
+        <p class="small">Excluded blocks (never given to a campaign): <span class="mono">${D.blocksExcluded.blocks.join(", ")}</span>. ${esc(D.blocksExcluded._note)}</p>
+        <div class="section-h">Mode 3/A — campaign blocks and per-line codes</div>
+        <p class="small">${esc(D.mode3._note)}</p>
+        ${tbl(["Campaign", "Theater", "Blocks", "Lines with codes"], camps.map(({ c, bl }) => `<tr><td>OP ${esc(c.opName)}</td><td>${esc(c.theater)}</td><td class="mono">${bl.length ? bl.map(b => `${b}00–${b}77`).join(", ") : "—"}</td>
+          <td>${(AOC.Store.content(c.id, "ato")?.missions || []).filter(m => m.m3).length}</td></tr>`))}
+        <div class="section-h">Mode 1 — by mission type (vCAOC scheme)</div>
+        <p class="small">${esc(D.mode1._note)}</p>
+        ${tbl(["Family", "Codes"], D.mode1.families.map(f => `<tr><td><b>${f.digit}x</b> ${esc(f.family)}</td><td class="mono">${f.codes.map(([c, r]) => `${c} ${esc(r)}`).join(" · ")}</td></tr>`))}
+        <div class="section-h">Mode 2, Mode 4, procedures</div>
+        <ul class="small"><li><b>Mode 2:</b> ${esc(D.mode2._note)}</li><li><b>Mode 4:</b> ${esc(D.mode4.default)}</li><li><b>Procedures (SPINS default):</b> ${esc(D.mode4.procedures)}</li></ul>
+        ${Object.entries(D.theaterRules || {}).map(([t, r]) => `<div class="section-h">${esc(t)} rules</div><ul class="small">${r.rules.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`).join("")}
+        <div class="section-h">In DCS</div>
+        <ul class="small"><li>Most aircraft answer Mode 4 friend/foe by coalition; the A/B code seldom changes the result.</li>
+          <li>Heatblur F-14 / F-4E / Viggen and the F-15E model a fuller IFF where Mode 1/2/3 codes are set in the cockpit.</li>
+          <li>SRS's transponder overlay sends Mode 1, Mode 3 and Mode 4; LotATC shows Mode 1 and Mode 3/A to GCIs — that is how the ATO codes are used in multiplayer.</li></ul>
+        <p class="small muted">Sources: ${Object.entries(D.sources).map(([k, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(k)}</a>`).join(" · ")}</p>`;
+    },
     register() {
       const s = state.reg;
       const t = X.theaters.find(x => x.key === s.theater);
@@ -202,9 +239,11 @@
     }
   };
   const cellStyle = c => COMM.cellStyle ? COMM.cellStyle(c) : "";
-  const state = { reg: { theater: "Caucasus", band: "", kind: "", q: "" }, pool: { theater: "", band: "UHF" }, check: "" };
+  const state = { iff: "", reg: { theater: "Caucasus", band: "", kind: "", q: "" }, pool: { theater: "", band: "UHF" }, check: "" };
   function render() {
     const el = document.getElementById("body"); el.innerHTML = views[tab]();
+    const ii = document.getElementById("iffIn");
+    if (ii) ii.oninput = () => { state.iff = ii.value; const pos = ii.selectionStart; render(); const n = document.getElementById("iffIn"); n.focus(); n.setSelectionRange(pos, pos); };
     const ci = document.getElementById("chkIn");
     if (ci) { ci.oninput = () => { state.check = ci.value; const pos = ci.selectionStart; render(); const n = document.getElementById("chkIn"); n.focus(); n.setSelectionRange(pos, pos); }; }
   }
@@ -235,6 +274,12 @@
       add("NTTR revisions", [["Item", "Was", "Now", "Why"], ...(np.revisions?.changes || []).map(r => [r.what, r.old ?? "", r.new, r.why])]);
       add("NTTR JTACs", [["Range", "Callsign", "FM", "Laser", "Location", "Block"], ...np.caoc.jtacs.map(j => [j.range, j.callsign, j.fm, j.laser, j.loc, j.block])]);
       add("NTTR AR tracks", [["Track", "Altitude", "Frequency"], ...np.caoc.tracks.map(t => [t.track, t.alt, t.freq])]);
+    }
+    if (AOC.IFF) {
+      const D = AOC.IFF.data;
+      add("IFF reserved", [["From", "To", "Use", "Source", "Confidence"], ...D.reserved.map(r => [r.from, r.to, r.use, r.src, r.conf]), [], ["Excluded blocks", D.blocksExcluded.blocks.join(", ")]]);
+      add("IFF Mode 1", [["Code", "Mission", "Family"], ...D.mode1.families.flatMap(f => f.codes.map(([c, r]) => [c, r, f.family]))]);
+      add("IFF blocks", [["Campaign", "Theater", "Blocks"], ...AOC.Store.db.campaigns.map(c => [`OP ${c.opName}`, c.theater, (c.iff?.blocks || []).join(", ")])]);
     }
     add("Common", [["MHz", "Band", "Use", "Source", "Confidence"], ...J.common.map(c => [c.mhz, c.band, c.use, c.src, c.conf])]);
     ["UHF", "VHF-AM", "VHF-FM", "HF"].forEach(b => add(`Clear ${b} (all)`, [["MHz", "In net plan"], ...X.pool(null, b).map(c => [c.mhz, c.inPlan ? "yes" : ""])]));

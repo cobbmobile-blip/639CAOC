@@ -55,6 +55,29 @@ NTTR_JSON = os.path.join(HERE, "data", "nttr.json")
 NTTR = json.load(open(NTTR_JSON, encoding="utf-8")) if os.path.exists(NTTR_JSON) else None
 
 
+IFF_JSON = os.path.join(HERE, "data", "iff.json")
+
+
+def load_iff():
+    """The IFF/SIF code plan (data/iff.json), checked before it goes to the site."""
+    iff = json.load(open(IFF_JSON, encoding="utf-8")); errs = []
+    octal = lambda c, n: len(c) == n and all(ch in "01234567" for ch in c)
+    for r in iff["reserved"]:
+        if not (octal(r["from"], 4) and octal(r["to"], 4) and int(r["from"], 8) <= int(r["to"], 8)): errs.append(f"reserved {r['from']}-{r['to']} is not a 4-digit octal range")
+    for b in iff["blocksExcluded"]["blocks"]:
+        if not octal(b, 2): errs.append(f"excluded block {b} is not 2-digit octal")
+    codes = [c for f in iff["mode1"]["families"] for c, _ in f["codes"]]
+    for c in codes:
+        if not octal(c, 2) or c[1] not in "0123": errs.append(f"Mode 1 code {c}: first digit 0-7, second 0-3")
+    if len(codes) != len(set(codes)): errs.append("Mode 1 codes repeat")
+    # every reserved code must sit in an excluded block, so campaign blocks can never reach one
+    for r in iff["reserved"]:
+        for blk in {r["from"][:2], r["to"][:2]}:
+            if blk not in iff["blocksExcluded"]["blocks"]: errs.append(f"reserved {r['from']}-{r['to']} is in block {blk}, which is not excluded")
+    if errs: raise SystemExit("build stopped: data/iff.json:" + "".join("\n  " + e for e in errs))
+    return iff
+
+
 def register_for(key, stem, box, ap, fr, nv, mil):
     reg, tacan = [], []
     def add(**e):
@@ -326,6 +349,7 @@ def main():
             "template": [list(t) for t in tpl],
             "bands": BANDS, "sep": SEP, "guardZone": GUARD_ZONE, "theaters": slim, "common": common, "nets": nets,
             "sources": mil["sources"], "sourceNotes": mil["_note"],
+            "iff": load_iff(),
             "fixedConflicts": [{"id": a, "mhz": f, "theater": t, "site": site, "documented": m} for a, _, f, t, site, m in fixed_conflicts],
             # theater plans: where a theater's frequency plan is pre-decided (NTTR), campaigns there follow it
             "theaterPlans": {"Nevada": {k: nttr_plan[k] for k in ("summary", "sources", "channels", "tactical", "agencies", "control", "squadron", "caoc", "revisions")}} if NTTR else {}}
