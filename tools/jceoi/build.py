@@ -79,6 +79,21 @@ def load_iff():
     return iff
 
 
+ROE_JSON = os.path.join(HERE, "data", "roe.json")
+
+
+def load_roe():
+    """The vCAOC standing ROE (data/roe.json): standing text, ID terms, WCS, the campaign measures catalogue, theater rules."""
+    roe = json.load(open(ROE_JSON, encoding="utf-8")); errs = []
+    ids = [m["id"] for m in roe["measures"]]
+    if len(ids) != len(set(ids)): errs.append("measure ids repeat")
+    for m in roe["measures"]:
+        if not (m.get("group") and m.get("text") and isinstance(m.get("on"), bool)): errs.append(f"measure {m.get('id')}: needs group, text and on (true/false)")
+    if [w[0] for w in roe["wcs"]] != ["Weapons Free", "Weapons Tight", "Weapons Hold"]: errs.append("wcs must list Weapons Free, Weapons Tight, Weapons Hold (the SPINS select uses these)")
+    if errs: raise SystemExit("build stopped: data/roe.json:" + "".join("\n  " + e for e in errs))
+    return roe
+
+
 TDL_JSON = os.path.join(HERE, "data", "tdl.json")
 
 
@@ -370,7 +385,7 @@ def main():
             "template": [list(t) for t in tpl],
             "bands": BANDS, "sep": SEP, "guardZone": GUARD_ZONE, "theaters": slim, "common": common, "nets": nets,
             "sources": mil["sources"], "sourceNotes": mil["_note"],
-            "iff": load_iff(), "tdl": load_tdl(),
+            "iff": load_iff(), "tdl": load_tdl(), "roe": load_roe(),
             "fixedConflicts": [{"id": a, "mhz": f, "theater": t, "site": site, "documented": m} for a, _, f, t, site, m in fixed_conflicts],
             # theater plans: where a theater's frequency plan is pre-decided (NTTR), campaigns there follow it
             "theaterPlans": {"Nevada": {k: nttr_plan[k] for k in ("summary", "sources", "channels", "tactical", "agencies", "control", "squadron", "caoc", "revisions")}} if NTTR else {}}

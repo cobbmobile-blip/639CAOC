@@ -26,7 +26,7 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | `index.html` | CAOC staff | Campaign dashboard: products, deliverables tracker (CFACC), requests, groups. The Comm Plan, OPTASKLINK, JCEOI and IFF / SIF sit together as one **Comm / Datalink / IFF** group (built at the same sitting); the JCEOI is reached from there, not the top nav |
 | `product.html?p=optasklink` | CAOC staff | OPTASKLINK: built automatically from the ATO and the host mission file — nothing to fill in but notes |
 | `rollup.html` | CAOC staff (CFACC/CFC publish) | CAOC rollup: deadline timeline (campaign build / mission cycle), product readiness, ATO lines, host debriefs, DKS export preview (Overlay, Agencies changes), the one **PUBLISH** button and **Cycle to next mission** |
-| `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS, Comm Plan, BDA) |
+| `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS & ROE, Comm Plan, BDA) |
 | `tdp.html` | CAOC staff | TDP book: one target folder per JIPTL target, drafted from the nomination data |
 | `maap.html` | CAOC staff | MAAP: packages of ATO lines against JIPTL targets, with coverage and deconfliction checks; Apply to ATO |
 | `jceoi.html` | CAOC staff | JCEOI: standard Blue net plan (the Comm Plan matrix, clear in every theater), Nevada (NTTR) plan, IFF / SIF, clear-channel pool, frequency check, `.xlsx` export. The per-theater registers are used for every check but not shown |
@@ -68,7 +68,7 @@ Default deadlines (editable per campaign on the rollup), T-0 = first mission:
 | T-16 | MAAP | CAOC |
 | T-10 | Human ATO lines committed | Groups |
 | T-8 | ACO + theater map (after line commits, from the conference airspace) | CAOC |
-| T-7 / T-6 | ATO final / SPINS | CAOC |
+| T-7 / T-6 | ATO final / SPINS & ROE | CAOC |
 | T-5 | Comm Plan — built last | CAOC |
 | **T-72h** | CFACC approvals → **PUBLISH**, no later than 72 hours out: products to groups, optional DKS exports (ACO → DKS Overlay, Comm Plan → DKS Manage Agencies) | CAOC |
 | T-24h → T-0 | Final `.miz`, readiness, mass brief, first mission | Host |
@@ -96,7 +96,7 @@ The JCEOI carries an IFF code plan (`tools/jceoi/data/iff.json`, checked by the 
 - **Mode 1 by mission type** (the vCAOC's own scheme): first digit = family (1 counter-air, 2 strike/AI, 3 SEAD/DEAD,
   4 CAS/FAC(A), 5 AR, 6 C2/ISR/AEW, 7 rescue/airlift), second digit 0–3 = sub-role; optional daily rotation.
 - **Mode 2** optional per airframe (group number + aircraft), for full-IFF modules only.
-- **Mode 4 and IFF procedures** default into SPINS section 11 (with IFF-off areas); the Comm Plan prints how Mode 3/A follows
+- **Mode 4 and IFF procedures** default into SPINS section 3.5 (with IFF-off areas); the Comm Plan prints how Mode 3/A follows
   Mode 1 and the Mode 1 table; SPINS tells F-16C pilots to use the M1/M3 enable switch; Nevada adds the NTTR rules (tactical Mode 3 on range, never 1200).
 - **Checks** on the ATO (live) and on the Comm Plan: octal, Mode 1 second digit 0–3, reserved and non-discrete codes,
   last-member code and slot, Mode 3/A not starting with its Mode 1, reserved slots, duplicates within the ATO.
@@ -213,6 +213,22 @@ lines plus what the site already holds, so staff type nothing extra:
   `AMSNLOC` for areas (altitudes from the theater-map shape), `REFTSK` (tanker track frequency and TACAN), `ASACSDAT`
   for the AWACS, `ASUPTFOR` / `ASUPTBY` linking receivers and tankers.
 - General instructions are not part of the ATO; they belong in the SPINS.
+
+## SPINS & ROE
+
+One product, one approval, two documents. The preview has SPINS and ROE tabs; copy, download and print take the tab on
+screen; released copies carry both, with a page break between. The layout follows the Operation Mountain Sentinel and
+Red Flag SPINS, with the ROE as its own document instead of a SPINS chapter.
+
+- **SPINS** (the JFACC's procedures): 1 General information (validity, Zulu, ATO day 0300Z–0259Z, bullseye), 2 ROE (a
+  pointer to the ROE and its default WCS), 3 Communication (check-in, code words, authentication, CSAR, IFF / SIF),
+  4 Airspace & safety (air refuelling, carriers, diverts, emergency / lost comms).
+- **ROE**: built from the vCAOC standing ROE (`tools/jceoi/data/roe.json`: law of armed conflict, self-defense,
+  precedence; surface ROE — PID, protected structures, planned / dynamic / time-sensitive / troops-in-contact
+  authority, collateral damage; air ROE — classification terms, hostile act and intent, enemy indications, commit
+  authority, formal order; weapons control statuses) plus the campaign's choices: default WCS, declared hostile forces,
+  on/off campaign measures (defaults from the standing data; the AWACS callsign comes from the ATO's AEW line), ID and
+  commit criteria, weapons restrictions, restricted / no-strike targets, theater rules (Nevada: NTTR ranges) and remarks.
 - The ATO editor shows the missions as two grids, human lines then AI lines, with aircraft as "2xF-16C". IFF codes
   are filled by "Assign IFF codes" and shown in the ATO document and on the IFF / SIF page, not in the grids.
 

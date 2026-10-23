@@ -1,0 +1,80 @@
+{
+  "_note": "vCAOC standing rules of engagement for DCS World campaigns: the part of every campaign's ROE that does not change. Each campaign adds its declared hostile forces, default weapons control status, measures (on/off), ID and commit criteria, weapons restrictions, restricted targets and remarks; the theater adds its own rules. Game use only, not for real-world operations.",
+  "sources": {
+    "CJCSI 3121.01B Standing ROE (unclassified extract)": "self-defense, hostile act, hostile intent, supplemental measures",
+    "Operation Mountain Sentinel SPINS Ch 6 §2": "surface ROE and air ROE matrix structure",
+    "132nd vW OPAR standing SPINS v3.0 §4": "identification terms, weapon status terms, default status",
+    "Red Flag 06-2 SPINS §2 / TLW 2013 SPINS §2": "ROE overview, classification, hostile act / intent matrix"
+  },
+  "general": [
+    { "title": "Law of armed conflict", "text": "All forces comply with the law of armed conflict: military necessity, distinction, proportionality and the avoidance of unnecessary suffering." },
+    { "title": "Self-defense", "text": "Nothing in these ROE limits the inherent right and obligation of self-defense. Aircrew may take all necessary and proportional action in response to a hostile act or demonstrated hostile intent, without further authority." },
+    { "title": "Precedence", "text": "These ROE take precedence over unit SOPs. The SPINS set out how they are applied; where the SPINS and the ROE differ, the ROE govern." }
+  ],
+  "surface": [
+    { "title": "Positive identification", "text": "Positive identification (PID) of every target is required before engagement: reasonable certainty that the object of attack is a valid target under these ROE." },
+    { "title": "Protected structures", "text": "Hospitals, schools, religious and cultural sites, civilian population centers, and facilities marked with the Red Cross or Red Crescent are protected and are never targeted." },
+    { "title": "Planned targets", "text": "Targets tasked on the ATO have been cleared by the JFACC for PID and collateral damage. Aircrew do not move the aimpoint, move to a heavier weapon class or shorten the fuze delay without JFACC approval." },
+    { "title": "Dynamic targets", "text": "Targets found during the mission are reported to the controlling agency and cleared before attack, unless a time-sensitive or troops-in-contact authority below applies." },
+    { "title": "Time-sensitive targets", "text": "When there is no time to obtain JFACC approval, the mission commander may authorize precision fires on enemy leadership, MANPADS, artillery and rocket systems, and UAV launch systems." },
+    { "title": "Troops in contact", "text": "The on-scene commander of friendly forces in contact may authorize fires against positively identified declared hostile forces, deconflicting from protected structures and restricted targets." },
+    { "title": "Collateral damage", "text": "Aircrew assess collateral damage before every attack. Where harm to civilians or civilian objects is likely, the attack needs controlling-agency approval; where it is high, JFACC approval." }
+  ],
+  "idTerms": [
+    ["HOSTILE", "A contact identified as enemy upon which clearance to fire is authorized under these ROE."],
+    ["BANDIT", "A contact identified as enemy by the ID criteria. Does not by itself authorize engagement."],
+    ["BOGEY", "A contact whose identity is unknown."],
+    ["FRIENDLY", "A contact identified as a friendly aircraft, ship or ground position."],
+    ["NEUTRAL", "A contact identified as belonging to neither side. Never engaged."],
+    ["SPADES", "A contact with friendly IFF/SIF but no other friendly indication; treated as a BOGEY until identified."],
+    ["RIDER", "A BOGEY complying with the ACO or safe-passage procedures."],
+    ["OUTLAW", "A contact that meets the point-of-origin criteria in the ID criteria."]
+  ],
+  "hostileAct": [
+    "A weapons launch, or any other attack or use of force against friendly forces."
+  ],
+  "hostileIntent": [
+    "A correlated fire-control radar lock (spike) on friendly forces.",
+    "Clearly and persistently manoeuvring into a weapons-launch position against friendly forces.",
+    "High-speed, hot-aspect approach toward friendly forces or high-value airborne assets.",
+    "Dispensing countermeasures or jamming while closing on friendly forces."
+  ],
+  "enemyIndications": [
+    ["PRINT", "A clear non-cooperative target recognition (NCTR) reply."],
+    ["SNIFF", "A passive electronic support measures (ESM) correlation."],
+    ["VID", "Visual identification, including with a targeting pod."],
+    ["Association", "Groups splitting from a BANDIT or HOSTILE group keep that identification."]
+  ],
+  "wcs": [
+    ["Weapons Free", "Fire at any target positively identified as BANDIT or HOSTILE."],
+    ["Weapons Tight", "Fire only at targets identified as HOSTILE."],
+    ["Weapons Hold", "Fire only in self-defense or in response to a formal order."]
+  ],
+  "air": [
+    { "title": "Commit authority", "text": "Commit authority rests with the controlling agency ({awacs}). Fighters may recommend a commit." },
+    { "title": "Formal order", "text": "A formal order is given as \"SHOOT GROUP (name)\" with the JFACC authentication." }
+  ],
+  "declaredHostileDefault": "All RED coalition military forces, their aircraft, vehicles, ships, weapons and supporting structures in the AO.",
+  "measures": [
+    { "id": "aa-declare", "group": "Air-to-air", "on": true, "text": "HOSTILE is declared by the AWACS ({awacs}). With no AWACS contact, flight leads may declare using the ID criteria." },
+    { "id": "aa-bvr", "group": "Air-to-air", "on": true, "text": "Beyond-visual-range engagement is authorized against contacts declared HOSTILE." },
+    { "id": "aa-vid", "group": "Air-to-air", "on": false, "text": "Visual identification is required before any air-to-air engagement." },
+    { "id": "aa-pursuit", "group": "Air-to-air", "on": false, "text": "Pursuit of HOSTILE aircraft beyond the FLOT is authorized." },
+    { "id": "aa-neutral", "group": "Air-to-air", "on": true, "text": "Civil and neutral aircraft are not engaged; report them to the AWACS." },
+    { "id": "ag-fscl", "group": "Air-to-ground", "on": true, "text": "Short of the FSCL, release only under JTAC or FAC(A) control." },
+    { "id": "ag-killbox", "group": "Air-to-ground", "on": false, "text": "Weapons free on ground targets inside open killboxes, within the killbox altitude block." },
+    { "id": "ag-sead", "group": "Air-to-ground", "on": true, "text": "SEAD and DEAD flights may engage any emitting enemy SAM radar without further clearance." },
+    { "id": "ag-tst", "group": "Air-to-ground", "on": false, "text": "Time-sensitive targets need CAOC approval before attack (the mission commander's TST authority is withdrawn)." },
+    { "id": "ag-showforce", "group": "Air-to-ground", "on": false, "text": "Graduated force: a show of presence, then a show of force, before lethal action against threats showing hostile intent." },
+    { "id": "w-jettison", "group": "Weapons", "on": true, "text": "Hung ordnance is jettisoned only in the jettison areas published in the SPINS." }
+  ],
+  "theaterRules": {
+    "Nevada": {
+      "rules": [
+        "On the NTTR, weapons employment only on scheduled ranges and inside each range's boundaries and altitude blocks.",
+        "No live or simulated releases outside the ranges; jettison only in designated areas."
+      ],
+      "src": "AFMAN 13-212V1 NTTR Add A"
+    }
+  }
+}

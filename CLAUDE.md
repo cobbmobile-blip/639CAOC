@@ -110,6 +110,10 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
   holding one) are never assigned; a line's Mode 3/A block is its Mode 1 code (`IFF.slotsOf`), because the F-16C sends
   its first two code wheels as Mode 1; `campaign.iff.blocks` is no longer used; ATO rows carry `m1`, `m3` (lead), `m3last`,
   optional `m2`. The Mode 1 table is the vCAOC's own scheme (real assignments are not public).
+- **SPINS & ROE** (product `spins`): one approval, two documents via `P.docs` (product.html shows document tabs; `render`
+  prints both for released copies). The ROE is the standing ROE (`tools/jceoi/data/roe.json`, `AOC_JCEOI.roe`) plus the
+  campaign's `wcs`, `declaredHostile`, `roeMeasures` ({id: on}; unset = the measure's default), `idCriteria`, `weapons`,
+  `restricted` and `roe` remarks. Keep ROE content out of the SPINS document; the SPINS only point to it.
 - **OPTASKLINK** (`js/tdl.js`, `tools/jceoi/data/tdl.json`) is fully automatic: `TDL.build` runs every time it opens
   (period, moniker/JICO, NTR, network settings, mission file participants via `TDL.pull`, ATO human lines via
   `TDL.assign`); the form is only notes. The minimal-staff rule: never add fields the CAOC must fill in. Mission file

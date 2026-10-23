@@ -306,6 +306,8 @@ th { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spa
 .doc .kv { display: grid; grid-template-columns: 170px 1fr; gap: 2px 10px; margin-bottom: 8px; }
 .doc .kv div:nth-child(odd) { font-weight: 700; }
 .doc .sig { margin-top: 24px; }
+/* a product printed as more than one document (SPINS & ROE) */
+.doc .pagebreak { height: 0; margin: 28px 0; border-top: 2px dashed currentColor; opacity: .5; }
 .doc pre.msg { font: inherit; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 16px; padding: 10px 0; border-top: 1px solid currentColor; border-bottom: 1px solid currentColor; }
 
 /* Comm matrix (document) — fixed colours, styled like the printed product */
@@ -362,6 +364,7 @@ th { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spa
 }
 
 @media print {
+  .doc .pagebreak { break-after: page; border: 0; margin: 0; }
   .banner, .topbar, .no-print, .builder > :first-child { display: none !important; }
   body { background: #fff; }
   .wrap { padding: 0; max-width: none; }

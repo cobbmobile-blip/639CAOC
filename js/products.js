@@ -305,60 +305,99 @@
       ${sig(ctx)}`
   };
 
+  // ---------- SPINS and ROE: two documents, one approval ----------
+  // The ROE is the vCAOC standing ROE (tools/jceoi/data/roe.json) plus the campaign's declared hostile forces, default WCS,
+  // measures, ID / commit criteria, weapons restrictions, restricted targets, theater rules and remarks. The SPINS are the
+  // JFACC's procedures and point to it. Both follow the OMS / Red Flag SPINS layout.
+  const ROE = () => window.AOC_JCEOI?.roe;
+  const roeMeasureOn = (d, m) => d.roeMeasures?.[m.id] ?? m.on;
+  const roeAwacs = ctx => (window.AOC.Store.content(ctx.campaign.id, "ato")?.missions || []).find(m => m.role === "AEW")?.callsign || "the AWACS";
+  function spinsDoc(d, ctx) {
+    const day = window.AOC_JCEOI?.tdl?.atoDayStartZ ?? 3, z = h => `${String(h).padStart(2, "0")}00Z`, zEnd = h => `${String((h + 23) % 24).padStart(2, "0")}59Z`;
+    const iff = d.mode4 || d.iffProc || (d.iffOff || []).length || iffRules(ctx).length;
+    return `${head("SPECIAL INSTRUCTIONS (SPINS)", ctx, esc(d.version))}
+      <h2>1. GENERAL INFORMATION</h2>${kv([["VALIDITY", d.period], ["TIME ZONE", "Zulu (Z) throughout"], ["ATO DAY", `${z(day)} to ${zEnd(day)}`], ["BULLSEYE", d.bullseye]])}
+      <h2>2. RULES OF ENGAGEMENT</h2><p>Per the OP ${esc(ctx.campaign.opName)} ROE${d.version ? ` ${esc(d.version)}` : ""}, published with these SPINS. Default weapons control status: ${esc((d.wcs || "Weapons Tight").toUpperCase())}.</p>
+      <h2>3. COMMUNICATION</h2>${para("3.1 CHECK-IN & COMM PROCEDURES", d.checkin)}
+      <h2>3.2 CODE WORDS</h2>${table([["word", "CODE WORD"], ["meaning", "MEANING / ACTION"]], d.codewords)}
+      ${para("3.3 AUTHENTICATION", d.auth)}${para("3.4 CSAR", d.csar)}
+      ${iff ? `<h2>3.5 IFF / SIF</h2>${kv([["MODE 4", d.mode4]])}${d.iffProc ? `<p>${esc(d.iffProc)}</p>` : ""}
+        ${iffRules(ctx).length ? `<p><b>${esc(ctx.campaign.theater.toUpperCase())}:</b> ${iffRules(ctx).map(esc).join(" ")}</p>` : ""}
+        ${(d.iffOff || []).length ? table([["area", "IFF-OFF AREA"], ["alt", "ALTITUDES"], ["time", "TIMES"], ["notes", "NOTES"]], d.iffOff) : ""}` : ""}
+      <h2>4. AIRSPACE &amp; SAFETY</h2>${para("4.1 AIR REFUELLING", d.tanker)}
+      ${(d.naval || []).length ? `<h2>4.2 CARRIERS &amp; SHIPS — TACAN / ICLS</h2>${table([["ship", "SHIP"], ["hull", "TYPE"], ["tacan", "TACAN"], ["tacanCs", "IDENT"], ["icls", "ICLS"], ["notes", "NOTES"]],
+        d.naval.map(r => ({ ...r, tacan: r.tacanCh ? `${r.tacanCh}${r.tacanMode || ""}` : "" })))}` : ""}
+      <h2>4.3 DIVERT AIRFIELDS</h2>${table([["field", "AIRFIELD"], ["tacan", "TACAN"], ["freq", "TWR"], ["rwy", "RWY"], ["notes", "NOTES"]], d.diverts)}
+      ${para("4.4 EMERGENCY / LOST COMMS", d.emergency)}${sig(ctx)}`;
+  }
+  function roeDoc(d, ctx) {
+    const R = ROE(); if (!R) return `${head("RULES OF ENGAGEMENT (ROE)", ctx, esc(d.version))}<p>The standing ROE did not load.</p>${sig(ctx)}`;
+    const fill = t => t.replace("{awacs}", roeAwacs(ctx)), wcs = d.wcs || "Weapons Tight";
+    const on = R.measures.filter(m => roeMeasureOn(d, m)), groups = [...new Set(on.map(m => m.group))];
+    const theater = R.theaterRules?.[window.AOC.JCEOI?.theaterKey(ctx.campaign.theater)];
+    const list = a => `<ul>${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`, paras = (n, a) => a.map((x, i) => `<p><b>${n}.${i + 1} ${esc(x.title.toUpperCase())}.</b> ${esc(fill(x.text))}</p>`).join("");
+    const terms = (h, a) => table([["t", h], ["m", "MEANING"]], a.map(([t, m]) => ({ t, m })));
+    let n = 5;
+    return `${head("RULES OF ENGAGEMENT (ROE)", ctx, esc(d.version))}
+      ${kv([["EFFECTIVE", d.period], ["DEFAULT WCS", wcs.toUpperCase()]])}
+      <h2>1. GENERAL</h2>${paras(1, R.general)}
+      <h2>2. SURFACE ROE</h2><p><b>DECLARED HOSTILE FORCES:</b> ${esc(d.declaredHostile || R.declaredHostileDefault)}</p>${paras(2, R.surface)}
+      <p><b>RESTRICTED / NO-STRIKE TARGETS:</b></p>${(d.restricted || []).length ? table([["target", "TARGET / AREA"], ["restriction", "RESTRICTION"]], d.restricted) : "<p>None designated beyond the protected structures above.</p>"}
+      <p><b>WEAPONS RESTRICTIONS:</b></p>${table([["weapon", "WEAPON / CATEGORY"], ["status", "STATUS"], ["applies", "APPLIES TO"], ["conditions", "CONDITIONS"]], d.weapons)}${d.weaponsNotes ? `<p>${esc(d.weaponsNotes)}</p>` : ""}
+      <h2>3. AIR ROE</h2>${terms("CLASSIFICATION", R.idTerms)}
+      <p><b>HOSTILE ACT:</b></p>${list(R.hostileAct)}<p><b>HOSTILE INTENT:</b></p>${list(R.hostileIntent)}
+      <p><b>ENEMY INDICATIONS:</b></p>${terms("INDICATION", R.enemyIndications)}
+      ${d.idCriteria ? `<p><b>ID AND COMMIT CRITERIA:</b> ${esc(d.idCriteria)}</p>` : ""}
+      ${paras(3, R.air)}
+      <h2>4. WEAPONS CONTROL STATUS</h2>${table([["t", "STATUS"], ["m", "MEANING"]], R.wcs.map(([t, m]) => ({ t: t === wcs ? `${t.toUpperCase()} (DEFAULT)` : t.toUpperCase(), m })))}
+      <h2>5. CAMPAIGN MEASURES</h2>${on.length ? groups.map(g => `<p><b>${esc(g.toUpperCase())}</b></p>${list(on.filter(m => m.group === g).map(m => fill(m.text)))}`).join("") : "<p>None.</p>"}
+      ${theater ? `<h2>${++n}. ${esc(ctx.campaign.theater.toUpperCase())}</h2>${list(theater.rules)}` : ""}
+      ${d.roe ? para(`${++n}. REMARKS`, d.roe) : ""}${sig(ctx)}`;
+  }
+
   P.spins = {
-    code: "SPINS", name: "Special Instructions", owner: "Combat Plans", stage: 5,
-    desc: "ROE, ID criteria, code words, tanker, CSAR and divert procedures.",
+    code: "SPINS", name: "SPINS & ROE", owner: "Combat Plans", stage: 5,
+    desc: "Special instructions (procedures) and the rules of engagement: two documents, one approval.",
+    docs: [{ id: "spins", label: "SPINS", code: "SPINS", render: spinsDoc }, { id: "roe", label: "ROE", code: "ROE", render: roeDoc }],
     fields: [
-      { type: "section", label: "Header" },
+      { type: "section", label: "Both documents" },
       { key: "version", label: "Version", type: "text", half: true, hint: "e.g. v3" },
       { key: "period", label: "Effective period", type: "text", half: true },
-      { key: "bullseye", label: "Bullseye", type: "text", half: true },
+      { type: "section", label: "SPINS — general & communication" },
+      { key: "bullseye", label: "Bullseye", type: "text" },
+      { key: "checkin", label: "Check-in & comm procedures", type: "textarea", hint: "Refer to channels by Comm Plan matrix ID, e.g. YELLOW 1" },
+      { key: "codewords", label: "Code words", type: "table", columns: [
+        { key: "word", label: "Code word", w: 160 }, { key: "meaning", label: "Meaning / action" }] },
+      { key: "auth", label: "Authentication procedures", type: "textarea" },
+      { key: "csar", label: "CSAR procedures", type: "textarea" },
+      { key: "mode4", label: "Mode 4", type: "text", hint: "Default from the JCEOI IFF plan: code A until 0000Z, then code B" },
+      { key: "iffProc", label: "IFF procedures", type: "textarea", hint: "Mode 1 / Mode 3 codes are on each ATO line" },
+      { key: "iffOff", label: "IFF-off areas", type: "table", columns: [
+        { key: "area", label: "Area" }, { key: "alt", label: "Altitudes", w: 120 }, { key: "time", label: "Times", w: 120 }, { key: "notes", label: "Notes / authority" }] },
+      { type: "section", label: "SPINS — airspace & safety" },
+      { key: "tanker", label: "Air refuelling procedures", type: "textarea", hint: "Tanker TACANs are set on each tanker track on the theater map" },
+      { key: "naval", label: "Carriers & ships — TACAN / ICLS", type: "table", columns: [
+        { key: "ship", label: "Ship" }, { key: "hull", label: "DCS type / hull", w: 120 }, { key: "tacanCh", label: "TACAN ch", w: 80 },
+        { key: "tacanMode", label: "X/Y", w: 50 }, { key: "tacanCs", label: "Ident", w: 70 }, { key: "icls", label: "ICLS", w: 60 }, { key: "notes", label: "Notes" }] },
+      { key: "diverts", label: "Divert airfields", type: "table", columns: [
+        { key: "field", label: "Airfield" }, { key: "tacan", label: "TACAN", w: 80 }, { key: "freq", label: "Tower freq", w: 100 },
+        { key: "rwy", label: "Runway", w: 80 }, { key: "notes", label: "Notes" }] },
+      { key: "emergency", label: "Emergency / lost comms", type: "textarea" },
+      { type: "section", label: "ROE — the standing rules apply; set the campaign's choices" },
       { key: "wcs", label: "Default weapons control status", type: "select", options: ["Weapons Tight", "Weapons Hold", "Weapons Free"], half: true },
-      { type: "section", label: "Rules of engagement" },
-      { key: "roe", label: "ROE", type: "textarea" },
-      { key: "idCriteria", label: "ID criteria / commit criteria", type: "textarea" },
-      { type: "section", label: "Weapons restrictions" },
+      { key: "declaredHostile", label: "Declared hostile forces", type: "text", half: true, hint: "Blank = all RED coalition military forces in the AO" },
+      { key: "roeMeasures", label: "Campaign measures", type: "measures" },
+      { key: "idCriteria", label: "ID / commit criteria", type: "textarea" },
       { key: "weapons", label: "Restricted / prohibited weapons", type: "table", columns: [
         { key: "weapon", label: "Weapon / category" },
         { key: "status", label: "Status", type: "select", options: ["Prohibited", "Restricted", "JFACC approval required", "Authorised"], w: 150 },
         { key: "applies", label: "Applies to", w: 120 },
         { key: "conditions", label: "Conditions / when" }] },
       { key: "weaponsNotes", label: "Additional weapons guidance", type: "textarea", hint: "e.g. jettison areas, hung ordnance, minimum release altitudes" },
-      { type: "section", label: "Brevity & authentication" },
-      { key: "codewords", label: "Code words", type: "table", columns: [
-        { key: "word", label: "Code word", w: 160 }, { key: "meaning", label: "Meaning / action" }] },
-      { key: "auth", label: "Authentication procedures", type: "textarea" },
-      { type: "section", label: "Procedures" },
-      { key: "checkin", label: "Check-in & comm procedures", type: "textarea", hint: "Refer to channels by Comm Plan matrix ID, e.g. YELLOW 1" },
-      { key: "tanker", label: "Air refuelling procedures", type: "textarea", hint: "Tanker TACANs are set on each tanker track on the theater map" },
-      { key: "naval", label: "Carriers & ships — TACAN / ICLS", type: "table", columns: [
-        { key: "ship", label: "Ship" }, { key: "hull", label: "DCS type / hull", w: 120 }, { key: "tacanCh", label: "TACAN ch", w: 80 },
-        { key: "tacanMode", label: "X/Y", w: 50 }, { key: "tacanCs", label: "Ident", w: 70 }, { key: "icls", label: "ICLS", w: 60 }, { key: "notes", label: "Notes" }] },
-      { key: "csar", label: "CSAR procedures", type: "textarea" },
-      { key: "diverts", label: "Divert airfields", type: "table", columns: [
-        { key: "field", label: "Airfield" }, { key: "tacan", label: "TACAN", w: 80 }, { key: "freq", label: "Tower freq", w: 100 },
-        { key: "rwy", label: "Runway", w: 80 }, { key: "notes", label: "Notes" }] },
-      { key: "emergency", label: "Emergency / lost comms", type: "textarea" },
-      { type: "section", label: "IFF / SIF" },
-      { key: "mode4", label: "Mode 4", type: "text", hint: "Default from the JCEOI IFF plan: code A until 0000Z, then code B" },
-      { key: "iffProc", label: "IFF procedures", type: "textarea", hint: "Mode 1 / Mode 3 codes are on each ATO line" },
-      { key: "iffOff", label: "IFF-off areas", type: "table", columns: [
-        { key: "area", label: "Area" }, { key: "alt", label: "Altitudes", w: 120 }, { key: "time", label: "Times", w: 120 }, { key: "notes", label: "Notes / authority" }] }
+      { key: "restricted", label: "Restricted / no-strike targets", type: "table", columns: [{ key: "target", label: "Target / area" }, { key: "restriction", label: "Restriction" }] },
+      { key: "roe", label: "ROE remarks", type: "textarea", hint: "Anything the standing ROE and measures do not cover" }
     ],
-    render: (d, ctx) => `${head("SPECIAL INSTRUCTIONS (SPINS)", ctx, esc(d.version))}
-      ${kv([["EFFECTIVE", d.period], ["BULLSEYE", d.bullseye], ["DEFAULT WCS", d.wcs]])}
-      ${para("1. RULES OF ENGAGEMENT", d.roe)}${para("2. ID / COMMIT CRITERIA", d.idCriteria)}
-      <h2>3. WEAPONS RESTRICTIONS</h2>${table([["weapon", "WEAPON / CATEGORY"], ["status", "STATUS"], ["applies", "APPLIES TO"], ["conditions", "CONDITIONS"]], d.weapons)}
-      ${d.weaponsNotes ? `<p>${esc(d.weaponsNotes)}</p>` : ""}
-      <h2>4. CODE WORDS</h2>${table([["word", "CODE WORD"], ["meaning", "MEANING / ACTION"]], d.codewords)}
-      ${para("5. AUTHENTICATION", d.auth)}${para("6. CHECK-IN & COMM PROCEDURES", d.checkin)}${para("7. AIR REFUELLING", d.tanker)}
-      ${(d.naval || []).length ? `<h2>7a. CARRIERS &amp; SHIPS — TACAN / ICLS</h2>${table([["ship", "SHIP"], ["hull", "TYPE"], ["tacan", "TACAN"], ["tacanCs", "IDENT"], ["icls", "ICLS"], ["notes", "NOTES"]],
-        d.naval.map(r => ({ ...r, tacan: r.tacanCh ? `${r.tacanCh}${r.tacanMode || ""}` : "" })))}` : ""}${para("8. CSAR", d.csar)}
-      <h2>9. DIVERT AIRFIELDS</h2>${table([["field", "AIRFIELD"], ["tacan", "TACAN"], ["freq", "TWR"], ["rwy", "RWY"], ["notes", "NOTES"]], d.diverts)}
-      ${para("10. EMERGENCY / LOST COMMS", d.emergency)}
-      ${d.mode4 || d.iffProc || (d.iffOff || []).length || iffRules(ctx).length ? `<h2>11. IFF / SIF</h2>${kv([["MODE 4", d.mode4]])}${d.iffProc ? `<p>${esc(d.iffProc)}</p>` : ""}
-        ${iffRules(ctx).length ? `<p><b>${esc(ctx.campaign.theater.toUpperCase())}:</b> ${iffRules(ctx).map(esc).join(" ")}</p>` : ""}
-        ${(d.iffOff || []).length ? table([["area", "IFF-OFF AREA"], ["alt", "ALTITUDES"], ["time", "TIMES"], ["notes", "NOTES"]], d.iffOff) : ""}` : ""}${sig(ctx)}`
+    render: (d, ctx) => `${spinsDoc(d, ctx)}<div class="pagebreak"></div>${roeDoc(d, ctx)}`
   };
 
   // theater IFF rules (e.g. NTTR) from the JCEOI IFF plan, when the page has it
@@ -533,7 +572,7 @@
       { id: "lineCommit", label: "Human ATO lines committed by groups", owner: "GROUPS", offset: -10, check: "lineCommit" },
       { id: "aco", label: "ACO + theater map (lines committed; from the planning conference airspace)", owner: "CAOC", offset: -8, check: "aco" },
       { id: "ato", label: "ATO finalised", owner: "CAOC", offset: -7, check: "ato" },
-      { id: "spins", label: "SPINS (with the host JFACC)", owner: "CAOC", offset: -6, check: "spins" },
+      { id: "spins", label: "SPINS & ROE (with the host JFACC)", owner: "CAOC", offset: -6, check: "spins" },
       { id: "optasklink", label: "OPTASKLINK (built from the ATO and the host .miz)", owner: "CAOC", offset: -6, check: "optasklink" },
       { id: "acp", label: "Comm Plan — built last", owner: "CAOC", offset: -5, check: "acp" },
       { id: "publish", label: "CFACC approvals → PUBLISH (products, DKS Overlay, DKS Agencies) — no later than T-72h", owner: "CAOC", offset: -3, check: "publish" },

@@ -50,7 +50,7 @@
     </section>
     <section class="sticky-preview">
       <div class="panel">
-        <div class="panel-head no-print"><h2>Preview</h2>
+        <div class="panel-head no-print"><h2>Preview</h2><div class="seg hidden" id="docTabs" role="group" aria-label="Document"></div>
           <div class="toolbar">
             <button class="btn sm" id="copy">Copy text</button>
             <button class="btn sm" id="txt">Download .txt</button>
@@ -82,7 +82,7 @@
   const ctx = { campaign, user, group: id => Store.group(id) };
 
   document.title = `Virtual AOC — ${P.code}`;
-  document.getElementById("title").textContent = P.code === P.name ? P.code : `${P.code} · ${P.name}`;
+  document.getElementById("title").textContent = P.name.startsWith(P.code) ? P.name : `${P.code} · ${P.name}`;
   if (AOC.COMMS.products.includes(pid)) document.getElementById("commsStrip").innerHTML = AOC.COMMS.strip(cid, pid);
   document.getElementById("sub").textContent = `OP ${campaign.opName} · ${campaign.theater} · owner: ${P.owner}`;
   if (P.mapLink) {
@@ -188,6 +188,7 @@
           <button data-del="${f.key}.${i}" title="Delete row">✕</button></td></tr>`).join("")}</tbody></table></div>
         <button class="btn sm" data-add="${f.key}" data-fi="${P.fields.indexOf(f)}" style="margin-top:6px">+ Add row</button>${hint}</div>`;
       else if (f.type === "matrix") html += matrixEditor(f);
+      else if (f.type === "measures") html += measuresEditor(f);
       else if (f.type === "checklist") html += checklistEditor(f);
       else if (f.type === "jiptl") html += `<div class="field"><label>${esc(f.label)}</label><input data-path="${f.key}" list="jiptlList" value="${esc(v)}">${hint}</div>`;
       else html += `<div class="field"><label>${esc(f.label)}</label><input data-path="${f.key}" value="${esc(v)}">${hint}</div>`;
@@ -237,6 +238,20 @@
     const fs = AOC.TDL.check(cid, data), n = k => fs.filter(f => f.sev === k).length;
     return `<p class="small">${n("error") + n("warn") ? `${n("error")} error${n("error") === 1 ? "" : "s"} · ${n("warn")} warning${n("warn") === 1 ? "" : "s"} · ${n("info")} note${n("info") === 1 ? "" : "s"}` : `<span style="color:var(--ok)">✓ STNs unique and valid; network settings agree.</span>`}</p>
       ${fs.length ? `<ul class="small" style="list-style:none;padding-left:0;margin:0">${fs.slice(0, 50).map(f => `<li style="color:${f.sev === "error" ? "var(--danger, #e5484d)" : f.sev === "warn" ? "var(--warn)" : "var(--muted)"}">${f.sev === "error" ? "✕" : f.sev === "warn" ? "!" : "·"} ${esc(f.text)}</li>`).join("")}</ul>` : ""}`;
+  }
+
+  // ---------- ROE measures (SPINS & ROE): the standing catalogue from the JCEOI data, on/off per campaign ----------
+  function measuresEditor(f) {
+    const R = window.AOC_JCEOI?.roe; if (!R) return `<div class="field"><label>${esc(f.label)}</label><p class="small muted">The standing ROE did not load.</p></div>`;
+    data[f.key] = data[f.key] || {};
+    const aew = (Store.content(cid, "ato")?.missions || []).find(m => m.role === "AEW")?.callsign || "the AWACS";
+    let html = `<div class="field"><label>${esc(f.label)}</label>`, last = null;
+    R.measures.forEach(m => {
+      if (m.group !== last) { html += `<div class="section-h" style="margin:10px 0 4px">${esc(m.group)}</div>`; last = m.group; }
+      html += `<label class="check-row" style="align-items:flex-start;padding:3px 0"><input type="checkbox" data-path="${f.key}.${m.id}" ${(data[f.key][m.id] ?? m.on) ? "checked" : ""} style="width:auto;margin-top:3px">
+        <span style="font-size:13.5px">${esc(m.text.replace("{awacs}", aew))}</span></label>`;
+    });
+    return html + `<div class="hint">Defaults come from the vCAOC standing ROE (JCEOI data); untick what this campaign doesn't allow.</div></div>`;
   }
 
   // ---------- checklist editor: [{ section, item, done, notes }], seeded from the schema's item list ----------
@@ -403,7 +418,16 @@
   // ---------- preview & status ----------
   const doc = document.getElementById("doc");
   // unsaved edits are never shown as approved
-  function renderDoc() { ctx.approval = dirty ? null : Store.approval(cid, pid); doc.innerHTML = P.render(data, ctx); }
+  // a product with docs (SPINS & ROE) previews, copies, downloads and prints one document at a time; one approval covers all
+  let docTab = 0;
+  function renderDoc() {
+    ctx.approval = dirty ? null : Store.approval(cid, pid);
+    if (!P.docs) { doc.innerHTML = P.render(data, ctx); return; }
+    const tabs = document.getElementById("docTabs"); tabs.classList.remove("hidden");
+    tabs.innerHTML = P.docs.map((x, i) => `<button data-doc="${i}" aria-pressed="${i === docTab}">${esc(x.label)}</button>`).join("");
+    doc.innerHTML = P.docs[docTab].render(data, ctx);
+  }
+  document.getElementById("docTabs").onclick = e => { const b = e.target.closest("[data-doc]"); if (b) { docTab = +b.dataset.doc; renderDoc(); doc.scrollTop = 0; } };
   function markDirty() { dirty = true; renderButtons(); }
 
   // Workflow: staff build → submit for review → CFACC (or CFC) approves → CFACC/CFC publishes
@@ -479,7 +503,7 @@
   };
 
   // Export
-  const fname = ext => `${campaign.opName.replace(/\s+/g, "_")}_${P.code}${data.atoDay ? "_D" + data.atoDay : ""}.${ext}`;
+  const fname = ext => `${campaign.opName.replace(/\s+/g, "_")}_${P.docs ? P.docs[docTab].code : P.code}${data.atoDay ? "_D" + data.atoDay : ""}.${ext}`;
   function download(name, text, type) {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([text], { type }));
