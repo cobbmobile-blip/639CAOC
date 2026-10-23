@@ -52,7 +52,7 @@
   AOC.renderChrome();
   const J = X.data;
   document.getElementById("title").textContent = `${J.title}`;
-  const TABS = [["plan", "Net plan"], ["presets", "Preset load"], ["nttr", "Nevada (NTTR plan)"], ["iff", "IFF / SIF"], ["pool", "Clear channels"], ["check", "Check a frequency"]];
+  const TABS = [["plan", "Net plan"], ["nttr", "Nevada (NTTR plan)"], ["iff", "IFF / SIF"], ["pool", "Clear channels"], ["check", "Check a frequency"]];
   let tab = TABS.some(([k]) => `#${k}` === location.hash) ? location.hash.slice(1) : (() => { try { return localStorage.getItem("aoc.jceoiTab") || "plan"; } catch { return "plan"; } })();
   if (!TABS.some(([k]) => k === tab)) tab = "plan";
   const f3 = f => f == null ? "—" : (+f).toFixed(3);
@@ -96,14 +96,6 @@
           <li>VHF-AM backups are in 138–152 MHz (the NATO military VHF segment inside the DCS VHF radios' 116–151.975 MHz range), for aircraft without UHF.</li>
           <li>VHF-FM is given to ground coordination and rescue nets (30–88 MHz, avoiding the 38–42.4 MHz block DCS uses for airfield FM). HF is given to C2 and CSAR (5–9 MHz).</li>
           <li>WHITE 1 TAC COORD is RAZOR by CAOC decision; its frequency is picked clear like the rest (it moved off 293.500, which is ROULETTE at the NTTR). Tankers and JTACs are the nets most likely to change during a campaign; change them in the campaign's Comm Plan, not here.</li></ul>`;
-    },
-    presets() {
-      // a standard load for radios with 20 presets: UHF on radio 1, VHF on radio 2
-      const order = ["WHITE 1", "WHITE 2", "WHITE 3", "WHITE 4", "YELLOW 1", "YELLOW 2", "YELLOW 3", "YELLOW 4", "YELLOW 5", "BLUE 1", "BLUE 2", "BLUE 3", "BLUE 4", "BLUE 5", "GREEN 1", "GREEN 2", "PURPLE 1", "PURPLE 2", "PURPLE 3", "PURPLE 5"];
-      return `<p class="small muted">Standard preset load for 20-channel radios. UHF on the primary radio, VHF-AM backups on the secondary; Guard stays on the guard receiver. Groups load this in DKS or the mission editor.</p>
-        <div class="table-scroll"><table class="jt"><thead><tr><th>Preset</th><th>Channel</th><th>Role</th><th>UHF (radio 1)</th><th>VHF-AM (radio 2)</th><th>VHF-FM (FM radio)</th></tr></thead><tbody>
-        ${order.map((id, i) => { const n = X.net(id); return `<tr><td class="mono">${i + 1}</td><td><span class="chip-id" style="${cellStyle(n.color)}">${esc(id)}</span></td><td>${esc(n.role)}${n.callsign ? ` (${esc(n.callsign)})` : ""}</td>
-          <td class="mono">${f3(n.uhf)}</td><td class="mono">${f3(n.vhf)}</td><td class="mono">${f3(n.fm)}</td></tr>`; }).join("")}</tbody></table></div>`;
     },
     nttr() {
       const p = X.plan("Nevada"); if (!p) return `<p class="muted">No Nevada plan in this build.</p>`;

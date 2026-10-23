@@ -29,7 +29,7 @@ thunder, keepers, ridge, support — code `unit-demo`.
 | `rollup.html` | CAOC rollup: deadline timeline, readiness, the single PUBLISH (+ DKS Overlay / Agencies exports), Cycle to next mission |
 | `product.html?p=<id>` | Product builder + live document preview: `pcon ci aod jiptl tdp maap ato aco spins acp bda` (`tdp`, `maap` are built on their own pages) |
 | `tdp.html`, `maap.html` | TDP book (folder per JIPTL target); MAAP (packages, checks, Apply to ATO) |
-| `jceoi.html` | JCEOI: standard Blue net plan, presets, NTTR plan, IFF, clear-channel pool, frequency check, .xlsx export (registers feed the checks, not shown) |
+| `jceoi.html` | JCEOI: standard Blue net plan, NTTR plan, IFF, clear-channel pool, frequency check, .xlsx export (registers feed the checks, not shown) |
 | `map.html` | Theater map (opened from the ACO) |
 | `targeting.html` | Target nomination — browser port of `OLD/tools/jiptl_pipeline/jiptl_generate.py` |
 | `campaign-review.html` | CFC review of campaign proposals |

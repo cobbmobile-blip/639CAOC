@@ -366,7 +366,7 @@ def main():
     # compact rows for the browser: [site, icao, use, mhz, kind, src, conf]; the page derives the band
     REG_COLS = ["site", "icao", "use", "mhz", "kind", "src", "conf"]
     slim = [{**{k: v for k, v in t.items() if k != "register"}, "register": [[e[c] for c in REG_COLS] for e in t["register"]]} for t in theaters]
-    data = {"version": VERSION, "title": f"vCAOC JCEOI {VERSION}", "generated": datetime.date.today().isoformat(), "regCols": REG_COLS,
+    data = {"version": VERSION, "title": "JCEOI", "generated": datetime.date.today().isoformat(), "regCols": REG_COLS,
             "template": [list(t) for t in tpl],
             "bands": BANDS, "sep": SEP, "guardZone": GUARD_ZONE, "theaters": slim, "common": common, "nets": nets,
             "sources": mil["sources"], "sourceNotes": mil["_note"],
