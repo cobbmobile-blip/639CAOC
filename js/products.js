@@ -201,6 +201,74 @@
     }
   };
 
+  // ATO in USMTF message format (after the AIR TASKING ORDER guide and the 510th vFS ATO example), built from the
+  // ATO lines plus what the site already holds: JIPTL targets, theater-map tanker tracks, the AEW line, OPTASKLINK STNs.
+  // Sets: TASKUNIT per unit; AMSNDAT / MSNACFT per line (MSNACFT ends STN / Mode 1 / Mode 2 / Mode 3 as 1xx, 2xxxx, 3xxxx).
+  const NET_OF = { SEAD: "SEAD", DEAD: "SEAD", Strike: "STRIKE", AI: "STRIKE", DCA: "DCA", OCA: "DCA", Escort: "DCA", CAS: "CAS COORD", SCAR: "SCAR", CSAR: "PRCC" };
+  const LEAD_ORDER = ["Strike", "AI", "DEAD", "SEAD", "CAS", "SCAR"];
+  function atoMessage(d, ctx) {
+    const S = window.AOC.Store, cid = ctx.campaign.id, rows = d.missions || [];
+    const up = v => String(v ?? "").toUpperCase().trim(), dash = v => up(v) && up(v) !== "—" ? up(v) : "-";
+    const cs = c => { const m = up(c).match(/^([A-Z]+)\s*(\d)$/); return m ? `${m[1]}${m[2]}1` : dash(up(c).replace(/\s+/g, "")); };
+    const unit = r => r.group ? up(ctx.group(r.group)?.name || r.group) : r.crew === "AI" ? "AI - HOST MISSION FILE" : "OPEN - NOT YET COMMITTED";
+    const jiptl = S.content(cid, "jiptl")?.rows || [], shapes = S.content(cid, "map")?.shapes || [];
+    // the theater-map shape a line flies in: its tanker track / orbit by callsign, else an area (CAP, kill box) by name
+    const areaOf = r => (["AR", "AEW"].includes(r.role) && shapes.find(t => t.callsign && up(t.callsign) === up(r.callsign))) || shapes.find(t => up(t.name) === up(r.target));
+    const viper = S.content(cid, "optasklink")?.viper || [], awacs = rows.find(r => r.role === "AEW");
+    // control nets from the Comm Plan: the mission's own net as primary, check-in as secondary
+    const chans = channels(S.content(cid, "acp")?.matrix), net = role => NET_OF[role] && chans.find(c => up(c.role).startsWith(NET_OF[role]));
+    const desig = c => c ? `${up(c.id)} ${dash(c.callsign)}`.replace(/ -$/, "") : "-", checkIn = chans.find(c => up(c.role) === "CHECK IN");
+    const times = t => { const [a, b] = String(t || "").split(/[–-]/).map(x => x.trim()); return [dash(a && (/Z$/i.test(a) ? a : `${a}Z`)), dash(b)]; };
+    const byCs = c => rows.find(x => up(x.callsign) === up(c));
+    // package commander: the first striker in the package (strike, AI, DEAD, SEAD, CAS), else the lowest mission number
+    const pkgLead = p => rows.filter(x => x.pkg === p).sort((x, y) => (LEAD_ORDER.indexOf(x.role) + 1 || 99) - (LEAD_ORDER.indexOf(y.role) + 1 || 99) || String(x.msn).localeCompare(String(y.msn)))[0];
+    const [from, to] = String(d.period || "").split(/\s*[–-]\s*(?=\d)/);
+    const out = [`OPER/OPERATION ${up(ctx.campaign.opName)}//`, `MSGID/ATO/639TH VCAOC/DAY ${dash(d.atoDay)}//`, "AMPN/ALL TIMES ARE Z//",
+      to ? `TIMEFRAM/${up(from)}/TO:${up(to)}//` : `TIMEFRAM/${dash(d.period)}//`];
+    [...new Set(rows.map(unit))].forEach(u => {
+      out.push("", `TASKUNIT/${u}//`);
+      rows.filter(r => unit(r) === u).forEach(r => {
+        const pkg = r.pkg && r.pkg !== "—" ? up(r.pkg) : "", stn = viper.find(v => v.msn === r.msn && v.lead)?.stn;
+        out.push("", `AMSNDAT/N/${dash(r.msn)}/-/${pkg || "-"}/-/${dash(r.role)}/-/-/DEPLOC:-/ARRLOC:-//`,
+          `MSNACFT/${dash(r.num)}/${dash(r.type)}/${cs(r.callsign)}/-/-/${stn || "-"}/${r.m1 ? `1${r.m1}` : "-"}/${r.m2 ? `2${r.m2.split(/[–-]/)[0]}` : "-"}/${r.m3 ? `3${r.m3}` : "-"}//`);
+        if (pkg) { const l = pkgLead(r.pkg); out.push(`PKGCMD/${pkg}/${unit(l)}/${l.msn}/${cs(l.callsign)}//`); }
+        if (awacs && r !== awacs && r.role !== "AR") out.push(`CONTROLA/AWAC/${cs(awacs.callsign)}/PDESIG:${desig(net(r.role))}/SDESIG:${desig(checkIn)}//`);
+        const tgt = jiptl.find(t => t.id === r.target), tk = !tgt && areaOf(r);
+        const [t1, t2] = times(r.tot);
+        if (tgt) out.push(`GTGTLOC/P/TOT:${t1}/-/-/${up(tgt.name)}//`, `TGTS/${up(tgt.id)}/${dash(tgt.cat)}/${dash(tgt.loc)}/${dash(tgt.effect)}//`);
+        else out.push(`AMSNLOC/${t1}/${t2}/${dash(tk?.name || r.target)}/${tk?.altLo ? `${dash(tk.altLo)}${tk.altHi ? `-${dash(tk.altHi)}` : ""}` : "-"}//`);
+        if (tk?.type === "TANKER TRACK") out.push(`REFTSK/-/-/-/PFREQ:${dash(tk.freq)}/-/${tk.tacanCh ? `${tk.tacanCh}${up(tk.tacanMode)}` : "-"}//`);
+        if (r.role === "AEW") out.push(`ASACSDAT/AWAC/${cs(r.callsign)}/AWACS/AEW//`);
+        const tanker = r.tanker && r.tanker !== "—" ? byCs(r.tanker) : null;
+        if (r.tanker && r.tanker !== "—") out.push(`ASUPTFOR/REFUELING/${tanker ? unit(tanker) : "-"}/${tanker?.msn || "-"}/${cs(r.tanker)}/1/${dash(tanker?.type)}//`);
+        if (r.role === "AR") rows.filter(x => x.tanker && up(x.tanker) === up(r.callsign)).forEach(x => out.push(`ASUPTBY/${dash(x.role)}/${unit(x)}/${x.msn}/${cs(x.callsign)}/${dash(x.num)}/${dash(x.type)}//`));
+      });
+    });
+    return out.join("\n");
+  }
+
+  // quick summary of the same ATO: human lines first, then AI. Crew = the line's own, else flown by a group = human
+  // (unless the group is an AI support cell); open lines with no group are human lines waiting for a unit.
+  function atoSummary(d, ctx) {
+    const rows = d.missions || [], n = rows.reduce((s, r) => s + (parseInt(r.num) || 0), 0);
+    const human = r => atoHuman(r, ctx.group);
+    const pkgs = [...new Set(rows.map(r => r.pkg).filter(p => p && p !== "—"))].sort();
+    const cols = [["msn", "MSN #"], ["callsign", "CALLSIGN", r => r.callsign || "TBD"], ["group", "UNIT", r => r.group ? ctx.group(r.group)?.name || r.group : human(r) ? "OPEN" : "AI"],
+      ["type", "ACFT", r => `${r.num || ""}x${r.type || ""}`], ["role", "MISSION"], ["pkg", "PKG", r => r.pkg && r.pkg !== "—" ? r.pkg : ""], ["tot", "TOT / ON-STA"], ["target", "TGT / AREA"],
+      ["tanker", "TANKER", r => r.tanker && r.tanker !== "—" ? r.tanker : ""], ["m1", "M1"], ["m3", "M3"]];
+    const h = rows.filter(human), ai = rows.filter(r => !human(r));
+    return `<h2>SUMMARY</h2><p>ATO day ${esc(d.atoDay)}, ${esc(d.period)}: ${rows.length} missions, ${n} aircraft${pkgs.length ? `, packages ${pkgs.map(esc).join(", ")}` : ""}.</p>
+      <h2>HUMAN (${h.length})</h2>${table(cols, h)}<h2>AI (${ai.length})</h2>${table(cols, ai)}`;
+  }
+
+  // human line: its own crew, else flown by a group (unless the group is an AI support cell); open lines are human
+  const atoHuman = (r, group) => r.crew ? r.crew === "Human" : !r.group || !/\(AI\)/.test(group(r.group)?.airframes || "");
+  const ATO_COLS = [
+    { key: "msn", label: "Msn #", w: 70 }, { key: "pkg", label: "Pkg", w: 50 },
+    { key: "group", label: "Group", type: "groups" }, { key: "callsign", label: "Callsign" },
+    { key: "type", label: "Acft", type: "acft", w: 110 },
+    { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD", "DEAD", "AI", "CAS", "SCAR", "Escort", "Strike", "ISR", "AR", "AEW", "CSAR", "Airlift"] },
+    { key: "tot", label: "TOT / On-sta", w: 90 }, { key: "target", label: "Target / Area", type: "jiptl" }];
   P.ato = {
     code: "ATO", name: "Air Tasking Order", owner: "Combat Plans", stage: 5,
     desc: "Mission-by-mission tasking for each participating group for one ATO day.",
@@ -208,34 +276,15 @@
       { type: "section", label: "Period" },
       { key: "atoDay", label: "ATO day", type: "text", half: true },
       { key: "period", label: "Effective period", type: "text", half: true },
-      { key: "general", label: "General instructions", type: "textarea" },
+      // one list of missions, edited as two grids: human lines, then AI lines. Crew comes from the grid a line was added in
+      // (newRow); IFF codes are set by "Assign IFF codes" and shown on the ATO and the IFF / SIF page
       { type: "section", label: "Missions" },
-      { key: "missions", label: "Tasked missions", type: "table", columns: [
-        { key: "msn", label: "Msn #", w: 70 }, { key: "pkg", label: "Pkg", w: 50 },
-        { key: "group", label: "Group", type: "groups" }, { key: "callsign", label: "Callsign" },
-        { key: "type", label: "Acft", w: 90 }, { key: "num", label: "#", w: 40 },
-        { key: "crew", label: "Crew", type: "select", options: ["Human", "AI"], w: 80 },
-        { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD", "DEAD", "AI", "CAS", "SCAR", "Escort", "Strike", "ISR", "AR", "AEW", "CSAR", "Airlift"] },
-        { key: "tot", label: "TOT / On-sta", w: 90 }, { key: "target", label: "Target / Area", type: "jiptl" }, { key: "tanker", label: "Tanker" },
-        { key: "m1", label: "M1", w: 50 }, { key: "m3", label: "M3 lead", w: 70 }, { key: "m3last", label: "M3 last", w: 70 }, { key: "m2", label: "M2", w: 110 }] }
+      { key: "missions", label: "Human lines", type: "table", columns: ATO_COLS, show: (r, group) => atoHuman(r, group), newRow: { crew: "Human" } },
+      { key: "missions", label: "AI lines", type: "table", columns: ATO_COLS, show: (r, group) => !atoHuman(r, group), newRow: { crew: "AI" }, iffPanel: true }
     ],
-    render: (d, ctx) => {
-      const rows = d.missions || [];
-      // lines requested by the JFACC show as OPEN until a unit commits through the Discord post; AI lines are built by the sponsor
-      const unitOf = r => r.group ? ctx.group(r.group)?.name || r.group : r.crew === "AI" ? "AI" : "OPEN";
-      const byGroup = {};
-      rows.forEach(r => { const k = r.group || (r.crew === "AI" ? "_ai" : ""); (byGroup[k] = byGroup[k] || []).push(r); });
-      return `${head("AIR TASKING ORDER", ctx, `ATO DAY ${esc(d.atoDay)}`)}
-      ${kv([["EFFECTIVE", d.period], ["SORTIES", String(rows.reduce((s, r) => s + (parseInt(r.num) || 0), 0))]])}
-      ${para("GENERAL INSTRUCTIONS", d.general)}
-      <h2>MASTER MISSION LIST</h2>${table([["msn", "MSN"], ["pkg", "PKG"], ["group", "UNIT", unitOf], ["callsign", "CALLSIGN"], ["type", "ACFT"], ["num", "#"], ["crew", "CREW", r => r.crew || "Human"], ["role", "MSN TYPE"], ["tot", "TOT"], ["target", "TGT/AREA"], ["tanker", "AR"],
-        ["m1", "M1"], ["m3", "M3", r => r.m3 ? `${r.m3}${r.m3last ? ` / ${r.m3last}` : ""}` : ""]], rows)}
-      ${rows.some(r => r.m3) ? `<p>IFF: lead squawks the M3 code; the last member of a non-standard flight squawks the second code; all others standby. Mode 4 and IFF procedures per SPINS.</p>` : ""}
-      ${Object.entries(byGroup).map(([g, rs]) => `<h2>${g === "_ai" ? "AI LINES — BUILT BY THE SPONSOR IN THE .MIZ" : g ? `TASKED UNIT: ${esc((ctx.group(g)?.name || g).toUpperCase())}` : "OPEN LINES — POSTED FOR COMMITMENT"}</h2>
-        ${table([["msn", "MSN"], ["callsign", "CALLSIGN"], ["num", "#"], ["role", "TYPE"], ["tot", "TOT"], ["target", "TGT/AREA"], ["tanker", "AR"],
-          ["m1", "M1"], ["m3", "M3 LEAD / LAST", r => r.m3 ? `${r.m3}${r.m3last ? ` / ${r.m3last}` : ""}` : ""], ["m2", "M2"]], rs)}`).join("")}
-      ${sig(ctx)}`;
-    }
+    render: (d, ctx) => `${head("AIR TASKING ORDER", ctx, `ATO DAY ${esc(d.atoDay)}`)}
+      <pre class="msg">${esc(atoMessage(d, ctx))}</pre>
+      ${atoSummary(d, ctx)}${sig(ctx)}`
   };
 
   P.aco = {
@@ -292,7 +341,7 @@
       { key: "emergency", label: "Emergency / lost comms", type: "textarea" },
       { type: "section", label: "IFF / SIF" },
       { key: "mode4", label: "Mode 4", type: "text", hint: "Default from the JCEOI IFF plan: code A until 0000Z, then code B" },
-      { key: "iffProc", label: "IFF procedures", type: "textarea", hint: "Mode 1 / Mode 3 codes are on each ATO line; the campaign's Mode 3/A blocks are in the Comm Plan" },
+      { key: "iffProc", label: "IFF procedures", type: "textarea", hint: "Mode 1 / Mode 3 codes are on each ATO line" },
       { key: "iffOff", label: "IFF-off areas", type: "table", columns: [
         { key: "area", label: "Area" }, { key: "alt", label: "Altitudes", w: 120 }, { key: "time", label: "Times", w: 120 }, { key: "notes", label: "Notes / authority" }] }
     ],
@@ -314,11 +363,10 @@
 
   // theater IFF rules (e.g. NTTR) from the JCEOI IFF plan, when the page has it
   const iffRules = ctx => window.AOC.IFF ? window.AOC.IFF.theaterRules(window.AOC.JCEOI?.theaterKey(ctx.campaign.theater)) : [];
-  // the campaign's IFF plan for the Comm Plan document: Mode 3/A blocks and the Mode 1 table
+  // the campaign's IFF plan for the Comm Plan document: how Mode 3/A follows Mode 1, and the Mode 1 table
   const iffPlanHtml = ctx => {
     const I = window.AOC.IFF; if (!I) return "";
-    const bl = ctx.campaign.iff?.blocks || [];
-    return `<h2>IFF / SIF</h2>${kv([["MODE 3/A BLOCKS", bl.length ? bl.map(b => `${b}00–${b}77`).join(", ") : "Assigned with the ATO"],
+    return `<h2>IFF / SIF</h2>${kv([["MODE 3/A", "Starts with the line's Mode 1 code: SEAD 30 → 3011–3017, 3021–3027 …"],
       ["MODE 3/A PER LINE", "Lead = slot code ending in 1; last member of a non-standard flight = lead + (n − 1); others standby"],
       ["MODE 1", ctx.campaign.iff?.rotateMode1 ? "By mission type, sub-role digit rotates each ATO day" : "By mission type"], ["MODE 4", "Per SPINS"]])}
       ${table([["family", "MISSION FAMILY"], ["codes", "MODE 1 CODES"]], I.data.mode1.families.map(f => ({ family: `${f.digit}x ${f.family}`, codes: f.codes.map(([c, r]) => `${c} ${r}`).join(" · ") })))}`;
@@ -436,6 +484,34 @@
     }
   };
 
+  P.optasklink = {
+    code: "OPTASKLINK", name: "OPTASKLINK", owner: "Combat Plans / JICO", stage: 5,
+    desc: "Datalink plan: STNs, SADL and IDM nets, built from the ATO and the host mission file.",
+    fields: [
+      { type: "section", label: "Built from the ATO and the host mission file" },
+      { key: "notes", label: "Notes (optional)", type: "textarea" }
+    ],
+    render: (d, ctx) => {
+      // flight callsign + member: VIPER 1 #2 → VIPER 12
+      const m = d.miz, ship = r => { const c = String(r.callsign || "").match(/^(.*\D)\s*(\d)$/); return c ? `${c[1].trim()} ${c[2]}${r.member}` : `${r.callsign || r.msn} ${r.member}`; };
+      return `${head("OPTASKLINK", ctx, esc(d.network || "LINK 16"))}
+      ${kv([["EFFECTIVE", d.period], ["NETWORK", d.network], ["JICO", [d.jico, d.jicoVoice].filter(Boolean).join(" on ")], ["NTR", d.ntr]])}
+      <h2>1. NETWORK SETTINGS</h2>${table([["ac", "AIRCRAFT"], ["set", "SETTINGS"]], [
+        { ac: "F/A-18C", set: `AIC ${d.hAIC} · FF1 ${d.hFF1} · FF2 ${d.hFF2} · VOC A ${d.hVOCA} · VOC B ${d.hVOCB}` },
+        { ac: "F-16C", set: `MISSION ${d.vMission} · FIGHTER ${d.vFighter} · SPECIAL ${d.vSpecial}` },
+        { ac: "A-10C II", set: `SADL AIR KEY ${d.sadlAir} · GATEWAY KEY ${d.sadlGateway}` }])}
+      <h2>2. C2 AND DONORS${m ? ` (${esc(m.from)})` : ""}</h2>
+      ${m?.c2.length ? table([["callsign", "C2 / DONOR"], ["type", "TYPE"], ["role", "ROLE"], ["stn", "STN"], ["voice", "VOICE C/S"]], m.c2) : ""}
+      <h2>3. HUMAN FLIGHTS</h2>
+      ${(d.viper || []).length ? table([["msn", "MSN #"], ["callsign", "F-16C", ship], ["stn", "STN"], ["voice", "VOICE C/S"], ["lead", "LEAD"]], d.viper) : ""}
+      ${(d.sadl || []).length ? table([["msn", "MSN #"], ["callsign", "A-10C II", ship], ["tn", "SADL TN"], ["voice", "VOICE C/S"], ["lead", "LEAD"]], d.sadl) : ""}
+      ${(d.idm || []).length ? table([["msn", "MSN #"], ["callsign", "AH-64D", ship], ["id", "IDM ID"], ["net", "FLIGHT NET"], ["preset", "PRESET"], ["common", "COMMON NET"]], d.idm) : ""}
+      ${m?.hornet.length ? table([["callsign", "F/A-18C"], ["stn", "STN"], ["voice", "VOICE C/S"], ["ch", "AIC/FF1/FF2/VOCA/VOCB"], ["donors", "DONORS", r => r.donors.join(", ")]], m.hornet) : ""}
+      ${m?.ai.length ? `<h2>4. AI AIRCRAFT</h2>${table([["callsign", "AI AIRCRAFT"], ["type", "TYPE"], ["stn", "STN"], ["voice", "VOICE C/S"]], m.ai)}` : ""}
+      ${para("NOTES", d.notes)}${sig(ctx)}`;
+    }
+  };
+
   const FUTURE = [];
 
   // Deadlines, in days relative to T-0. Build: T-0 = first mission (campaign.dday). Cycle: T-0 = next mission (campaign.nextEvent).
@@ -458,6 +534,7 @@
       { id: "aco", label: "ACO + theater map (lines committed; from the planning conference airspace)", owner: "CAOC", offset: -8, check: "aco" },
       { id: "ato", label: "ATO finalised", owner: "CAOC", offset: -7, check: "ato" },
       { id: "spins", label: "SPINS (with the host JFACC)", owner: "CAOC", offset: -6, check: "spins" },
+      { id: "optasklink", label: "OPTASKLINK (built from the ATO and the host .miz)", owner: "CAOC", offset: -6, check: "optasklink" },
       { id: "acp", label: "Comm Plan — built last", owner: "CAOC", offset: -5, check: "acp" },
       { id: "publish", label: "CFACC approvals → PUBLISH (products, DKS Overlay, DKS Agencies) — no later than T-72h", owner: "CAOC", offset: -3, check: "publish" },
       { id: "mizBuild", label: "Host builds the final .miz", owner: "HOST", offset: -1 },
@@ -474,13 +551,26 @@
       { id: "lineCommit", label: "Human ATO lines committed", owner: "GROUPS", offset: -4, check: "lineCommit" },
       { id: "ato", label: "ATO finalised", owner: "CAOC", offset: -3.5, check: "ato" },
       { id: "acp", label: "Tanker / JTAC frequency changes and SPINS changes (if any)", owner: "CAOC", offset: -3.5 },
+      { id: "optasklink", label: "OPTASKLINK update (rebuilt from the ATO and the host .miz)", owner: "CAOC", offset: -3.5, check: "optasklink" },
       { id: "publish", label: "PUBLISH (products, DKS exports if changed) — no later than T-72h", owner: "CAOC", offset: -3, check: "publish" },
       { id: "mizBuild", label: "Host updates the .miz", owner: "HOST", offset: -1 },
       { id: "brief", label: "Mass brief and mission", owner: "HOST", offset: 0 }
     ]
   };
 
+  // Comm, datalink and IFF/SIF are planned together, at the same sitting: the dashboard shows them as one group.
+  // pages: the campaign-wide reference pages that go with the two products.
+  const COMMS = { name: "Comm / Datalink / IFF", desc: "Frequencies, datalinks and IFF/SIF codes — built together, at the same time",
+    products: ["acp", "optasklink"],
+    pages: [{ code: "JCEOI", name: "JCEOI", desc: "Standard Blue net plan, preset load, NTTR plan, clear channels, frequency check.", href: "jceoi.html#plan" },
+      { code: "IFF / SIF", name: "IFF / SIF code plan", desc: "Reserved codes, campaign Mode 3/A blocks, Mode 1 table, code check. Codes are assigned on the ATO.", href: "jceoi.html#iff" }] };
+  // the group's links, shown on each of its pages; here = the product id or page code being viewed
+  COMMS.strip = (cid, here) => `<div class="small" style="margin-top:4px">${esc(COMMS.name)}: ${[
+    ...COMMS.products.map(id => [id, P[id].code === "ACP" ? "Comm Plan" : P[id].code, `product.html?p=${id}&c=${encodeURIComponent(cid)}`]),
+    ...COMMS.pages.map(pg => [pg.code, pg.code, pg.href])].map(([k, l, h]) => k === here ? `<b>${esc(l)}</b>` : `<a href="${h}">${esc(l)}</a>`).join(" · ")}</div>`;
+
   window.AOC.PRODUCTS = P;
+  window.AOC.COMMS = COMMS;
   window.AOC.COMM = { COLORS: COMM_COLORS, TEMPLATE: COMM_TEMPLATE, cellStyle, blankMatrix, channels };
   window.AOC.FUTURE = FUTURE;
   window.AOC.MILESTONES = MILESTONES;

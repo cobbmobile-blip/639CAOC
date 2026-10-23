@@ -34,6 +34,7 @@
 <script src="js/jceoi-data.js"></script>
 <script src="js/jceoi.js"></script>
 <script src="js/tacan.js"></script>
+<script src="js/tdl.js"></script>
 
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:12px">
@@ -127,7 +128,9 @@
         const n = r.counts, fresh = AOC.TACAN.scrubWithChanges(cid, mf, AOC.MIZ.files(cid).at(-2)).findings.filter(f => f.isNew && f.sev !== "info").length;
         return `<p class="small">TACAN scrub: <a href="mission-file.html?c=${encodeURIComponent(cid)}">${r.tacans.length} TACAN · ${r.icls.length} ICLS</a> ·
           <span style="${n.error ? "color:var(--danger, #e5484d);font-weight:600" : ""}">${n.error} error${n.error === 1 ? "" : "s"}</span> ·
-          <span style="${n.warn ? "color:var(--warn)" : ""}">${n.warn} warning${n.warn === 1 ? "" : "s"}</span>${fresh ? ` · ${fresh} new in v${mf.v}` : ""}</p>`; })()}`
+          <span style="${n.warn ? "color:var(--warn)" : ""}">${n.warn} warning${n.warn === 1 ? "" : "s"}</span>${fresh ? ` · ${fresh} new in v${mf.v}` : ""}</p>`; })()}
+      ${AOC.TDL && mf.tdl ? (() => { const fs = AOC.TDL.check(cid, { ...(AOC.Store.content(cid, "optasklink") || {}), miz: AOC.TDL.pull(mf) }), e = fs.filter(f => f.sev === "error").length, w = fs.filter(f => f.sev === "warn").length;
+        return `<p class="small">Datalinks: <a href="product.html?p=optasklink&c=${encodeURIComponent(cid)}">OPTASKLINK</a> · <span style="${e ? "color:var(--danger, #e5484d);font-weight:600" : ""}">${e} error${e === 1 ? "" : "s"}</span> · ${w} warning${w === 1 ? "" : "s"}</p>`; })() : ""}`
       : `<p class="muted small">The host hasn't sent its draft .miz yet.</p>`;
     // debriefs
     const db = Object.entries(c.debriefs || {}).sort((a, b) => b[0] - a[0]);

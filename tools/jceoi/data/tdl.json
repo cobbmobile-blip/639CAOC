@@ -1,0 +1,87 @@
+{
+  "_note": "vCAOC tactical data link plan for the OPTASKLINK, built automatically: network moniker, JICO, NTR and effective period, everything the host's .miz puts on the network (AI AWACS as donors, warships and EWR/GCI as notional C2 STNs, other AI Link 16 aircraft, the F/A-18C setup), then the ATO's human flights set in the cockpit (F-16C STNs, A-10C II SADL TNs, AH-64D IDM nets).",
+  "sources": {
+    "CJCSM 6120.01 (JMTOP)": "OPTASKLINK content: networks, participants and unit numbers, NTR, JICO",
+    "DCS mission files": "STN_L16, VoiceCallsignLabel/Number, datalinks.Link16 (FA-18C: AIC/FF1/FF2/VOCA/VOCB channels; F-16C: mission/fighter/special channels), SADL_TN + datalinks.SADL (AirKey, GatewayKey), TN_IDM_LB + datalinks.IDM presets"
+  },
+  "stn": {
+    "reserved": [
+      {
+        "from": "00000",
+        "to": "00000",
+        "use": "Not a valid STN"
+      },
+      {
+        "from": "00001",
+        "to": "00177",
+        "use": "C2 assets (AWACS, JSTARS, ships, GCI) — assigned in the OPTASKLINK header"
+      },
+      {
+        "from": "77777",
+        "to": "77777",
+        "use": "Not a valid STN"
+      }
+    ],
+    "blocksExcluded": [
+      "000",
+      "001",
+      "777"
+    ],
+    "_blocks": "A block is the first three octal digits (BBB00-BBB77, 64 STNs). Each flight takes a slot of 8 (BBBS0-BBBS7); the lead is BBBS1, members follow. Slot 0 is not used.",
+    "slotsPerBlock": 7,
+    "maxFlightSize": 7,
+    "blocksPerCampaignDefault": 4
+  },
+  "defaults": {
+    "hornet": {
+      "AIC_Channel": 1,
+      "FF1_Channel": 2,
+      "FF2_Channel": 3,
+      "VOCA_Channel": 4,
+      "VOCB_Channel": 5
+    },
+    "viper": {
+      "missionChannel": 1,
+      "fighterChannel": 1,
+      "specialChannel": 1
+    },
+    "sadl": {
+      "AirKey": 10,
+      "GatewayKey": 8
+    }
+  },
+  "sadlTn": "4-digit octal 0FFM: FF = the A-10C flight's number in the campaign (octal 01-77), M = member 1-7. Unique across the SADL network.",
+  "idm": {
+    "presets": 10,
+    "commonPreset": 10,
+    "_note": "Each AH-64D flight gets its own IDM net (preset 1-9); every Apache is also on the common net (preset 10). Originator IDs run across the campaign so they are unique on the common net."
+  },
+  "atoDayStartZ": 3,
+  "_atoDay": "Effective period: the ATO day 0300Z-0259Z holding the mission's vul time (the .miz start time, converted from theater local time).",
+  "monikers": [
+    "COBALT",
+    "HALYARD",
+    "GRANITE",
+    "LODESTAR",
+    "TAPESTRY",
+    "KEYSTONE",
+    "SEXTANT",
+    "PALISADE",
+    "MERIDIAN",
+    "BULWARK",
+    "LANTERN",
+    "TRELLIS",
+    "CAPSTAN",
+    "QUARTZ",
+    "RAMPART",
+    "WARP",
+    "LOOM",
+    "SPINDLE",
+    "CORDON",
+    "BEACON",
+    "ANVIL",
+    "GANTRY",
+    "HAWSER",
+    "VERTEX"
+  ]
+}

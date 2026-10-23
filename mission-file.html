@@ -33,6 +33,7 @@
 <script src="js/jceoi-data.js"></script>
 <script src="js/jceoi.js"></script>
 <script src="js/tacan.js"></script>
+<script src="js/tdl.js"></script>
 
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:12px">
@@ -53,6 +54,7 @@
 
   <section class="panel"><div class="panel-head"><h2>Versions</h2><span class="muted small" id="vN"></span></div><div id="versions"></div></section>
   <section class="panel" id="scrubPanel"></section>
+  <section class="panel" id="tdlPanel"></section>
   <section class="panel" id="curPanel"></section>
 </main>
 
@@ -121,7 +123,21 @@
         <div class="section-h">BLUE flights</div>${flightsTable(cur.flights)}`;
     }
     renderScrub();
+    renderTdl();
     renderCal();
+  }
+
+  // ---------- datalinks the host sets in the .miz (AWACS donors, C2, AI aircraft, F/A-18C), checked with the OPTASKLINK ----------
+  function renderTdl() {
+    const el = document.getElementById("tdlPanel"), mf = pending || MIZ.current(cid);
+    if (!AOC.TDL || !mf) { el.innerHTML = `<div class="panel-head"><h2>Datalinks</h2></div><p class="muted small">Checked on every mission file version.</p>`; return; }
+    if (!mf.tdl) { el.innerHTML = `<div class="panel-head"><h2>Datalinks</h2></div><p class="muted small">This version was sent before datalinks were read — send it again.</p>`; return; }
+    const ok = AOC.Store.content(cid, "optasklink") || {}, pulled = AOC.TDL.pull(mf), fs = AOC.TDL.check(cid, { ...ok, miz: pulled }).filter(f => !/^(A-10C|AH-64D|SADL|IDM)/.test(f.text));
+    const n = k => fs.filter(f => f.sev === k).length;
+    el.innerHTML = `<div class="panel-head"><div><h2>Datalinks${pending ? " — before you send" : ` · v${mf.v}`}</h2>
+        <div class="muted small">What the mission file puts on the Link 16 network — AWACS donors, warships and EWR, AI aircraft STNs, the F/A-18C setup — checked for duplicates and against the OPTASKLINK. Report only.</div></div></div>
+      <p class="small">${pulled.c2.length} C2 / donor · ${pulled.ai.length} AI aircraft · ${pulled.hornet.length} F/A-18C · ${n("error")} error${n("error") === 1 ? "" : "s"} · ${n("warn")} warning${n("warn") === 1 ? "" : "s"}</p>
+      ${fs.length ? `<ul class="finds">${fs.map(f => `<li><span class="sev ${f.sev}">${f.sev === "warn" ? "warning" : f.sev === "info" ? "note" : f.sev}</span> ${esc(f.text)}</li>`).join("")}</ul>` : `<p class="small" style="color:var(--ok)">✓ No datalink problems found.</p>`}`;
   }
 
   // ---------- TACAN / ICLS scrub: report only, the host fixes their own .miz ----------

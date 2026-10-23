@@ -21,15 +21,11 @@
     { "from": "7600", "to": "7677", "use": "Lost communications series (special indicators)", "src": "FAA AIM 4-1-20", "conf": "official" },
     { "from": "7700", "to": "7777", "use": "Emergency series (special indicators); 7777 never used by civil aircraft", "src": "FAA AIM 4-1-20", "conf": "official" }
   ],
-  "blocksExcluded": {
-    "_note": "A block is the first two octal digits (64 blocks of 64 codes). These blocks are never given to a campaign because they hold reserved or special codes.",
-    "blocks": ["00", "12", "20", "40", "70", "74", "75", "76", "77"]
-  },
   "mode3": {
-    "_note": "Each ATO line takes one slot of a campaign block: slot C of block BB covers BBC0-BBC7. The flight lead squawks BBC1; the last member of a non-standard flight squawks BBC1 + (n - 1), as in NELLISAFBI 11-250 §4.3.2 (lead 6411, #4 6414); all others squawk standby. Slot 0 is not used, so nothing ends in 00 and BB00 (non-discrete) is never assigned.",
+    "_note": "A line's Mode 3/A block is its Mode 1 code: SEAD (Mode 1 30) flies 3011-3017, 3021-3027 and so on. Slot C of block BB covers BBC1-BBC7; the flight lead squawks BBC1 and the last member of a non-standard flight squawks BBC1 + (n - 1), as in NELLISAFBI 11-250 §4.3.2 (lead 6411, #4 6414); all others squawk standby. Slot 0 is never used, so nothing ends in 00. A slot holding any reserved code is skipped (block 12 loses 120, 125 and 127). When a block is full the line takes a spare Mode 1 code of the same family, and its block. Mode 3/A starts with Mode 1 because the F-16C sends its first two code wheels as Mode 1.",
     "slotsPerBlock": 7,
     "maxFlightSize": 7,
-    "blocksPerCampaignDefault": 4
+    "minSlotsPerCode": 3
   },
   "mode1": {
     "_note": "First digit = mission family, second digit (0-3) = sub-role. Optional daily rotation adds the ATO day to the second digit (mod 4).",
@@ -48,7 +44,7 @@
   },
   "mode4": {
     "default": "Mode 4 ON. Code A until 0000Z, then code B. In DCS most aircraft answer friend/foe by coalition, so this is discipline and realism, not separation.",
-    "procedures": "Mode 3/C and Mode 4 on from takeoff to landing. Flight lead squawks the ATO Mode 3; the last member of a non-standard flight squawks the ATO last-member code; all others standby. Mode 1 per the ATO mission line. Squawk 7600 lost comms, 7700 emergency. Mode S flight ID = ATO callsign where the aircraft supports it. Turn IFF off only in published IFF-off areas."
+    "procedures": "Mode 3/C and Mode 4 on from takeoff to landing. Flight lead squawks the ATO Mode 3; the last member of a non-standard flight squawks the ATO last-member code; all others standby. Mode 1 per the ATO mission line (always the first two digits of the Mode 3/A code). F-16C: IFF enable switch M1/M3 and dial the Mode 3/A code on the four wheels; the first two wheels are Mode 1. Squawk 7600 lost comms, 7700 emergency. Mode S flight ID = ATO callsign where the aircraft supports it. Turn IFF off only in published IFF-off areas."
   },
   "theaterRules": {
     "Nevada": {

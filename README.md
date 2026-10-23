@@ -23,12 +23,13 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | Page | Who | What |
 |---|---|---|
 | `login.html` | CAOC staff | Staff sign-in |
-| `index.html` | CAOC staff | Campaign dashboard: products, deliverables tracker (CFACC), requests, groups |
+| `index.html` | CAOC staff | Campaign dashboard: products, deliverables tracker (CFACC), requests, groups. The Comm Plan, OPTASKLINK, JCEOI and IFF / SIF sit together as one **Comm / Datalink / IFF** group (built at the same sitting); the JCEOI is reached from there, not the top nav |
+| `product.html?p=optasklink` | CAOC staff | OPTASKLINK: built automatically from the ATO and the host mission file — nothing to fill in but notes |
 | `rollup.html` | CAOC staff (CFACC/CFC publish) | CAOC rollup: deadline timeline (campaign build / mission cycle), product readiness, ATO lines, host debriefs, DKS export preview (Overlay, Agencies changes), the one **PUBLISH** button and **Cycle to next mission** |
 | `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS, Comm Plan, BDA) |
 | `tdp.html` | CAOC staff | TDP book: one target folder per JIPTL target, drafted from the nomination data |
 | `maap.html` | CAOC staff | MAAP: packages of ATO lines against JIPTL targets, with coverage and deconfliction checks; Apply to ATO |
-| `jceoi.html` | CAOC staff | vCAOC JCEOI 26-1: standard Blue net plan (the Comm Plan matrix, clear in every theater), preset load, per-theater frequency registers (DCS in-game + real-world), clear-channel pool, frequency check, `.xlsx` export |
+| `jceoi.html` | CAOC staff | vCAOC JCEOI 26-1: standard Blue net plan (the Comm Plan matrix, clear in every theater), preset load, Nevada (NTTR) plan, IFF / SIF, clear-channel pool, frequency check, `.xlsx` export. The per-theater registers are used for every check but not shown |
 | `map.html` | CAOC staff | Theater map from the ACO: nav/spider/dest points, threats with DCS range rings, FLOT, FSCL, MRR, AR tracks, HVAA orbits, artillery ROZ |
 | `targeting.html` | CAOC staff | Target nomination (from the JIPTL): REDFOR order of battle → JIPTL, ported from the JIPTL pipeline |
 | `campaign-review.html` | CAOC staff (CFC decides) | Campaign proposal review queue |
@@ -85,20 +86,51 @@ persistent for the campaign; normally only tankers and JTACs change, and the rol
 The JCEOI carries an IFF code plan (`tools/jceoi/data/iff.json`, checked by the build; `js/iff.js` on the site):
 
 - **Reserved Mode 3/A codes** never assigned: 0000, 1200, 1202, 1255, 1277, 2000, 4000, 7000, 7400, 7500, the 7600 and
-  7700 series, 7777 (FAA AIM 4-1-20, ICAO practice). Their blocks (00, 12, 20, 40, 70, 74–77) are never given out.
-- **Mode 3/A campaign blocks**: each campaign takes its own 2-digit blocks (BB00–BB77; four by default, editable on
-  the ATO, never another campaign's). Each ATO line takes a slot: the lead squawks BBC1, the last member of a
-  non-standard flight BBC1 + (n − 1), others standby — the NELLISAFBI 11-250 §4.3.2 pattern.
+  7700 series, 7777 (FAA AIM 4-1-20, ICAO practice). A slot holding any of them is skipped (block 12 loses 120, 125, 127).
+- **Mode 3/A starts with the line's Mode 1 code**: SEAD (Mode 1 30) flies 3011–3017, 3021–3027 … Each ATO line takes
+  a slot of its Mode 1 block: the lead squawks BBC1, the last member of a non-standard flight BBC1 + (n − 1), others
+  standby (the NELLISAFBI 11-250 §4.3.2 pattern). A full block spills into the family's spare Mode 1 code (Escort 12 →
+  13). Why: the F-16C's IFF panel shares its four code wheels, and SRS sends the first two as Mode 1, so Mode 1 has to
+  be the first two digits of Mode 3/A. Campaigns use the same blocks; they never fly together. The build checks every
+  Mode 1 code keeps at least three clear slots.
 - **Mode 1 by mission type** (the vCAOC's own scheme): first digit = family (1 counter-air, 2 strike/AI, 3 SEAD/DEAD,
   4 CAS/FAC(A), 5 AR, 6 C2/ISR/AEW, 7 rescue/airlift), second digit 0–3 = sub-role; optional daily rotation.
 - **Mode 2** optional per airframe (group number + aircraft), for full-IFF modules only.
-- **Mode 4 and IFF procedures** default into SPINS section 11 (with IFF-off areas); the Comm Plan prints the campaign's
-  blocks and the Mode 1 table; Nevada adds the NTTR rules (tactical Mode 3 on range, never 1200).
+- **Mode 4 and IFF procedures** default into SPINS section 11 (with IFF-off areas); the Comm Plan prints how Mode 3/A follows
+  Mode 1 and the Mode 1 table; SPINS tells F-16C pilots to use the M1/M3 enable switch; Nevada adds the NTTR rules (tactical Mode 3 on range, never 1200).
 - **Checks** on the ATO (live) and on the Comm Plan: octal, Mode 1 second digit 0–3, reserved and non-discrete codes,
-  last-member code and slot, outside the campaign's blocks, duplicates within the ATO and with other campaigns.
-- The JCEOI page has an **IFF / SIF** tab (reserved register, blocks per campaign, Mode 1 table, code checker) and three
-  IFF sheets in the `.xlsx`.
-- In DCS, Mode 4 is coalition-based for most aircraft; SRS's transponder overlay and LotATC carry Mode 1 / 3 to GCIs.
+  last-member code and slot, Mode 3/A not starting with its Mode 1, reserved slots, duplicates within the ATO.
+  "Assign IFF codes" on the ATO fills lines with no codes and re-assigns any whose Mode 3/A doesn't match its Mode 1.
+- The JCEOI page has an **IFF / SIF** tab: a rollup of the selected campaign's codes by ATO line (human lines first,
+  Mode 1 / Mode 3/A lead–last / Mode 2, a ✓ / ! / ✕ per line and the findings; codes are still assigned on the ATO),
+  then the reserved register, the Mode 1 table with each code's Mode 3/A slots, and the code checker. The `.xlsx` has
+  three IFF sheets, including that campaign's codes.
+- In DCS, Mode 4 is coalition-based for most aircraft. SRS carries Mode 1 and Mode 3/A codes (Mode 2 and Mode 4 are
+  on/off in its overlay; a few cockpits export a real Mode 2) and LotATC shows them to GCIs.
+
+## OPTASKLINK (datalinks)
+
+Product `optasklink` (`js/tdl.js`; plan data `tools/jceoi/data/tdl.json`, checked by the build). A datalink plan, much like
+the Comm Plan, built automatically every time it opens from the ATO and the latest host mission file; staff only save,
+submit and approve it (a note says when it changed).
+
+- **Header**: effective period = the ATO day 0300Z–0259Z holding the mission's vul time (the .miz start time, converted
+  from theater local time; e.g. a 0800Z start on 13 Jul runs 130300Z–140259Z); a network moniker picked once per
+  campaign and never reused (`COBALT LINK`), which is also the JICO callsign (Nevada keeps JUICE on 231.100); NTR = the
+  mission file's AWACS, else the ATO AEW line. Network settings: the F/A-18C channels the host already set (most
+  common), F-16C channels and A-10C SADL keys from the defaults.
+- **Mission file participants** (printed as read, report only): AI AWACS (AWACS-task group or E-3A / E-2C / A-50 /
+  KJ-2000) as the Link 16 donors; warships and EWR/GCI radars as C2, with notional STNs from 00001–00177 (they have
+  none in the Mission Editor); every other AI aircraft with an STN; the F/A-18C setup (STN, voice, channels, donors).
+  Older missions' dictionary names (`DictKey_…`) are resolved.
+- **Human flights from the ATO, set in the cockpit**: F-16C STNs (campaign STN blocks, one slot of 8 per flight, lead
+  BBBS1, never a slot holding a mission file STN); A-10C II SADL TNs `0FFM`; AH-64D IDM nets (each flight its own
+  preset 1–9, all on the common net 10, originator IDs unique across the campaign). Voice callsigns are first + last
+  letter, flight and member (VIPER 1 → VR11). A line keeps its numbers while its callsign and size are unchanged and
+  nothing in the mission file collides; "Reassign every number" starts over.
+- **Checks** (product page, mission file page, rollup): every STN valid, unique across the whole network and not
+  reserved; F-16C STNs unique across campaigns; F/A-18C channels consistent; every AWACS a donor on every F/A-18C;
+  missing STNs listed once; SADL TNs and IDM IDs unique.
 
 ## TACAN / ICLS scrub (mission file)
 
@@ -167,6 +199,22 @@ conversion needs a calibrated theater projection — the browser port of `OLD/to
 Persian Gulf is calibrated (657-point fit, ~1 m). Any other theater is **refused, never guessed**, until it is calibrated
 once on the Mission file page from a Coalition Parser CSV of the same mission (units paired by group + unit name,
 Transverse Mercator fit; accepted only if the worst unit is within 25 m).
+
+## ATO document
+
+The ATO renders in USMTF message format (after the AIR TASKING ORDER guide and the 510th vFS ATO / SPINS / ACO example
+format), then a quick summary: one table of human lines, one of AI lines (no M3-last or M2 columns). The message is built from the ATO
+lines plus what the site already holds, so staff type nothing extra:
+
+- `OPER`, `MSGID`, `AMPN`, `TIMEFRAM`; one `TASKUNIT` per unit (open and AI lines get their own).
+- Per line `AMSNDAT` and `MSNACFT` (number, type, callsign as VIPER11, lead STN from the OPTASKLINK, then Mode 1 / 2 / 3
+  as `1xx` / `2xxxx` / `3xxxx`), `PKGCMD` (the first striker in the package), `CONTROLA` (the AEW line, with the
+  line's mission net from the Comm Plan as primary and check-in as secondary), `GTGTLOC` + `TGTS` for JIPTL targets or
+  `AMSNLOC` for areas (altitudes from the theater-map shape), `REFTSK` (tanker track frequency and TACAN), `ASACSDAT`
+  for the AWACS, `ASUPTFOR` / `ASUPTBY` linking receivers and tankers.
+- General instructions are not part of the ATO; they belong in the SPINS.
+- The ATO editor shows the missions as two grids, human lines then AI lines, with aircraft as "2xF-16C". IFF codes
+  are filled by "Assign IFF codes" and shown in the ATO document and on the IFF / SIF page, not in the grids.
 
 ## ATO line requests (Discord commit)
 

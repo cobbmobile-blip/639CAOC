@@ -449,7 +449,6 @@ window.AOC_SEED = {
       ato: {
         atoDay: "8",
         period: "200600Z OCT 26 – 210559Z OCT 26",
-        general: "All flights check in with DARKSTAR (AWACS) on 251.000. Bullseye: TBILISI. Authenticate per SPINS.",
         // Lines with an empty group are open for volunteers
         missions: [
           { msn: "8101", pkg: "A", group: "g1", callsign: "VIPER 1", type: "F-16C", num: "4", role: "SEAD", tot: "0715Z", target: "IT-0012", tanker: "TEXACO 1" },

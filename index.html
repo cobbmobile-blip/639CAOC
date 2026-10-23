@@ -61,7 +61,7 @@
 </main>
 
 <script>
-  const { Store, esc, PRODUCTS, FUTURE, STAGES, STATUS_LABEL } = AOC;
+  const { Store, esc, PRODUCTS, FUTURE, STAGES, STATUS_LABEL, COMMS } = AOC;
   AOC.renderChrome();
 
   let cid = Store.currentCampaignId();
@@ -86,6 +86,13 @@
       <span class="code">${p.code}</span><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p>
       <div class="foot"><span class="badge ${s}">${STATUS_LABEL[s]}</span><span>${s === "none" ? "Build →" : "Open →"}</span></div></a>`;
   }
+  // reference pages in a product group: no workflow status
+  function pageTile(pg) {
+    return `<a class="tile" href="${pg.href}"><span class="code">${esc(pg.code)}</span><h3>${esc(pg.name)}</h3><p>${esc(pg.desc)}</p>
+      <div class="foot"><span class="badge none">Reference</span><span>Open →</span></div></a>`;
+  }
+  const commsGroup = inner => `<div class="pgroup"><div class="pgroup-h"><b>${esc(COMMS.name)}</b>${esc(COMMS.desc)}</div>${inner}</div>`;
+  const commsTiles = () => COMMS.products.filter(id => PRODUCTS[id]).map(tile).join("") + COMMS.pages.map(pageTile).join("");
   function futureTile(f) {
     return `<div class="tile future" title="To be defined"><span class="code">${f.code}</span><h3>${esc(f.name)}</h3>
       <p>${esc(f.desc)}</p><div class="foot"><span class="badge none">Planned</span></div></div>`;
@@ -94,25 +101,31 @@
   function renderProducts() {
     document.querySelectorAll("[data-layout]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.layout === layout)));
     const el = document.getElementById("products");
-    const ids = Object.keys(PRODUCTS);
+    const ids = Object.keys(PRODUCTS), solo = ids.filter(id => !COMMS.products.includes(id));
 
     if (layout === "tiles") {
-      el.innerHTML = `<div class="tiles">${ids.map(tile).join("")}${FUTURE.map(futureTile).join("")}</div>`;
+      el.innerHTML = `<div class="tiles">${solo.map(tile).join("")}${FUTURE.map(futureTile).join("")}</div>${commsGroup(`<div class="tiles">${commsTiles()}</div>`)}`;
     } else if (layout === "rhythm") {
       // highlight the first stage that still has unpublished work
       const active = STAGES.find(st => ids.some(id => PRODUCTS[id].stage === st.id && Store.status(cid, id) !== "published"))?.id;
       el.innerHTML = `<div class="rhythm">${STAGES.map(st => `<div class="stage ${st.id === active ? "active" : ""}">
         <div class="stage-h">Stage ${st.id}<b>${st.name}</b>${esc(st.desc)}</div>
-        ${ids.filter(id => PRODUCTS[id].stage === st.id).map(tile).join("")}
-        ${FUTURE.filter(f => f.stage === st.id).map(futureTile).join("")}</div>`).join("")}</div>
+        ${solo.filter(id => PRODUCTS[id].stage === st.id).map(tile).join("")}
+        ${FUTURE.filter(f => f.stage === st.id).map(futureTile).join("")}
+        ${COMMS.products.some(id => PRODUCTS[id]?.stage === st.id) ? commsGroup(commsTiles()) : ""}</div>`).join("")}</div>
         <p class="muted small">Daily cycle: guidance flows left to right; assessment feeds the next day's strategy.</p>`;
     } else {
       const c = Store.campaign(cid);
-      el.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Code</th><th>Product</th><th>Owner</th><th>Status</th><th>Updated</th><th></th></tr></thead><tbody>
-        ${ids.map(id => { const p = PRODUCTS[id], s = Store.status(cid, id), u = c.updated?.[id];
-          return `<tr><td class="mono">${p.code}</td><td>${esc(p.name)}</td><td class="muted">${esc(p.owner)}</td>
+      const row = id => { const p = PRODUCTS[id], s = Store.status(cid, id), u = c.updated?.[id];
+        return `<tr><td class="mono">${p.code}</td><td>${esc(p.name)}</td><td class="muted">${esc(p.owner)}</td>
           <td><span class="badge ${s}">${STATUS_LABEL[s]}</span></td><td class="muted">${u ? AOC.zulu(new Date(u)) : "—"}</td>
-          <td><a class="btn sm" href="${link(id)}">${s === "none" ? "Build" : "Open"}</a></td></tr>`; }).join("")}
+          <td><a class="btn sm" href="${link(id)}">${s === "none" ? "Build" : "Open"}</a></td></tr>`; };
+      el.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Code</th><th>Product</th><th>Owner</th><th>Status</th><th>Updated</th><th></th></tr></thead><tbody>
+        ${solo.map(row).join("")}
+        <tr class="pgroup-row"><td colspan="6">${esc(COMMS.name)}</td></tr>
+        ${COMMS.products.filter(id => PRODUCTS[id]).map(row).join("")}
+        ${COMMS.pages.map(pg => `<tr><td class="mono">${esc(pg.code)}</td><td>${esc(pg.name)}</td><td class="muted">CAOC</td><td><span class="badge none">Reference</span></td><td class="muted">—</td>
+          <td><a class="btn sm" href="${pg.href}">Open</a></td></tr>`).join("")}
         ${FUTURE.map(f => `<tr class="muted"><td class="mono">${f.code}</td><td>${esc(f.name)}</td><td>—</td><td><span class="badge none">Planned</span></td><td></td><td></td></tr>`).join("")}
         </tbody></table></div>`;
     }

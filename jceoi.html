@@ -36,8 +36,9 @@
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:12px">
     <div><h1 id="title">JCEOI</h1>
-      <div class="muted small">Joint Communications-Electronics Operating Instructions for vCAOC campaigns in DCS World. Per-theater registers of the documented in-game and
-        real-world frequencies, the standard Blue net plan (the Comm Plan matrix, clear in every theater), and the pool of clear channels.</div></div>
+      <div class="muted small">Joint Communications-Electronics Operating Instructions for vCAOC campaigns in DCS World: the standard Blue net plan (the Comm Plan matrix,
+        clear of every documented in-game and real-world frequency in every theater), the IFF plan and the pool of clear channels.</div>
+      <div id="commsStrip"></div></div>
     <div class="toolbar"><button class="btn primary" id="xlsxBtn">Download .xlsx</button></div>
   </div>
   <div class="panel hidden" id="stale" style="border-color:var(--danger, #e5484d);margin-bottom:12px"></div>
@@ -51,8 +52,9 @@
   AOC.renderChrome();
   const J = X.data;
   document.getElementById("title").textContent = `${J.title}`;
-  const TABS = [["plan", "Net plan"], ["presets", "Preset load"], ["nttr", "Nevada (NTTR plan)"], ["iff", "IFF / SIF"], ["register", "Theater registers"], ["pool", "Clear channels"], ["check", "Check a frequency"], ["about", "Sources & coverage"]];
-  let tab = ["#nttr", "#iff"].includes(location.hash) ? location.hash.slice(1) : (() => { try { return localStorage.getItem("aoc.jceoiTab") || "plan"; } catch { return "plan"; } })();
+  const TABS = [["plan", "Net plan"], ["presets", "Preset load"], ["nttr", "Nevada (NTTR plan)"], ["iff", "IFF / SIF"], ["pool", "Clear channels"], ["check", "Check a frequency"]];
+  let tab = TABS.some(([k]) => `#${k}` === location.hash) ? location.hash.slice(1) : (() => { try { return localStorage.getItem("aoc.jceoiTab") || "plan"; } catch { return "plan"; } })();
+  if (!TABS.some(([k]) => k === tab)) tab = "plan";
   const f3 = f => f == null ? "—" : (+f).toFixed(3);
   const KIND = { nttr: "NTTR assigned", dcs: "DCS ATC", "dcs-nav": "DCS nav", civil: "Real-world civil", nav: "Real-world nav", military: "Real-world military", common: "Common / standard", guard: "Guard" };
   const allFreqs = n => ["uhf", "uhfAlt", "vhf", "fm", "hf"].map(k => n[k]).filter(v => v != null);
@@ -63,17 +65,17 @@
   if (!X.inSync) { const st = document.getElementById("stale"); st.classList.remove("hidden");
     st.innerHTML = `<b>Out of date.</b> This JCEOI was built from a different Comm Plan template than the site now uses, so its net plan may not match the ACP.
       New Comm Plans start without JCEOI frequencies until it is rebuilt: run <span class="mono">python tools/jceoi/build.py</span>.`; }
-  const total = X.theaters.reduce((s, t) => s + t.count, 0) + J.common.length;
   document.getElementById("kpis").innerHTML = [[J.nets.length, "standard channels"], [J.nets.reduce((s, n) => s + allFreqs(n).length, 0), "assigned frequencies"],
-    [X.theaters.length, `theaters (${X.theaters.filter(t => t.dcs).length} with DCS data)`], [total.toLocaleString(), "documented entries"],
+    [X.theaters.length, "theaters"],
     [J.nets.filter(n => !planClear(n)).length, `conflicts in any theater${(J.fixedConflicts || []).length ? " (besides fixed RAZOR, see note)" : ""}`]]
     .map(([v, l]) => `<div class="panel"><b>${v}</b><span class="muted small">${l}</span></div>`).join("");
 
   function renderTabs() {
     document.getElementById("tabs").innerHTML = TABS.map(([k, l]) => `<button data-t="${k}" aria-selected="${k === tab}">${l}</button>`).join("");
     try { localStorage.setItem("aoc.jceoiTab", tab); } catch {}
+    document.getElementById("commsStrip").innerHTML = AOC.COMMS.strip(AOC.Store.currentCampaignId(), tab === "iff" ? "IFF / SIF" : "JCEOI");
   }
-  document.getElementById("tabs").onclick = e => { const b = e.target.closest("[data-t]"); if (b) { tab = b.dataset.t; renderTabs(); render(); } };
+  document.getElementById("tabs").onclick = e => { const b = e.target.closest("[data-t]"); if (b) { tab = b.dataset.t; history.replaceState(null, "", `#${tab}`); renderTabs(); render(); } };
 
   const theaterOpts = (all, sel) => (all ? `<option value="">All theaters</option>` : "") + X.theaters.map(t => `<option value="${esc(t.key)}" ${t.key === sel ? "selected" : ""}>${esc(t.key)}${t.status !== "released" ? " (in development)" : ""}</option>`).join("");
 
@@ -141,31 +143,41 @@
     },
     iff() {
       const I = AOC.IFF, D = I.data, v = state.iff, tbl = (head, rows) => `<div class="table-scroll"><table class="jt"><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
-      const camps = AOC.Store.db.campaigns.map(c => ({ c, bl: c.iff?.blocks || [] }));
-      // what a typed code is: octal?, reserved?, in an excluded block?, which campaign / ATO line has it
+      const m1Role = Object.fromEntries(D.mode1.families.flatMap(f => f.codes));
+      // what a typed code is: octal?, reserved?, which Mode 1 block, which campaign / ATO line has it
       let res = "";
       if (v) {
-        const code = v.trim(), hit = I.reservedHit(code), blk = code.slice(0, 2), owner = camps.find(x => x.bl.includes(blk));
+        const code = v.trim(), hit = I.reservedHit(code), blk = code.slice(0, 2), usable = I.octal(blk, 2) && m1Role[blk] && I.slotsOf(blk).includes(code.slice(0, 3)) && code[3] !== "0";
         const uses = AOC.Store.db.campaigns.flatMap(c => (AOC.Store.content(c.id, "ato")?.missions || []).filter(m => m.m3 === code || m.m3last === code).map(m => `OP ${c.opName} MSN ${m.msn} (${m.m3 === code ? "lead" : "last member"})`));
         res = !I.octal(code, 4) ? `<span class="bad">Not a 4-digit octal code (digits 0–7).</span>`
-          : `${hit ? `<span class="bad">Reserved: ${esc(hit.use)} (${esc(hit.src)}).</span>` : D.blocksExcluded.blocks.includes(blk) ? `<span class="warnt">In excluded block ${esc(blk)} (holds reserved or special codes).</span>` : `<span class="ok">Not reserved.</span>`}
+          : `${hit ? `<span class="bad">Reserved: ${esc(hit.use)} (${esc(hit.src)}).</span>` : `<span class="ok">Not reserved.</span>`}
             ${code.endsWith("00") ? ` <span class="warnt">Non-discrete (ends in 00).</span>` : ""}
-            ${owner ? ` Block ${esc(blk)} belongs to OP ${esc(owner.c.opName)}.` : D.blocksExcluded.blocks.includes(blk) ? "" : ` Block ${esc(blk)} is free.`}
+            ${usable ? ` Mode 1 ${esc(blk)} (${esc(m1Role[blk])}) block, slot ${esc(code.slice(0, 3))}.` : ` <span class="warnt">Not assignable: ${!m1Role[blk] ? `${esc(blk)} is not a Mode 1 code` : code[3] === "0" ? "member digit 0 is never used" : `slot ${esc(code.slice(0, 3))} holds a reserved code`}.</span>`}
             ${uses.length ? ` In use: ${esc(uses.join("; "))}.` : ""}`;
       }
-      return `<p class="small">${esc(D._note)}</p>
+      // the selected campaign's assignments, as the ATO has them, with the checks
+      const cid = state.iffCamp || AOC.Store.currentCampaignId(), camp = AOC.Store.campaign(cid), rows = iffRows(cid);
+      const fs = I.check(cid, AOC.Store.content(cid, "ato")?.missions || [], X.theaterKey(camp.theater)), sevOf = msn => ["error", "warn", "info"].find(k => fs.some(f => f.sev === k && String(f.msn).split(", ").includes(msn)));
+      const n = k => fs.filter(f => f.sev === k).length, ato = `product.html?p=ato&c=${encodeURIComponent(cid)}`;
+      return `<div class="filters"><div><label>Campaign</label><select data-iffc>${AOC.Store.db.campaigns.map(c => `<option value="${c.id}" ${c.id === cid ? "selected" : ""}>OP ${esc(c.opName)}</option>`).join("")}</select></div></div>
+        <div class="section-h">OP ${esc(camp.opName)} — codes by ATO line</div>
+        ${rows.length ? `<p class="small">${rows.filter(x => x.crew === "Human").length} human and ${rows.filter(x => x.crew !== "Human").length} AI lines ·
+            <span class="${n("error") ? "bad" : ""}">${n("error")} error${n("error") === 1 ? "" : "s"}</span> · <span class="${n("warn") ? "warnt" : ""}">${n("warn")} warning${n("warn") === 1 ? "" : "s"}</span> ·
+            <a href="${ato}">Assign or change on the ATO →</a></p>
+          ${tbl(["MSN #", "Callsign", "Group", "Acft", "Crew", "Mission", "Mode 1", "Mode 3/A", "Mode 2", ""], rows.map(x => `<tr><td class="mono">${esc(x.msn)}</td><td>${esc(x.callsign)}</td><td>${esc(x.group)}</td>
+            <td>${esc(x.num)}× ${esc(x.type)}</td><td>${esc(x.crew)}</td><td>${esc(x.role)}</td><td class="mono">${esc(x.m1 || "—")}</td><td class="mono">${esc(x.m3range || "—")}</td><td class="mono">${esc(x.m2 || "—")}</td>
+            <td>${{ error: `<span class="bad">✕</span>`, warn: `<span class="warnt">!</span>`, info: "·" }[sevOf(x.msn)] || `<span class="ok">✓</span>`}</td></tr>`))}
+          ${fs.length ? `<ul class="small">${fs.map(f => `<li class="${f.sev === "error" ? "bad" : f.sev === "warn" ? "warnt" : ""}">MSN ${esc(f.msn)}: ${esc(f.text)}</li>`).join("")}</ul>` : `<p class="small ok">✓ Every line has valid, unique codes.</p>`}`
+          : `<p class="small">No ATO lines yet. <a href="${ato}">Open the ATO →</a></p>`}
+        <p class="small">${esc(D._note)}</p>
         <div class="filters"><div><label>Check a Mode 3/A code</label><input id="iffIn" value="${esc(v)}" placeholder="e.g. 1321" maxlength="4"></div></div>
         ${v ? `<p class="small">${res}</p>` : ""}
         <div class="section-h">Reserved Mode 3/A codes — never assigned</div>
         ${tbl(["Code(s)", "Use", "Source", "Confidence"], D.reserved.map(r => `<tr><td class="mono">${r.from}${r.to !== r.from ? `–${r.to}` : ""}</td><td>${esc(r.use)}</td><td>${esc(r.src)}</td><td>${esc(r.conf)}</td></tr>`))}
-        <p class="small">Excluded blocks (never given to a campaign): <span class="mono">${D.blocksExcluded.blocks.join(", ")}</span>. ${esc(D.blocksExcluded._note)}</p>
-        <div class="section-h">Mode 3/A — campaign blocks and per-line codes</div>
-        <p class="small">${esc(D.mode3._note)}</p>
-        ${tbl(["Campaign", "Theater", "Blocks", "Lines with codes"], camps.map(({ c, bl }) => `<tr><td>OP ${esc(c.opName)}</td><td>${esc(c.theater)}</td><td class="mono">${bl.length ? bl.map(b => `${b}00–${b}77`).join(", ") : "—"}</td>
-          <td>${(AOC.Store.content(c.id, "ato")?.missions || []).filter(m => m.m3).length}</td></tr>`))}
-        <div class="section-h">Mode 1 — by mission type (vCAOC scheme)</div>
-        <p class="small">${esc(D.mode1._note)}</p>
-        ${tbl(["Family", "Codes"], D.mode1.families.map(f => `<tr><td><b>${f.digit}x</b> ${esc(f.family)}</td><td class="mono">${f.codes.map(([c, r]) => `${c} ${esc(r)}`).join(" · ")}</td></tr>`))}
+        <div class="section-h">Mode 1 and its Mode 3/A block</div>
+        <p class="small">${esc(D.mode1._note)} ${esc(D.mode3._note)}</p>
+        ${tbl(["Mode 1", "Mission", "Mode 3/A slots (lead codes)", "Slots"], D.mode1.families.flatMap(f => f.codes.map(([c, role]) => { const sl = I.slotsOf(c);
+          return `<tr><td class="mono"><b>${c}</b></td><td>${esc(role)}</td><td class="mono">${sl.map(x => `${x}1`).join(" · ")}</td><td>${sl.length}</td></tr>`; })))}
         <div class="section-h">Mode 2, Mode 4, procedures</div>
         <ul class="small"><li><b>Mode 2:</b> ${esc(D.mode2._note)}</li><li><b>Mode 4:</b> ${esc(D.mode4.default)}</li><li><b>Procedures (SPINS default):</b> ${esc(D.mode4.procedures)}</li></ul>
         ${Object.entries(D.theaterRules || {}).map(([t, r]) => `<div class="section-h">${esc(t)} rules</div><ul class="small">${r.rules.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`).join("")}
@@ -174,23 +186,6 @@
           <li>Heatblur F-14 / F-4E / Viggen and the F-15E model a fuller IFF where Mode 1/2/3 codes are set in the cockpit.</li>
           <li>SRS's transponder overlay sends Mode 1, Mode 3 and Mode 4; LotATC shows Mode 1 and Mode 3/A to GCIs — that is how the ATO codes are used in multiplayer.</li></ul>
         <p class="small muted">Sources: ${Object.entries(D.sources).map(([k, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(k)}</a>`).join(" · ")}</p>`;
-    },
-    register() {
-      const s = state.reg;
-      const t = X.theaters.find(x => x.key === s.theater);
-      let list = X.register(s.theater).filter(e => (!s.band || e.band === s.band) && (!s.kind || e.kind === s.kind) && (!s.q || `${e.site} ${e.icao} ${e.use} ${e.mhz}`.toLowerCase().includes(s.q.toLowerCase())));
-      const shown = list.slice(0, 1500);
-      const by = k => list.filter(e => e.kind === k).length;
-      return `<div class="filters"><div><label>Theater</label><select data-r="theater">${theaterOpts(false, s.theater)}</select></div>
-          <div><label>Band</label><select data-r="band"><option value="">All</option>${["HF", "VHF-FM", "VHF-NAV", "VHF-AM", "VHF-MAR", "UHF", "LF/MF"].map(b => `<option ${b === s.band ? "selected" : ""}>${b}</option>`).join("")}</select></div>
-          <div><label>Source</label><select data-r="kind"><option value="">All</option>${Object.entries(KIND).filter(([k]) => !["common", "guard"].includes(k)).map(([k, l]) => `<option value="${k}" ${k === s.kind ? "selected" : ""}>${l}</option>`).join("")}</select></div>
-          <div><label>Search</label><input data-r="q" value="${esc(s.q)}" placeholder="site, ICAO, use, MHz"></div></div>
-        <p class="small">${list.length} entries${list.length > shown.length ? ` (first ${shown.length} shown)` : ""} · DCS ATC ${by("dcs")} · DCS nav ${by("dcs-nav")} · civil ${by("civil")} · nav ${by("nav")} · military ${by("military")}
-          ${t && !t.dcs ? `<br><span class="warnt">${esc(t.key)} is ${esc(t.status)}: no in-game DCS data yet — real-world entries only. Add the DCS register when the map ships.</span>` : ""}
-          ${t?.tacan?.length ? `<br>DCS TACAN in use: ${t.tacan.map(b => `${b.ch} ${esc(b.callsign)}`).join(", ")}` : ""}</p>
-        <div class="table-scroll" style="max-height:560px"><table class="jt"><thead><tr><th>MHz</th><th>Band</th><th>Site</th><th>ICAO</th><th>Use</th><th>Source</th><th>Confidence</th></tr></thead><tbody>
-        ${shown.map(e => `<tr><td class="mono">${f3(e.mhz)}</td><td>${e.band}</td><td>${esc(e.site)}</td><td class="mono">${esc(e.icao)}</td><td class="wrap">${esc(e.use)}</td><td>${esc(KIND[e.kind] || e.kind)} <span class="muted">${esc(e.src)}</span></td>
-          <td class="${e.conf === "unverified" || e.conf === "hobbyist" ? "warnt" : ""}">${esc(e.conf)}</td></tr>`).join("")}</tbody></table></div>`;
     },
     pool() {
       const s = state.pool, list = X.pool(s.theater || null, s.band);
@@ -214,32 +209,18 @@
           : `<p class="small">${esc(f3(f))} MHz · ${esc(X.bandOf(f))} · ${hits.length ? `<span class="bad">${hits.length} documented within one channel</span>` : `<span class="ok">clear in every theater</span>`}
             ${inPlan.length ? ` · in the net plan as ${inPlan.map(n => esc(n.id)).join(", ")}` : ""}</p>
             ${Object.entries(byT).map(([t, hs]) => `<div class="section-h">${esc(t)}</div><table class="jt"><tbody>${hs.map(h => `<tr><td class="mono">${f3(h.mhz)}</td><td>${esc(h.site)}</td><td class="mono">${esc(h.icao || "")}</td><td class="wrap">${esc(h.use)}</td><td>${esc(KIND[h.kind] || h.kind)}</td><td>${esc(h.conf)}</td></tr>`).join("")}</tbody></table>`).join("")}`}`;
-    },
-    about() {
-      const rows = X.theaters.map(t => { const r = X.register(t.key), n = k => r.filter(e => e.kind === k).length;
-        return `<tr><td>${esc(t.key)}</td><td>${esc(t.status)}</td><td>${t.dcs ? n("dcs") : "—"}</td><td>${t.dcs ? n("dcs-nav") : "—"}</td><td>${n("civil")}</td><td>${n("nav")}</td><td>${n("military")}</td><td>${t.tacan.length || "—"}</td></tr>`; }).join("");
-      return `<div class="section-h">Coverage by theater</div>
-        <div class="table-scroll"><table class="jt"><thead><tr><th>Theater</th><th>Status</th><th>DCS ATC</th><th>DCS nav</th><th>Civil</th><th>Nav</th><th>Military</th><th>DCS TACAN</th></tr></thead><tbody>${rows}</tbody></table></div>
-        <div class="section-h">Sources</div>
-        <ul class="small">
-          <li><b>DCS in-game</b>: airfield ATC radios (HF, VHF-FM, VHF-AM, UHF) and navigation beacons read from the local DCS World install (Mods/terrains/&lt;map&gt;/radio.lua, beacons.lua) for Caucasus, Nevada, Persian Gulf, Syria, Marianas, Sinai, Kola and Afghanistan;
-            for Iraq, Germany (Cold War) and Falklands (not installed) from the <a href="https://github.com/dcs-retribution/pydcs" target="_blank" rel="noopener">pydcs terrain data</a> (DCS Retribution fork), cross-checked against the dcs-mcp server.</li>
-          <li><b>Real-world civil</b>: airport frequencies and navaids from <a href="https://github.com/davidmegginson/ourairports-data" target="_blank" rel="noopener">OurAirports</a> (public domain), every airfield inside each theater's map rectangle.</li>
-          <li><b>Real-world military</b>: FAA data via AirNav for <a href="https://www.airnav.com/airport/KLSV" target="_blank" rel="noopener">Nellis</a>, <a href="https://www.airnav.com/airport/KINS" target="_blank" rel="noopener">Creech</a>,
-            <a href="https://www.airnav.com/airport/KTNX" target="_blank" rel="noopener">Tonopah Test Range</a>, <a href="https://www.airnav.com/airport/KNFL" target="_blank" rel="noopener">NAS Fallon</a>, <a href="https://www.airnav.com/airport/PGUA" target="_blank" rel="noopener">Andersen</a> (official);
-            third-party listings for Mount Pleasant, Akrotiri, Incirlik, Al Dhafra, Ramstein, Spangdahlem and Evenes (unverified); <a href="https://www.qsl.net/cflg/top150.html" target="_blank" rel="noopener">qsl.net top-150 military list</a> for US common frequencies (hobbyist).</li>
-          <li><b>Standard</b>: 121.500 / 243.000 Guard and 123.100 SAR (ICAO Annex 10); 156.800, 2.182 and 8.364 MHz distress (ITU).</li></ul>
-        <div class="section-h">Known gaps</div>
-        <ul class="small">
-          <li>Military UHF is only published for US bases (FAA). Official UK, Turkish and UAE AIPs could not be reached for verification, so those bases are marked unverified. Russian, Iranian, Syrian, Israeli, Egyptian, Norwegian military and Cold War-era frequencies are not covered.</li>
-          <li>Balkans, Iraq South and Afghanistan North have no DCS data yet; re-run tools/jceoi when they ship. Because the plan stays out of the blocks DCS uses for airfield radios on every released map, it is expected to hold.</li>
-          <li>Germany (Cold War) uses today's civil frequencies; 1980s assignments differed.</li>
-          <li>${esc(J.sourceNotes)}</li></ul>
-        <p class="small muted">Generated ${esc(J.generated)} by tools/jceoi/build.py. Re-run extract_dcs.py after a DCS update, then build.py; it refuses to write a plan with any conflict.</p>`;
     }
   };
+  // one row per ATO line: human lines first, Mode 3/A as lead–last. Crew: the line's own, else flown by a group = human
+  // (unless the group is an AI support cell)
+  function iffRows(cid) {
+    return (AOC.Store.content(cid, "ato")?.missions || []).map(m => { const g = AOC.Store.group(m.group);
+      return { ...m, group: g?.name || "", num: String(AOC.IFF.flightSize(m)), crew: m.crew || (g && !/\(AI\)/.test(g.airframes || "") ? "Human" : "AI"),
+      m3range: m.m3 ? `${m.m3}${m.m3last && m.m3last !== m.m3 ? `–${m.m3last}` : ""}` : "" }; })
+      .sort((a, b) => (a.crew === "Human" ? 0 : 1) - (b.crew === "Human" ? 0 : 1) || String(a.msn).localeCompare(String(b.msn)));
+  }
   const cellStyle = c => COMM.cellStyle ? COMM.cellStyle(c) : "";
-  const state = { iff: "", reg: { theater: "Caucasus", band: "", kind: "", q: "" }, pool: { theater: "", band: "UHF" }, check: "" };
+  const state = { iff: "", pool: { theater: "", band: "UHF" }, check: "" };
   function render() {
     const el = document.getElementById("body"); el.innerHTML = views[tab]();
     const ii = document.getElementById("iffIn");
@@ -248,11 +229,9 @@
     if (ci) { ci.oninput = () => { state.check = ci.value; const pos = ci.selectionStart; render(); const n = document.getElementById("chkIn"); n.focus(); n.setSelectionRange(pos, pos); }; }
   }
   document.getElementById("body").addEventListener("change", e => {
-    const r = e.target.dataset.r, p = e.target.dataset.p;
-    if (r) { state.reg[r] = e.target.value; render(); } else if (p) { state.pool[p] = e.target.value; render(); }
-  });
-  document.getElementById("body").addEventListener("input", e => {
-    if (e.target.dataset.r === "q") { state.reg.q = e.target.value; const pos = e.target.selectionStart; render(); const n = document.querySelector('[data-r="q"]'); n.focus(); n.setSelectionRange(pos, pos); }
+    const p = e.target.dataset.p;
+    if (p) { state.pool[p] = e.target.value; render(); }
+    else if ("iffc" in e.target.dataset) { state.iffCamp = e.target.value; render(); }
   });
 
   // ---------- spreadsheet ----------
@@ -261,9 +240,6 @@
     const wb = XLSX.utils.book_new(), add = (name, rows) => XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), name.slice(0, 31));
     add("Net plan", [["Channel", "Net", "Role", "Callsign", "UHF primary", "UHF alternate", "VHF-AM", "VHF-FM", "HF", "Clear in all theaters"],
       ...J.nets.map(n => [n.id, n.net, n.role, n.callsign, n.uhf, n.uhfAlt, n.vhf, n.fm ?? "", n.hf ?? "", planClear(n) ? "yes" : "NO"])]);
-    X.theaters.forEach(t => add(t.key, [["MHz", "Band", "Site", "ICAO", "Use", "Source type", "Source", "Confidence"],
-      ...X.register(t.key).map(e => [e.mhz, e.band, e.site, e.icao, e.use, KIND[e.kind] || e.kind, e.src, e.conf]),
-      ...(t.tacan.length ? [[], ["DCS TACAN", "Channel", "Callsign", "Site"], ...t.tacan.map(b => ["", b.ch, b.callsign, b.site])] : [])]));
     const np = X.plan("Nevada");
     if (np) {
       add("NTTR CAOC matrix", [["Channel", "Net", "Role", "Callsign", "Freq"], ...np.caoc.matrix.columns.flatMap(col => col.cells.map((x, i) => [`${col.color} ${i + 1}`, col.title, x.role || "", x.callsign || "", x.freq || ""]))]);
@@ -277,16 +253,19 @@
     }
     if (AOC.IFF) {
       const D = AOC.IFF.data;
-      add("IFF reserved", [["From", "To", "Use", "Source", "Confidence"], ...D.reserved.map(r => [r.from, r.to, r.use, r.src, r.conf]), [], ["Excluded blocks", D.blocksExcluded.blocks.join(", ")]]);
-      add("IFF Mode 1", [["Code", "Mission", "Family"], ...D.mode1.families.flatMap(f => f.codes.map(([c, r]) => [c, r, f.family]))]);
-      add("IFF blocks", [["Campaign", "Theater", "Blocks"], ...AOC.Store.db.campaigns.map(c => [`OP ${c.opName}`, c.theater, (c.iff?.blocks || []).join(", ")])]);
+      add("IFF reserved", [["From", "To", "Use", "Source", "Confidence"], ...D.reserved.map(r => [r.from, r.to, r.use, r.src, r.conf])]);
+      add("IFF Mode 1", [["Code", "Mission", "Family", "Mode 3/A lead codes"], ...D.mode1.families.flatMap(f => f.codes.map(([c, r]) => [c, r, f.family, AOC.IFF.slotsOf(c).map(x => `${x}1`).join(", ")]))]);
+      const icid = state.iffCamp || AOC.Store.currentCampaignId();
+      add("IFF codes", [["Campaign", `OP ${AOC.Store.campaign(icid).opName}`], [], ["MSN #", "Callsign", "Group", "#", "Acft", "Crew", "Mission", "Mode 1", "Mode 3/A lead", "Mode 3/A last", "Mode 2"],
+        ...iffRows(icid).map(x => [x.msn, x.callsign, x.group, x.num, x.type, x.crew, x.role, x.m1 || "", x.m3 || "", x.m3last || "", x.m2 || ""])]);
     }
     add("Common", [["MHz", "Band", "Use", "Source", "Confidence"], ...J.common.map(c => [c.mhz, c.band, c.use, c.src, c.conf])]);
     ["UHF", "VHF-AM", "VHF-FM", "HF"].forEach(b => add(`Clear ${b} (all)`, [["MHz", "In net plan"], ...X.pool(null, b).map(c => [c.mhz, c.inPlan ? "yes" : ""])]));
-    add("Sources", [["Source", "Where"], ...Object.entries(J.sources), [], ["Notes", J.sourceNotes]]);
     XLSX.writeFile(wb, `vCAOC_JCEOI_${J.version}.xlsx`);
   };
 
+  // the group strip links JCEOI ↔ IFF / SIF on this same page
+  addEventListener("hashchange", () => { const h = location.hash.slice(1); if (TABS.some(([k]) => k === h)) { tab = h; renderTabs(); render(); } });
   renderTabs(); render();
 </script>
 </body>

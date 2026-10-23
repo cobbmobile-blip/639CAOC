@@ -25,11 +25,11 @@ thunder, keepers, ridge, support — code `unit-demo`.
 
 | Page | Purpose |
 |---|---|
-| `login.html`, `index.html` | Staff sign-in; campaign dashboard (products, CFACC deliverables tracker, ATO line requests, requests, groups) |
+| `login.html`, `index.html` | Staff sign-in; campaign dashboard (products, CFACC deliverables tracker, ATO line requests, requests, groups). `AOC.COMMS` (products.js) groups the Comm Plan, OPTASKLINK, JCEOI and IFF / SIF as "Comm / Datalink / IFF": one dashboard group and a link strip on each of those pages; no JCEOI in the top nav |
 | `rollup.html` | CAOC rollup: deadline timeline, readiness, the single PUBLISH (+ DKS Overlay / Agencies exports), Cycle to next mission |
 | `product.html?p=<id>` | Product builder + live document preview: `pcon ci aod jiptl tdp maap ato aco spins acp bda` (`tdp`, `maap` are built on their own pages) |
 | `tdp.html`, `maap.html` | TDP book (folder per JIPTL target); MAAP (packages, checks, Apply to ATO) |
-| `jceoi.html` | JCEOI: per-theater frequency registers, standard Blue net plan, clear-channel pool, .xlsx export |
+| `jceoi.html` | JCEOI: standard Blue net plan, presets, NTTR plan, IFF, clear-channel pool, frequency check, .xlsx export (registers feed the checks, not shown) |
 | `map.html` | Theater map (opened from the ACO) |
 | `targeting.html` | Target nomination — browser port of `OLD/tools/jiptl_pipeline/jiptl_generate.py` |
 | `campaign-review.html` | CFC review of campaign proposals |
@@ -39,7 +39,9 @@ thunder, keepers, ridge, support — code `unit-demo`.
 | `debrief.html` | Host unit enters the post-mission debrief |
 | `campaign-submit.html` | Group submits a campaign proposal |
 
-`js/app.js` storage/auth/roles/chrome · `js/data.js` seed data · `js/products.js` product schemas + renderers
+`js/app.js` storage/auth/roles/chrome · `js/data.js` seed data · `js/products.js` product schemas + renderers (a table
+field may set `show(row, group)` to edit a subset of its array, `newRow` defaults, and `iffPanel`; the ATO uses two
+fields on `missions`, human then AI)
 (product registry: add a product = add an entry) · `js/proposal.js` proposal wizard · `js/targeting.js` JIPTL
 pipeline · `js/ato.js` ATO lines, `.miz` reader, Discord payloads, commit · `js/package.js` deadlines, DKS
 exports, PUBLISH, cycle · `css/styles.css` 3 themes. Deadline defaults: `MILESTONES` in `js/products.js`.
@@ -104,9 +106,16 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
   .miz x/y → lat/lon only for **calibrated** theaters (Persian Gulf built in; others fitted once from a Coalition
   Parser CSV of the same mission, max 25 m). **Never hand-enter or guess a projection.** Score = key-task weight + tier
   weight; cap per task; numbers T10001+; SAM sites are named after their doctrinally-critical unit.
-- **IFF plan** (`tools/jceoi/data/iff.json` → `js/jceoi-data.js` `iff`; `js/iff.js`): reserved codes and their blocks are
-  never assigned; campaigns own Mode 3/A blocks (`campaign.iff.blocks`); ATO rows carry `m1`, `m3` (lead), `m3last`,
+- **IFF plan** (`tools/jceoi/data/iff.json` → `js/jceoi-data.js` `iff`; `js/iff.js`): reserved codes (and any slot
+  holding one) are never assigned; a line's Mode 3/A block is its Mode 1 code (`IFF.slotsOf`), because the F-16C sends
+  its first two code wheels as Mode 1; `campaign.iff.blocks` is no longer used; ATO rows carry `m1`, `m3` (lead), `m3last`,
   optional `m2`. The Mode 1 table is the vCAOC's own scheme (real assignments are not public).
+- **OPTASKLINK** (`js/tdl.js`, `tools/jceoi/data/tdl.json`) is fully automatic: `TDL.build` runs every time it opens
+  (period, moniker/JICO, NTR, network settings, mission file participants via `TDL.pull`, ATO human lines via
+  `TDL.assign`); the form is only notes. The minimal-staff rule: never add fields the CAOC must fill in. Mission file
+  content (AI AWACS donors, warships/EWR with notional C2 STNs, AI aircraft STNs, F/A-18C setup) is printed as read;
+  F-16C / A-10C / AH-64D numbers are assigned because pilots set them in the cockpit. The AH-64D link is the IDM, not
+  SADL. All STNs are unique across the network; campaigns own STN blocks and a moniker (`campaign.tdl`).
 - **TACAN scrub** reports only (the CAOC never edits the .miz). Planned values: tanker tracks on the theater map
   (`tacanCh`, `tacanMode`, `tacanCs`) and the SPINS `naval` table. Map TACANs come from the JCEOI DCS beacon list.
 - **ATO lines**: the JFACC/LNO requests lines (from the group's `.miz`: player slots → Human, others → AI, or a form).

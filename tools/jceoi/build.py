@@ -64,18 +64,39 @@ def load_iff():
     octal = lambda c, n: len(c) == n and all(ch in "01234567" for ch in c)
     for r in iff["reserved"]:
         if not (octal(r["from"], 4) and octal(r["to"], 4) and int(r["from"], 8) <= int(r["to"], 8)): errs.append(f"reserved {r['from']}-{r['to']} is not a 4-digit octal range")
-    for b in iff["blocksExcluded"]["blocks"]:
-        if not octal(b, 2): errs.append(f"excluded block {b} is not 2-digit octal")
     codes = [c for f in iff["mode1"]["families"] for c, _ in f["codes"]]
     for c in codes:
         if not octal(c, 2) or c[1] not in "0123": errs.append(f"Mode 1 code {c}: first digit 0-7, second 0-3")
     if len(codes) != len(set(codes)): errs.append("Mode 1 codes repeat")
-    # every reserved code must sit in an excluded block, so campaign blocks can never reach one
-    for r in iff["reserved"]:
-        for blk in {r["from"][:2], r["to"][:2]}:
-            if blk not in iff["blocksExcluded"]["blocks"]: errs.append(f"reserved {r['from']}-{r['to']} is in block {blk}, which is not excluded")
+    # Mode 3/A block = Mode 1 code: each code's block must keep enough slots clear of reserved codes
+    rsv = [(int(r["from"], 8), int(r["to"], 8)) for r in iff["reserved"]]
+    hit = lambda code: any(a <= int(code, 8) <= b for a, b in rsv)
+    m3 = iff["mode3"]
+    for c in codes:
+        free = [s for s in range(1, m3["slotsPerBlock"] + 1) if not any(hit(f"{c}{s}{k}") for k in range(1, m3["maxFlightSize"] + 1))]
+        if len(free) < m3["minSlotsPerCode"]: errs.append(f"Mode 1 {c}: only {len(free)} Mode 3/A slots clear of reserved codes (need {m3['minSlotsPerCode']})")
     if errs: raise SystemExit("build stopped: data/iff.json:" + "".join("\n  " + e for e in errs))
     return iff
+
+
+TDL_JSON = os.path.join(HERE, "data", "tdl.json")
+
+
+def load_tdl():
+    """The datalink (OPTASKLINK) plan, data/tdl.json: STN ranges and blocks, network defaults."""
+    tdl = json.load(open(TDL_JSON, encoding="utf-8")); errs = []
+    octal = lambda c, n: len(c) == n and all(ch in "01234567" for ch in c)
+    for r in tdl["stn"]["reserved"]:
+        if not (octal(r["from"], 5) and octal(r["to"], 5)): errs.append(f"reserved STN {r['from']}-{r['to']} is not 5-digit octal")
+    for b in tdl["stn"]["blocksExcluded"]:
+        if not octal(b, 3): errs.append(f"excluded STN block {b} is not 3-digit octal")
+    for r in tdl["stn"]["reserved"]:
+        for blk in range(int(r["from"][:3], 8), int(r["to"][:3], 8) + 1):
+            if f"{blk:03o}" not in tdl["stn"]["blocksExcluded"]: errs.append(f"reserved STNs {r['from']}-{r['to']} reach block {blk:03o}, which is not excluded")
+    dup = sorted({m for m in tdl["monikers"] if tdl["monikers"].count(m) > 1})
+    if dup: errs.append(f"network monikers listed twice: {', '.join(dup)}")
+    if errs: raise SystemExit("build stopped: data/tdl.json:" + "".join("\n  " + e for e in errs))
+    return tdl
 
 
 def register_for(key, stem, box, ap, fr, nv, mil):
@@ -349,7 +370,7 @@ def main():
             "template": [list(t) for t in tpl],
             "bands": BANDS, "sep": SEP, "guardZone": GUARD_ZONE, "theaters": slim, "common": common, "nets": nets,
             "sources": mil["sources"], "sourceNotes": mil["_note"],
-            "iff": load_iff(),
+            "iff": load_iff(), "tdl": load_tdl(),
             "fixedConflicts": [{"id": a, "mhz": f, "theater": t, "site": site, "documented": m} for a, _, f, t, site, m in fixed_conflicts],
             # theater plans: where a theater's frequency plan is pre-decided (NTTR), campaigns there follow it
             "theaterPlans": {"Nevada": {k: nttr_plan[k] for k in ("summary", "sources", "channels", "tactical", "agencies", "control", "squadron", "caoc", "revisions")}} if NTTR else {}}

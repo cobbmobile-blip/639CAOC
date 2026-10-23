@@ -26,7 +26,8 @@ Comm Plans start without frequencies.
 | `data/dcs_*.json` | in-game ATC radios (HF, VHF-FM, VHF-AM, UHF), nav beacons, TACAN channels |
 | `data/military.json` | real-world military frequencies with source and confidence, plus common/standard ones |
 | `extract_nttr.py`, `data/nttr.json` | Nevada's pre-decided plan: official NTTR / Nellis assignments (AFMAN 13-212V1 NTTR Add A Att 14; NELLISAFBI 11-250 Att 20, transcribed with table references) and the CAOC's NTTR comm matrix, comm card, tankers and range JTACs (read from NTTR_COMM_PLAN.xlsx and the Playground sheets) |
-| `data/iff.json` | IFF/SIF plan: reserved Mode 3/A codes and excluded blocks, Mode 3/A slot scheme, Mode 1 by mission type, Mode 2/4 notes, theater rules (Nevada). The build checks it (octal, Mode 1 second digit 0–3, every reserved code inside an excluded block) |
+| `data/iff.json` | IFF/SIF plan: reserved Mode 3/A codes, Mode 3/A slot scheme (block = the line's Mode 1 code), Mode 1 by mission type, Mode 2/4 notes and procedures, theater rules (Nevada). The build checks it (octal, Mode 1 second digit 0–3, every Mode 1 code keeps at least `minSlotsPerCode` slots clear of reserved codes) |
+| `data/tdl.json` | OPTASKLINK plan: Link 16 STN reserved ranges (00000, C2 00001–00177, 77777) and excluded blocks, slot scheme, network defaults (F/A-18C channels, F-16C channels, A-10C SADL keys), the SADL TN scheme, the AH-64D IDM presets (flight nets 1–9, common net 10), the ATO day start (0300Z) and the network monikers (the build refuses duplicates). The build checks every reserved range sits in an excluded block |
 | `build.py` | reads the ACP template, merges everything, generates the net plan, checks it |
 
 Re-run `extract_dcs.py` after a DCS update or when Balkans / Iraq South / Afghanistan North ship (add their DCS

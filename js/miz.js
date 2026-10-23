@@ -103,13 +103,66 @@
     return out;
   }
 
+  // Datalink setup the host puts in the .miz: F/A-18C and F-16C Link 16 (STN_L16, voice callsign, channels, team, donors),
+  // A-10C II SADL (SADL_TN, Air/Gateway keys, team, donors), AH-64D IDM (TN_IDM_LB, IDM presets with their members),
+  // every other aircraft with an STN_L16 (AI AWACS — an AWACS-task group or an AWACS type — are the Link 16 donors),
+  // and the C2 surface units, which have no STN in the Mission Editor: warships and EWR/GCI radars.
+  const TDL_TYPES = { "FA-18C_hornet": "Link16", "F-16C_50": "Link16", "A-10C_2": "SADL", "AH-64D_BLK_II": "IDM" };
+  const AWACS_TYPES = ["E-3A", "E-2C", "A-50", "KJ-2000"];
+  const CIVIL_SHIP = /seawise|cargo|dry-?cargo|tanker|ferry|zwezdny|handywind|container|speedboat|trawler|yacht|santafe|ship_tilde|bulker|lst_|higgins|veritas|barge/i;
+  const EWR = /EWR|FPS-117|p-19|55G6|1L13|Dog Ear/i;
+  function tdlOf(mission) {
+    const out = [];
+    ["blue", "red", "neutrals"].forEach(side => arr(mission?.coalition?.[side]?.country).forEach(ct => ["plane", "helicopter", "ship", "vehicle"].forEach(cat =>
+      arr(ct?.[cat]?.group).forEach(g => arr(g.units).forEach(u => {
+        if (cat === "ship" || cat === "vehicle") {
+          const role = cat === "ship" ? (CIVIL_SHIP.test(u.type) ? null : "Ship") : EWR.test(u.type) ? "EWR / GCI" : null;
+          if (role) out.push({ side, group: g.name || "", unit: u.name || "", unitId: u.unitId, type: u.type, link: "C2", role, callsign: g.name || u.name || "", ai: true });
+          return;
+        }
+        const ap = u.AddPropAircraft || {}, awacs = !TDL_TYPES[u.type] && (g.task === "AWACS" || AWACS_TYPES.includes(u.type));
+        const link = TDL_TYPES[u.type] || (awacs || ap.STN_L16 != null ? "Link16" : null); if (!link) return;
+        const dl = u.datalinks?.[link] || {};
+        const members = n => arr(n?.teamMembers).map(m => m.missionUnitId).filter(x => x != null);
+        const rec = { side, group: g.name || "", unit: u.name || "", unitId: u.unitId, type: u.type, link, skill: u.skill || "",
+          callsign: typeof u.callsign === "object" ? u.callsign?.name || "" : String(u.callsign ?? ""),
+          voice: ap.VoiceCallsignLabel || ap.VoiceCallsignNumber ? `${ap.VoiceCallsignLabel || ""}${ap.VoiceCallsignNumber || ""}` : "", awacs, ai: !/^(Client|Player)$/.test(u.skill || "") };
+        if (link === "Link16") Object.assign(rec, { stn: ap.STN_L16 ?? null, settings: dl.settings || {}, team: members(dl.network), donors: arr(dl.network?.donors).map(m => m.missionUnitId) });
+        if (link === "SADL") Object.assign(rec, { tn: ap.SADL_TN ?? null, settings: dl.settings || {}, team: members(dl.network), donors: arr(dl.network?.donors).map(m => m.missionUnitId) });
+        if (link === "IDM") {
+          const np = dl.network?.presets || {}, sp = dl.settings?.presets || {};
+          rec.id = ap.TN_IDM_LB ?? null; rec.ownship = ap.OwnshipCallSign || "";
+          rec.presets = Object.keys({ ...sp, ...np }).map(k => ({ preset: +k, name: sp[k]?.presetName || "", callSign: sp[k]?.callSign || "", freq: sp[k]?.primaryFreq ?? null,
+            longbow: !!sp[k]?.LB_Net, members: arr(np[k]?.members).map(m => m.missionUnitId).filter(x => x != null) })).sort((a, b) => a.preset - b.preset);
+        }
+        out.push(rec);
+      })))));
+    return out;
+  }
+
   async function read(file) {
     if (!window.JSZip) throw new Error("the zip reader didn't load");
     const zip = await JSZip.loadAsync(file), entry = zip.file("mission");
     if (!entry) throw new Error("no 'mission' file inside — is this a DCS .miz?");
     const mission = ATO.parseLuaTable(await entry.async("string"));
-    return { theatre: mission.theatre || "", date: mission.date ? `${mission.date.Year}-${String(mission.date.Month).padStart(2, "0")}-${String(mission.date.Day).padStart(2, "0")}` : "",
-      flights: ATO.mizFlights(mission, "blue"), red: coalitionUnits(mission, "red"), beacons: beaconsOf(mission) };
+    // older missions keep names in the l10n dictionary (DictKey_…): put the text back in place
+    const dictEntry = zip.file("l10n/DEFAULT/dictionary");
+    if (dictEntry) {
+      const dict = ATO.parseLuaTable(await dictEntry.async("string")) || {};
+      const fix = o => { if (o && typeof o === "object") for (const k in o) { const v = o[k]; if (typeof v === "string" && v.startsWith("DictKey_") && dict[v] != null) o[k] = dict[v]; else fix(v); } };
+      fix(mission);
+    }
+    return { theatre: mission.theatre || "", start: mission.start_time ?? null, date: mission.date ? `${mission.date.Year}-${String(mission.date.Month).padStart(2, "0")}-${String(mission.date.Day).padStart(2, "0")}` : "",
+      flights: ATO.mizFlights(mission, "blue"), red: coalitionUnits(mission, "red"), beacons: beaconsOf(mission), tdl: tdlOf(mission) };
+  }
+
+  // mission start time (DCS start_time is theater local time, seconds after midnight) as a UTC Date
+  const UTC_OFFSET = { Caucasus: 4, Nevada: -7, PersianGulf: 4, Syria: 3, MarianaIslands: 10, MarianaIslandsWWII: 10, Normandy: 1, TheChannel: 1,
+    Falklands: -3, SinaiMap: 2, Kola: 3, Afghanistan: 4.5, Iraq: 3, GermanyCW: 1 };
+  function startUtc(mf) {
+    if (!mf?.date || mf.start == null) return null;
+    const t = Date.parse(`${mf.date}T00:00:00Z`) + (mf.start - (UTC_OFFSET[mf.theatre] ?? 0) * 3600) * 1000;
+    return isFinite(t) ? new Date(t) : null;
   }
 
   // REDFOR rows in the target-nomination shape, or null when the theater has no calibrated projection
@@ -142,5 +195,5 @@
     d.projections[theatre] = { ...p, calibration: note, when: new Date().toISOString() }; Store.save();
   }
 
-  window.AOC.MIZ = { BUILTIN, projection, xyToLatLon, fit, metres, read, redRows, files, current, submit, diff, saveProjection };
+  window.AOC.MIZ = { tdlOf, startUtc, UTC_OFFSET, BUILTIN, projection, xyToLatLon, fit, metres, read, redRows, files, current, submit, diff, saveProjection };
 })();
