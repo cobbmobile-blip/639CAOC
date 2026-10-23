@@ -8,7 +8,7 @@
   },
   "general": [
     { "title": "Law of armed conflict", "text": "All forces comply with the law of armed conflict: military necessity, distinction, proportionality and the avoidance of unnecessary suffering." },
-    { "title": "Self-defense", "text": "Nothing in these ROE limits the inherent right and obligation of self-defense. Aircrew may take all necessary and proportional action in response to a hostile act or demonstrated hostile intent, without further authority." },
+    { "title": "Self-defense", "text": "Nothing in these ROE limits the inherent right and obligation of self-defense. Aircrew may take all necessary and proportional action in response to an attack or the threat of an imminent attack on friendly forces, without further authority." },
     { "title": "Precedence", "text": "These ROE take precedence over unit SOPs. The SPINS set out how they are applied; where the SPINS and the ROE differ, the ROE govern." }
   ],
   "surface": [
@@ -30,6 +30,7 @@
     ["RIDER", "A BOGEY complying with the ACO or safe-passage procedures."],
     ["OUTLAW", "A contact that meets the point-of-origin criteria in the ID criteria."]
   ],
+  "declareNote": "The hostile act and hostile intent criteria below are used to declare a contact HOSTILE. A HOSTILE declaration authorizes engagement under these ROE, before any attack is imminent; it is separate from, and adds to, the right of self-defense in 1.2.",
   "hostileAct": [
     "A weapons launch, or any other attack or use of force against friendly forces."
   ],

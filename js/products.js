@@ -345,6 +345,7 @@
       <p><b>RESTRICTED / NO-STRIKE TARGETS:</b></p>${(d.restricted || []).length ? table([["target", "TARGET / AREA"], ["restriction", "RESTRICTION"]], d.restricted) : "<p>None designated beyond the protected structures above.</p>"}
       <p><b>WEAPONS RESTRICTIONS:</b></p>${table([["weapon", "WEAPON / CATEGORY"], ["status", "STATUS"], ["applies", "APPLIES TO"], ["conditions", "CONDITIONS"]], d.weapons)}${d.weaponsNotes ? `<p>${esc(d.weaponsNotes)}</p>` : ""}
       <h2>3. AIR ROE</h2>${terms("CLASSIFICATION", R.idTerms)}
+      <p><b>HOSTILE ACT / HOSTILE INTENT — CRITERIA TO DECLARE HOSTILE.</b> ${esc(R.declareNote || "")}</p>
       <p><b>HOSTILE ACT:</b></p>${list(R.hostileAct)}<p><b>HOSTILE INTENT:</b></p>${list(R.hostileIntent)}
       <p><b>ENEMY INDICATIONS:</b></p>${terms("INDICATION", R.enemyIndications)}
       ${d.idCriteria ? `<p><b>ID AND COMMIT CRITERIA:</b> ${esc(d.idCriteria)}</p>` : ""}
