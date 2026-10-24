@@ -3,11 +3,16 @@
 // PUBLISH releases the approved products to the groups and, as options, exports to DKS:
 //   - ACO + theater map -> DKS Overlay (drawn on the DKS theater map; never written into the .miz)
 //   - Comm Plan -> DKS Manage Agencies (persistent theater frequencies; normally only tankers and JTACs change)
+// and posts every released product that is not a DKS export to Discord: the host unit and every active group get one post
+// with the products attached as text files (docs/ATO_Discord_Integration.md, package.posted).
 (function () {
   const { Store, Auth, PRODUCTS, MILESTONES, COMM } = window.AOC;
   const DAY = 864e5;
   // internal working products: built and approved by the CAOC, never released to groups
   const INTERNAL = new Set(["pcon"]);
+  // products that go out as DKS exports (Overlay, Manage Agencies) and so are not attached to the Discord post
+  const DKS_ONLY = new Set(["aco", "acp"]);
+  const FILES_PER_MESSAGE = 10;   // Discord's attachment limit per message; the bot splits larger posts
   // agencies expected to change during a campaign
   const VOLATILE = /TANK|BOOM|DROGUE|MPRS|KC-|JTAC|FAC\(A\)/i;
 
@@ -27,7 +32,7 @@
       pcon: () => isDone(cid, "pcon") || ((Store.content(cid, "pcon")?.items || []).length > 0 && Store.content(cid, "pcon").items.every(i => i.done)),
       mizDraft: () => !!c.missionFiles?.length,
       lineReq: () => lines.length > 0,
-      lineCommit: () => lines.length > 0 && lines.every(l => l.status !== "open"),
+      lineCommit: () => lines.length > 0 && lines.every(l => !["open", "draft"].includes(l.status)),
       publish: () => !!c.packageRelease && (m === "build" || c.packageRelease.atoDay === c.atoDay),
       debrief: () => !!c.debriefs?.[m === "build" ? 1 : c.atoDay - 1]
     };
@@ -60,7 +65,7 @@
   }
 
   // One PUBLISH: approved products to every active campaign group, plus the DKS exports that were ticked
-  function publish(cid, opts = { products: true, overlay: true, agencies: true }) {
+  function publish(cid, opts = { products: true, overlay: true, agencies: true, discord: true }) {
     const c = Store.campaign(cid), groups = c.groups.filter(g => Store.group(g)?.status === "active");
     const released = [], when = new Date().toISOString(), by = Auth.user()?.callsign, ex = dksExports(cid);
     if (opts.products) wanted(c).filter(pid => Store.status(cid, pid) === "approved").forEach(pid => {
@@ -85,9 +90,48 @@
     }
     if (released.length) ev("package.published", { products: c.packageRelease.current });
     d.dksOutbox = d.dksOutbox.slice(0, 50);
+    // Discord: the prototype records the post without the file contents (they are rebuilt from the released versions)
+    if (opts.discord) {
+      const { files, ...post } = discordPost(cid, c.packageRelease);
+      d.discordOutbox = d.discordOutbox || [];
+      d.discordOutbox.unshift({ when, payload: { ...post, files: files.map(f => ({ filename: f.filename, bytes: f.content.length })) } });
+      d.discordOutbox = d.discordOutbox.slice(0, 50);
+      c.packageRelease.discord = { recipients: post.recipients.length, products: post.products.length, files: files.length };
+    }
     Store.save();
-    Store.log(cid, `PUBLISH package v${c.packageRelease.version}: ${released.length ? released.map(r => `${PRODUCTS[r.pid].code} v${r.v}`).join(", ") : "no new products"} → ${groups.length} groups${c.packageRelease.dks.length ? ` · DKS ${c.packageRelease.dks.join(", ")}` : ""}`);
+    Store.log(cid, `PUBLISH package v${c.packageRelease.version}: ${released.length ? released.map(r => `${PRODUCTS[r.pid].code} v${r.v}`).join(", ") : "no new products"} → ${groups.length} groups${c.packageRelease.dks.length ? ` · DKS ${c.packageRelease.dks.join(", ")}` : ""}${c.packageRelease.discord ? ` · Discord post to ${c.packageRelease.discord.recipients} groups (${c.packageRelease.discord.files} files)` : ""}`);
     return c.packageRelease;
+  }
+
+  // ---------- Discord post: every released non-DKS product, as text files, to the host and every active group ----------
+  // a released product as text files, the same text as "Download .txt" (SPINS & ROE gives two files)
+  function productFiles(cid, pid) {
+    const c = Store.campaign(cid), P = PRODUCTS[pid], s = Store.shared(cid, pid); if (!s) return [];
+    const u = Store.db.users.find(x => x.callsign === s.by);
+    const ctx = { campaign: c, user: { callsign: s.by || "AOC", role: u?.role || "AOC staff" }, approval: s.approval, group: id => Store.group(id) };
+    const op = c.opName.replace(/\s+/g, "_"), day = s.data?.atoDay ? `_D${s.data.atoDay}` : "";
+    return (P.docs || [{ code: P.code, render: P.render }]).map(x => ({
+      filename: `${op}_${x.code.replace(/[^\w-]+/g, "_")}${day}_v${s.version}.txt`, content: window.AOC.htmlToText(x.render(s.data, ctx)) }));
+  }
+  // the post for a release (default: the last one). Recipients: the host (the campaign JFACC's group) and every active group.
+  function discordPost(cid, rel = Store.campaign(cid).packageRelease) {
+    const c = Store.campaign(cid), host = c.jfacc?.group;
+    const ids = [...new Set([host, ...c.groups.filter(g => Store.group(g)?.status === "active")].filter(Boolean))];
+    const fresh = new Set((rel?.products || []).map(r => r.pid));
+    const products = wanted(c).filter(pid => !DKS_ONLY.has(pid) && Store.shared(cid, pid)).map(pid => {
+      const s = Store.shared(cid, pid);
+      return { product: pid, code: PRODUCTS[pid].docs ? PRODUCTS[pid].name : PRODUCTS[pid].code, name: PRODUCTS[pid].name, version: s.version,
+        change: fresh.has(pid) ? (s.version === 1 ? "new" : "changed") : "unchanged", files: productFiles(cid, pid) };
+    });
+    const files = products.flatMap(p => p.files), title = `OP ${c.opName} — PUBLISH v${rel?.version ?? "—"} · ATO day ${c.atoDay}`;
+    const tag = { new: "NEW", changed: "CHANGED", unchanged: "" };
+    const content = [`**${title}**`, ...products.map(p => `• ${p.code} v${p.version}${tag[p.change] ? ` — **${tag[p.change]}**` : ""}`),
+      rel?.dks?.length ? `In DKS: ${rel.dks.join(", ")}` : "", "Full set on Op Status. Files attached."].filter(Boolean).join("\n");
+    return { event: "package.posted", campaign_id: cid, operation: c.opName, ato_day: c.atoDay, package: rel?.version ?? null,
+      published_at: rel?.when ?? null, published_by: rel?.by ?? null, title, content,
+      recipients: ids.map(g => ({ group_id: g, group: Store.group(g)?.name || g, host: g === host })),
+      products: products.map(({ files: f, ...p }) => ({ ...p, files: f.map(x => x.filename) })),
+      dks: rel?.dks || [], op_status: "unit.html", messages: Math.max(1, Math.ceil(files.length / FILES_PER_MESSAGE)), files };
   }
 
   // After the host's debrief: next ATO day, daily products back to draft for the new cycle
@@ -101,5 +145,5 @@
     Store.log(cid, `Cycled from ATO day ${from} to ATO day ${c.atoDay}; daily products back to draft`);
   }
 
-  window.AOC.PACKAGE = { INTERNAL, DAILY, wanted, mode, t0, tlabel, milestones, dksExports, publish, cycle };
+  window.AOC.PACKAGE = { INTERNAL, DAILY, DKS_ONLY, wanted, mode, t0, tlabel, milestones, dksExports, discordPost, publish, cycle };
 })();

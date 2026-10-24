@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Virtual AOC — ATO Line Requests</title>
+<title>Virtual AOC — ATO Lines</title>
 <link rel="stylesheet" href="css/styles.css">
 <style>
   .alay { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
@@ -15,7 +15,7 @@
   .crew { font: 600 10.5px var(--mono); padding: 2px 6px; border-radius: 3px; border: 1px solid currentColor; }
   .crew.Human { color: var(--accent); } .crew.AI { color: var(--muted); }
   .st { font: 600 10.5px var(--mono); text-transform: uppercase; letter-spacing: .05em; }
-  .st.open { color: var(--warn); } .st.committed { color: var(--ok); } .st.ai, .st.cancelled { color: var(--muted); }
+  .st.draft { color: var(--info, #4aa3df); } .st.open { color: var(--warn); } .st.committed { color: var(--ok); } .st.ai, .st.cancelled { color: var(--muted); }
   .rcpt { font-size: 12px; color: var(--muted); margin-top: 6px; }
   /* Discord post preview (generic look — the real post comes from the existing bot) */
   .dpost { background: #313338; color: #dbdee1; border-radius: 8px; padding: 14px; font: 14px/1.4 "Segoe UI", system-ui, sans-serif; }
@@ -42,7 +42,7 @@
   <section class="campaign-head">
     <div>
       <div class="op" id="who"></div>
-      <h1 id="title">ATO line requests</h1>
+      <h1 id="title">ATO lines</h1>
       <div class="campaign-meta" id="meta"></div>
     </div>
     <div class="campaign-select"><label for="campaign">Campaign</label><select id="campaign"></select></div>
@@ -61,7 +61,7 @@
 
   // only the campaign's sponsoring group (its JFACC / LNO) requests lines
   const mine = Store.db.campaigns.filter(c => c.jfacc?.group === me.id);
-  let cid = mine[0]?.id, miz = null, previewId = null;
+  let cid = mine[0]?.id, miz = null, previewId = null, editing = null;   // editing: the draft / AI line loaded in the form
   const sel = document.getElementById("campaign");
   sel.innerHTML = mine.map(c => `<option value="${c.id}">OP ${esc(c.opName)} — ${esc(c.theater)}</option>`).join("");
   sel.onchange = () => { cid = sel.value; miz = null; render(); };
@@ -78,11 +78,16 @@
       return;
     }
     const c = camp();
-    document.getElementById("title").textContent = `ATO line requests · OP ${c.opName}`;
+    document.getElementById("title").textContent = `ATO lines · OP ${c.opName}`;
     document.getElementById("meta").innerHTML = `<span>JFACC <b>${esc(c.jfacc.callsign)}</b></span><span>ATO Day <b>${c.atoDay || "—"}</b></span><span>Theater <b>${esc(c.theater)}</b></span>`;
     document.getElementById("targets").innerHTML = (Store.content(cid, "jiptl")?.rows || []).map(r => `<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("");
     body.innerHTML = `<div class="alay">
       <div class="grid" style="align-content:start">
+        <section class="panel">
+          <div class="panel-head"><div><h2>Line requests from squadrons</h2><div class="muted small">Participating squadrons ask for lines on their Op Status page; you get a Discord post too. Approved requests go on the ATO assigned to that squadron.</div></div>
+            <span class="muted small" id="reqCount"></span></div>
+          <div id="sqnReqs"></div>
+        </section>
         <section class="panel">
           <div class="panel-head"><div><h2>From your .miz</h2><div class="muted small">Load your group's mission file: player slots become <b>Human</b> lines, the rest <b>AI</b>. Tick the flights to request.</div></div>
             <div class="toolbar">${AOC.MIZ.current(cid) ? `<button class="btn primary" id="hostMiz">Use mission file v${AOC.MIZ.current(cid).v}</button>` : `<a class="btn" href="mission-file.html?c=${encodeURIComponent(cid)}">Send your mission file…</a>`}
@@ -95,41 +100,21 @@
         </section>
       </div>
       <section class="panel">
-        <div class="panel-head"><h2>Request a line</h2></div>
-        <form id="reqForm">
-          <div class="row2">
-            <div class="field"><label>Airframe</label><select name="airframe">${opt(ATO.AIRFRAMES, "F-15E")}</select></div>
-            <div class="field"><label>Aircraft</label><select name="num">${opt(["1", "2", "3", "4"], "4")}</select></div>
-          </div>
-          <div class="row2">
-            <div class="field"><label>Mission</label><select name="role">${opt(ATO.ROLES, "Strike")}</select></div>
-            <div class="field"><label>Crew</label><select name="crew"><option>Human</option><option>AI</option></select></div>
-          </div>
-          <div class="row2">
-            <div class="field"><label>TOT / on-station</label><input name="tot" placeholder="e.g. 0720Z or 0600–1000Z"></div>
-            <div class="field"><label>Target / area</label><input name="target" list="targets" placeholder="JIPTL # or area"></div>
-          </div>
-          <div class="row2">
-            <div class="field"><label>Package</label><input name="pkg" placeholder="e.g. A"></div>
-            <div class="field"><label>Callsign (if set)</label><input name="callsign" placeholder="from your .miz"></div>
-          </div>
-          <div class="row2">
-            <div class="field"><label>Base / start</label><input name="base" placeholder="e.g. Kobuleti, ramp"></div>
-            <div class="field"><label>Commit by</label><input name="commitBy" placeholder="e.g. 211800Z OCT 26"></div>
-          </div>
-          <div class="field"><label>Notes for the committing unit</label><textarea name="notes" style="min-height:56px"></textarea></div>
-          <div class="rcpt" id="rcpt"></div>
-          <button class="btn primary" type="submit" style="margin-top:10px">Request ATO line</button>
-        </form>
+        <div class="panel-head"><h2>Create an ATO line</h2></div>
+        ${ATO.lineFormHtml({ id: "reqForm", submit: "Create ATO line" })}
       </section>
     </div>`;
     const f = document.getElementById("reqForm");
-    const upd = () => { document.getElementById("rcpt").innerHTML = f.crew.value === "AI" ? "AI line — goes straight onto the ATO; your group builds it in the .miz. Nothing is posted." : recipientsText(f.airframe.value); };
-    f.addEventListener("change", upd); upd();
+    const upd = () => { const ti = AOC.targetIssue(cid, f.target.value);
+      document.getElementById("reqFormRcpt").innerHTML = (ti ? `<span style="color:var(--warn)">! ${esc(ti)}</span><br>` : "") + (f.crew.value === "AI" ? "AI line — goes straight onto the ATO; your group builds it in the .miz. Nothing is posted."
+      : `Saved as a draft: check it in Your ATO lines, then <b>Post to Discord</b>. ${recipientsText(f.airframe.value)}`); };
+    f.addEventListener("change", upd); f.target.addEventListener("input", upd); upd();
     f.onsubmit = e => {
       e.preventDefault();
-      const l = ATO.request(cid, Object.fromEntries(new FormData(f)), { gid: me.id, user: camp().jfacc.callsign });
-      toast(l.status === "open" ? `Line ${l.msn} posted to ${l.recipients.length} groups` : `AI line ${l.msn} added to the ATO`);
+      const fields = Object.fromEntries(new FormData(f));
+      if (editing) { ATO.update(editing, fields); toast(`Line ${ATO.line(editing).msn} updated`); stopEdit(); renderLines(); renderMiz(); return; }
+      const l = ATO.request(cid, fields, { gid: me.id, user: camp().jfacc.callsign });
+      toast(l.status === "draft" ? `Line ${l.msn} saved as a draft — Post to Discord when it's right` : `AI line ${l.msn} added to the ATO`);
       f.reset(); upd(); renderLines(); renderMiz();
     };
     // the version the CAOC already has (mission-file.html) — the usual source for line requests
@@ -143,7 +128,22 @@
       catch (err) { toast(`Couldn't read ${file.name}: ${err.message}`); miz = null; }
       e.target.value = ""; renderMiz();
     };
-    renderMiz(); renderLines();
+    renderMiz(); renderLines(); renderSqnReqs();
+  }
+
+  // squadron requests waiting on the host, then the last decisions
+  function renderSqnReqs() {
+    const el = document.getElementById("sqnReqs"); if (!el) return;
+    const rs = ATO.lineRequests(cid).slice().reverse(), pend = rs.filter(r => r.status === "pending"), done = rs.filter(r => r.status !== "pending").slice(0, 8);
+    document.getElementById("reqCount").textContent = pend.length ? `${pend.length} waiting` : "";
+    const what = r => `<b>${esc(r.fields.num)}× ${esc(r.fields.airframe)}</b> · ${esc(r.fields.role)} · ${esc(r.fields.crew)}<div class="muted small">${[r.fields.tot && `TOT ${r.fields.tot}`, r.fields.target, r.fields.pkg && `Pkg ${r.fields.pkg}`, r.fields.callsign, r.fields.base].filter(Boolean).map(esc).join(" · ")}${r.fields.notes ? `<br>${esc(r.fields.notes)}` : ""}</div>`;
+    el.innerHTML = (pend.length ? `<table class="ft"><thead><tr><th>Squadron</th><th>Requested line</th><th></th></tr></thead><tbody>
+      ${pend.map(r => `<tr><td><b>${esc(Store.group(r.gid)?.name)}</b><div class="muted small">${esc(r.user)} · ${zulu(new Date(r.at))}</div></td><td>${what(r)}</td>
+        <td style="text-align:right;white-space:nowrap"><button class="btn sm primary" data-approve="${r.id}">Approve</button> <button class="btn sm ghost danger" data-deny="${r.id}">Deny</button></td></tr>`).join("")}
+      </tbody></table>` : `<p class="muted small" style="margin:0">No requests waiting.</p>`)
+      + (done.length ? `<div class="section-h" style="margin-top:12px">Decided</div><ul class="list small">${done.map(r => `<li><div class="grow">${esc(Store.group(r.gid)?.name)}: ${esc(r.fields.num)}× ${esc(r.fields.airframe)} ${esc(r.fields.role)}
+        — <b style="color:${r.status === "approved" ? "var(--ok)" : "var(--bad, #e5484d)"}">${r.status === "approved" ? `Approved, line ${esc(ATO.line(r.lineId)?.msn || "")}` : "Denied"}</b>${r.reason ? ` · ${esc(r.reason)}` : ""}
+        <span class="muted">· ${esc(r.decidedBy)} ${zulu(new Date(r.decidedAt))}</span></div></li>`).join("")}</ul>` : "");
   }
 
   function renderMiz() {
@@ -162,14 +162,14 @@
         <td>${d ? esc(d.target) : `<input data-f="target" data-i="${i}" list="targets" placeholder="JIPTL #" style="width:90px">`}</td>
         <td class="muted">${d ? `<span class="st ${d.status}">${esc(d.msn)} ${ATO.STATUS[d.status][0].split(" —")[0]}</span>` : esc(fl.start)}</td></tr>`; }).join("")}
       </tbody></table></div>
-      <div class="toolbar" style="margin-top:8px"><button class="btn primary" id="reqMiz">Request ticked flights</button><span class="muted small">Human flights are posted for commitment; AI flights go straight on the ATO.</span></div>`;
+      <div class="toolbar" style="margin-top:8px"><button class="btn primary" id="reqMiz">Create lines from ticked flights</button><span class="muted small">Human flights are posted for commitment; AI flights go straight on the ATO.</span></div>`;
     el.querySelectorAll("[data-f]").forEach(x => x.addEventListener("input", () => { miz.flights[+x.dataset.i]["_" + x.dataset.f] = x.value; }));
     document.getElementById("reqMiz").onclick = () => {
       const picks = [...el.querySelectorAll("[data-pick]:checked")].map(x => miz.flights[+x.dataset.pick]);
       if (!picks.length) { toast("Tick at least one flight"); return; }
       const made = picks.map(fl => ATO.request(cid, { airframe: fl.airframe, num: fl.num, role: fl._role || fl.role || "Strike", crew: fl.crew,
         tot: fl._tot, target: fl._target, callsign: fl.callsign, base: fl.start, source: miz.name, mizGroup: fl.group }, { gid: me.id, user: camp().jfacc.callsign }));
-      toast(`${made.length} line${made.length > 1 ? "s" : ""} requested — ${made.filter(l => l.status === "open").length} posted for commitment`);
+      toast(`${made.length} line${made.length > 1 ? "s" : ""} created — ${made.filter(l => l.status === "draft").length} draft${made.filter(l => l.status === "draft").length === 1 ? "" : "s"} to check and post`);
       renderMiz(); renderLines();
     };
   }
@@ -178,19 +178,46 @@
     const el = document.getElementById("lines"); if (!el) return;
     const ls = ATO.lines(cid).filter(l => l.requestedBy === me.id && l.status !== "cancelled");
     const n = s => ls.filter(l => l.status === s).length;
-    document.getElementById("lineCount").textContent = `${n("committed")} committed · ${n("open")} open · ${n("ai")} AI`;
-    el.innerHTML = ls.length ? `<table class="ft"><thead><tr><th>Msn</th><th>Line</th><th>Crew</th><th>Status</th><th></th></tr></thead><tbody>
+    document.getElementById("lineCount").textContent = `${n("draft")} draft · ${n("committed")} committed · ${n("open")} open · ${n("ai")} AI`;
+    el.innerHTML = (n("draft") ? `<div class="toolbar" style="margin-bottom:8px"><button class="btn sm primary" data-postall>Post all ${n("draft")} drafts to Discord</button>
+      <span class="muted small">Drafts are not on the ATO and nobody has seen them yet.</span></div>` : "") + (ls.length ? `<table class="ft"><thead><tr><th>Msn</th><th>Line</th><th>Crew</th><th>Status</th><th></th></tr></thead><tbody>
       ${ls.map(l => { const g = Store.group(l.committedBy);
         return `<tr><td class="mono">${esc(l.msn)}</td>
-        <td><b>${l.num}× ${esc(l.airframe)}</b> · ${esc(l.role)}<div class="muted small">${[l.callsign, l.tot && `TOT ${l.tot}`, l.target, l.pkg && `Pkg ${l.pkg}`].filter(Boolean).map(esc).join(" · ")}</div></td>
+        <td><b>${l.num}× ${esc(l.airframe)}</b> · ${esc(l.role)}<div class="muted small">${[...new Set([l.callsign, l.target, l.pkg && `Pkg ${l.pkg}`].filter(Boolean))].map(esc).join(" · ")}</div>
+          ${AOC.targetIssue(cid, l.target) ? `<div class="small" style="color:var(--warn)">! ${esc(AOC.targetIssue(cid, l.target))}</div>` : ""}</td>
         <td><span class="crew ${l.crew}">${l.crew}</span></td>
         <td><span class="st ${l.status}">${ATO.STATUS[l.status][0]}</span>
           <div class="muted small">${l.status === "committed" ? `<b style="color:var(--ok)">${esc(g?.name)}</b> · ${esc(l.committedByUser)} · ${zulu(new Date(l.committedAt))}`
             : l.status === "open" ? `Posted to ${l.recipients.length} group${l.recipients.length === 1 ? "" : "s"} · ${zulu(new Date(l.postedAt))}` : ""}</div></td>
-        <td style="text-align:right">${l.status !== "ai" ? `<button class="btn sm" data-preview="${l.id}">Discord post</button>` : ""}
-          ${l.status === "open" || l.status === "ai" ? `<button class="btn sm ghost danger" data-cancel="${l.id}">Cancel</button>` : ""}
+        <td style="text-align:right;white-space:nowrap">${l.status === "draft" ? `<button class="btn sm primary" data-post="${l.id}">Post to Discord</button>` : ""}
+          ${["draft", "ai"].includes(l.status) ? `<button class="btn sm" data-edit="${l.id}">Edit</button>` : ""}
+          ${l.status !== "ai" ? `<button class="btn sm ghost" data-preview="${l.id}">${l.status === "draft" ? "Preview" : "Discord post"}</button>` : ""}
+          ${["draft", "open", "ai"].includes(l.status) ? `<button class="btn sm ghost danger" data-cancel="${l.id}" title="${l.status === "open" ? "Takes it off the ATO and closes the Discord post" : "Takes it off your lines"}">Remove</button>` : ""}
           ${l.status === "committed" ? `<button class="btn sm ghost" data-release="${l.id}" title="Free the line and post it again">Release</button>` : ""}</td></tr>`; }).join("")}
-      </tbody></table>` : `<p class="muted">No lines requested yet.</p>`;
+      </tbody></table>` : `<p class="muted">No lines yet.</p>`);
+  }
+
+  // load a draft / AI line into the Create form to fix it before it goes out
+  function startEdit(id) {
+    const l = ATO.line(id), f = document.getElementById("reqForm"); editing = id;
+    ["airframe", "role", "crew", "tot", "target", "pkg", "callsign", "base", "commitBy", "notes"].forEach(k => { if (f.elements[k]) f.elements[k].value = l[k] || ""; });
+    f.elements.num.value = String(l.num);
+    const btn = f.querySelector("button[type=submit]"); btn.textContent = `Save line ${l.msn}`;
+    if (!f.querySelector("[data-stopedit]")) btn.insertAdjacentHTML("afterend", ` <button class="btn" type="button" data-stopedit style="margin-top:10px">Cancel edit</button>`);
+    f.closest("section").querySelector("h2").textContent = `Edit ATO line ${l.msn}`;
+    f.dispatchEvent(new Event("change")); f.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function stopEdit() {
+    const f = document.getElementById("reqForm"); editing = null; f.reset();
+    f.querySelector("button[type=submit]").textContent = "Create ATO line"; f.querySelector("[data-stopedit]")?.remove();
+    f.closest("section").querySelector("h2").textContent = "Create an ATO line"; f.dispatchEvent(new Event("change"));
+  }
+  // a second click confirms (native confirm() dialogs are blocked in some browser views)
+  function armed(b, label) {
+    if (b.dataset.armed) return true;
+    b.dataset.armed = "1"; const was = b.textContent; b.textContent = label;
+    setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = was; } }, 3500);
+    return false;
   }
 
   // what the bot posts, plus a demo stand-in for the Commit button press
@@ -210,7 +237,7 @@
           </div>${l.notes ? `<div style="margin-top:6px;font-size:13px">${esc(l.notes)}</div>` : ""}
           ${l.status === "committed" ? `<div style="margin-top:8px;color:#57f287;font-weight:600">✓ Filled by ${esc(Store.group(l.committedBy)?.name)}</div>` : `<span class="cbtn">Commit</span>`}
         </div></div>
-      <div class="rcpt">Posted to: ${l.recipients.map(g => esc(Store.group(g)?.name)).join(", ") || "nobody — no registered group flies this airframe"}</div>
+      <div class="rcpt">${l.status === "draft" ? "Will post to" : "Posted to"}: ${(l.status === "draft" ? ATO.recipients(l.airframe).map(g => g.id) : l.recipients).map(g => esc(Store.group(g)?.name)).join(", ") || "nobody — no registered group flies this airframe"}</div>
       ${l.status === "open" ? `<div class="sim"><b class="small">Demo:</b> <span class="muted small">stand in for a unit pressing Commit (the bot calls the same commit endpoint).</span>
         <div class="toolbar" style="margin-top:8px">${l.recipients.map(g => `<button class="btn sm" data-commit="${g}">Commit as ${esc(Store.group(g)?.name)}</button>`).join("")}</div></div>` : ""}
       <details style="margin-top:12px"><summary class="small">Payload sent to the bot</summary><pre class="json">${esc(JSON.stringify(p, null, 2))}</pre></details></div>`;
@@ -227,8 +254,21 @@
   document.addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return;
     if (b.dataset.preview) preview(b.dataset.preview);
-    if (b.dataset.cancel && confirm("Cancel this ATO line? It comes off the ATO and the Discord post is closed.")) { ATO.cancel(b.dataset.cancel); renderLines(); renderMiz(); }
-    if (b.dataset.release && confirm("Release this commitment and post the line again?")) { ATO.release(b.dataset.release); renderLines(); renderMiz(); }
+    if (b.dataset.cancel && armed(b, "Click to remove")) { if (editing === b.dataset.cancel) stopEdit(); ATO.cancel(b.dataset.cancel); toast("Line removed"); renderLines(); renderMiz(); }
+    if (b.dataset.release && armed(b, "Click to release")) { ATO.release(b.dataset.release); renderLines(); renderMiz(); }
+    if (b.dataset.post) { const l = ATO.line(b.dataset.post); if (editing === l.id) stopEdit(); ATO.postLine(l.id); toast(`Line ${l.msn} posted to ${l.recipients.length} groups`); renderLines(); renderMiz(); }
+    if (b.dataset.postall !== undefined && armed(b, "Click to post them all")) { const ds = ATO.lines(cid).filter(l => l.requestedBy === me.id && l.status === "draft");
+      if (ds.some(l => l.id === editing)) stopEdit(); ds.forEach(l => ATO.postLine(l.id)); toast(`${ds.length} lines posted to Discord`); renderLines(); renderMiz(); }
+    if (b.dataset.edit) startEdit(b.dataset.edit);
+    if (b.dataset.stopedit !== undefined) stopEdit();
+    if (b.dataset.approve) { const res = ATO.decide(b.dataset.approve, true, { user: camp().jfacc.callsign });
+      if (res.ok) toast(`Approved — line ${ATO.line(res.request.lineId).msn} assigned to ${Store.group(res.request.gid)?.name}`); renderSqnReqs(); renderLines(); }
+    // Deny opens a reason box in the row; the reason goes to the squadron with the decision
+    if (b.dataset.deny) { const cell = b.closest("td"); cell.innerHTML = `<input data-reason placeholder="Reason (sent to the squadron)" style="width:220px">
+      <button class="btn sm danger" data-denyok="${b.dataset.deny}">Deny</button> <button class="btn sm ghost" data-denyno>Back</button>`; cell.querySelector("input").focus(); }
+    if (b.dataset.denyno !== undefined) renderSqnReqs();
+    if (b.dataset.denyok) { const why = b.closest("td").querySelector("[data-reason]").value;
+      const res = ATO.decide(b.dataset.denyok, false, { user: camp().jfacc.callsign }, why); if (res.ok) toast("Request denied"); renderSqnReqs(); }
   });
   // a commit arriving from another tab/window (e.g. the integration) updates this page straight away
   window.addEventListener("storage", e => { if (e.key && e.key.startsWith("aoc.db")) { location.reload(); } });

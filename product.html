@@ -192,6 +192,7 @@
       else if (f.type === "checklist") html += checklistEditor(f);
       else if (f.type === "jiptl") html += `<div class="field"><label>${esc(f.label)}</label><input data-path="${f.key}" list="jiptlList" value="${esc(v)}">${hint}</div>`;
       else html += `<div class="field"><label>${esc(f.label)}</label><input data-path="${f.key}" value="${esc(v)}">${hint}</div>`;
+      if (f.iffPanel) html += `<div id="tgtCheck">${tgtCheckHtml()}</div>`;
       if (f.iffPanel && AOC.IFF) html += iffPanel();
     });
     closeHalf();
@@ -209,6 +210,12 @@
         <label class="check-row"><input type="checkbox" data-iffset="mode2" ${s.mode2 ? "checked" : ""}> Mode 2 per airframe (full-IFF modules only)</label></div>
       <div class="toolbar"><button class="btn sm" data-iffact="fill" title="Lines with no codes, or a Mode 3/A that doesn't start with its Mode 1">Assign IFF codes</button><button class="btn sm ghost" data-iffact="all">Reassign all lines</button></div>
       <div id="iffCheck">${iffCheckHtml()}</div></div>`;
+  }
+  // ATO lines whose target number is no longer on the JIPTL
+  function tgtCheckHtml() {
+    const bad = (data.missions || []).map(m => [m, AOC.targetIssue(cid, m.target)]).filter(([, t]) => t);
+    return bad.length ? `<div class="field"><label>Targets</label><ul class="small" style="list-style:none;padding-left:0;margin:0">${bad.map(([m, t]) =>
+      `<li style="color:var(--warn)">! <span class="mono">${esc(m.msn)}</span> ${esc(t)}</li>`).join("")}</ul></div>` : "";
   }
   function iffCheckHtml() {
     const fs = AOC.IFF.check(cid, data.missions || [], AOC.JCEOI?.theaterKey(campaign.theater)), n = k => fs.filter(f => f.sev === k).length;
@@ -382,6 +389,7 @@
     markDirty();
     if (/\.columns\.\d+\.color$/.test(path)) buildForm(); // recolour the column
     if (pid === "ato" && /^missions\./.test(path) && document.getElementById("iffCheck")) document.getElementById("iffCheck").innerHTML = iffCheckHtml();
+    if (pid === "ato" && /^missions\./.test(path) && document.getElementById("tgtCheck")) document.getElementById("tgtCheck").innerHTML = tgtCheckHtml();
     if (pid === "optasklink" && document.getElementById("tdlCheck")) document.getElementById("tdlCheck").innerHTML = tdlCheckHtml();
     else if (/\.columns\./.test(path) && document.getElementById("jceoiCheck")) document.getElementById("jceoiCheck").innerHTML = jceoiCheck(normalizeMatrix(path.split(".")[0]));
     // TDP convenience: picking a JIPTL target pre-fills its basic data

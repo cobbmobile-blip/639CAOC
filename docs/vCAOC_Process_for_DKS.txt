@@ -16,6 +16,7 @@ CONTENTS
        4.4 Group pack -> DKS
        4.5 Things that are done in DKS, not on the site
        4.6 Campaign package PUBLISH -> DKS
+       4.7 ATO line target -> DKS "Assign Target"  ** required **
   5. Data formats (fields you will receive)
   6. Repo layout and paths (files moved!)
   7. Prototype limits / what a real backend needs
@@ -331,6 +332,31 @@ Events queued (prototype: db.dksOutbox; formats to be agreed):
                                          -> DKS Manage Agencies
   package.published  { package, products: [{ pid, v }] }
 
+4.7 ATO LINE TARGET -> DKS "ASSIGN TARGET"   ** REQUIRED **
+-----------------------------------------------------------
+NOTE FOR THE DKS DEVELOPER: when an ATO line is matched to a JIPTL target
+(the line's "Target / Area" holds a JIPTL target number, e.g. T10001, set
+on the ATO or by the MAAP), that assignment must carry over to DKS and
+show up in the DKS "Assign Target" function for that flight. The pilot
+should open DKS and find the target already assigned to their line, not
+have to pick it again.
+
+Per assigned line the site can send:
+  line:    msn, callsign, airframe, number of aircraft, mission type, TOT,
+           package, tasked unit (group)
+  target:  JIPTL target number, name, category, location (MGRS), desired
+           effect, task, grade
+  DMPIs:   from the target's TDP folder when one exists: DMPI id,
+           description, coordinates, weapon
+Lines whose "Target / Area" is an area (CAP, kill box, AO), not a JIPTL
+number, have no target to assign.
+
+When it is sent: with each PUBLISH (as part of package.published, or its
+own event, e.g. targets.assigned { ato_day, lines: [...] }), and again
+whenever an ATO change re-matches a line to a different target. Format,
+event name and how DKS identifies the flight (msn, callsign, or the DKS
+mission/flight id) are open -- see question 9 in section 8.
+
 --------------------------------------------------------------------------------
 5. DATA FORMATS (FIELDS YOU WILL RECEIVE)
 --------------------------------------------------------------------------------
@@ -416,6 +442,10 @@ New root:
      maps a Discord user/guild/role to a registered group_id.
   7. Group pack: what should "Send to DKS" deliver (text, JSON, per product)?
   8. Threat range ring defaults are approximate -- do you have DCS values?
+  9. ATO line -> DKS Assign Target (section 4.7): what does Assign Target
+     need (JIPTL number only, or name / location / DMPIs too), how should a
+     flight be identified (msn, callsign, a DKS id), and should it come with
+     PUBLISH or as soon as the ATO changes?
 
 --------------------------------------------------------------------------------
 9. CONVERSATION LOG (CONDENSED, IN ORDER)

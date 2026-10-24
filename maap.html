@@ -125,6 +125,8 @@
     Object.entries(tk).forEach(([t, by]) => { const e = Object.entries(by).filter(([, v]) => v != null);
       for (let i = 0; i < e.length; i++) for (let j = i + 1; j < e.length; j++) if (Math.abs(e[i][1] - e[j][1]) < 30)
         out.push(["warn", `${t} refuels packages ${e[i][0]} and ${e[j][0]} with TOTs under 30 min apart.`]); });
+    ps.forEach(p => (p.targets || []).forEach(t => { const i = AOC.targetIssue(cid, t, jiptl); if (i) out.push(["bad", `Package ${p.name}: ${i}.`]); }));
+    ps.forEach(p => (p.lines || []).map(byMsn).filter(Boolean).forEach(m => { const i = AOC.targetIssue(cid, m.target, jiptl); if (i) out.push(["warn", `Line ${m.msn}: ${i}.`]); }));
     jiptl.filter(r => r.grade === "A" && !ps.some(p => (p.targets || []).includes(r.id))).forEach(r => out.push(["bad", `Grade A target ${r.id} ${r.name} is not in any package.`]));
     return out;
   }

@@ -76,6 +76,9 @@
 
   <section class="panel" id="groupPanel" style="margin-bottom:16px"></section>
 
+  <section class="panel hidden" id="askPanel" style="margin-bottom:16px"></section>
+  <datalist id="unitTargets"></datalist>
+
   <section class="panel" style="margin-bottom:16px">
     <div class="panel-head">
       <div><h2>Product board</h2><div class="muted small">Released products apply to every participating group. Bars show how many groups hold the current version.</div></div>
@@ -231,15 +234,21 @@
   // the campaign's JFACC group sees the state of every ATO line it requested (filled as units commit on Discord)
   function requestsHtml() {
     if (!me || camp().jfacc?.group !== me.id) return "";
+    const waiting = AOC.ATO.lineRequests(cid).filter(r => r.status === "pending").length;
+    const notice = waiting ? `<p class="small" style="margin:12px 0 0;color:var(--warn)"><b>${waiting} line request${waiting === 1 ? "" : "s"} from squadrons waiting for you</b> — <a href="ato-request.html">Approve or deny →</a></p>` : "";
+    return notice + ownLinesHtml();
+  }
+  function ownLinesHtml() {
     const ls = AOC.ATO.lines(cid).filter(l => l.requestedBy === me.id && l.status !== "cancelled");
     if (!ls.length) return `<p class="small muted" style="margin:12px 0 0">You haven't requested any ATO lines yet — <a href="ato-request.html">request lines</a>.</p>`;
     const n = s => ls.filter(l => l.status === s).length;
-    return `<h3 style="margin:16px 0 6px">Your ATO line requests <span class="muted small" style="font-weight:400">${n("committed")} filled · ${n("open")} open · ${n("ai")} AI</span>
+    return `<h3 style="margin:16px 0 6px">Your ATO line requests <span class="muted small" style="font-weight:400">${n("draft") ? `${n("draft")} draft · ` : ""}${n("committed")} filled · ${n("open")} open · ${n("ai")} AI</span>
         <a class="small" href="ato-request.html" style="font-weight:400;margin-left:8px">Manage →</a></h3>
       <div class="table-scroll"><table><thead><tr><th>Msn</th><th>Line</th><th>Crew</th><th>Status</th></tr></thead><tbody>
-      ${ls.map(l => `<tr><td class="mono">${esc(l.msn)}</td><td>${l.num}× ${esc(l.airframe)} · ${esc(l.role)}${l.tot ? ` · ${esc(l.tot)}` : ""}</td><td>${esc(l.crew)}</td>
+      ${ls.map(l => `<tr><td class="mono">${esc(l.msn)}</td><td>${l.num}× ${esc(l.airframe)} · ${esc(l.role)}${l.target ? ` · ${esc(l.target)}` : ""}</td><td>${esc(l.crew)}</td>
         <td>${l.status === "committed" ? `<span style="color:var(--ok);font-weight:600">✓ Filled by ${esc(Store.group(l.committedBy)?.name)}</span>`
-          : l.status === "open" ? `<span style="color:var(--warn)">Open — posted to ${l.recipients.length} group${l.recipients.length === 1 ? "" : "s"}</span>` : `<span class="muted">AI — you build it</span>`}</td></tr>`).join("")}
+          : l.status === "open" ? `<span style="color:var(--warn)">Open — posted to ${l.recipients.length} group${l.recipients.length === 1 ? "" : "s"}</span>`
+          : l.status === "draft" ? `<span class="muted">Draft — <a href="ato-request.html">post it</a> when it's right</span>` : `<span class="muted">AI — you build it</span>`}</td></tr>`).join("")}
       </tbody></table></div>`;
   }
 
@@ -350,7 +359,31 @@
       receive(pid, s); render();
     }  });
 
-  function render() { renderHeader(); renderHost(); renderGroupPanel(); renderBoard(); renderMatrix(); renderLines(); }
+  // a participating squadron (not the host) asks the host for an ATO line: same questions as the host's Create an ATO Line
+  function renderAsk() {
+    const el = document.getElementById("askPanel"), c = camp(), host = c.jfacc?.group;
+    if (!me || !c || host === me.id) { el.classList.add("hidden"); return; }
+    el.classList.remove("hidden");
+    document.getElementById("unitTargets").innerHTML = (Store.shared(cid, "jiptl")?.data?.rows || []).map(r => `<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("");
+    const mine = AOC.ATO.lineRequests(cid).filter(r => r.gid === me.id).slice().reverse();
+    const state = r => r.status === "pending" ? `<span style="color:var(--warn)">Waiting for the host</span>`
+      : r.status === "approved" ? `<span style="color:var(--ok);font-weight:600">✓ Approved — line ${esc(AOC.ATO.line(r.lineId)?.msn || "")} is yours</span>`
+      : `<span style="color:var(--bad, #e5484d);font-weight:600">Denied</span>${r.reason ? ` · ${esc(r.reason)}` : ""}`;
+    el.innerHTML = `<div class="panel-head"><div><h2>Request a line</h2><div class="muted small">Ask the host, ${esc(Store.group(host)?.name || "the host JFACC")}, to add an ATO line for your squadron. They get a Discord post and approve or deny it; an approved line is assigned to you.</div></div></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start">
+        <div>${AOC.ATO.lineFormHtml({ id: "askForm", submit: "Request a line", targetsList: "unitTargets", defaults: { airframe: String(me.airframes || "").split(/[,;]/)[0].trim() } })}</div>
+        <div><div class="section-h" style="margin-top:0">Your requests</div>${mine.length ? `<ul class="list small">${mine.map(r => `<li><div class="grow"><b>${esc(r.fields.num)}× ${esc(r.fields.airframe)}</b> · ${esc(r.fields.role)}${r.fields.tot ? ` · ${esc(r.fields.tot)}` : ""}
+          <div>${state(r)}</div><div class="muted">${zulu(new Date(r.at))}</div></div></li>`).join("")}</ul>` : `<p class="muted small">None yet.</p>`}</div></div>`;
+    const f = document.getElementById("askForm");
+    const rc = () => { const ti = AOC.targetIssue(cid, f.target.value);
+      document.getElementById("askFormRcpt").innerHTML = (ti ? `<span style="color:var(--warn)">! ${esc(ti)}</span><br>` : "") + `Sent to ${esc(Store.group(host)?.name || "the host")} for approval.`; };
+    f.target.addEventListener("input", rc); rc();
+    f.onsubmit = e => { e.preventDefault();
+      AOC.ATO.askLine(cid, Object.fromEntries(new FormData(f)), { gid: me.id, user: me.contact });
+      toast(`Request sent to ${Store.group(host)?.name || "the host"}`); renderAsk(); };
+  }
+
+  function render() { renderHeader(); renderHost(); renderGroupPanel(); renderAsk(); renderBoard(); renderMatrix(); renderLines(); }
   if (!cid) document.querySelector("main").innerHTML = `<div class="panel">Your group isn't assigned to any campaign yet. Contact the AOC.</div>`;
   else render();
 </script>

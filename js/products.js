@@ -609,7 +609,17 @@
     ...COMMS.products.map(id => [id, P[id].code === "ACP" ? "Comm Plan" : P[id].code, `product.html?p=${id}&c=${encodeURIComponent(cid)}`]),
     ...COMMS.pages.map(pg => [pg.code, pg.code, pg.href])].map(([k, l, h]) => k === here ? `<b>${esc(l)}</b>` : `<a href="${h}">${esc(l)}</a>`).join(" · ")}</div>`;
 
+  // a target field that looks like a JIPTL number (T10001, or an older IT-0012) but is not on the campaign's current JIPTL:
+  // renumbered by a new target nomination, or removed. Areas (CAP KNIFE, AO HAMMER, Pkg B) are never flagged.
+  const TARGET_NO = /^(T\d{4,}|IT-\d{3,})$/i;
+  function targetIssue(cid, target, rows) {
+    const t = String(target || "").trim(); if (!TARGET_NO.test(t)) return null;
+    const S = window.AOC.Store, list = rows || S.content(cid, "jiptl")?.rows || S.shared(cid, "jiptl")?.data?.rows || [];
+    return list.some(r => String(r.id).toUpperCase() === t.toUpperCase()) ? null : `${t} is not on the JIPTL (renumbered or removed?)`;
+  }
+
   window.AOC.PRODUCTS = P;
+  window.AOC.targetIssue = targetIssue;
   window.AOC.COMMS = COMMS;
   window.AOC.COMM = { COLORS: COMM_COLORS, TEMPLATE: COMM_TEMPLATE, cellStyle, blankMatrix, channels };
   window.AOC.FUTURE = FUTURE;

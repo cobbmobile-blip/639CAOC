@@ -44,9 +44,9 @@ window.AOC_SEED = {
       // host debriefs by ATO day (entered on debrief.html by the host unit)
       debriefs: { "7": { by: "g1", user: "SABRE", when: "2026-10-20T00:30:00Z", progress: "On plan", tacview: "", objectives: "Phase II air superiority over the Rioni valley: SA-11 damaged, EWR destroyed.",
         redLosses: "New SA-15 reported 3 NM west of Samtredia (VIPER 3 RWR, 0718Z).", notes: "Fuel depot not attacked (weather) — needs a re-attack.",
-        misreps: [{ msn: "7101", callsign: "VIPER 1", target: "IT-0017", flown: "Yes", result: "Hit — damaged", remarks: "" }, { msn: "7102", callsign: "DUDE 1", target: "IT-0031", flown: "Yes", result: "Hit — destroyed", remarks: "" },
-          { msn: "7103", callsign: "SPRINGFIELD 3", target: "IT-0045", flown: "No — aborted", result: "", remarks: "Weather" }],
-        bda: [{ target: "IT-0017", status: "Moderate damage", reattack: "Yes", notes: "" }, { target: "IT-0031", status: "Destroyed", reattack: "No", notes: "TGP video" }], losses: [] } },
+        misreps: [{ msn: "7101", callsign: "VIPER 1", target: "T10002", flown: "Yes", result: "Hit — damaged", remarks: "" }, { msn: "7102", callsign: "DUDE 1", target: "T10003", flown: "Yes", result: "Hit — destroyed", remarks: "" },
+          { msn: "7103", callsign: "SPRINGFIELD 3", target: "T10005", flown: "No — aborted", result: "", remarks: "Weather" }],
+        bda: [{ target: "T10002", status: "Moderate damage", reattack: "Yes", notes: "" }, { target: "T10003", status: "Destroyed", reattack: "No", notes: "TGP video" }], losses: [] } },
       groups: ["g1", "g2", "g3", "g4", "g6", "g7", "g8", "g10", "g11", "g12", "g13", "g9"], // g9 joined by committing to line 8601
       status: { pcon: "approved", ci: "published", aod: "published", jiptl: "approved", tdp: "draft", maap: "approved", ato: "published", aco: "review", spins: "published", acp: "published", bda: "draft" },
       // seed release history (version + time) for products already published
@@ -96,7 +96,7 @@ window.AOC_SEED = {
     { id: "L8305", cid: "iron-trident", msn: "8305", airframe: "A-10C II", num: 2, role: "CAS", crew: "Human", tot: "1400Z", target: "AO HAMMER", pkg: "", callsign: "", base: "", notes: "", commitBy: "211800Z OCT 26",
       source: "Request form", mizGroup: "", requestedBy: "g1", requestedByUser: "SABRE", requestedAt: "2026-10-19T20:00:00Z", recipients: ["g4"],
       status: "open", postedAt: "2026-10-19T20:00:05Z", committedBy: "", committedAt: "", committedByUser: "" },
-    { id: "L8601", cid: "iron-trident", msn: "8601", airframe: "F-15E", num: 4, role: "Strike", crew: "Human", tot: "0722Z", target: "IT-0045", pkg: "A", callsign: "RUNNER 1", base: "", notes: "", commitBy: "211800Z OCT 26",
+    { id: "L8601", cid: "iron-trident", msn: "8601", airframe: "F-15E", num: 4, role: "Strike", crew: "Human", tot: "0722Z", target: "T10005", pkg: "A", callsign: "RUNNER 1", base: "", notes: "", commitBy: "211800Z OCT 26",
       source: "iron_trident_viper.miz", mizGroup: "Pkg A Strike Eagles", requestedBy: "g1", requestedByUser: "SABRE", requestedAt: "2026-10-19T20:00:00Z", recipients: ["g3", "g9"],
       status: "committed", postedAt: "2026-10-19T20:00:05Z", committedBy: "g9", committedAt: "2026-10-20T01:12:00Z", committedByUser: "RUNNER" },
     { id: "L8602", cid: "iron-trident", msn: "8602", airframe: "KC-135 MPRS", num: 1, role: "AR", crew: "AI", tot: "0630Z", target: "AR TRACK ALPHA", pkg: "", callsign: "SHELL 1", base: "", notes: "", commitBy: "211800Z OCT 26",
@@ -350,18 +350,18 @@ window.AOC_SEED = {
       jiptl: {
         rows: [
           // hand-built example; "Target nomination" regenerates this list from the REDFOR order of battle
-          { id: "IT-0012", name: "SA-10 Battery KUTAISI EAST", task: "1", grade: "A", cat: "SAM (long range)", loc: "38T LM 012 845", effect: "Destroy" },
-          { id: "IT-0017", name: "SA-11 Battalion SENAKI", task: "1", grade: "A", cat: "SAM (medium range)", loc: "38T KM 645 712", effect: "Destroy" },
-          { id: "IT-0031", name: "Early Warning Radar TSKALTUBO", task: "1", grade: "B", cat: "Early warning radar", loc: "38T LM 041 897", effect: "Disrupt" },
-          { id: "IT-0044", name: "Road Bridge LIMA (Rioni)", task: "2", grade: "B", cat: "LOC", loc: "38T LM 102 811", effect: "Deny" },
-          { id: "IT-0045", name: "Fuel Depot SAMTREDIA", task: "2", grade: "B", cat: "Ammo / POL", loc: "38T KM 911 790", effect: "Destroy" },
-          { id: "IT-0052", name: "Armour Assembly Area GOLD", task: "4", grade: "C", cat: "Armor", loc: "38T KM 822 755", effect: "Attrit 30%" }
+          { id: "T10001", name: "SA-10 Battery KUTAISI EAST", task: "1", grade: "A", cat: "SAM (long range)", loc: "38T LM 012 845", effect: "Destroy" },
+          { id: "T10002", name: "SA-11 Battalion SENAKI", task: "1", grade: "A", cat: "SAM (medium range)", loc: "38T KM 645 712", effect: "Destroy" },
+          { id: "T10003", name: "Early Warning Radar TSKALTUBO", task: "1", grade: "B", cat: "Early warning radar", loc: "38T LM 041 897", effect: "Disrupt" },
+          { id: "T10004", name: "Road Bridge LIMA (Rioni)", task: "2", grade: "B", cat: "LOC", loc: "38T LM 102 811", effect: "Deny" },
+          { id: "T10005", name: "Fuel Depot SAMTREDIA", task: "2", grade: "B", cat: "Ammo / POL", loc: "38T KM 911 790", effect: "Destroy" },
+          { id: "T10006", name: "Armour Assembly Area GOLD", task: "4", grade: "C", cat: "Armor", loc: "38T KM 822 755", effect: "Attrit 30%" }
         ]
       },
       // TDP book: one folder per JIPTL target (built on tdp.html)
       tdp: { folders: {
-        "IT-0044": { status: "ready", grade: "B",
-        targetId: "IT-0044",
+        "T10004": { status: "ready", grade: "B",
+        targetId: "T10004",
         name: "Road Bridge LIMA (Rioni)",
         category: "LOC — Bridge",
         coords: "N42°11.420' E042°39.610'",
@@ -380,7 +380,7 @@ window.AOC_SEED = {
         collateral: "Village 1.1 km south. Attack axis east-to-west, release no lower than 15,000 ft.",
         imagery: "Recon pod imagery from 18 OCT available on SRS/Discord #intel.",
         bda: "Post-strike TGP video required; request TARPS pass within 6 hours." },
-        "IT-0012": { status: "draft", grade: "A", targetId: "IT-0012", name: "SA-10 Battery KUTAISI EAST", category: "SAM (long range)", coords: "N42°16.200' E042°49.200'",
+        "T10001": { status: "draft", grade: "A", targetId: "T10001", name: "SA-10 Battery KUTAISI EAST", category: "SAM (long range)", coords: "N42°16.200' E042°49.200'",
           mgrs: "38T LM 012 845", elev: "", description: "SA-10 battery: 5P85 TELARs, 30N6 Flap Lid tracking radar, 64N6 Big Bird search radar, command post.",
           effect: "Destroy — supports key task 1 (air superiority over the Rioni valley)",
           dmpis: [{ id: "A", desc: "30N6 Flap Lid (critical — names the target)", coords: "N42°16.200' E042°49.200'", weapon: "AGM-88C / GBU-31" },
@@ -435,30 +435,30 @@ window.AOC_SEED = {
       // MAAP: packages from the ATO lines against the JIPTL (built on maap.html)
       maap: {
         packages: [
-          { name: "A", tot: "0720Z", push: "0650Z", targets: ["IT-0012", "IT-0017", "IT-0044", "IT-0045"], lines: ["8101", "8102", "8103", "8104", "8105", "8601"], notes: "SEAD/DEAD opens the corridor for the strikers",
+          { name: "A", tot: "0720Z", push: "0650Z", targets: ["T10001", "T10002", "T10004", "T10005"], lines: ["8101", "8102", "8103", "8104", "8105", "8601"], notes: "SEAD/DEAD opens the corridor for the strikers",
             strike: ["8102", "8601"], sead: ["8101", "8104"], escort: ["8103", "8105"], tanker: [] },
-          { name: "B", tot: "1100Z", push: "1030Z", targets: ["IT-0045"], lines: ["8111", "8112", "8113", "8114", "8115"], notes: "Re-attack of the fuel depot",
+          { name: "B", tot: "1100Z", push: "1030Z", targets: ["T10005"], lines: ["8111", "8112", "8113", "8114", "8115"], notes: "Re-attack of the fuel depot",
             strike: ["8112", "8113"], sead: ["8114", "8115"], escort: ["8111"], tanker: [] }
         ],
         lineLabels: { "8101": "8101 VIPER 1 (4× F-16C SEAD)", "8102": "8102 DUDE 1 (2× F-15E AI)", "8103": "8103 SPRINGFIELD 1 (4× F/A-18C Escort)",
           "8104": "8104 KNIGHT 1 (4× F-16C DEAD)", "8105": "8105 EAGLE 1 (4× F-15C OCA)", "8601": "8601 RUNNER 1 (4× F-15E Strike)",
           "8111": "8111 MISTRAL 1 (2× M-2000C Escort)", "8112": "8112 BEAST 1 (2× AV-8B AI)", "8113": "8113 DUDE 3 (2× F-15E AI)",
           "8114": "8114 VIPER 5 (2× F-16C SEAD)", "8115": "8115 TBD (2× F-16C SEAD)" },
-        coverage: "4 of 6 (IT-0012, IT-0017, IT-0044, IT-0045)"
+        coverage: "4 of 6 (T10001, T10002, T10004, T10005)"
       },
       ato: {
         atoDay: "8",
         period: "200600Z OCT 26 – 210559Z OCT 26",
         // Lines with an empty group are open for volunteers
         missions: [
-          { msn: "8101", pkg: "A", group: "g1", callsign: "VIPER 1", type: "F-16C", num: "4", role: "SEAD", tot: "0715Z", target: "IT-0012", tanker: "TEXACO 1" },
-          { msn: "8102", pkg: "A", group: "g3", callsign: "DUDE 1", type: "F-15E", num: "2", role: "AI", tot: "0720Z", target: "IT-0044", tanker: "TEXACO 1" },
+          { msn: "8101", pkg: "A", group: "g1", callsign: "VIPER 1", type: "F-16C", num: "4", role: "SEAD", tot: "0715Z", target: "T10001", tanker: "TEXACO 1" },
+          { msn: "8102", pkg: "A", group: "g3", callsign: "DUDE 1", type: "F-15E", num: "2", role: "AI", tot: "0720Z", target: "T10004", tanker: "TEXACO 1" },
           { msn: "8103", pkg: "A", group: "g2", callsign: "SPRINGFIELD 1", type: "F/A-18C", num: "4", role: "Escort", tot: "0710Z", target: "Pkg A", tanker: "ARCO 1" },
-          { msn: "8104", pkg: "A", group: "g7", callsign: "KNIGHT 1", type: "F-16C", num: "4", role: "DEAD", tot: "0718Z", target: "IT-0017", tanker: "TEXACO 2" },
+          { msn: "8104", pkg: "A", group: "g7", callsign: "KNIGHT 1", type: "F-16C", num: "4", role: "DEAD", tot: "0718Z", target: "T10002", tanker: "TEXACO 2" },
           { msn: "8105", pkg: "A", group: "g13", callsign: "EAGLE 1", type: "F-15C", num: "4", role: "OCA", tot: "0705Z", target: "Pkg A sweep", tanker: "TEXACO 2" },
           { msn: "8111", pkg: "B", group: "g11", callsign: "MISTRAL 1", type: "M-2000C", num: "2", role: "Escort", tot: "1055Z", target: "Pkg B", tanker: "—" },
-          { msn: "8112", pkg: "B", group: "g10", callsign: "BEAST 1", type: "AV-8B", num: "2", role: "AI", tot: "1100Z", target: "IT-0045", tanker: "ARCO 1" },
-          { msn: "8113", pkg: "B", group: "g3", callsign: "DUDE 3", type: "F-15E", num: "2", role: "AI", tot: "1102Z", target: "IT-0045", tanker: "TEXACO 1" },
+          { msn: "8112", pkg: "B", group: "g10", callsign: "BEAST 1", type: "AV-8B", num: "2", role: "AI", tot: "1100Z", target: "T10005", tanker: "ARCO 1" },
+          { msn: "8113", pkg: "B", group: "g3", callsign: "DUDE 3", type: "F-15E", num: "2", role: "AI", tot: "1102Z", target: "T10005", tanker: "TEXACO 1" },
           { msn: "8114", pkg: "B", group: "g1", callsign: "VIPER 5", type: "F-16C", num: "2", role: "SEAD", tot: "1058Z", target: "Pkg B", tanker: "TEXACO 1" },
           { msn: "8115", pkg: "B", group: "", callsign: "TBD", type: "F-16C", num: "2", crew: "Human", role: "SEAD", tot: "1058Z", target: "Pkg B", tanker: "TEXACO 1", lineId: "L8115" },
           { msn: "8201", pkg: "—", group: "g8", callsign: "ROGUE 1", type: "F-14B", num: "2", role: "DCA", tot: "0600–1000Z", target: "CAP KNIFE", tanker: "ARCO 1" },
@@ -473,7 +473,7 @@ window.AOC_SEED = {
           { msn: "8402", pkg: "—", group: "g6", callsign: "ARCO 1", type: "KC-135 MPRS", num: "1", role: "AR", tot: "0630Z", target: "AR TRACK BRAVO", tanker: "—" },
           { msn: "8403", pkg: "—", group: "g6", callsign: "DARKSTAR", type: "E-3A", num: "1", role: "AEW", tot: "0600Z", target: "Orbit WEST", tanker: "—" },
           // requested by the JFACC from the sponsor .miz: a committed F-15E 4-ship and an AI tanker
-          { msn: "8601", pkg: "A", group: "g9", callsign: "RUNNER 1", type: "F-15E", num: "4", crew: "Human", role: "Strike", tot: "0722Z", target: "IT-0045", tanker: "TEXACO 1", lineId: "L8601" },
+          { msn: "8601", pkg: "A", group: "g9", callsign: "RUNNER 1", type: "F-15E", num: "4", crew: "Human", role: "Strike", tot: "0722Z", target: "T10005", tanker: "TEXACO 1", lineId: "L8601" },
           { msn: "8602", pkg: "—", group: "", callsign: "SHELL 1", type: "KC-135 MPRS", num: "1", crew: "AI", role: "AR", tot: "0630Z", target: "AR TRACK ALPHA", tanker: "—", lineId: "L8602" }
         ]
       },
@@ -533,8 +533,8 @@ window.AOC_SEED = {
           { id: "p5", type: "SPIDER POINT", name: "SPIDER 1", lat: 42.32, lng: 42.52, notes: "Pkg A push point" },
           { id: "p6", type: "SPIDER POINT", name: "SPIDER 2", lat: 42.08, lng: 42.86, notes: "Pkg B push point" },
           { id: "p9", type: "THREAT", name: "SA-8 (MOBILE)", system: "SA-8 Gecko (Osa)", range: "5.5", lat: 42.21, lng: 42.74, notes: "Last seen 18 OCT" },
-          { id: "p11", type: "THREAT", name: "SA-10 KUTAISI EAST", system: "SA-10 Grumble (S-300PS)", range: "40", lat: 42.27, lng: 42.82, notes: "JIPTL #1 (IT-0012)" },
-          { id: "p12", type: "THREAT", name: "SA-11 SENAKI", system: "SA-11 Gadfly (Buk)", range: "19", lat: 42.24, lng: 42.06, notes: "JIPTL #2 (IT-0017)" },
+          { id: "p11", type: "THREAT", name: "SA-10 KUTAISI EAST", system: "SA-10 Grumble (S-300PS)", range: "40", lat: 42.27, lng: 42.82, notes: "JIPTL #1 (T10001)" },
+          { id: "p12", type: "THREAT", name: "SA-11 SENAKI", system: "SA-11 Gadfly (Buk)", range: "19", lat: 42.24, lng: 42.06, notes: "JIPTL #2 (T10002)" },
           { id: "p10", type: "DEST POINT", name: "DP KOBULETI", lat: 41.86, lng: 41.78, elev: "59", notes: "Recovery / hung ordnance" }
         ],
         shapes: [
@@ -589,19 +589,19 @@ window.AOC_SEED = {
         atoDay: "7",
         period: "190600Z OCT 26 – 200559Z OCT 26",
         misreps: [
-          { msn: "7101", callsign: "VIPER 1", target: "IT-0017", tot: "0716Z", ord: "4× AGM-88C", result: "Hit — damaged", remarks: "Search radar off the air after the 2nd HARM" },
-          { msn: "7102", callsign: "DUDE 1", target: "IT-0031", tot: "0722Z", ord: "4× GBU-12", result: "Hit — destroyed", remarks: "TGP video posted in #bda" },
-          { msn: "7201", callsign: "HAWG 1", target: "IT-0052", tot: "0812Z", ord: "2× GBU-38, 600 rds 30mm", result: "Hit — damaged", remarks: "6 armoured vehicles destroyed per JTAC" },
-          { msn: "7103", callsign: "SPRINGFIELD 3", target: "IT-0045", tot: "—", ord: "None", result: "Aborted", remarks: "Weather over target" }
+          { msn: "7101", callsign: "VIPER 1", target: "T10002", tot: "0716Z", ord: "4× AGM-88C", result: "Hit — damaged", remarks: "Search radar off the air after the 2nd HARM" },
+          { msn: "7102", callsign: "DUDE 1", target: "T10003", tot: "0722Z", ord: "4× GBU-12", result: "Hit — destroyed", remarks: "TGP video posted in #bda" },
+          { msn: "7201", callsign: "HAWG 1", target: "T10006", tot: "0812Z", ord: "2× GBU-38, 600 rds 30mm", result: "Hit — damaged", remarks: "6 armoured vehicles destroyed per JTAC" },
+          { msn: "7103", callsign: "SPRINGFIELD 3", target: "T10005", tot: "—", ord: "None", result: "Aborted", remarks: "Weather over target" }
         ],
         bda: [
-          { target: "IT-0017", phase: "Phase 1 — Physical", status: "Moderate damage", source: "MISREP / ELINT", reattack: "Yes" },
-          { target: "IT-0031", phase: "Phase 2 — Functional", status: "Destroyed", source: "TGP video", reattack: "No" },
-          { target: "IT-0052", phase: "Phase 1 — Physical", status: "Light damage", source: "JTAC report", reattack: "Pending" },
-          { target: "IT-0045", phase: "Phase 1 — Physical", status: "No damage", source: "Not attacked", reattack: "Yes" }
+          { target: "T10002", phase: "Phase 1 — Physical", status: "Moderate damage", source: "MISREP / ELINT", reattack: "Yes" },
+          { target: "T10003", phase: "Phase 2 — Functional", status: "Destroyed", source: "TGP video", reattack: "No" },
+          { target: "T10006", phase: "Phase 1 — Physical", status: "Light damage", source: "JTAC report", reattack: "Pending" },
+          { target: "T10005", phase: "Phase 1 — Physical", status: "No damage", source: "Not attacked", reattack: "Yes" }
         ],
         threats: "New SA-15 reported 3 NM west of Samtredia (VIPER 3 RWR, 0718Z).",
-        recommendations: "Re-attack IT-0017 with DEAD on ATO Day 8. Add the Samtredia SA-15 to the JIPTL as an emerging target. Re-task IT-0045 with an all-weather weapon (GBU-31)."
+        recommendations: "Re-attack T10002 with DEAD on ATO Day 8. Add the Samtredia SA-15 to the JIPTL as an emerging target. Re-task T10005 with an all-weather weapon (GBU-31)."
       }
     }
   }

@@ -6,9 +6,15 @@
 <title>Virtual AOC — CAOC Rollup</title>
 <link rel="stylesheet" href="css/styles.css">
 <style>
-  .rlay { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-  @media (max-width: 1100px) { .rlay { grid-template-columns: minmax(0, 1fr); } }
+  /* one full-width column at every window size */
+  .rlay { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .rlay > * { min-width: 0; }
+  /* Discord post preview (generic look; the real post comes from the existing bot) */
+  .dpost { background: #313338; color: #dbdee1; border-radius: 8px; padding: 14px; font: 14px/1.45 "Segoe UI", system-ui, sans-serif; }
+  .dpost .who { font-weight: 600; color: #fff; } .dpost .who small { color: #949ba4; font-weight: 400; margin-left: 6px; }
+  .dpost .body { white-space: pre-wrap; margin-top: 6px; } .dpost .body b { color: #fff; }
+  .dpost .att { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .dpost .att a { background: #2b2d31; border: 1px solid #1e1f22; border-radius: 6px; padding: 6px 10px; color: #00a8fc; font-size: 13px; text-decoration: none; }
   .tl td, .tl th, .rt td, .rt th { font-size: 12px; padding: 5px 6px; vertical-align: top; }
   .own { font: 600 10px var(--mono); letter-spacing: .05em; padding: 1px 6px; border: 1px solid var(--line); border-radius: 999px; }
   .own.HOST, .own.GROUPS { color: var(--info); border-color: var(--info); }
@@ -45,11 +51,12 @@
 
   <section class="panel pub">
     <div class="panel-head"><div><h2>Package</h2><div class="muted small" id="relInfo"></div></div>
-      <div class="toolbar"><button class="btn" id="cycleBtn">Cycle to next mission…</button><button class="btn primary" id="pubBtn">PUBLISH package</button></div></div>
+      <div class="toolbar"><button class="btn" id="cycleBtn">Cycle to next mission…</button><button class="btn" id="discBtn" title="What the last PUBLISH posts to Discord">Discord post</button><button class="btn primary" id="pubBtn">PUBLISH package</button></div></div>
     <div id="pubSummary"></div>
   </section>
 
   <div class="rlay">
+    <section class="panel"><div class="panel-head"><h2>Host mission file</h2><a class="small" id="mfLink" href="mission-file.html">Open →</a></div><div id="mfile"></div></section>
     <section class="panel">
       <div class="panel-head"><div><h2>Deadline timeline</h2><div class="muted small" id="t0"></div></div>
         <div class="toolbar"><div class="seg" id="modeSeg"><button data-m="build">Campaign build</button><button data-m="cycle">Mission cycle</button></div>
@@ -58,13 +65,9 @@
       <div class="table-scroll"><table class="tl"><thead><tr><th>T</th><th>Due</th><th>Deliverable</th><th>Owner</th><th>Status</th></tr></thead><tbody id="tl"></tbody></table></div>
       <p class="muted small">HOST items are the host unit's alone (readiness, mass brief, running the mission, the .miz). The CAOC only shows their dates.</p>
     </section>
-    <div>
-      <section class="panel"><div class="panel-head"><h2>Product readiness</h2><span class="muted small" id="readyN"></span></div>
-        <div class="table-scroll"><table class="rt"><thead><tr><th>Product</th><th>Status</th><th>Approved</th><th>Released</th></tr></thead><tbody id="ready"></tbody></table></div></section>
-      <section class="panel"><div class="panel-head"><h2>ATO lines</h2><a class="small" href="index.html">Dashboard →</a></div><div id="lines"></div></section>
-      <section class="panel"><div class="panel-head"><h2>Host mission file</h2><a class="small" id="mfLink" href="mission-file.html">Open →</a></div><div id="mfile"></div></section>
-      <section class="panel"><div class="panel-head"><h2>Debriefs from the host</h2></div><div id="debriefs"></div></section>
-    </div>
+    <section class="panel"><div class="panel-head"><h2>Product readiness</h2><span class="muted small" id="readyN"></span></div>
+      <div class="table-scroll"><table class="rt"><thead><tr><th>Product</th><th>Status</th><th>Approved</th><th>Released</th></tr></thead><tbody id="ready"></tbody></table></div></section>
+    <section class="panel"><div class="panel-head"><h2>Debriefs from the host</h2></div><div id="debriefs"></div></section>
   </div>
 
   <section class="panel">
@@ -112,12 +115,6 @@
       return `<tr><td><a href="product.html?p=${pid}&c=${encodeURIComponent(cid)}">${esc(PRODUCTS[pid].code)}</a> <span class="muted">${esc(PRODUCTS[pid].name)}</span>${PK.INTERNAL.has(pid) ? ' <span class="muted small">(internal)</span>' : ""}</td>
         <td><span class="badge ${s}">${esc(STATUS_LABEL[s] || s)}</span></td><td class="small">${a ? `${esc(a.by)} ${esc(a.role)}` : "—"}</td>
         <td class="small">${sh ? `v${sh.version} · ${esc(zulu(new Date(sh.when)))}` : "—"}</td></tr>`; }).join("");
-
-    // ATO lines
-    const ls = ATO.lines(cid), n = s => ls.filter(l => l.status === s).length;
-    document.getElementById("lines").innerHTML = ls.length ? `<p class="small">${ls.length} requested · <b>${n("open")}</b> open · ${n("committed")} committed · ${n("ai")} AI · commit by ${esc(ls[0].commitBy || "—")}</p>
-      ${table(ls.filter(l => l.status === "open").map(l => ({ msn: l.msn, a: `${l.num}× ${l.airframe}`, role: l.role, tot: l.tot })), [["msn", "Open MSN"], ["a", "Aircraft"], ["role", "Role"], ["tot", "TOT"]])}`
-      : `<p class="muted small">No ATO lines requested by the host JFACC yet.</p>`;
 
     // host mission file
     const mf = AOC.MIZ.current(cid);
@@ -179,15 +176,34 @@
       ${notReady.length ? `<p class="small muted" style="margin:0 0 8px 26px">Not approved, stays back: ${esc(notReady.map(p => PRODUCTS[p].code).join(", "))}</p>` : ""}
       <label class="check-row"><input type="checkbox" id="oOv" ${ex.overlay.ready ? (ex.overlay.last ? "" : "checked") : "disabled"}> Export ACO + theater map to DKS Overlay ${ex.overlay.ready ? (ex.overlay.last ? `<span class="muted small">(last v${ex.overlay.last.v})</span>` : "") : `<span class="muted small">(ACO not approved)</span>`}</label>
       <label class="check-row"><input type="checkbox" id="oAg" ${ex.agencies.ready ? (agChanged ? "checked" : "") : "disabled"}> Export Comm Plan to DKS Manage Agencies <span class="muted small">${!ex.agencies.ready ? "(Comm Plan not approved)" : ex.agencies.changes == null ? `(first export, ${ex.agencies.list.length} agencies)` : agChanged ? `(${ex.agencies.changes.length} change${ex.agencies.changes.length > 1 ? "s" : ""})` : "(no changes)"}</span></label>
+      <label class="check-row"><input type="checkbox" id="oDisc" checked> Discord post to the host and every active group — every released product except the DKS exports (ACO, Comm Plan), as text files</label>
       <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>PUBLISH</button></div></div>`;
     document.body.appendChild(back);
     back.querySelector("[data-x]").onclick = () => back.remove();
     back.querySelector("[data-ok]").onclick = () => {
-      const opts = { products: back.querySelector("#oProd").checked, overlay: back.querySelector("#oOv").checked, agencies: back.querySelector("#oAg").checked };
+      const opts = { products: back.querySelector("#oProd").checked, overlay: back.querySelector("#oOv").checked, agencies: back.querySelector("#oAg").checked, discord: back.querySelector("#oDisc").checked };
       if (!opts.products && !opts.overlay && !opts.agencies) { toast("Nothing selected"); return; }
       const rel = PK.publish(cid, opts); back.remove();
-      toast(`Package v${rel.version}: ${rel.products.length} products${rel.dks.length ? ", DKS " + rel.dks.join(", ") : ""}`); render();
+      toast(`Package v${rel.version}: ${rel.products.length} products${rel.dks.length ? ", DKS " + rel.dks.join(", ") : ""}${rel.discord ? `, Discord post to ${rel.discord.recipients} groups` : ""}`); render();
     };
+  };
+  // the Discord post of the last PUBLISH, as the bot sends it to the host and every active group
+  document.getElementById("discBtn").onclick = () => {
+    const c = Store.campaign(cid);
+    if (!c.packageRelease) { toast("Nothing published yet"); return; }
+    const p = PK.discordPost(cid), urls = [];
+    const back = document.createElement("div"); back.className = "modal-back";
+    const body = esc(p.content).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+    back.innerHTML = `<div class="panel modal" style="max-width:680px;max-height:calc(100vh - 32px);overflow:auto">
+      <div class="panel-head"><h2>Discord post · PUBLISH v${p.package}</h2><button class="btn sm" data-x>Close</button></div>
+      <p class="muted small" style="margin-top:0">Preview of what the CAOC bot posts to each group's registered channel${p.messages > 1 ? ` (${p.messages} messages, ten files each)` : ""}. The live post goes out through that integration.</p>
+      <div class="dpost"><span class="who">CAOC Tasking<small>BOT · ATO Day ${esc(p.ato_day)}</small></span>
+        <div class="body">${body}</div>
+        <div class="att">${p.files.map((f, i) => { const u = URL.createObjectURL(new Blob([f.content], { type: "text/plain" })); urls.push(u); return `<a href="${u}" download="${esc(f.filename)}">📄 ${esc(f.filename)}</a>`; }).join("")}</div></div>
+      <p class="small" style="margin-top:10px">Posted to: ${p.recipients.map(r => `${esc(r.group)}${r.host ? " <b>(host)</b>" : ""}`).join(", ")}</p></div>`;
+    document.body.appendChild(back);
+    const close = () => { urls.forEach(u => URL.revokeObjectURL(u)); back.remove(); };
+    back.querySelector("[data-x]").onclick = close; back.onclick = e => { if (e.target === back) close(); };
   };
   document.getElementById("cycleBtn").onclick = () => {
     const c = Store.campaign(cid), have = c.debriefs?.[c.atoDay];

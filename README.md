@@ -25,7 +25,7 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | `login.html` | CAOC staff | Staff sign-in |
 | `index.html` | CAOC staff | Campaign dashboard: products, deliverables tracker (CFACC), requests, groups. The Comm Plan, OPTASKLINK, JCEOI and IFF / SIF sit together as one **Comm / Datalink / IFF** group (built at the same sitting); the JCEOI is reached from there, not the top nav |
 | `product.html?p=optasklink` | CAOC staff | OPTASKLINK: built automatically from the ATO and the host mission file — nothing to fill in but notes |
-| `rollup.html` | CAOC staff (CFACC/CFC publish) | CAOC rollup: deadline timeline (campaign build / mission cycle), product readiness, ATO lines, host debriefs, DKS export preview (Overlay, Agencies changes), the one **PUBLISH** button and **Cycle to next mission** |
+| `rollup.html` | CAOC staff (CFACC/CFC publish) | CAOC rollup: deadline timeline (campaign build / mission cycle), product readiness, host mission file, host debriefs, DKS export preview (Overlay, Agencies changes), the one **PUBLISH** button (products to the groups, DKS exports, and a Discord post of every non-DKS product to the host and every active group; **Discord post** previews it) and **Cycle to next mission** |
 | `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS & ROE, Comm Plan, BDA) |
 | `tdp.html` | CAOC staff | TDP book: one target folder per JIPTL target, drafted from the nomination data |
 | `maap.html` | CAOC staff | MAAP: packages of ATO lines against JIPTL targets, with coverage and deconfliction checks; Apply to ATO |
@@ -34,10 +34,10 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | `targeting.html` | CAOC staff | Target nomination (from the JIPTL): REDFOR order of battle → JIPTL, ported from the JIPTL pipeline |
 | `campaign-review.html` | CAOC staff (CFC decides) | Campaign proposal review queue |
 | `unit-login.html` | Participating groups | Group sign-in |
-| `unit.html` | Groups (staff can observe) | Op Status: product board, distribution matrix, ATO lines, group pack download; the JFACC group also sees its ATO line requests filling |
+| `unit.html` | Groups (staff can observe) | Op Status: product board, distribution matrix, ATO lines, group pack download. A participating squadron can **Request a line** from the host (same questions as Create an ATO Line) and follow its approval; the host JFACC group sees its lines filling and the requests waiting for it |
 | `mission-file.html` | Host unit (staff can read) | Host mission file intake: upload the draft `.miz` (and every new version); BLUE flights → ATO requests, REDFOR → target nomination; per-theater coordinate calibration; TACAN / ICLS scrub |
 | `debrief.html` | Host unit (campaign's JFACC group) | Post-mission debrief: lines flown, BDA, losses, progress — feeds the CAOC's next cycle |
-| `ato-request.html` | Campaign's Group JFACC / LNO | Request ATO lines from the group's `.miz` (player slots → Human, rest → AI) or a form; Human lines are posted on Discord for commitment |
+| `ato-request.html` | Campaign's Group JFACC / LNO (the host) | ATO lines: **Create an ATO line** from the group's `.miz` (player slots → Human, rest → AI) or the form; Human lines are saved as drafts (Edit, Remove) and go out only when the host presses **Post to Discord**. **Line requests from squadrons** with Approve / Deny (deny takes a reason); an approved request goes on the ATO assigned to that squadron |
 | `campaign-submit.html` | Groups | Campaign proposal wizard (JFACC, intent, win/loss, REDFOR, schedule…) |
 
 ## Demo accounts (prototype only)
@@ -176,6 +176,10 @@ Rebuild the data with `tools/jceoi` (see its README); the build refuses to write
 channels excepted — they are kept and reported).
 
 ## Target nomination (JIPTL pipeline)
+
+JIPTL target numbers are `T10001`, `T10002` … in rank order (the demo seed uses the same scheme). A new nomination
+renumbers the list, so the ATO editor, the MAAP, Create an ATO line and Request a line flag any target number that is
+no longer on the current JIPTL ("renumbered or removed?"). Areas such as CAP KNIFE or AO HAMMER are never flagged.
 
 Browser port of `OLD/tools/jiptl_pipeline/jiptl_generate.py`:
 

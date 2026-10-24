@@ -1,6 +1,8 @@
-// ATO line requests: the campaign's Group JFACC/LNO requests lines (from their .miz or by hand); Human lines are
-// posted to every registered group flying that airframe via the Discord integration; a unit's Commit (from the
-// Discord button) comes back through commit() and fills the line on the ATO.
+// ATO lines: the campaign's Group JFACC/LNO (the host) creates lines (from their .miz or by hand). A Human line starts as a
+// draft the host can edit or remove; "Post to Discord" (postLine) puts it on the ATO and posts it to every registered group
+// flying that airframe; a unit's Commit (from the Discord button) comes back through commit() and fills the line.
+// Line requests: any other participating squadron asks the host for a line (same questions). The host is notified
+// (Discord post with Approve / Deny, and on the site); an approved request becomes a line assigned to that squadron.
 (function () {
   const { Store } = window.AOC;
 
@@ -43,7 +45,7 @@
       num: String(l.num), role: l.role, tot: l.tot || "TBD", target: l.target || "", tanker: l.tanker || "—", crew: l.crew, lineId: l.id });
     const apply = list => {
       const i = list.findIndex(m => m.lineId === l.id || m.msn === l.msn);
-      if (l.status === "cancelled") { if (i >= 0) list.splice(i, 1); return; }
+      if (l.status === "cancelled" || l.status === "draft") { if (i >= 0) list.splice(i, 1); return; }
       if (i >= 0) list[i] = { ...list[i], ...toMission() }; else list.push(toMission());
     };
     const ato = Store.content(l.cid, "ato") || { missions: [] };
@@ -82,18 +84,18 @@
     recipients: l.recipients.map(id => ({ group_id: id })) });
 
   // JFACC/LNO request -> ATO line. Human lines are posted for commitment; AI lines go straight on the ATO.
-  function request(cid, fields, by) {
+  function request(cid, fields, by, { assignTo } = {}) {
     const d = Store.db; d.atoLines = d.atoLines || [];
     const l = { id: "L" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), cid, msn: fields.msn || nextMsn(cid),
       airframe: fields.airframe, num: +fields.num || 2, role: fields.role, crew: fields.crew === "AI" ? "AI" : "Human",
       tot: fields.tot || "", target: fields.target || "", pkg: fields.pkg || "", callsign: fields.callsign || "", base: fields.base || "",
       notes: fields.notes || "", commitBy: fields.commitBy || "", source: fields.source || "Request form", mizGroup: fields.mizGroup || "",
       requestedBy: by.gid, requestedByUser: by.user, requestedAt: new Date().toISOString(), recipients: [],
-      status: fields.crew === "AI" ? "ai" : "open", committedBy: "", committedAt: "", committedByUser: "" };
+      status: fields.crew === "AI" ? "ai" : "draft", committedBy: "", committedAt: "", committedByUser: "" };
+    if (assignTo && l.status === "draft") Object.assign(l, { status: "committed", committedBy: assignTo.gid, committedAt: l.requestedAt, committedByUser: assignTo.user || "" });
     d.atoLines.push(l);
-    if (l.status === "open") post(l);
     syncToAto(l);
-    Store.log(cid, `ATO line ${l.msn} requested: ${l.num}× ${l.airframe} ${l.role} (${l.crew})${l.status === "open" ? ` — posted to ${l.recipients.length} groups` : ""}`, Store.group(by.gid)?.name);
+    Store.log(cid, `ATO line ${l.msn} created: ${l.num}× ${l.airframe} ${l.role} (${l.crew})${l.status === "draft" ? " — draft, not posted" : l.status === "committed" ? ` — assigned to ${Store.group(l.committedBy)?.name}` : ""}`, Store.group(by.gid)?.name);
     Store.save();
     return l;
   }
@@ -115,13 +117,84 @@
     Store.save();
     return { ok: true, line: l };
   }
-  // JFACC actions: cancel an open line, or release a commitment and re-post the line
+  // the host posts a draft: it goes on the ATO and out to every registered group flying the airframe
+  function postLine(lineId) {
+    const l = line(lineId); if (!l || l.status !== "draft") return false;
+    l.status = "open"; post(l); syncToAto(l);
+    Store.log(l.cid, `ATO line ${l.msn} posted to ${l.recipients.length} groups`); Store.save(); return true;
+  }
+  // the host edits a line that has not gone out yet (a draft) or an AI line; posted and committed lines are fixed
+  function update(lineId, fields) {
+    const l = line(lineId); if (!l || !["draft", "ai"].includes(l.status)) return false;
+    ["airframe", "role", "tot", "target", "pkg", "callsign", "base", "notes", "commitBy"].forEach(k => { if (k in fields) l[k] = String(fields[k] ?? "").trim(); });
+    if ("num" in fields) l.num = +fields.num || l.num;
+    if ("crew" in fields) { l.crew = fields.crew === "AI" ? "AI" : "Human"; l.status = l.crew === "AI" ? "ai" : "draft"; }
+    syncToAto(l); Store.log(l.cid, `ATO line ${l.msn} edited`); Store.save(); return true;
+  }
+  // JFACC actions: remove a draft / cancel an open or AI line, or release a commitment and re-post the line
   function cancel(lineId) { const l = line(lineId); if (!l || l.status === "committed") return false;
     const wasPosted = l.status === "open"; l.status = "cancelled"; syncToAto(l); if (wasPosted) closeEvent("ato_line.cancelled", l); Store.log(l.cid, `ATO line ${l.msn} cancelled`); Store.save(); return true; }
   function release(lineId) { const l = line(lineId); if (!l || l.status !== "committed") return false;
     const was = Store.group(l.committedBy)?.name;
     Object.assign(l, { status: "open", committedBy: "", committedAt: "", committedByUser: "" }); post(l); syncToAto(l);
     Store.log(l.cid, `ATO line ${l.msn} released by the JFACC (was ${was}) and re-posted`); Store.save(); return true; }
+
+  // ---------- line requests from squadrons (db.lineRequests): pending -> approved (a line) | denied ----------
+  const FIELDS = ["airframe", "num", "role", "crew", "tot", "target", "pkg", "callsign", "base", "commitBy", "notes"];
+  const lineRequests = cid => (Store.db.lineRequests || []).filter(r => !cid || r.cid === cid);
+  const lineRequest = id => (Store.db.lineRequests || []).find(r => r.id === id);
+  function requestPayload(r) {
+    const c = Store.campaign(r.cid), host = c.jfacc?.group;
+    return { event: "ato_line.requested", request_id: r.id, campaign_id: r.cid, operation: c.opName, ato_day: c.atoDay,
+      requested_by: { group_id: r.gid, group: Store.group(r.gid)?.name, user: r.user }, ...Object.fromEntries(FIELDS.map(k => [k === "num" ? "aircraft" : k === "role" ? "mission" : k === "commitBy" ? "commit_by" : k, r.fields[k] || null])),
+      recipients: [{ group_id: host, group: Store.group(host)?.name, host: true }],
+      components: [{ type: "button", label: "Approve", style: "success", custom_id: `ato_req_approve:${r.id}` }, { type: "button", label: "Deny", style: "danger", custom_id: `ato_req_deny:${r.id}` }] };
+  }
+  // a participating squadron asks the host for a line
+  function askLine(cid, fields, by) {
+    const d = Store.db; d.lineRequests = d.lineRequests || [];
+    const r = { id: "R" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), cid, gid: by.gid, user: by.user || "",
+      fields: Object.fromEntries(FIELDS.map(k => [k, String(fields[k] ?? "").trim()])), status: "pending", at: new Date().toISOString(),
+      decidedAt: "", decidedBy: "", reason: "", lineId: "" };
+    d.lineRequests.push(r); emit(requestPayload(r));
+    Store.log(cid, `${Store.group(by.gid)?.name} requested an ATO line: ${r.fields.num}× ${r.fields.airframe} ${r.fields.role} — waiting for the host`, Store.group(by.gid)?.name);
+    Store.save(); return r;
+  }
+  // the host's decision (site buttons, or the Discord Approve / Deny buttons through the same call)
+  function decide(id, approve, by = {}, reason = "") {
+    const r = lineRequest(id);
+    if (!r) return { ok: false, error: "unknown_request" };
+    if (r.status !== "pending") return { ok: false, error: `request_${r.status}` };
+    const c = Store.campaign(r.cid), host = c.jfacc?.group, g = Store.group(r.gid);
+    Object.assign(r, { status: approve ? "approved" : "denied", decidedAt: new Date().toISOString(), decidedBy: by.user || c.jfacc?.callsign || "", reason: reason.trim() });
+    if (approve) {
+      const l = request(r.cid, { ...r.fields, source: `Request from ${g?.name}` }, { gid: host, user: r.decidedBy }, { assignTo: { gid: r.gid, user: r.user } });
+      r.lineId = l.id; if (!c.groups.includes(r.gid)) c.groups.push(r.gid);
+    }
+    emit({ event: "ato_line.request_decided", request_id: r.id, campaign_id: r.cid, approved: approve, reason: r.reason || null,
+      msn: approve ? line(r.lineId).msn : null, decided_by: r.decidedBy, recipients: [{ group_id: r.gid, group: g?.name }] });
+    Store.log(r.cid, `Host ${approve ? "approved" : "denied"} ${g?.name}'s line request (${r.fields.num}× ${r.fields.airframe} ${r.fields.role})${approve ? ` — line ${line(r.lineId).msn}` : r.reason ? `: ${r.reason}` : ""}`, Store.group(host)?.name);
+    Store.save(); return { ok: true, request: r };
+  }
+
+  // the line questions, shared by the host's Create an ATO Line form and a squadron's Request a Line form
+  function lineFormHtml({ id, submit, targetsList = "targets", defaults = {} }) {
+    const esc = window.AOC.esc, v = k => esc(defaults[k] ?? ""), opt = (list, cur) => list.map(x => `<option ${x === cur ? "selected" : ""}>${esc(x)}</option>`).join("");
+    return `<form id="${id}">
+      <div class="row2"><div class="field"><label>Airframe</label><select name="airframe">${opt(AIRFRAMES, defaults.airframe || "F-15E")}</select></div>
+        <div class="field"><label>Aircraft</label><select name="num">${opt(["1", "2", "3", "4"], defaults.num || "4")}</select></div></div>
+      <div class="row2"><div class="field"><label>Mission</label><select name="role">${opt(ROLES, defaults.role || "Strike")}</select></div>
+        <div class="field"><label>Crew</label><select name="crew">${opt(["Human", "AI"], defaults.crew || "Human")}</select></div></div>
+      <div class="row2"><div class="field"><label>TOT / on-station</label><input name="tot" value="${v("tot")}" placeholder="e.g. 0720Z or 0600–1000Z"></div>
+        <div class="field"><label>Target / area</label><input name="target" value="${v("target")}" list="${targetsList}" placeholder="JIPTL # or area"></div></div>
+      <div class="row2"><div class="field"><label>Package</label><input name="pkg" value="${v("pkg")}" placeholder="e.g. A"></div>
+        <div class="field"><label>Callsign (if set)</label><input name="callsign" value="${v("callsign")}" placeholder="from your .miz"></div></div>
+      <div class="row2"><div class="field"><label>Base / start</label><input name="base" value="${v("base")}" placeholder="e.g. Kobuleti, ramp"></div>
+        <div class="field"><label>Commit by</label><input name="commitBy" value="${v("commitBy")}" placeholder="e.g. 211800Z OCT 26"></div></div>
+      <div class="field"><label>Notes</label><textarea name="notes" style="min-height:56px">${v("notes")}</textarea></div>
+      <div class="rcpt" id="${id}Rcpt"></div>
+      <button class="btn primary" type="submit" style="margin-top:10px">${esc(submit)}</button></form>`;
+  }
 
   // ---------- .miz reader: a .miz is a zip whose "mission" entry is a Lua table ----------
   function parseLuaTable(src) {
@@ -189,7 +262,8 @@
       flights: mizFlights(mission, "blue"), redFlights: mizFlights(mission, "red").length };
   }
 
-  const STATUS = { open: ["Open — awaiting commit", "warn"], committed: ["Committed", "ok"], ai: ["AI — sponsor builds", "off"], cancelled: ["Cancelled", "off"] };
+  const STATUS = { draft: ["Draft — not posted", "off"], open: ["Open — awaiting commit", "warn"], committed: ["Committed", "ok"], ai: ["AI — sponsor builds", "off"], cancelled: ["Cancelled", "off"] };
 
-  window.AOC.ATO = { AIRFRAMES, ROLES, STATUS, lines, line, recipients, flies, nextMsn, request, commit, cancel, release, discordPayload, readMiz, mizFlights, parseLuaTable };
+  window.AOC.ATO = { AIRFRAMES, ROLES, STATUS, lines, line, recipients, flies, nextMsn, request, postLine, update, commit, cancel, release, discordPayload,
+    lineRequests, lineRequest, askLine, decide, requestPayload, lineFormHtml, readMiz, mizFlights, parseLuaTable };
 })();

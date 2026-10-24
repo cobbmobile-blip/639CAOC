@@ -33,8 +33,8 @@ thunder, keepers, ridge, support — code `unit-demo`.
 | `map.html` | Theater map (opened from the ACO) |
 | `targeting.html` | Target nomination — browser port of `OLD/tools/jiptl_pipeline/jiptl_generate.py` |
 | `campaign-review.html` | CFC review of campaign proposals |
-| `unit-login.html`, `unit.html` | Group sign-in; Op Status (status only) |
-| `ato-request.html` | Group JFACC/LNO requests ATO lines from a `.miz` or a form |
+| `unit-login.html`, `unit.html` | Group sign-in; Op Status (status, plus Request a line for participating squadrons) |
+| `ato-request.html` | Host Group JFACC/LNO creates ATO lines from a `.miz` or a form, and approves / denies squadron line requests (`ATO.askLine` / `ATO.decide`, `db.lineRequests`; both forms come from `ATO.lineFormHtml`) |
 | `mission-file.html` | Host mission file intake: versioned draft .miz → BLUE flights (ATO requests), REDFOR (target nomination), theater calibration, TACAN/ICLS scrub (`js/tacan.js`) |
 | `debrief.html` | Host unit enters the post-mission debrief |
 | `campaign-submit.html` | Group submits a campaign proposal |
