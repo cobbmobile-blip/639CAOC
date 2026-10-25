@@ -17,9 +17,36 @@
     { "title": "Planned targets", "text": "Targets tasked on the ATO have been cleared by the JFACC for PID and collateral damage. Aircrew do not move the aimpoint, move to a heavier weapon class or shorten the fuze delay without JFACC approval." },
     { "title": "Dynamic targets", "text": "Targets found during the mission are reported to the controlling agency and cleared before attack, unless a time-sensitive or troops-in-contact authority below applies." },
     { "title": "Time-sensitive targets", "text": "When there is no time to obtain JFACC approval, the mission commander may authorize precision fires on enemy leadership, MANPADS, artillery and rocket systems, and UAV launch systems." },
-    { "title": "Troops in contact", "text": "The on-scene commander of friendly forces in contact may authorize fires against positively identified declared hostile forces, deconflicting from protected structures and restricted targets." },
-    { "title": "Collateral damage", "text": "Aircrew assess collateral damage before every attack. Where harm to civilians or civilian objects is likely, the attack needs controlling-agency approval; where it is high, JFACC approval." }
+    { "title": "Troops in contact", "text": "The on-scene commander of friendly forces in contact may authorize fires against positively identified declared hostile forces, deconflicting from protected structures and restricted targets." }
   ],
+  "cde": {
+    "_note": "Collateral damage estimate (CDE), in the ROE. A simplified five-level game scheme after the public outline of the joint CDE methodology; not real-world weaponeering. Each level names who may clear the attack; the campaign sets the CDE 4 and CDE 5 authorities and the authentication word.",
+    "levels": [
+      { "level": 1, "text": "No civilians or civilian objects within the weapon's effects of the target.", "authority": "Aircrew" },
+      { "level": 2, "text": "Civilian objects nearby but outside the effects of the planned weapon and fuze.", "authority": "Aircrew" },
+      { "level": 3, "text": "Collateral damage avoided only with mitigation: weapon, fuze, delay, aimpoint or attack axis.", "authority": "Aircrew, with the mitigation applied" },
+      { "level": 4, "text": "Some civilian harm is possible even with mitigation.", "authority": "{cde4}" },
+      { "level": 5, "text": "Civilian harm is likely; the expected military advantage must justify it.", "authority": "{cde5}" }
+    ],
+    "rules": [
+      { "title": "Assessment", "text": "Aircrew assess the CDE level before every attack and report it to the controlling agency with any dynamic target." },
+      { "title": "Planned targets", "text": "Clearance to attack an ATO target at its tasked CDE level comes with the tasking. The level is on the TDP folder and the ATO line." },
+      { "title": "CDE upgrade", "text": "If a target is found at a higher CDE level than tasked, report the new level; clearance at the higher level is not implicit in the tasking." },
+      { "title": "Surface-to-air threats", "text": "An active surface-to-air threat engaging friendly forces may be attacked in self-defense at any CDE level." },
+      { "title": "Close air support", "text": "Within risk-estimate distance of friendly troops (danger close), release only with the ground commander's initials passed by the JTAC." },
+      { "title": "Authentication", "text": "A CDE 5 clearance is valid only with the authentication word {auth}." }
+    ],
+    "defaults": { "cde4": "the controlling agency", "cde5": "the JFACC", "auth": "passed by the controlling agency" }
+  },
+  "alr": {
+    "_note": "Acceptable level of risk (ALR), in the SPINS: how much risk to own forces the JFACC accepts to accomplish a mission. The campaign sets a default; the ATO prints it on every line. Simplified game scheme after the Red Flag, TLW and OPAR SPINS.",
+    "levels": [
+      { "level": "Extreme", "text": "Mission success outweighs the loss of the package. Press regardless of threats or losses; abort only on the JFACC's order." },
+      { "level": "High", "text": "Accept heavy losses. Press against known and pop-up threats; abort only if the mission can no longer be accomplished." },
+      { "level": "Medium", "text": "Accept moderate losses. Press against known threats with planned SEAD support; abort if SEAD is not effective or pop-up threats cannot be avoided." },
+      { "level": "Low", "text": "Accept minimal losses. Avoid known threats; abort if any threat cannot be avoided or the SEAD timeline slips." }
+    ]
+  },
   "idTerms": [
     ["HOSTILE", "A contact identified as enemy upon which clearance to fire is authorized under these ROE."],
     ["BANDIT", "A contact identified as enemy by the ID criteria. Does not by itself authorize engagement."],

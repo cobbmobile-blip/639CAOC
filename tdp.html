@@ -114,6 +114,7 @@
   // ---------- folder editor ----------
   function input(f, v, path) {
     if (f.type === "textarea") return `<textarea data-p="${path}">${esc(v)}</textarea>`;
+    if (f.type === "select") return `<select data-p="${path}"><option value=""></option>${f.options.map(o => `<option ${o === String(v) ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>`;
     return `<input data-p="${path}" value="${esc(v)}" ${f.type === "jiptl" ? "disabled" : ""}>`;
   }
   function renderEditor() {

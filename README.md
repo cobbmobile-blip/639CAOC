@@ -224,12 +224,16 @@ One product, one approval, two documents. The preview has SPINS and ROE tabs; co
 screen; released copies carry both, with a page break between. The layout follows the Operation Mountain Sentinel and
 Red Flag SPINS, with the ROE as its own document instead of a SPINS chapter.
 
-- **SPINS** (the JFACC's procedures): 1 General information (validity, Zulu, ATO day 0300Z–0259Z, bullseye), 2 ROE (a
+- **SPINS** (the JFACC's procedures): 1 General information (validity, Zulu, ATO day 0300Z–0259Z, bullseye, and the
+  acceptable level of risk: a standing Extreme / High / Medium / Low table with the campaign's default, which the ATO
+  prints on every line as `AMPN/ALR:`), 2 ROE (a
   pointer to the ROE and its default WCS), 3 Communication (check-in, code words, authentication, CSAR, IFF / SIF),
   4 Airspace & safety (air refuelling, carriers, diverts, emergency / lost comms).
 - **ROE**: built from the vCAOC standing ROE (`tools/jceoi/data/roe.json`: law of armed conflict, self-defense,
   precedence; surface ROE — PID, protected structures, planned / dynamic / time-sensitive / troops-in-contact
-  authority, collateral damage; air ROE — classification terms, hostile act and intent, enemy indications, commit
+  authority, and the collateral damage estimate: five CDE levels with who clears each (the campaign sets the CDE 4 and
+  CDE 5 authorities and the CDE 5 authentication word), assessment, upgrade, SAM self-defense and danger-close rules;
+  each TDP folder carries its target's CDE level, which the ATO prints with the line; air ROE — classification terms, hostile act and intent, enemy indications, commit
   authority, formal order; weapons control statuses) plus the campaign's choices: default WCS, declared hostile forces,
   on/off campaign measures (defaults from the standing data; the AWACS callsign comes from the ATO's AEW line), ID and
   commit criteria, weapons restrictions, restricted / no-strike targets, theater rules (Nevada: NTTR ranges) and remarks.

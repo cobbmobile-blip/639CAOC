@@ -89,6 +89,8 @@ def load_roe():
     if len(ids) != len(set(ids)): errs.append("measure ids repeat")
     for m in roe["measures"]:
         if not (m.get("group") and m.get("text") and isinstance(m.get("on"), bool)): errs.append(f"measure {m.get('id')}: needs group, text and on (true/false)")
+    if [l["level"] for l in roe["cde"]["levels"]] != [1, 2, 3, 4, 5]: errs.append("cde.levels must be levels 1-5 in order")
+    if not roe["alr"]["levels"] or len({l["level"] for l in roe["alr"]["levels"]}) != len(roe["alr"]["levels"]): errs.append("alr.levels must be unique")
     if [w[0] for w in roe["wcs"]] != ["Weapons Free", "Weapons Tight", "Weapons Hold"]: errs.append("wcs must list Weapons Free, Weapons Tight, Weapons Hold (the SPINS select uses these)")
     if errs: raise SystemExit("build stopped: data/roe.json:" + "".join("\n  " + e for e in errs))
     return roe

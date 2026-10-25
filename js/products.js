@@ -177,6 +177,7 @@
       { key: "threats", label: "Threats in target area", type: "table", columns: [
         { key: "sys", label: "System" }, { key: "loc", label: "Location" }, { key: "range", label: "Range / alt" }] },
       { type: "section", label: "Considerations" },
+      { key: "cde", label: "CDE level", type: "select", options: ["1", "2", "3", "4", "5"], half: true, hint: "Per the ROE; printed on the ATO line" },
       { key: "collateral", label: "Collateral / attack restrictions", type: "textarea" },
       { key: "imagery", label: "Imagery & intel sources", type: "textarea" },
       { key: "bda", label: "BDA requirements", type: "textarea" }
@@ -184,7 +185,7 @@
   // older single-folder TDPs (targetId at the top level) read as a one-folder book
   const tdpFolders = d => d.folders ? Object.values(d.folders) : d.targetId ? [d] : [];
   const folderHtml = f => `<h2>TP ${esc(f.targetId)} — ${esc((f.name || "").toUpperCase())}${f.grade ? ` · GRADE ${esc(f.grade)}` : ""}</h2>
-      ${kv([["TARGET ID", f.targetId], ["CATEGORY", f.category], ["LAT/LONG", f.coords], ["MGRS", f.mgrs], ["ELEVATION", f.elev], ["STATUS", f.status === "ready" ? "Ready" : "Draft"]])}
+      ${kv([["TARGET ID", f.targetId], ["CATEGORY", f.category], ["LAT/LONG", f.coords], ["MGRS", f.mgrs], ["ELEVATION", f.elev], ["CDE", f.cde ? `CDE ${f.cde}` : "Not assessed"], ["STATUS", f.status === "ready" ? "Ready" : "Draft"]])}
       ${para("Description", f.description)}${para("Desired effect", f.effect)}
       <h2>DMPIs</h2>${table([["id", "DMPI"], ["desc", "DESCRIPTION"], ["coords", "COORDINATES"], ["weapon", "WEAPON"]], f.dmpis)}
       <h2>Threats in target area</h2>${table([["sys", "SYSTEM"], ["loc", "LOCATION"], ["range", "RANGE/ALT"]], f.threats)}
@@ -212,6 +213,8 @@
     const cs = c => { const m = up(c).match(/^([A-Z]+)\s*(\d)$/); return m ? `${m[1]}${m[2]}1` : dash(up(c).replace(/\s+/g, "")); };
     const unit = r => r.group ? up(ctx.group(r.group)?.name || r.group) : r.crew === "AI" ? "AI - HOST MISSION FILE" : "OPEN - NOT YET COMMITTED";
     const jiptl = S.content(cid, "jiptl")?.rows || [], shapes = S.content(cid, "map")?.shapes || [];
+    // ALR: the line's own, else the SPINS default; CDE: the target's TDP folder
+    const alr = S.content(cid, "spins")?.alr || "Medium", tdpOf = id => S.content(cid, "tdp")?.folders?.[id];
     // the theater-map shape a line flies in: its tanker track / orbit by callsign, else an area (CAP, kill box) by name
     const areaOf = r => (["AR", "AEW"].includes(r.role) && shapes.find(t => t.callsign && up(t.callsign) === up(r.callsign))) || shapes.find(t => up(t.name) === up(r.target));
     const viper = S.content(cid, "optasklink")?.viper || [], awacs = rows.find(r => r.role === "AEW");
@@ -237,6 +240,8 @@
         const [t1, t2] = times(r.tot);
         if (tgt) out.push(`GTGTLOC/P/TOT:${t1}/-/-/${up(tgt.name)}//`, `TGTS/${up(tgt.id)}/${dash(tgt.cat)}/${dash(tgt.loc)}/${dash(tgt.effect)}//`);
         else out.push(`AMSNLOC/${t1}/${t2}/${dash(tk?.name || r.target)}/${tk?.altLo ? `${dash(tk.altLo)}${tk.altHi ? `-${dash(tk.altHi)}` : ""}` : "-"}//`);
+        const cde = tgt && tdpOf(tgt.id)?.cde;
+        out.push(`AMPN/ALR:${up(alr)}${cde ? ` CDE:${cde}` : ""}//`);
         if (tk?.type === "TANKER TRACK") out.push(`REFTSK/-/-/-/PFREQ:${dash(tk.freq)}/-/${tk.tacanCh ? `${tk.tacanCh}${up(tk.tacanMode)}` : "-"}//`);
         if (r.role === "AEW") out.push(`ASACSDAT/AWAC/${cs(r.callsign)}/AWACS/AEW//`);
         const tanker = r.tanker && r.tanker !== "—" ? byCs(r.tanker) : null;
@@ -311,12 +316,18 @@
   // JFACC's procedures and point to it. Both follow the OMS / Red Flag SPINS layout.
   const ROE = () => window.AOC_JCEOI?.roe;
   const roeMeasureOn = (d, m) => d.roeMeasures?.[m.id] ?? m.on;
+  const alrOf = d => d.alr || "Medium";
+  // CDE level text with the campaign's approval authorities and authentication word filled in
+  const cdeFill = (d, t) => { const def = ROE()?.cde?.defaults || {};
+    return t.replace("{cde4}", d.cde4Auth || def.cde4).replace("{cde5}", d.cde5Auth || def.cde5).replace("{auth}", d.cdeAuth || def.auth); };
   const roeAwacs = ctx => (window.AOC.Store.content(ctx.campaign.id, "ato")?.missions || []).find(m => m.role === "AEW")?.callsign || "the AWACS";
   function spinsDoc(d, ctx) {
     const day = window.AOC_JCEOI?.tdl?.atoDayStartZ ?? 3, z = h => `${String(h).padStart(2, "0")}00Z`, zEnd = h => `${String((h + 23) % 24).padStart(2, "0")}59Z`;
     const iff = d.mode4 || d.iffProc || (d.iffOff || []).length || iffRules(ctx).length;
     return `${head("SPECIAL INSTRUCTIONS (SPINS)", ctx, esc(d.version))}
-      <h2>1. GENERAL INFORMATION</h2>${kv([["VALIDITY", d.period], ["TIME ZONE", "Zulu (Z) throughout"], ["ATO DAY", `${z(day)} to ${zEnd(day)}`], ["BULLSEYE", d.bullseye]])}
+      <h2>1. GENERAL INFORMATION</h2>${kv([["VALIDITY", d.period], ["TIME ZONE", "Zulu (Z) throughout"], ["ATO DAY", `${z(day)} to ${zEnd(day)}`], ["BULLSEYE", d.bullseye], ["DEFAULT ALR", alrOf(d).toUpperCase()]])}
+      ${ROE()?.alr ? `<h2>1.1 ACCEPTABLE LEVEL OF RISK (ALR)</h2><p>Applies to every ATO line; the ATO prints it with each mission.</p>
+        ${table([["l", "ALR"], ["t", "MEANING"]], ROE().alr.levels.map(x => ({ l: x.level === alrOf(d) ? `${x.level.toUpperCase()} (DEFAULT)` : x.level.toUpperCase(), t: x.text })))}` : ""}
       <h2>2. RULES OF ENGAGEMENT</h2><p>Per the OP ${esc(ctx.campaign.opName)} ROE${d.version ? ` ${esc(d.version)}` : ""}, published with these SPINS. Default weapons control status: ${esc((d.wcs || "Weapons Tight").toUpperCase())}.</p>
       <h2>3. COMMUNICATION</h2>${para("3.1 CHECK-IN & COMM PROCEDURES", d.checkin)}
       <h2>3.2 CODE WORDS</h2>${table([["word", "CODE WORD"], ["meaning", "MEANING / ACTION"]], d.codewords)}
@@ -342,6 +353,9 @@
       ${kv([["EFFECTIVE", d.period], ["DEFAULT WCS", wcs.toUpperCase()]])}
       <h2>1. GENERAL</h2>${paras(1, R.general)}
       <h2>2. SURFACE ROE</h2><p><b>DECLARED HOSTILE FORCES:</b> ${esc(d.declaredHostile || R.declaredHostileDefault)}</p>${paras(2, R.surface)}
+      ${R.cde ? `<p><b>2.${R.surface.length + 1} COLLATERAL DAMAGE ESTIMATE (CDE).</b></p>
+        ${table([["l", "CDE"], ["t", "MEANING"], ["a", "CLEARED BY"]], R.cde.levels.map(x => ({ l: x.level, t: x.text, a: cdeFill(d, x.authority) })))}
+        ${R.cde.rules.map(x => `<p><b>${esc(x.title.toUpperCase())}.</b> ${esc(cdeFill(d, x.text))}</p>`).join("")}` : ""}
       <p><b>RESTRICTED / NO-STRIKE TARGETS:</b></p>${(d.restricted || []).length ? table([["target", "TARGET / AREA"], ["restriction", "RESTRICTION"]], d.restricted) : "<p>None designated beyond the protected structures above.</p>"}
       <p><b>WEAPONS RESTRICTIONS:</b></p>${table([["weapon", "WEAPON / CATEGORY"], ["status", "STATUS"], ["applies", "APPLIES TO"], ["conditions", "CONDITIONS"]], d.weapons)}${d.weaponsNotes ? `<p>${esc(d.weaponsNotes)}</p>` : ""}
       <h2>3. AIR ROE</h2>${terms("CLASSIFICATION", R.idTerms)}
@@ -365,7 +379,8 @@
       { key: "version", label: "Version", type: "text", half: true, hint: "e.g. v3" },
       { key: "period", label: "Effective period", type: "text", half: true },
       { type: "section", label: "SPINS — general & communication" },
-      { key: "bullseye", label: "Bullseye", type: "text" },
+      { key: "bullseye", label: "Bullseye", type: "text", half: true },
+      { key: "alr", label: "Default acceptable level of risk (ALR)", type: "select", options: ["Low", "Medium", "High", "Extreme"], half: true, hint: "Blank = Medium; printed on every ATO line" },
       { key: "checkin", label: "Check-in & comm procedures", type: "textarea", hint: "Refer to channels by Comm Plan matrix ID, e.g. YELLOW 1" },
       { key: "codewords", label: "Code words", type: "table", columns: [
         { key: "word", label: "Code word", w: 160 }, { key: "meaning", label: "Meaning / action" }] },
@@ -388,6 +403,9 @@
       { key: "wcs", label: "Default weapons control status", type: "select", options: ["Weapons Tight", "Weapons Hold", "Weapons Free"], half: true },
       { key: "declaredHostile", label: "Declared hostile forces", type: "text", half: true, hint: "Blank = all RED coalition military forces in the AO" },
       { key: "roeMeasures", label: "Campaign measures", type: "measures" },
+      { key: "cde4Auth", label: "CDE 4 cleared by", type: "text", half: true, hint: "Blank = the controlling agency" },
+      { key: "cde5Auth", label: "CDE 5 cleared by", type: "text", half: true, hint: "Blank = the JFACC" },
+      { key: "cdeAuth", label: "CDE 5 authentication word", type: "text", hint: "e.g. the JFACC's initials; blank = passed by the controlling agency" },
       { key: "idCriteria", label: "ID / commit criteria", type: "textarea" },
       { key: "weapons", label: "Restricted / prohibited weapons", type: "table", columns: [
         { key: "weapon", label: "Weapon / category" },

@@ -360,7 +360,7 @@ window.AOC_SEED = {
       },
       // TDP book: one folder per JIPTL target (built on tdp.html)
       tdp: { folders: {
-        "T10004": { status: "ready", grade: "B",
+        "T10004": { status: "ready", grade: "B", cde: "3",
         targetId: "T10004",
         name: "Road Bridge LIMA (Rioni)",
         category: "LOC — Bridge",
@@ -380,7 +380,7 @@ window.AOC_SEED = {
         collateral: "Village 1.1 km south. Attack axis east-to-west, release no lower than 15,000 ft.",
         imagery: "Recon pod imagery from 18 OCT available on SRS/Discord #intel.",
         bda: "Post-strike TGP video required; request TARPS pass within 6 hours." },
-        "T10001": { status: "draft", grade: "A", targetId: "T10001", name: "SA-10 Battery KUTAISI EAST", category: "SAM (long range)", coords: "N42°16.200' E042°49.200'",
+        "T10001": { status: "draft", grade: "A", cde: "2", targetId: "T10001", name: "SA-10 Battery KUTAISI EAST", category: "SAM (long range)", coords: "N42°16.200' E042°49.200'",
           mgrs: "38T LM 012 845", elev: "", description: "SA-10 battery: 5P85 TELARs, 30N6 Flap Lid tracking radar, 64N6 Big Bird search radar, command post.",
           effect: "Destroy — supports key task 1 (air superiority over the Rioni valley)",
           dmpis: [{ id: "A", desc: "30N6 Flap Lid (critical — names the target)", coords: "N42°16.200' E042°49.200'", weapon: "AGM-88C / GBU-31" },
@@ -490,7 +490,7 @@ window.AOC_SEED = {
         version: "v3",
         period: "180600Z OCT 26 until superseded",
         bullseye: "TBILISI (N41°41' E044°49')",
-        wcs: "Weapons Tight",
+        wcs: "Weapons Tight", alr: "Medium",
         roe: "Hostile act or hostile intent required for engagement outside declared hostile forces. All Red military aircraft north of the FSCL are declared hostile. Self-defence is always authorised.",
         idCriteria: "Weapons Tight: two of — AWACS declaration HOSTILE, NCTR/visual ID, point of origin from Red airfield. Commit criteria for DCA: Red fighters within 40 NM of CAP KNIFE or heading toward HVAA.",
         codewords: [
