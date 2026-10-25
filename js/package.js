@@ -8,8 +8,8 @@
 (function () {
   const { Store, Auth, PRODUCTS, MILESTONES, COMM } = window.AOC;
   const DAY = 864e5;
-  // internal working products: built and approved by the CAOC, never released to groups
-  const INTERNAL = new Set(["pcon"]);
+  // internal working products (staff functions): built and approved by the CAOC, never released to groups or shown on Op Status
+  const INTERNAL = new Set(["pcon", "maap"]);
   // products that go out as DKS exports (Overlay, Manage Agencies) and so are not attached to the Discord post
   const DKS_ONLY = new Set(["aco", "acp"]);
   const FILES_PER_MESSAGE = 10;   // Discord's attachment limit per message; the bot splits larger posts

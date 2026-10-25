@@ -111,7 +111,7 @@
     // readiness
     const want = PK.wanted(c), ready = want.filter(pid => Store.status(cid, pid) === "approved");
     document.getElementById("readyN").textContent = `${ready.length} approved, waiting for PUBLISH`;
-    document.getElementById("ready").innerHTML = ["pcon", ...want].filter(pid => PRODUCTS[pid]).map(pid => { const s = Store.status(cid, pid), a = Store.approval(cid, pid), sh = Store.shared(cid, pid);
+    document.getElementById("ready").innerHTML = [...PK.INTERNAL, ...want].filter(pid => PRODUCTS[pid]).map(pid => { const s = Store.status(cid, pid), a = Store.approval(cid, pid), sh = Store.shared(cid, pid);
       return `<tr><td><a href="product.html?p=${pid}&c=${encodeURIComponent(cid)}">${esc(PRODUCTS[pid].code)}</a> <span class="muted">${esc(PRODUCTS[pid].name)}</span>${PK.INTERNAL.has(pid) ? ' <span class="muted small">(internal)</span>' : ""}</td>
         <td><span class="badge ${s}">${esc(STATUS_LABEL[s] || s)}</span></td><td class="small">${a ? `${esc(a.by)} ${esc(a.role)}` : "—"}</td>
         <td class="small">${sh ? `v${sh.version} · ${esc(zulu(new Date(sh.when)))}` : "—"}</td></tr>`; }).join("");

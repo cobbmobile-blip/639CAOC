@@ -125,7 +125,9 @@
 
   // ---------- helpers ----------
   const camp = () => Store.campaign(cid);
-  const released = () => Object.entries(camp().shared || {}).sort((a, b) => (PRODUCTS[a[0]]?.stage || 9) - (PRODUCTS[b[0]]?.stage || 9));
+  // staff functions (PCON, MAAP) never appear here, even if an older release shared them
+  const staffOnly = id => AOC.PACKAGE?.INTERNAL.has(id);
+  const released = () => Object.entries(camp().shared || {}).filter(([id]) => !staffOnly(id)).sort((a, b) => (PRODUCTS[a[0]]?.stage || 9) - (PRODUCTS[b[0]]?.stage || 9));
   const activeGroups = () => camp().groups.map(id => Store.group(id)).filter(Boolean);
   const atoLines = () => camp().shared?.ato?.data?.missions || [];
   function ctxFor(s) {
@@ -219,7 +221,7 @@
     if (!rel && !host) { el.classList.add("hidden"); return; }
     el.classList.remove("hidden");
     let html = `<div class="panel-head"><div><h2>Campaign package ${rel ? `v${rel.version}` : ""}</h2><div class="muted small">${rel
-      ? `Published ${esc(zulu(new Date(rel.when)))} by ${esc(rel.by)} for ATO day ${esc(rel.atoDay)}: ${rel.current.map(p => `${esc(PRODUCTS[p.pid]?.code)} v${p.v}`).join(", ")}`
+      ? `Published ${esc(zulu(new Date(rel.when)))} by ${esc(rel.by)} for ATO day ${esc(rel.atoDay)}: ${rel.current.filter(p => !staffOnly(p.pid)).map(p => `${esc(PRODUCTS[p.pid]?.code)} v${p.v}`).join(", ")}`
         + (c.dks?.overlay || c.dks?.agencies ? `<br>In DKS: ${[c.dks.overlay && `ACO Overlay v${c.dks.overlay.v}`, c.dks.agencies && `Manage Agencies v${c.dks.agencies.v} (${c.dks.agencies.list.length} agencies)`].filter(Boolean).join(" · ")}` : "")
       : "The CAOC has not published the package yet."}</div></div>
       ${host ? `<div class="toolbar"><a class="btn sm" href="mission-file.html?c=${encodeURIComponent(cid)}">Mission file${c.missionFiles?.length ? ` v${c.missionFiles.length}` : ""}</a><a class="btn sm primary" href="debrief.html?c=${encodeURIComponent(cid)}">Enter mission debrief</a></div>` : ""}</div>`;
@@ -295,7 +297,7 @@
 
   function renderBoard() {
     const groups = activeGroups(), rel = Object.fromEntries(released());
-    const ids = Object.keys(PRODUCTS).sort((a, b) => PRODUCTS[a].stage - PRODUCTS[b].stage);
+    const ids = Object.keys(PRODUCTS).filter(id => !staffOnly(id)).sort((a, b) => PRODUCTS[a].stage - PRODUCTS[b].stage);
     document.getElementById("board").innerHTML = [...ids.filter(id => rel[id]), ...ids.filter(id => !rel[id])].map(id => {
       const p = PRODUCTS[id], s = rel[id];
       if (!s) return `<div class="tile locked"><span class="code">${p.code}</span><h3>${esc(p.name)}</h3><p>Not yet released</p></div>`;

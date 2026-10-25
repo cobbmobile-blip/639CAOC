@@ -69,7 +69,7 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
   into the .miz) and **Comm Plan → DKS Manage Agencies** (persistent theater frequencies for the whole campaign;
   normally only tankers and JTACs change — the rollup shows changes since the last export). No host ".miz sheet".
 - Mission cycle assumes weekly missions: ~4 days from mission to the next PUBLISH (deadlines in `MILESTONES`).
-- PCON (planning conference) is internal: approved, never released to groups.
+- PCON (planning conference) and MAAP are internal staff functions (`PACKAGE.INTERNAL`): approved, never released to groups, not in the PUBLISH Discord post, never shown on Op Status; they stay on the staff dashboard and the rollup (marked internal).
 - **Op Status is status-only** — no request/submission forms on it.
 
 ## Product decisions (keep unless the user says otherwise)

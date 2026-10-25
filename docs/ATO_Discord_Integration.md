@@ -162,8 +162,9 @@ When the CFACC or CFC presses **PUBLISH** on the rollup (with "Discord post" tic
 JFACC's group, flagged `host: true`) and every active participating group, using the same group registration it uses for
 ATO lines. No channel is set per campaign.
 
-The post carries every released product that is **not** a DKS export: CI, AOD, JIPTL, TDP, MAAP, ATO, SPINS & ROE
+The post carries every released product that is **not** a DKS export: CI, AOD, JIPTL, TDP, ATO, SPINS & ROE
 (two files), OPTASKLINK, BDA. The ACO and Comm Plan go to DKS (Overlay, Manage Agencies) and are only named in a line.
+The Planning Conference and MAAP are staff functions and are never posted.
 Each product is a `.txt` file with the same text as the product page's "Download .txt". `change` is `new` (first
 release), `changed` (released in this PUBLISH) or `unchanged`. Discord allows ten files per message: send `files` in
 `messages` messages, `content` on the first.
