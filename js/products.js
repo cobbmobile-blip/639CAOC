@@ -577,7 +577,8 @@
       ${pk.map(p => `<h2>PACKAGE ${esc(p.name)} — TOT ${esc(p.tot || "TBD")}${p.push ? ` · PUSH ${esc(p.push)}` : ""}</h2>
         ${kv([["TARGETS", (p.targets || []).join(", ")], ["KEY TASKS", [...new Set((p.targets || []).map(t => window.AOC.keyTaskLabel(window.AOC.keyTaskOf(ctx.campaign.id, t))).filter(Boolean))].join("; ")],
           ["STRIKE", (p.strike || []).map(L).join("; ")], ["SEAD / DEAD", (p.sead || []).map(L).join("; ")],
-          ["ESCORT / SWEEP", (p.escort || []).map(L).join("; ")], ["TANKER", (p.tanker || []).map(L).join("; ")], ["NOTES", p.notes]])}`).join("") || "<p>No packages yet.</p>"}
+          ["ESCORT / SWEEP", (p.escort || []).map(L).join("; ")], ["TANKER", (p.tanker || []).map(L).join("; ")], ["NOTES", p.notes]])}
+        ${(p.supportResolved || []).length ? table([["role", "SUPPORT"], ["callsign", "CALLSIGN"], ["net", "NET / FREQ"], ["station", "STATION"], ["time", "TIME"]], p.supportResolved) : ""}`).join("") || "<p>No packages yet.</p>"}
       ${(() => { const A = window.AOC, cid = ctx.campaign.id, rows = A.Store.content(cid, "jiptl")?.rows || [], ks = A.keyTasks(cid).filter(t => rows.some(r => String(r.task) === t.n));
         return ks.length ? `<h2>KEY TASK COVERAGE</h2>${table([["n", "KT"], ["name", "KEY TASK"], ["_j", "JIPTL TARGETS"], ["_p", "IN A PACKAGE"]], ks.map(t => {
           const ids = rows.filter(r => String(r.task) === t.n).map(r => r.id);

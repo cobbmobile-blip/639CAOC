@@ -21,6 +21,8 @@
   .bucket { font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
   .warn { color: var(--warn); } .bad { color: var(--danger, #e5484d); } .ok { color: var(--ok); }
   .checks li { margin: 4px 0; font-size: 13px; }
+  .sup td input, .sup td select { padding: 3px 6px; font-size: 12px; }
+  .sup .auto { font: 600 9.5px var(--mono); color: var(--muted); text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -80,6 +82,52 @@
   // older MAAPs stored the lines per column; this page keeps one list per package
   maap.packages.forEach(p => { if (!p.lines) p.lines = BUCKETS.flatMap(([k]) => p[k] || []); });
 
+  // ---------- package support (tankers, AWACS / GCI, TAC C2, JTAC): suggested from the ATO, theater map, ACO and comm plan ----------
+  const SUPPORT_ROLES = ["Tanker", "AWACS / GCI", "TAC C2", "JTAC / FAC(A)", "ISR", "CSAR / RESCORT", "Other"];
+  const shapes = Store.content(cid, "map")?.shapes || [], acoMeasures = Store.content(cid, "aco")?.measures || [];
+  const comm = (() => { const m = Store.content(cid, "acp")?.matrix;
+    return (m?.columns || []).flatMap(c => (c.cells || []).slice(0, m.rows).map((cell, i) => ({ id: `${c.color} ${i + 1}`, ...cell }))).filter(ch => ch.role || ch.callsign || ch.freq); })();
+  const net = re => comm.find(ch => re.test(ch.role || ""));
+  const netTxt = ch => ch ? `${ch.id}${ch.freq ? ` ${ch.freq}` : ""}` : "";
+  const up = s => String(s || "").toUpperCase();
+  const GROUND = /Armor|Artillery|Ground forces|Dismounts/;
+  function suggestSupport(p) {
+    const ls = (p.lines || []).map(byMsn).filter(Boolean), out = [];
+    // a tanker for every tanker the package's lines are fragged to (its track, boom frequency and TACAN from the theater map)
+    [...new Set(ls.map(m => m.tanker).filter(t => t && t !== "—"))].forEach(t => {
+      const line = missions.find(m => m.role === "AR" && up(m.callsign) === up(t)), trk = shapes.find(s => up(s.callsign) === up(t));
+      out.push({ role: "Tanker", callsign: t, net: [trk?.freq, trk?.tacanCh && `TACAN ${trk.tacanCh}${trk.tacanMode || ""}`].filter(Boolean).join(" · "),
+        station: trk?.name || line?.target || "", time: line?.tot || trk?.time || "", src: line ? `ATO ${line.msn}` : "not an ATO line", auto: true });
+    });
+    // airborne C2 for every package
+    const aew = missions.find(m => m.role === "AEW");
+    if (aew) { const o = shapes.find(s => up(s.callsign) === up(aew.callsign));
+      out.push({ role: "AWACS / GCI", callsign: aew.callsign, net: netTxt(net(/^C2|AWACS|GCI|CHECK IN/i)), station: o?.name || aew.target || "", time: aew.tot || "", src: `ATO ${aew.msn}`, auto: true }); }
+    // ground-side control when the package works near troops: CAS / SCAR lines, or fielded-force targets
+    const close = ls.some(m => /CAS|SCAR/i.test(m.role)) || (p.targets || []).some(id => GROUND.test(jiptl.find(r => r.id === id)?.cat || ""));
+    if (close) {
+      const c2 = net(/ASOC|CRC|TAC C2|CAS COORD/i), jt = net(/JTAC|FAC/i), roz = acoMeasures.find(a => /JTAC/i.test(a.ctrl || ""));
+      out.push({ role: "TAC C2", callsign: c2?.callsign || "", net: netTxt(c2), station: "", time: "", src: c2 ? "Comm plan" : "", auto: true });
+      out.push({ role: "JTAC / FAC(A)", callsign: (roz?.ctrl || "").replace(/^JTAC\s*/i, "") || jt?.callsign || "", net: netTxt(jt), station: roz?.name || "", time: roz?.time || "",
+        src: roz ? "ACO" : jt ? "Comm plan" : "", auto: true });
+    }
+    return out;
+  }
+  // a package's support: suggestions follow its lines and targets; rows a planner edits or adds are kept, and suggestions
+  // they remove stay removed
+  const sKey = r => `${r.role}|${up(r.callsign)}`;
+  function supportRows(p) {
+    const manual = (p.support || []).filter(r => !r.auto), off = new Set(p.supportOff || []);
+    return [...suggestSupport(p).filter(r => !off.has(sKey(r)) && !manual.some(m => m.role === r.role && (!m.callsign || up(m.callsign) === up(r.callsign)))), ...manual];
+  }
+  const supportTable = p => { const rows = supportRows(p);
+    return `<div class="field"><label>Support</label><table class="lines sup"><thead><tr><th>Role</th><th>Callsign</th><th>Net / freq</th><th>Station</th><th>Time</th><th>Source</th><th></th></tr></thead><tbody>
+      ${rows.map((r, j) => `<tr data-sup="${j}"><td>${r.auto ? esc(r.role) : `<select data-sf="role">${SUPPORT_ROLES.map(x => `<option ${x === r.role ? "selected" : ""}>${x}</option>`).join("")}</select>`}</td>
+        ${["callsign", "net", "station", "time"].map(f => `<td><input data-sf="${f}" value="${esc(r[f] || "")}"></td>`).join("")}
+        <td>${r.auto ? `<span class="auto">auto${r.src ? ` · ${esc(r.src)}` : ""}</span>` : `<span class="auto">${r.edited ? "edited" : "added"}</span>`}</td>
+        <td class="rowact"><button data-unsup="${j}" title="Remove">✕</button></td></tr>`).join("") || `<tr><td colspan="7" class="muted">None needed yet: tankers come from the lines' tankers, AWACS from the ATO, TAC C2 and JTAC with CAS lines or ground targets.</td></tr>`}</tbody></table>
+      <select data-addsup style="margin-top:6px;width:auto"><option value="">+ Add support…</option>${SUPPORT_ROLES.map(x => `<option>${x}</option>`).join("")}</select></div>`; };
+
   function renderPkgs() {
     const used = assigned(), free = missions.filter(m => !used.has(m.msn));
     document.getElementById("pkgs").innerHTML = maap.packages.map((p, i) => `<div class="pkg" data-i="${i}">
@@ -99,7 +147,7 @@
           <td class="mono">${esc(m.tot)}</td><td>${esc(m.target)}</td><td class="rowact"><button data-unline="${esc(m.msn)}">✕</button></td></tr>`)).join("")
           || `<tr><td colspan="9" class="muted">No lines yet.</td></tr>`}</tbody></table>
         <select data-addline style="margin-top:6px;width:auto"><option value="">+ Add a line…</option>${free.map(m => `<option value="${esc(m.msn)}">${esc(label(m))}</option>`).join("")}</select>
-      </div></div>`).join("") || `<section class="panel"><p class="muted">No packages yet. Start from the ATO's package letters, or add one.</p></section>`;
+      </div>${supportTable(p)}</div>`).join("") || `<section class="panel"><p class="muted">No packages yet. Start from the ATO's package letters, or add one.</p></section>`;
     renderSide();
   }
 
@@ -119,6 +167,11 @@
         .forEach(m => out.push(["warn", `Line ${m.msn} TOT ${m.tot} is more than 20 min from package ${p.name} TOT ${p.tot}.`]));
       ls.filter(m => m.lineId && !m.group).forEach(m => out.push(["warn", `Line ${m.msn} is an open Human line — not committed yet.`]));
       ls.filter(m => STANDING.test(m.role)).forEach(m => out.push(["warn", `Line ${m.msn} (${m.role}) is a standing line inside package ${p.name}.`]));
+      const sup = supportRows(p);
+      sup.filter(r => !r.callsign).forEach(r => out.push(["warn", `Package ${p.name}: ${r.role} has no callsign.`]));
+      sup.filter(r => r.role === "Tanker" && r.src === "not an ATO line").forEach(r => out.push(["bad", `Package ${p.name}: tanker ${r.callsign} is not an AR line on the ATO.`]));
+      sup.filter(r => /JTAC|TAC C2/.test(r.role) && !r.net).forEach(r => out.push(["warn", `Package ${p.name}: ${r.role} has no net — add one to the comm plan.`]));
+      if (ls.length && !sup.some(r => r.role === "AWACS / GCI")) out.push(["warn", `Package ${p.name}: no AWACS / GCI (no AEW line on the ATO).`]);
     });
     // a tanker feeding packages whose TOTs are within 30 min of each other
     const tk = {}; ps.forEach(p => (p.lines || []).map(byMsn).filter(Boolean).forEach(m => { if (m.tanker && m.tanker !== "—") ((tk[m.tanker] = tk[m.tanker] || {})[p.name] = mins(p.tot)); }));
@@ -158,12 +211,21 @@
     const i = e.target.closest("[data-i]")?.dataset.i; if (i == null) return; const p = maap.packages[i];
     if (e.target.dataset.tgt) { const t = e.target.dataset.tgt; p.targets = e.target.checked ? [...(p.targets || []), t] : (p.targets || []).filter(x => x !== t); }
     else if (e.target.hasAttribute("data-addline") && e.target.value) p.lines.push(e.target.value);
+    else if (e.target.hasAttribute("data-addsup") && e.target.value) (p.support = p.support || []).push({ role: e.target.value, callsign: "", net: "", station: "", time: "", auto: false });
+    else if (e.target.dataset.sf) {         // editing a suggested row makes it the planner's own
+      const r = supportRows(p)[+e.target.closest("[data-sup]").dataset.sup]; p.support = p.support || [];
+      if (r.auto) p.supportOff = [...(p.supportOff || []), sKey(r)];
+      const own = r.auto ? (p.support.push({ ...r, auto: false, src: undefined, edited: true }), p.support.at(-1)) : r;
+      own[e.target.dataset.sf] = e.target.value;
+    }
     else return;
     markDirty(); renderPkgs();
   });
   pkgEl.addEventListener("click", e => {
     const b = e.target.closest("button"); const i = b?.closest("[data-i]")?.dataset.i; if (!b || i == null) return;
     if (b.dataset.unline) maap.packages[i].lines = maap.packages[i].lines.filter(l => l !== b.dataset.unline);
+    else if (b.dataset.unsup) { const p = maap.packages[i], r = supportRows(p)[+b.dataset.unsup];
+      if (r.auto) p.supportOff = [...(p.supportOff || []), sKey(r)]; else p.support = p.support.filter(x => x !== r); }
     else if (b.hasAttribute("data-delpkg")) { if (!confirm(`Delete package ${maap.packages[i].name}?`)) return; maap.packages.splice(i, 1); }
     else return;
     markDirty(); renderPkgs();
@@ -185,7 +247,8 @@
   // what the released MAAP document reads from: columns and line labels frozen at save time
   function snapshot() {
     const out = structuredClone(maap); out.lineLabels = {};
-    out.packages.forEach(p => { BUCKETS.forEach(([k]) => { p[k] = p.lines.filter(l => bucket(byMsn(l)?.role || "") === k); }); p.lines.forEach(l => { out.lineLabels[l] = label(byMsn(l)) || l; }); });
+    out.packages.forEach((p, i) => { BUCKETS.forEach(([k]) => { p[k] = p.lines.filter(l => bucket(byMsn(l)?.role || "") === k); }); p.lines.forEach(l => { out.lineLabels[l] = label(byMsn(l)) || l; });
+      p.supportResolved = supportRows(maap.packages[i]).map(({ role, callsign, net, station, time }) => ({ role, callsign, net, station, time })); });
     const cov = jiptl.filter(r => out.packages.some(p => (p.targets || []).includes(r.id)));
     out.coverage = `${cov.length} of ${jiptl.length}${cov.length ? ` (${cov.map(r => r.id).join(", ")})` : ""}`;
     return out;
