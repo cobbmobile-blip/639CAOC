@@ -165,11 +165,13 @@
   }
 
   // ---------- recover: the CSAR force — retask an ATO line or request one (posted to Discord for a unit to commit) ----------
-  const HELOS = /UH-1|Mi-8|CH-47|UH-60|HH-60|Mi-24|SA342|Ka-27/i;
+  const HELOS = /UH-1|Mi-8|CH-47|UH-60|HH-60|MH-60|Mi-24|SA342|Ka-27/i;
   const FORCES = [
     { key: "rmc", label: "RESCORT — Sandy (on-scene commander)", role: "RESCORT", airframe: "A-10C II", alt: ["A-10C", "AH-64D", "AV-8B"], num: 2, need: "always",
       fits: m => /RESCORT|CSAR|CAS/.test(m.role) && /A-10|AH-64|AV-8|Ka-50/.test(m.type) },
-    { key: "rv", label: "Rescue vehicle (helicopter)", role: "CSAR", airframe: "UH-1H", alt: ["Mi-8", "CH-47F", "UH-60L"], num: 2, need: "always", fits: m => /CSAR|Airlift/.test(m.role) && HELOS.test(m.type) },
+    { key: "rv", label: "Rescue vehicle (helicopter)", role: "CSAR", airframe: "MH-60L", alt: ["UH-1H", "Mi-8"], num: 2, need: "always", fits: m => /CSAR|Airlift/.test(m.role) && HELOS.test(m.type) },
+    // CH-47s fragged when the rescue needs lift beyond the MH-60s (several survivors, a long range or a recovery team)
+    { key: "rv2", label: "Additional lift (CH-47F)", role: "CSAR", airframe: "CH-47F", num: 1, need: "optional", fits: m => /CSAR|Airlift/.test(m.role) && /CH-47/.test(m.type) },
     { key: "sarcap", label: "SARCAP / RESCAP (air cover)", role: "SARCAP", airframe: "F-16C", alt: ["F/A-18C", "F-15C", "F-14B", "M-2000C"], num: 2, need: "always", fits: m => /SARCAP|DCA|OCA|Escort/.test(m.role) },
     { key: "sead", label: "SEAD", role: "SEAD", airframe: "F-16C", alt: ["F/A-18C"], num: 2, need: "threat", fits: m => /SEAD|DEAD/.test(m.role) },
     { key: "aew", label: "AWACS / GCI", role: "AEW", airframe: "E-3A", num: 1, crew: "AI", need: "always", fits: m => m.role === "AEW" },

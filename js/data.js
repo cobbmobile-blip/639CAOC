@@ -43,7 +43,9 @@ window.AOC_SEED = {
     { id: "g10", name: "Harrier Assault Det", airframes: "AV-8B", contact: "Beast", members: 8, tz: "Australia", status: "active", login: "harrier", code: "unit-demo" },
     { id: "g11", name: "Escadron Virtuel Mistral", airframes: "M-2000C", contact: "Mistral", members: 10, tz: "France", status: "active", login: "mistral", code: "unit-demo" },
     { id: "g12", name: "Thunder Apache Co.", airframes: "AH-64D", contact: "Thunder", members: 9, tz: "UK", status: "active", login: "thunder", code: "unit-demo" },
-    { id: "g13", name: "Eagle Keepers", airframes: "F-15C", contact: "Keeper", members: 13, tz: "Canada", status: "active", login: "keepers", code: "unit-demo" }
+    { id: "g13", name: "Eagle Keepers", airframes: "F-15C", contact: "Keeper", members: 13, tz: "Canada", status: "active", login: "keepers", code: "unit-demo" },
+    // primary CSAR helicopter unit: the UH-60L mod flown as the MH-60L (the PRCC requests rescue lines in it)
+    { id: "g14", name: "55th RQS", airframes: "MH-60L", contact: "Jolly", members: 10, tz: "US Central", status: "active", login: "rqs55", code: "unit-demo" }
   ],
 
   campaigns: [
@@ -63,7 +65,7 @@ window.AOC_SEED = {
         misreps: [{ msn: "7101", callsign: "VIPER 1", target: "T10002", flown: "Yes", result: "Hit — damaged", remarks: "" }, { msn: "7102", callsign: "DUDE 1", target: "T10003", flown: "Yes", result: "Hit — destroyed", remarks: "" },
           { msn: "7103", callsign: "SPRINGFIELD 3", target: "T10005", flown: "No — aborted", result: "", remarks: "Weather" }],
         bda: [{ target: "T10002", status: "Moderate damage", reattack: "Yes", notes: "" }, { target: "T10003", status: "Destroyed", reattack: "No", notes: "TGP video" }], losses: [] } },
-      groups: ["g1", "g2", "g3", "g4", "g6", "g7", "g8", "g10", "g11", "g12", "g13", "g9"], // g9 joined by committing to line 8601
+      groups: ["g1", "g2", "g3", "g4", "g6", "g7", "g8", "g10", "g11", "g12", "g13", "g9", "g14"], // g9 joined by committing to line 8601; g14 the CSAR helos
       status: { pcon: "approved", ci: "published", aod: "published", jiptl: "approved", tdp: "draft", maap: "approved", ato: "published", aco: "review", spins: "published", acp: "published", bda: "draft" },
       // seed release history (version + time) for products already published
       releases: {

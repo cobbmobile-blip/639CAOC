@@ -43,6 +43,11 @@
     (seed.users || []).forEach(u => { if (!d.users.some(x => x.callsign === u.callsign)) d.users.push(structuredClone(u)); });
     d.isopreps = d.isopreps || [];
     (seed.isopreps || []).forEach(p => { if (!d.isopreps.some(x => x.id === p.id)) d.isopreps.push(structuredClone(p)); });
+    // groups registered in the seed after first save (and the campaigns they belong to)
+    const added = seed.groups.filter(sg => !d.groups.some(g => g.id === sg.id));
+    added.forEach(sg => d.groups.push(structuredClone(sg)));
+    seed.campaigns.forEach(sc => { const c = d.campaigns.find(x => x.id === sc.id);
+      if (c) added.filter(g => (sc.groups || []).includes(g.id) && !c.groups.includes(g.id)).forEach(g => c.groups.push(g.id)); });
     // group sign-in fields added after first save
     seed.groups.forEach(sg => {
       const g = d.groups.find(x => x.id === sg.id);

@@ -12,7 +12,7 @@
     "F-15ESE": "F-15E", "F-15C": "F-15C", "FA-18C_hornet": "F/A-18C", "F-16C_50": "F-16C", "A-10C_2": "A-10C II", "A-10C": "A-10C",
     "F-14B": "F-14B", "F-14A-135-GR": "F-14A", "AV8BNA": "AV-8B", "M-2000C": "M-2000C", "JF-17": "JF-17", "F-5E-3": "F-5E",
     "AH-64D_BLK_II": "AH-64D", "UH-1H": "UH-1H", "Ka-50_3": "Ka-50", "Ka-50": "Ka-50", "Mi-24P": "Mi-24P", "Mi-8MT": "Mi-8",
-    "CH-47Fbl1": "CH-47F", "KC-135": "KC-135", "KC135MPRS": "KC-135 MPRS", "KC130": "KC-130J", "S-3B Tanker": "S-3B Tanker",
+    "CH-47Fbl1": "CH-47F", "UH-60L": "MH-60L", "UH-60L_DAP": "MH-60L DAP",   // UH-60L mod, flown as the MH-60L "KC-135": "KC-135", "KC135MPRS": "KC-135 MPRS", "KC130": "KC-130J", "S-3B Tanker": "S-3B Tanker",
     "E-3A": "E-3A", "E-2C": "E-2C", "C-130": "C-130", "MQ-9 Reaper": "MQ-9"
   };
   const AIRFRAMES = [...new Set(Object.values(DCS_AIRFRAMES))].sort();
