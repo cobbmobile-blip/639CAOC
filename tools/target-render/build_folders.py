@@ -3,7 +3,8 @@
     python build_folders.py "OP NAME-imagery-jobs.json"
 
 For each target: satellite imagery and elevation around it (fetch_area), the site and TGP views rendered in Blender with
-the mission's units (render.py), plus a wide orientation image, a topographic JOG and a locator map from map tiles.
+the mission's units (render.py), plus a wide orientation image, a JOG from the DCS F10 map's own chart (dcs_charts.py;
+the Esri topographic map where the terrain has none) and a locator map.
 Writes web-ready JPEGs and meta.json to <site>/img/targets/<campaign>/<target>/, where folder.html picks them up; the
 site markup (callouts, CEs, JDPIs, CER) is drawn by the page from meta.json, so re-editing a folder never needs a
 re-render. Commit img/targets/ with the site to publish the images.
@@ -15,6 +16,7 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+import dcs_charts  # noqa: E402
 import fetch_area as FA  # noqa: E402
 import post  # noqa: E402
 
@@ -40,7 +42,23 @@ def tile_image(dst, template, z, lat, lon, width_m, kind, attribution):
     """A north-up tile mosaic centred on the target, width_m across at 16:10; returns its meta entry."""
     im = FA.mosaic(template, z, lat, lon, width_m / 2, TILES, kind, half_y=width_m / ASPECT / 2)
     save_jpg(im, dst, 2400)
-    return {"file": os.path.basename(dst), "width_m": width_m, "height_m": round(width_m / ASPECT), "attribution": attribution}
+    return {"file": os.path.basename(dst), "width_m": width_m, "height_m": round(width_m / ASPECT), "attribution": attribution,
+            "north_deg": 0}                                       # web-mercator crop: true north is straight up
+
+
+def jog(dst, theatre, lat, lon, width_m):
+    """The DCS F10 map's own chart (grid north up) where the terrain has one; else the Esri topographic map."""
+    theatre = theatre if theatre and os.path.isdir(os.path.join(dcs_charts.TERRAINS, theatre)) else dcs_charts.theater_for(lat, lon)
+    if theatre:
+        try:
+            im, info = dcs_charts.chart(theatre, lat, lon, width_m, width_m / ASPECT)
+            save_jpg(im, dst, 2400)
+            print(f"  JOG: DCS {theatre} chart, {info['scale_m_per_px']} m/px, true north {info['north_deg']:+.1f} deg")
+            return {"file": os.path.basename(dst), "width_m": width_m, "height_m": round(width_m / ASPECT), "north_deg": info["north_deg"],
+                    "attribution": f"DCS World {theatre} chart (Eagle Dynamics)", "source": "dcs", "m_per_px": info["scale_m_per_px"]}
+        except Exception as ex:
+            print(f"  JOG: no DCS chart ({ex}); using the Esri topographic map")
+    return tile_image(dst, TOPO, 12, lat, lon, width_m, "topo", TOPO_ATTR)
 
 
 def build(t, out_dir, cache_root, keep):
@@ -80,13 +98,13 @@ def build(t, out_dir, cache_root, keep):
         if s["kind"] == "oblique": im = post.tgp(im, job, s)       # sensor look + data block; markings come from the page
         save_jpg(im, os.path.join(out_dir, f"{s['name']}.jpg"))
         meta["images"][s["name"]] = {"file": f"{s['name']}.jpg", "attribution": SAT_ATTR, **{k: s[k] for k in s if k not in ("name", "px")},
-                                     "spots": side["units"]}
+                                     "spots": side["units"], "north_deg": side.get("north_deg", 0)}
         if s["kind"] == "ortho": meta["images"][s["name"]]["height_m"] = round(s["width_m"] / ASPECT)
     for u in meta["units"]: u["elev_m"] = meta["images"]["site"]["spots"].get(u["name"], {}).get("elev_m")
     meta["elev_m"] = round(float(height[height.shape[0] // 2, height.shape[1] // 2]), 1)
 
     meta["images"]["orient"] = tile_image(os.path.join(out_dir, "orient.jpg"), FA.IMAGERY, 16, lat, lon, 6000, "esri", SAT_ATTR)
-    meta["images"]["jog"] = tile_image(os.path.join(out_dir, "jog.jpg"), TOPO, 12, lat, lon, 40000, "topo", TOPO_ATTR)
+    meta["images"]["jog"] = jog(os.path.join(out_dir, "jog.jpg"), t.get("theatre"), lat, lon, 40000)
     meta["images"]["locator"] = tile_image(os.path.join(out_dir, "locator.jpg"), TOPO, 6, lat, lon, 900000, "topo", TOPO_ATTR)
     json.dump(meta, open(os.path.join(out_dir, "meta.json"), "w"), indent=1)
     if not keep:

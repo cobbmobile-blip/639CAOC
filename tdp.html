@@ -173,6 +173,7 @@
         heading: u.heading ?? host.find(h => h.group === u.group && h.unit === u.unit)?.heading ?? null }));
       return units.length ? { target: r.id, name: r.name, category: r.cat || g.category, lat: g.lat, lon: g.lon, units } : null; }).filter(Boolean);
     if (!targets.length) { toast("No JIPTL target has .miz units yet — run Target nomination from the host mission file first"); return; }
+    targets.forEach(t => { t.theatre = cur?.theatre || null; });   // picks the DCS terrain whose F10 chart becomes the JOG
     AOC.download(`${campaign.opName}-imagery-jobs.json`, JSON.stringify({ campaign: cid, op: campaign.opName, exported: new Date().toISOString(), targets }, null, 1), "application/json");
     toast(`${targets.length} of ${jiptl.length} targets exported — run tools/target-render/build_folders.py on the file`);
   };

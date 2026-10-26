@@ -260,8 +260,14 @@ def render(job_path):
                 x, y = enu(job["lat"], job["lon"], u["lat"], u["lon"]); z = ground_z(height, z0, half, x, y)
                 v = world_to_camera_view(sc, co, Vector((x, y, z + 1.5)))
                 spots[u["name"]] = {"fx": round(v.x, 5), "fy": round(1 - v.y, 5), "elev_m": round(z + z0, 1)}
+            # true north in the image: the on-screen direction from the target to a ground point 50 m north of it,
+            # degrees clockwise from image-up (0 on the north-up overhead shots; rotated and foreshortened on the oblique)
+            p0 = world_to_camera_view(sc, co, Vector((0, 0, ground_z(height, z0, half, 0, 0))))
+            p1 = world_to_camera_view(sc, co, Vector((0, 50, ground_z(height, z0, half, 0, 50))))
+            north = math.degrees(math.atan2((p1.x - p0.x) * sc.render.resolution_x, (p1.y - p0.y) * sc.render.resolution_y)) % 360
             json.dump({"target": tgt, "shot": s, "camera": list(co.location), "ground_z0_msl": z0, "attribution": area["attribution"],
-                       "m_per_px": (s["width_m"] / sc.render.resolution_x) if s["kind"] == "ortho" else None, "units": spots},
+                       "m_per_px": (s["width_m"] / sc.render.resolution_x) if s["kind"] == "ortho" else None, "units": spots,
+                       "north_deg": round(north, 1)},
                       open(os.path.join(OUT, f"{tgt}_{s['name']}.json"), "w"), indent=2)
             print(f"rendered {tgt}_{s['name']}.png")
 

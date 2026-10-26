@@ -18,6 +18,9 @@ mission's units drawn as DCS's own 3D models, rendered in Blender.
 2. `python tools/target-render/build_folders.py "<OP>-imagery-jobs.json"` (about a minute per target; `--only T10001,T10002` to redo some).
 3. Commit `img/targets/` with the site. Each folder's **Open target folder** page picks the images up.
 
+The JOG is the DCS F10 map's own chart layer, read from the terrain's `RasterCharts` (`dcs_charts.py`, placed with a
+projection fitted to the terrain's `Beacons.lua`); where a terrain has no chart the Esri topographic map is used.
+
 `cache/`, `out/` and `vendor/` stay local. Imagery: Esri World Imagery and World Topographic Map (attribution printed
 on every page); elevation: AWS Terrain Tiles.
 

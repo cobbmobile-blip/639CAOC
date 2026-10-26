@@ -15,8 +15,9 @@
   .hd > div:last-child { border-right: 0; }
   .hd .logo { display: grid; place-items: center; } .hd .logo img { width: 104px; height: 104px; }
   .hd .ttl { display: grid; grid-template-rows: auto auto 1fr; }
-  .hd .ttl b { display: block; font-size: 17px; padding: 5px 8px 0; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hd .ttl b + b { padding: 2px 8px 5px; border-bottom: 1.5px solid #000; }
+  .hd .ttl b, .hd .ttl span.sub { display: block; padding: 6px 8px 0; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hd .ttl b { font-size: 22px; line-height: 1.15; }                       /* page subject */
+  .hd .ttl span.sub { font: 700 13px Arial, sans-serif; padding: 3px 8px 6px; border-bottom: 1.5px solid #000; }   /* target designation */
   .hd .ttl .ids { font: 700 12.5px/1.4 Arial, sans-serif; padding: 6px 8px; display: grid; grid-template-columns: auto auto; column-gap: 18px; align-content: start; }
   .hd .loc { position: relative; } .hd .loc img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .hd .loc i { position: absolute; border: 1.5px solid #e00; }
@@ -88,6 +89,7 @@
   let meta = null;
   try { const r = await fetch(base + "meta.json", { cache: "no-cache" }); if (r.ok) meta = await r.json(); } catch (e) { /* no imagery yet */ }
 
+  const ver = meta ? `?v=${encodeURIComponent(meta.generated)}` : "";   // a rebuild replaces images under the same names
   const name = folder.name || row.name || meta?.name || tid, cat = folder.category || row.cat || "";
   document.getElementById("title").textContent = `${tid} · ${name}`;
   document.getElementById("sub").textContent = meta ? `Imagery built ${meta.generated} · ${meta.units.length} units from the host .miz` :
@@ -133,19 +135,21 @@
   const CLS = "UNCLASSIFIED // EXERCISE";
   const prep = `PREPARED BY: 639TH vCAOC ISR &amp; TARGETING<br>OP ${esc(up(campaign.opName))}<br>DCS WORLD TRAINING — NOT REAL WORLD<br>${CLS}`;
 
-  // ---------- critical elements and JDPIs: one CE per unit type (the type that names the target first), one JDPI per unit ----------
+  // ---------- critical elements and DPIs: every vehicle is its own CE with its own DPI (the type that names the target first).
+  // The DMPI is the mean point of all the vehicles: a reference for the target as a whole, not a targeting aimpoint. ----------
   const units = meta?.units || [];
   const types = [...new Set(units.map(u => u.type))].sort((a, b) => (a === group?.repType ? -1 : b === group?.repType ? 1 : 0));
-  const ces = types.map((t, i) => ({ n: i + 1, type: t, label: unitName(t), weapon: folder.dmpis?.[i]?.weapon || "",
-    jdpis: units.filter(u => u.type === t).map((u, k) => ({ ...u, id: `${String.fromCharCode(65 + i)}${String(k + 1).padStart(3, "0")}` })) }));
-  const jdpis = ces.flatMap(c => c.jdpis.map(j => ({ ...j, ce: c })));
+  // weapon: the TDP folder's DMPI row for that unit type
+  const dpis = types.flatMap((t, i) => units.filter(u => u.type === t).map(u => ({ ...u, label: unitName(t), weapon: folder.dmpis?.[i]?.weapon || "" })))
+    .map((u, k) => ({ ...u, ce: k + 1, id: `A${String(k + 1).padStart(3, "0")}` }));
+  const dmpi = units.length ? { lat: units.reduce((a, u) => a + u.lat, 0) / units.length, lon: units.reduce((a, u) => a + u.lon, 0) / units.length } : null;
 
   // ---------- page parts ----------
   let pageNo = 0;
   const header = graphic => `<div class="hd"><div class="logo"><img src="${LOGO}" alt=""></div>
-    <div class="ttl"><b>${esc(name)}</b><b>${esc(graphic)}</b><div class="ids">
+    <div class="ttl"><b style="font-size:${Math.min(22, 456 / (graphic.length * 0.68)).toFixed(1)}px">${esc(graphic)}</b><span class="sub">${esc(tid)} · ${esc(name)}</span><div class="ids">
       <span>BE: ${esc(tid)}</span><span>CATCODE: ${catcode(cat)}</span><span>MIDB GEO: ${gLat}</span><span>${gLon}</span><span>ICOD: ${icod}</span><span>DOI: ${doi}</span></div></div>
-    <div class="loc">${meta ? `<img src="${base}${meta.images.locator.file}" alt=""><i style="${locBox()}"></i>` : ""}</div>
+    <div class="loc">${meta ? `<img src="${base}${meta.images.locator.file}${ver}" alt=""><i style="${locBox()}"></i>` : ""}</div>
     <div class="cls"><div>${CLS}</div><div>${prep}</div></div></div>`;
   function locBox() {       // the JOG's extent on the locator map
     const L = meta.images.locator, J = meta.images.jog, w = J.width_m / L.width_m * 100, h = J.height_m / L.height_m * 100;
@@ -156,7 +160,7 @@
     if (!meta) return page(graphic, `<div class="noimg"><div><b>Imagery not built yet.</b><br><br>On the TDP book, <b>Export imagery jobs</b>, then run<br><br>
       <code>python tools/target-render/build_folders.py "&lt;file&gt;"</code><br><br>and commit <code>img/targets/</code>.</div></div>`);
     const im = meta.images[key];
-    return page(graphic, `<div class="img"><img class="${bw ? "bw" : ""}" src="${base}${im.file}" alt="">
+    return page(graphic, `<div class="img"><img class="${bw ? "bw" : ""}" src="${base}${im.file}${ver}" alt="">
       <svg viewBox="0 0 1600 1000" preserveAspectRatio="none">${svg}</svg></div>
       <div class="tag top">${CLS}</div><div class="tag bot">${CLS}</div>${bottom}
       <div class="attr" style="${bottom ? "bottom:50px" : ""}">Imagery: ${esc(im.attribution)}${key === "site" || key === "tgp" ? " · Units: DCS World models" : ""}</div>`);
@@ -215,8 +219,18 @@
   const cross = ([x, y], s = 34, c = "#fff") => `<path d="M${x - s / 3},${y - s} h${s / 1.5} v${s / 1.5} h${s / 1.5} v${s / 1.5} h-${s / 1.5} v${s / 1.5} h-${s / 1.5} v-${s / 1.5} h-${s / 1.5} v-${s / 1.5} h${s / 1.5} z"
     fill="none" stroke="#000" stroke-width="${T + 3}"/><path d="M${x - s / 3},${y - s} h${s / 1.5} v${s / 1.5} h${s / 1.5} v${s / 1.5} h-${s / 1.5} v${s / 1.5} h-${s / 1.5} v-${s / 1.5} h-${s / 1.5} v-${s / 1.5} h${s / 1.5} z"
     fill="none" stroke="${c}" stroke-width="${T}"/><circle cx="${x}" cy="${y}" r="3" fill="${c}"/>`;
-  const north = (c = "#fff") => `<g stroke="#000" stroke-width="1.5"><path d="M1490,150 L1490,60 L1478,82 M1490,60 L1502,82" stroke="${c}" stroke-width="8" fill="none"/>
-    <text x="1512" y="150" font-family="Arial" font-weight="700" font-size="62" fill="${c}" stroke="#000" stroke-width="1.5">N</text></g>`;
+  // compass rose turned to true north in the image (meta north_deg: degrees clockwise from image-up); N stays upright
+  const north = (c = "#fff", deg = 0) => {
+    const cx = 1508, cy = 112, r = 46, k = c === "#000" ? "#fff" : "#000", rad = deg * Math.PI / 180;
+    const ticks = [0, 45, 90, 135, 180, 225, 270, 315].map(a => { const L = a % 90 ? 10 : 18;
+      return `<line x1="0" y1="${-r}" x2="0" y2="${-r + L}" transform="rotate(${a})" stroke="${c}" stroke-width="${a % 90 ? 2 : 3}"/>`; }).join("");
+    const nx = cx + (r + 30) * Math.sin(rad), ny = cy - (r + 30) * Math.cos(rad) + 13;
+    return `<g transform="translate(${cx},${cy}) rotate(${deg})">
+      <circle r="${r}" fill="none" stroke="${k}" stroke-width="6"/><circle r="${r}" fill="none" stroke="${c}" stroke-width="2.5"/>${ticks}
+      <path d="M0,${-r - 6} L13,0 L0,8 Z" fill="${c}" stroke="${k}" stroke-width="1.5"/><path d="M0,${-r - 6} L-13,0 L0,8 Z" fill="${k}" stroke="${c}" stroke-width="1.5"/>
+      <path d="M0,${r - 4} L9,0 L-9,0 Z" fill="none" stroke="${c}" stroke-width="2"/></g>
+      <text x="${nx}" y="${ny}" text-anchor="middle" font-family="Arial" font-weight="700" font-size="36" fill="${c}" stroke="${k}" stroke-width="1.5">N</text>`;
+  };
   function scale(width_m) {
     const target = width_m / 6, nice = [10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000].filter(v => v <= target).pop() || 10, L = nice / width_m * W;
     return `<g font-family="Arial" font-weight="700" font-size="20" fill="#fff" stroke="#000" stroke-width=".8"><rect x="40" y="${H - 120}" width="${L}" height="12" fill="#fff"/>
@@ -224,8 +238,10 @@
   }
   const tri = ([x, y], c = "#fff") => `<path d="M${x},${y - 30} L${x + 22},${y + 12} L${x - 22},${y + 12} Z" fill="none" stroke="#000" stroke-width="${T + 3}"/>
     <path d="M${x},${y - 30} L${x + 22},${y + 12} L${x - 22},${y + 12} Z" fill="none" stroke="${c}" stroke-width="${T}"/><circle cx="${x}" cy="${y - 2}" r="6" fill="${c}"/>`;
-  const jdpiLines = j => { const [a, b] = ddm(j.lat, j.lon); return [`JDPI: ${j.id}`, dms(j.lat, j.lon), `${a}   ${b}`, mgrs(j.lat, j.lon),
-    `JDPI MSL: ${ft(j.elev_m)}`, `TLE: CAT I (.MIZ TRUTH DATA)`]; };
+  const dpiLines = j => { const [a, b] = ddm(j.lat, j.lon); return [`DPI: ${j.id} (CE${j.ce})`, dms(j.lat, j.lon), `${a}   ${b}`, mgrs(j.lat, j.lon),
+    `DPI MSL: ${ft(j.elev_m)}`, `TLE: CAT I (.MIZ TRUTH DATA)`]; };
+  const dmpiSym = ([x, y]) => `<circle cx="${x}" cy="${y}" r="17" fill="none" stroke="#000" stroke-width="${T + 3}"/><circle cx="${x}" cy="${y}" r="17" fill="none" stroke="#ff0" stroke-width="${T}"/>
+    <path d="M${x - 26},${y} H${x + 26} M${x},${y - 26} V${y + 26}" stroke="#ff0" stroke-width="2"/>`;
 
   // ---------- pages ----------
   const out = [];
@@ -243,38 +259,44 @@
       `<tr><td>${esc(t.sys)}</td><td>${esc(t.loc)}</td><td>${esc(t.range)}</td></tr>`).join("")}</tbody></table>` : ""}</div>`));
 
   const label = [tid, up(name)];
-  out.push(imgPage("JOINT OPERATIONS GRAPHIC 1/1", "jog", meta && `${cross([W / 2, H / 2], 40, "#000")}${callout([W / 2, H / 2], label, { lead: "#000" })}${north("#000")}${scale(meta.images.jog.width_m).replace(/fill="#fff" stroke="#000" stroke-width=".8"/, 'fill="#000"')}`));
+  out.push(imgPage("JOINT OPERATIONS GRAPHIC 1/1", "jog", meta && `${cross([W / 2, H / 2], 40, "#000")}${callout([W / 2, H / 2], label, { lead: "#000" })}${north("#000", meta.images.jog.north_deg ?? 0)}${scale(meta.images.jog.width_m).replace(/fill="#fff" stroke="#000" stroke-width=".8"/, 'fill="#000"')}`));
   out.push(imgPage("ORIENTATION VIEW GRAPHIC 1/1", "orient", meta && (() => {   // site-view extent outlined, as the AFLG outlines the facility
     const s = meta.images.site, o = meta.images.orient, w = s.width_m / o.width_m * W, h = s.height_m / o.height_m * H;
     return `<rect x="${W / 2 - w / 2}" y="${H / 2 - h / 2}" width="${w}" height="${h}" fill="none" stroke="#fff" stroke-width="${T + 1}"/>${cross([W / 2, H / 2])}
       ${callout([W / 2 - w / 2, H / 2 - h / 2], label)}${north()}${scale(o.width_m)}`; })(), { bw: true }));
 
   out.push(imgPage(`CRITICAL ELEMENT GRAPHIC 1/1`, "site", meta && (() => {
-    // every vehicle boxed and labelled with its critical element
+    // every vehicle boxed and labelled as its own critical element
     const s = meta.images.site, half = Math.max(14, 11 / s.width_m * W);   // ~22 m box per vehicle
-    const marks = jdpis.map(j => ({ j, pt: spot("site", j) })).filter(m => m.pt);
+    const marks = dpis.map(j => ({ j, pt: spot("site", j) })).filter(m => m.pt);
     return marks.map(({ pt: [x, y] }) => `<rect x="${x - half}" y="${y - half}" width="${2 * half}" height="${2 * half}" fill="none" stroke="#fff" stroke-width="${T}"/>`).join("") +
-      place(marks.map(({ j, pt }) => ({ pt, lines: [`CE${j.ce.n}`, up(j.ce.label)], size: 17 }))) + north() + scale(s.width_m); })(), { bw: true }));
+      place(marks.map(({ j, pt }) => ({ pt, lines: [`CE${j.ce}`, up(j.label)], size: 17 }))) + north() + scale(s.width_m); })(), { bw: true }));
 
-  out.push(imgPage("JOINT DESIRED POINT OF IMPACT GRAPHIC 1/1", "site", meta && (() => {
-    // every JDPI marked with its data box (up to 12; any more are labelled, with full data on the JDPI list)
-    const marks = jdpis.map(j => ({ j, pt: spot("site", j) })).filter(m => m.pt), boxed = marks.slice(0, 12);
-    return marks.map(m => tri(m.pt)).join("") + place(boxed.map(({ j, pt }) => ({ pt: [pt[0], pt[1] - 2], lines: jdpiLines(j), size: 13 }))) +
-      marks.slice(12).map(({ j, pt }) => `<text x="${pt[0] + 26}" y="${pt[1] + 8}" font-family="Arial" font-weight="700" font-size="20" fill="#fff" stroke="#000" stroke-width=".8">${j.id}</text>`).join("") +
-      north() + scale(meta.images.site.width_m); })(), { bw: true }));
+  out.push(imgPage("DESIRED POINT OF IMPACT GRAPHIC 1/1", "site", meta && (() => {
+    // every DPI with its data box, and the DMPI (mean point of the vehicles) for reference
+    const marks = dpis.map(j => ({ j, pt: spot("site", j) })).filter(m => m.pt), mp = dmpi && geo("site", dmpi.lat, dmpi.lon);
+    const items = marks.map(({ j, pt }) => ({ pt: [pt[0], pt[1] - 2], lines: dpiLines(j), size: 13 }));
+    if (mp) { const [a, b] = ddm(dmpi.lat, dmpi.lon); items.unshift({ pt: mp, lines: ["DMPI (MEAN POINT OF THE VEHICLES)", `${a}   ${b}`, "REFERENCE ONLY — NOT A TARGETING AIMPOINT"], size: 13 }); }
+    return marks.map(m => tri(m.pt)).join("") + (mp ? dmpiSym(mp) : "") + place(items) + north() + scale(meta.images.site.width_m); })(), { bw: true }));
 
-  // pod view: JDPIs labelled beside the vehicle, nothing drawn over it
-  out.push(imgPage(`TARGETING POD VIEW GRAPHIC 1/1`, "tgp", meta && jdpis.map(j => { const p = spot("tgp", j); return p ?
+  // pod view: DPIs labelled beside the vehicle, nothing drawn over it
+  out.push(imgPage(`TARGETING POD VIEW GRAPHIC 1/1`, "tgp", meta && dpis.map(j => { const p = spot("tgp", j); return p ?
     `<line x1="${p[0] + 14}" y1="${p[1] + 14}" x2="${p[0] + 52}" y2="${p[1] + 52}" stroke="#fff" stroke-width="2"/>
-    <text x="${p[0] + 56}" y="${p[1] + 70}" font-family="Arial" font-weight="700" font-size="20" fill="#fff" stroke="#000" stroke-width=".8">${j.id}</text>` : ""; }).join("")));
+    <text x="${p[0] + 56}" y="${p[1] + 70}" font-family="Arial" font-weight="700" font-size="20" fill="#fff" stroke="#000" stroke-width=".8">${j.id}</text>` : ""; }).join("")
+    + north("#fff", meta.images.tgp.north_deg ?? 0)));
 
-  out.push(page("JOINT DESIRED POINT OF IMPACT LIST 1/1", `<div class="sheet"><table><thead><tr><th style="width:62px">JDPI</th><th>DESCRIPTION</th><th style="width:170px">LOCATION</th>
-    <th style="width:150px">MGRS</th><th style="width:84px">JDPI MSL</th><th style="width:76px">TLE</th><th>WEAPON</th><th>DESIRED EFFECT</th></tr></thead><tbody>
-    ${jdpis.slice(0, 14).map(j => { const [a, b] = ddm(j.lat, j.lon); return `<tr><td>${j.id}</td><td>CE${j.ce.n} ${esc(up(j.ce.label))}</td><td>${a}<br>${b}</td>
-      <td>${mgrs(j.lat, j.lon)}</td><td>${ft(j.elev_m)}</td><td>CAT I</td><td>${esc(up(j.ce.weapon)) || "PER WEAPONEERING"}</td><td>${killFx(j.type)}</td></tr>`; }).join("")
-      || `<tr><td colspan="8">No JDPIs until the imagery is built (one JDPI per .miz unit).</td></tr>`}
-    </tbody></table>${jdpis.length > 14 ? `<p>${jdpis.length - 14} more JDPIs — same pattern, see the .miz group.</p>` : ""}
-    <p class="l" style="font-size:11px">JDPI positions and elevations are the .miz unit positions on the imagery's terrain model. Weapon: the TDP folder's DMPI weapon for that element.</p></div>`));
+  // DPI list: as many pages as it takes, 13 rows each; the DMPI heads the first page as a reference row
+  const ROWS = 13, listPages = Math.max(1, Math.ceil(dpis.length / ROWS));
+  for (let pi = 0; pi < listPages; pi++) {
+    const rows = dpis.slice(pi * ROWS, (pi + 1) * ROWS).map(j => { const [a, b] = ddm(j.lat, j.lon); return `<tr><td>${j.id}</td><td>CE${j.ce} ${esc(up(j.label))}</td><td>${a}<br>${b}</td>
+      <td>${mgrs(j.lat, j.lon)}</td><td>${ft(j.elev_m)}</td><td>CAT I</td><td>${esc(up(j.weapon)) || "PER WEAPONEERING"}</td><td>${killFx(j.type)}</td></tr>`; }).join("");
+    const ref = pi === 0 && dmpi ? (() => { const [a, b] = ddm(dmpi.lat, dmpi.lon); return `<tr style="background:#f4f4d8"><td>DMPI</td><td>MEAN POINT OF ALL ${dpis.length} VEHICLES</td><td>${a}<br>${b}</td>
+      <td>${mgrs(dmpi.lat, dmpi.lon)}</td><td>${meta ? ft(meta.elev_m) : "—"}</td><td>—</td><td colspan="2">REFERENCE ONLY — NOT A TARGETING AIMPOINT</td></tr>`; })() : "";
+    out.push(page(`DESIRED POINT OF IMPACT LIST ${pi + 1}/${listPages}`, `<div class="sheet"><table><thead><tr><th style="width:62px">DPI</th><th>DESCRIPTION</th><th style="width:170px">LOCATION</th>
+      <th style="width:150px">MGRS</th><th style="width:84px">DPI MSL</th><th style="width:76px">TLE</th><th>WEAPON</th><th>DESIRED EFFECT</th></tr></thead><tbody>
+      ${ref}${rows || `<tr><td colspan="8">No DPIs until the imagery is built (one DPI per .miz vehicle).</td></tr>`}</tbody></table>
+      <p class="l" style="font-size:11px">DPI positions and elevations are the .miz vehicle positions on the imagery's terrain model. Weapon: the TDP folder's DMPI weapon for that vehicle type.</p></div>`));
+  }
 
   const lvl = folder.cde, cdeRow = window.AOC_JCEOI?.roe?.cde?.levels?.find(x => String(x.level) === String(lvl));
   const cdeCol = { 1: "#0a0", 2: "#0a0", 3: "#b90", 4: "#e60", 5: "#d00" }[lvl] || "#000";
@@ -297,9 +319,10 @@
     ["MIDB GEO", "Database geolocation", "Reference coordinates of the target (the .miz group centre)."],
     ["ICOD", "Intelligence cut-off date", "Date of the latest intelligence used (the target nomination run)."],
     ["DOI", "Date of imagery", "Date the folder imagery was produced."], ["CE", "Critical element", "Part of the target that lets it do its job."],
-    ["JDPI", "Joint desired point of impact", "Numbered aimpoint, one per critical-element unit, from the .miz unit position."],
+    ["DPI", "Desired point of impact", "Numbered targeting aimpoint, one per vehicle, from its .miz position."],
+    ["DMPI", "Desired mean point of impact", "Mean point of the target's vehicles; a reference for the target as a whole, not a targeting aimpoint."],
     ["TLE", "Target location error", "Expected coordinate error; CAT I is under 20 ft. .miz positions are exact."],
-    ["MSL", "Mean sea level", "Elevation reference for JDPI heights."], ["CDE", "Collateral damage estimate", "Level 1–5 assessment of risk to non-combatants, per the ROE."],
+    ["MSL", "Mean sea level", "Elevation reference for DPI heights."], ["CDE", "Collateral damage estimate", "Level 1–5 assessment of risk to non-combatants, per the ROE."],
     ["CER", "Collateral effects radius", "Distance within which a weapon's effects may reach collateral objects."],
     ["NSE", "No-strike entity", "Protected object that must not be attacked (see the ROE)."], ["TGP", "Targeting pod", "Simulated narrow-field FLIR view (white hot)."]];
   out.push(`<section class="pg"><img src="${LOGO}" alt="" style="position:absolute;left:18px;top:10px;width:110px;height:110px">
