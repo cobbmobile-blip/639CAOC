@@ -199,6 +199,7 @@
     closeHalf();
     if (P.page && !P.fields.length) html = `<p class="muted">This product is built on its own page. Use it to edit; come back here to submit for review, approve and publish.</p>
       <a class="btn primary" href="${P.page.href}?c=${encodeURIComponent(cid)}">${esc(P.page.label)} →</a>`;
+    if ((pid === "spins" || pid === "acp") && AOC.COMM.commIssues) html = `<div id="commCheck">${commCheckHtml()}</div>` + html;
     form.innerHTML = html;
   }
 
@@ -309,6 +310,12 @@
       <a class="btn sm ghost" href="jceoi.html" target="_blank" rel="noopener">Open JCEOI →</a></div><div id="jceoiCheck">${jceoiCheck(m)}</div>` : ""}</div>`;
   }
   // every channel against the campaign theater's JCEOI register: documented frequencies within one channel are flagged
+  // disconnects between the SPINS, the JCEOI, the Comm Plan and the products that read it (products.js commIssues)
+  function commCheckHtml() {
+    const xs = AOC.COMM.commIssues(cid), col = { bad: "var(--danger, #e5484d)", warn: "var(--warn)", info: "var(--muted)" };
+    return `<div class="section-h">Comm check — SPINS → JCEOI → Comm Plan → CSAR, packages, ATO</div>${xs.length ? `<ul class="small" style="margin:4px 0 10px">${xs.map(x =>
+      `<li style="color:${col[x.sev]}">${x.sev === "bad" ? "✕" : x.sev === "warn" ? "!" : "·"} ${esc(x.text)}</li>`).join("")}</ul>` : `<p class="small" style="color:var(--ok)">✓ No comm disconnects.</p>`}`;
+  }
   function jceoiCheck(m) {
     const X = AOC.JCEOI, tk = X.theaterKey(campaign.theater), tp = X.plan(tk), rows = [], chans = AOC.COMM.channels(m).filter(c => c.freq);
     // the standard value in the channel's own band (an FM JTAC is compared with the FM standard)
@@ -321,9 +328,10 @@
       if (tp) hits = hits.filter(h => !(h.kind === "nttr" && X.agrees({ ...c, net: c.col?.title }, h)) && (!asPlan || h.kind === "nttr"));
       const std = tp ? null : X.net(c.id);
       const off = std && std.role === c.role && ![std.uhf, std.uhfAlt, std.vhf, std.fm, std.hf].some(x => x != null && Math.abs(x - f) < 1e-6);
+      const roleOff = std && std.role !== c.role ? std.role : null;   // the channel holds a different net from the JCEOI standard
       const offPlan = tp && (!pc || pc.role !== c.role || !pc.freq || Math.abs(+pc.freq - f) > 1e-6) ? pc || {} : null;
       const dup = chans.filter(o => o !== c && Math.abs(parseFloat(o.freq) - f) < 1e-6).map(o => o.id);
-      if (hits.length || off || offPlan || dup.length || !isFinite(f)) rows.push({ c, hits, std: off ? stdIn(std, f) : null, offPlan, dup, bad: !isFinite(f) });
+      if (hits.length || off || roleOff || offPlan || dup.length || !isFinite(f)) rows.push({ c, hits, std: off ? stdIn(std, f) : null, roleOff, offPlan, dup, bad: !isFinite(f) });
     });
     const n = chans.length;
     const iffN = AOC.IFF ? AOC.IFF.check(cid, Store.content(cid, "ato")?.missions || [], tk).filter(f => f.sev === "error").length : 0;
@@ -331,11 +339,12 @@
       ${AOC.IFF ? `<p class="small">IFF: ${iffN ? `<span style="color:var(--danger, #e5484d)">${iffN} IFF error${iffN === 1 ? "" : "s"} on the ATO</span>` : "ATO IFF codes clear"} · <a href="product.html?p=ato&c=${encodeURIComponent(cid)}">ATO →</a></p>` : ""}
       ${tp ? `<p class="small">${esc(tk)} has a pre-decided frequency plan (NTTR): channels are checked against the CAOC NTTR comm matrix and the official NTTR / Nellis assignments. <a href="jceoi.html#nttr" target="_blank" rel="noopener">NTTR plan →</a></p>` : ""}
       ${X.inSync ? "" : `<p class="small" style="color:var(--warn)">The JCEOI data is out of step with this Comm Plan template — rebuild it (tools/jceoi/build.py) before relying on "JCEOI standard".</p>`}
-      ${!rows.length ? `<p class="small" style="color:var(--ok)">✓ All ${n} channels are clear of the ${esc(tk)} register and match the ${tp ? "NTTR plan" : "JCEOI standard plan"}.</p>` : `<table class="small"><tbody>${rows.map(({ c, hits, std, offPlan, dup, bad }) =>
+      ${!rows.length ? `<p class="small" style="color:var(--ok)">✓ All ${n} channels are clear of the ${esc(tk)} register and match the ${tp ? "NTTR plan" : "JCEOI standard plan"}.</p>` : `<table class="small"><tbody>${rows.map(({ c, hits, std, roleOff, offPlan, dup, bad }) =>
         `<tr><td class="mono">${esc(c.id)}</td><td>${esc(c.role || "")} ${esc(c.callsign || "")}</td><td class="mono">${esc(c.freq)}</td><td>${bad ? `<span style="color:var(--warn)">not a frequency</span>`
           : hits.length ? `<span style="color:var(--danger, #e5484d)">✕ ${hits.slice(0, 3).map(h => `${esc(h.site)} ${esc(h.use)} ${h.mhz.toFixed(3)}`).join("; ")}${hits.length > 3 ? ` +${hits.length - 3}` : ""}</span>` : ""}
           ${dup.length ? ` <span style="color:var(--warn)">same frequency as ${dup.map(esc).join(", ")}</span>` : ""}
           ${std != null ? ` <span class="muted">· JCEOI standard ${std.toFixed(3)}</span>` : ""}
+          ${roleOff ? ` <span class="muted">· JCEOI standard net here: ${esc(roleOff)}</span>` : ""}
           ${offPlan ? ` <span style="color:var(--warn)">· NTTR plan: ${offPlan.freq ? `${esc(offPlan.role || "")} ${esc(offPlan.callsign || "")} ${esc(offPlan.freq)}` : "no such channel"}</span>` : ""}</td></tr>`).join("")}</tbody></table>
         <p class="small muted">✕ = within one channel of a documented frequency in this theater. "JCEOI standard" = this channel differs from the standard plan (allowed; tankers and JTACs often change).</p>`}`;
   }

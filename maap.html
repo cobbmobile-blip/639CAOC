@@ -90,7 +90,7 @@
   const shapes = Store.content(cid, "map")?.shapes || [], acoMeasures = Store.content(cid, "aco")?.measures || [];
   const comm = (() => { const m = Store.content(cid, "acp")?.matrix;
     return (m?.columns || []).flatMap(c => (c.cells || []).slice(0, m.rows).map((cell, i) => ({ id: `${c.color} ${i + 1}`, ...cell }))).filter(ch => ch.role || ch.callsign || ch.freq); })();
-  const net = re => comm.find(ch => re.test(ch.role || ""));
+  const mx = Store.content(cid, "acp")?.matrix, net = p => AOC.COMM.findChannel(mx, p);
   const netTxt = ch => ch ? `${ch.id}${ch.freq ? ` ${ch.freq}` : ""}` : "";
   const up = s => String(s || "").toUpperCase();
   const GROUND = /Armor|Artillery|Ground forces|Dismounts/;
@@ -105,11 +105,11 @@
     // airborne C2 for every package
     const aew = missions.find(m => m.role === "AEW");
     if (aew) { const o = shapes.find(s => up(s.callsign) === up(aew.callsign));
-      out.push({ role: "AWACS / GCI", callsign: aew.callsign, net: netTxt(net(/^C2|AWACS|GCI|CHECK IN/i)), station: o?.name || aew.target || "", time: aew.tot || "", src: `ATO ${aew.msn}`, auto: true }); }
+      out.push({ role: "AWACS / GCI", callsign: aew.callsign, net: netTxt(net("c2") || net("checkin")), station: o?.name || aew.target || "", time: aew.tot || "", src: `ATO ${aew.msn}`, auto: true }); }
     // ground-side control when the package works near troops: CAS / SCAR lines, or fielded-force targets
     const close = ls.some(m => /CAS|SCAR/i.test(m.role)) || (p.targets || []).some(id => GROUND.test(jiptl.find(r => r.id === id)?.cat || ""));
     if (close) {
-      const c2 = net(/ASOC|CRC|TAC C2|CAS COORD/i), jt = net(/JTAC|FAC/i), roz = acoMeasures.find(a => /JTAC/i.test(a.ctrl || ""));
+      const c2 = net("asoc"), jt = net("jtac"), roz = acoMeasures.find(a => /JTAC/i.test(a.ctrl || ""));
       out.push({ role: "TAC C2", callsign: c2?.callsign || "", net: netTxt(c2), station: "", time: "", src: c2 ? "Comm plan" : "", auto: true });
       out.push({ role: "JTAC / FAC(A)", callsign: (roz?.ctrl || "").replace(/^JTAC\s*/i, "") || jt?.callsign || "", net: netTxt(jt), station: roz?.name || "", time: roz?.time || "",
         src: roz ? "ACO" : jt ? "Comm plan" : "", auto: true });

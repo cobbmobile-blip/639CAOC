@@ -111,7 +111,7 @@
     const word = moniker(cid), aew = (Store.content(cid, "ato")?.missions || []).find(m => m.role === "AEW");
     const awacs = miz?.c2.find(r => r.role.startsWith("AWACS"));
     const hornet = hornetChannels(miz).split("/");
-    const out = { ...d, miz, period: period(cid, mf), network: `${word} LINK`, jico: nevada ? "JUICE" : word, jicoVoice: nevada ? "231.100" : "",
+    const out = { ...d, miz, period: period(cid, mf), network: `${word} LINK`, jico: nevada ? "JUICE" : word, jicoVoice: nevada ? "231.100" : (c2 => c2 ? `${c2.id} ${c2.freq}` : "")(window.AOC.COMM?.findChannel(Store.content(cid, "acp")?.matrix, "c2")),
       ntr: awacs ? `${awacs.callsign} (AWACS)` : aew ? `${aew.msn} ${aew.callsign}` : `${nevada ? "JUICE" : word} (JICO)`,
       ...Object.fromEntries(HORNET_CH.map((k, i) => [`h${k}`, hornet[i]])),
       vMission: String(D.defaults.viper.missionChannel), vFighter: String(D.defaults.viper.fighterChannel), vSpecial: String(D.defaults.viper.specialChannel),

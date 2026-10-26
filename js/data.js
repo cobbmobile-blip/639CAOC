@@ -529,7 +529,7 @@ window.AOC_SEED = {
         auth: "Challenge/reply from the daily authentication table posted in #aoc-spins. Change at 0600Z.",
         checkin: "Check in on YELLOW 1 (HOWDY) when airborne: callsign, mission number, number and type, playtime. Refer to channels by Comm Plan matrix ID on the net, e.g. “push BLUE 1”.",
         tanker: "Check in with tanker 10 NM from track on boom/drogue freq. Max 2 flights on the boom at once; others hold 1,000 ft above at the anchor.",
-        csar: "Downed aircrew: report on Guard, then move to Strike Common. SANDY lead is the on-scene commander. Rotary Wing Det on 15-min alert at Senaki once the area is secure.",
+        csar: "Downed aircrew: initial call on Guard, then the PR primary (GREEN 3). SANDY lead is the on-scene commander. 55th RQS (MH-60L) on 15-min alert at Senaki once the area is secure.",
         diverts: [
           { field: "Kobuleti", tacan: "67X", freq: "262.000", rwy: "07", notes: "Primary divert, arresting gear" },
           { field: "Batumi", tacan: "16X", freq: "260.000", rwy: "13", notes: "Short runway, no arresting gear" },
@@ -566,40 +566,64 @@ window.AOC_SEED = {
           { id: "m4", type: "TANKER TRACK", kind: "anchor", name: "AR TRACK ALPHA", color: "BLUE", aco: "AR TRACK ALPHA",
             arcp: [41.75, 42.70], heading: "280", length: "50", width: "20", aripOn: "Yes",
             rel: { entry: { a: -10, c: 20 }, exit: { a: 65, c: 0 }, arip: { a: -10, c: 0 } },
-            altLo: "FL220", altHi: "FL240", callsign: "TEXACO 1", freq: "230.200", tacanCh: "41", tacanMode: "Y", tacanCs: "TEX", notes: "BOOM — BLUE 1" },
-          { id: "m5", type: "HVAA ORBIT", kind: "track", name: "ORBIT WEST", color: "PURPLE", latlngs: [[41.22, 41.90], [41.12, 42.45]], width: "15", altLo: "FL290", altHi: "FL310", callsign: "DARKSTAR", freq: "", notes: "E-3 orbit — keep 60 NM behind the FLOT" },
+            altLo: "FL220", altHi: "FL240", callsign: "TEXACO 1", freq: "305.000", tacanCh: "41", tacanMode: "Y", tacanCs: "TEX", notes: "BOOM — BLUE 1" },
+          { id: "m5", type: "HVAA ORBIT", kind: "track", name: "ORBIT WEST", color: "PURPLE", latlngs: [[41.22, 41.90], [41.12, 42.45]], width: "15", altLo: "FL290", altHi: "FL310", callsign: "DARKSTAR", freq: "295.000", notes: "E-3 orbit — keep 60 NM behind the FLOT" },
           { id: "m6", type: "ARTY ROZ", kind: "polygon", name: "ARTY ROZ 1", color: "ORANGE", latlngs: [[41.90, 42.28], [41.995, 42.28], [42.01, 42.52], [41.90, 42.52]], altLo: "SFC", maxord: "18,000 ft", unit: "2-14 FA (M109)", time: "0700Z–1100Z", notes: "Fires north across the FLOT — remain clear below MAXORD" },
           // plain overlay shapes linked to ACO measures
           { id: "s1", kind: "circle", name: "CAP KNIFE", color: "YELLOW", aco: "CAP KNIFE", lat: 42.1667, lng: 41.6667, radius: 27780, notes: "FL200–FL300" },
           { id: "s3", kind: "rectangle", name: "KILL BOX 38TLM", color: "RED", aco: "KILL BOX 38TLM", latlngs: [[42.05, 42.55], [42.25, 42.55], [42.25, 42.85], [42.05, 42.85]], notes: "SFC–FL250, 0700Z–1000Z" }
         ]
       },
-      // v366 comm matrix (user-supplied example). Channels are named colour + row, e.g. WHITE 1 = RAZOR.
+      // the demo Comm Plan, built on the JCEOI standard net plan (roles and frequencies), with the campaign's callsigns.
+      // SCAR (YELLOW 6) and SAR-B (GREEN 5) sit in spare rows: the ATO and the SPINS PR section use them. Named colour + row, e.g. WHITE 1 = RAZOR.
       acp: {
-        matrixName: "v366",
+        matrixName: "IRON TRIDENT",
         srs: "Exercise SRS — channel AOC-IRON-TRIDENT",
         matrix: {
           rows: 6,
           columns: [
             { title: "TAC ADMIN", color: "WHITE", cells: [
-              { role: "TAC COORD", callsign: "RAZOR", freq: "293.500" }, { role: "CTAF", callsign: "UNICOM", freq: "304.600" },
-              { role: "HOOMAN C2", callsign: "KEYBOARD", freq: "305.200" }, { role: "RANGE CTL" }, { role: "AIC" },
-              { role: "v366 SOF", callsign: "GUNFIGHTER", freq: "305.600" }] },
+              { role: "TAC COORD", callsign: "RAZOR", freq: "290.050" },
+              { role: "TAC ADMIN", freq: "292.500" },
+              { role: "C2 / AWACS", callsign: "DARKSTAR", freq: "295.000" },
+              { role: "GCI", callsign: "KEYBOARD", freq: "297.500" },
+              { role: "HOST C2", freq: "300.000" },
+              { role: "SPARE", freq: "302.500" } ] },
             { title: "TANKERS", color: "BLUE", cells: [
-              { role: "BOOM", freq: "230.200" }, { role: "BOOM", freq: "231.200" }, { role: "BOOM", freq: "352.600" },
-              { role: "MPRS", freq: "366.300" }, { role: "MPRS", freq: "352.600" }, { role: "KC-130J", freq: "366.300" }] },
+              { role: "BOOM 1", freq: "305.000" },
+              { role: "BOOM 2", freq: "307.500" },
+              { role: "DROGUE 1", freq: "310.000" },
+              { role: "DROGUE 2", freq: "312.500" },
+              { role: "MPRS", freq: "315.000" },
+              { role: "SPARE", freq: "317.550" } ] },
             { title: "TACTICAL AIR", color: "YELLOW", cells: [
-              { role: "CHECK IN", callsign: "HOWDY", freq: "300.500" }, { role: "XINT", callsign: "SABRE", freq: "280.500" },
-              { role: "SEAD", callsign: "SWORD", freq: "228.250" }, { role: "STRIKE", callsign: "ARIES", freq: "319.750" },
-              { role: "SCAR", callsign: "ATHENA", freq: "316.000" }, { role: "DCA", callsign: "TAILBACK", freq: "340.000" }] },
+              { role: "CHECK IN", callsign: "HOWDY", freq: "230.050" },
+              { role: "PKG COMMON", freq: "235.100" },
+              { role: "STRIKE", callsign: "ARIES", freq: "240.000" },
+              { role: "SEAD", callsign: "SWORD", freq: "245.050" },
+              { role: "DCA", callsign: "TAILBACK", freq: "254.750" },
+              { role: "SCAR", callsign: "ATHENA", freq: "255.350" } ] },
             { title: "RESCUE", color: "GREEN", cells: [
-              { role: "PRCC/CSARTF", callsign: "GUARDIAN", freq: "251.900" }, { role: "RESCORT", callsign: "SANDY", freq: "282.800" },
-              { role: "SAR-A", callsign: "PANDA", freq: "255.500" }, { role: "SAR-B", callsign: "BADGER", freq: "355.000" },
-              { role: "MQ-9", callsign: "GOGGLES", freq: "390.500" }, { role: "RQ-7", callsign: "SNIPER", freq: "134.500" }] },
+              { role: "CSAR / PRCC", callsign: "GUARDIAN", freq: "260.050" },
+              { role: "RESCORT", callsign: "SANDY", freq: "262.500" },
+              { role: "SAR", callsign: "PANDA", freq: "265.050" },
+              { role: "ISR", callsign: "GOGGLES", freq: "267.500" },
+              { role: "SAR-B", callsign: "BADGER", freq: "270.050" },
+              { role: "SPARE", freq: "272.500" } ] },
             { title: "GROUND COORD", color: "PURPLE", cells: [
-              { role: "ASOC", callsign: "CHAOS", freq: "43.000" }, { role: "JTAC/FAC(A) 1", freq: "30.000" },
-              { role: "JTAC/FAC(A) 2", freq: "30.000" }, { role: "JTAC/FAC(A) 3", freq: "30.000" },
-              { role: "APACHE STRIKE", callsign: "TONTO", freq: "35.000" }, { role: "CAS COORD", callsign: "APOLLO", freq: "130.500" }] }
+              { role: "ASOC", callsign: "CHAOS", freq: "320.050" },
+              { role: "JTAC/FAC(A) 1", freq: "323.400" },
+              { role: "JTAC/FAC(A) 2", freq: "326.700" },
+              { role: "JTAC/FAC(A) 3", freq: "330.000" },
+              { role: "CAS COORD", callsign: "APOLLO", freq: "333.350" },
+              { role: "SPARE", freq: "336.700" } ] },
+            { title: "SPARES", color: "GRAY", cells: [
+              { role: "SPARE", freq: "340.000" },
+              { role: "SPARE", freq: "343.350" },
+              { role: "SPARE", freq: "346.700" },
+              { role: "SPARE", freq: "350.000" },
+              { role: "SPARE", freq: "353.350" },
+              { role: "SPARE", freq: "356.700" } ] }
           ]
         }
       },

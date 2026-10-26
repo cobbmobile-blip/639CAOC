@@ -42,7 +42,8 @@
   const DURESS = ["CORNFLOWER", "TEACUP", "HONEYBEE", "SNOWDROP", "PINWHEEL", "MOLASSES"];
   const comm = cid => { const m = Store.content(cid, "acp")?.matrix;
     return (m?.columns || []).flatMap(c => (c.cells || []).slice(0, m.rows).map((cell, i) => ({ id: `${c.color} ${i + 1}`, net: c.title, ...cell }))).filter(ch => ch.role || ch.callsign || ch.freq); };
-  const chan = (cid, re) => comm(cid).find(ch => re.test(ch.role || "") || re.test(ch.callsign || ""));
+  // a Comm Plan channel by purpose (products.js), e.g. chan(cid, "sar")
+  const chan = (cid, purpose) => window.AOC.COMM?.findChannel(Store.content(cid, "acp")?.matrix, purpose) || null;
   const chanTxt = ch => ch ? `${ch.id}${ch.freq ? ` (${ch.freq})` : ""}` : "";
   function spinsPR(cid, spins) {
     const s = spins || Store.content(cid, "spins") || {}, c = Store.campaign(cid), h = hash(cid);
@@ -55,12 +56,14 @@
       : area?.lat ? { name: "SARDOT", lat: Math.round(+area.lat * 60) / 60, lon: Math.round(+area.lon * 60) / 60 } : null;
     const days = Array.from({ length: Math.max(7, (+c.atoDay || 1) + 3) }, (_, i) => ({ day: String(i + 1),
       wod: WODS[(h + i * 7) % WODS.length], lod: LETTERS[(h + i * 5) % LETTERS.length], nod: String((h + i * 3) % 10) }));
-    const prim = chan(cid, /^SAR-?A|SURVIVOR|ISOLATED/i) || chan(cid, /RESCORT|SANDY/i), alt = chan(cid, /^SAR-?B/i), prcc = chan(cid, /PRCC|CSARTF/i);
+    // SPINS first; then the Comm Plan's SAR / SAR-B / PRCC nets; the JCEOI all-services SAR common (282.800) as the last alternate
+    const prim = chan(cid, "sar") || chan(cid, "rescort"), alt = chan(cid, "sarAlt"), prcc = chan(cid, "prcc");
+    const sarCommon = prim && Math.abs(+prim.freq - 282.8) < 1e-6 ? "" : "282.800 (all-services SAR common)";
     return {
       sarneg: up(s.sarneg) || SARNEGS[h % SARNEGS.length], sardot, duress: up(s.duress) || DURESS[h % DURESS.length],
       days: s.prDays?.length ? s.prDays : days,
       guard: "243.000 UHF / 121.500 VHF",
-      primary: s.prPrimary || chanTxt(prim) || "282.800", alternate: s.prAlternate || chanTxt(alt) || "", prcc: chanTxt(prcc),
+      primary: s.prPrimary || chanTxt(prim) || "282.800 (all-services SAR common)", alternate: s.prAlternate || chanTxt(alt) || sarCommon, prcc: chanTxt(prcc),
       contact: s.prContact || "Initial call on Guard when safe, then monitor the PR primary. After that listen for 5 minutes on the hour and half hour (H+00, H+30); transmit only when you hear or see friendly aircraft.",
       signals: s.prSignals || "Day: signal mirror, orange smoke. Night: IR strobe, then flare on the rescue helo's call. Never mark while a threat is overhead.",
       safe: s.prSafe || [], code: s.prCode || ""
@@ -145,23 +148,29 @@
       .filter(t => t.nm <= Math.max(within, t.ring)).sort((a, b) => a.nm - b.nm).map(t => ({ ...t, covers: t.ring && t.nm <= t.ring }));
   }
   function commPlan(cid, inc) {
-    const pr = spinsPR(cid), ato = Store.content(cid, "ato")?.missions || [], rows = [];
+    // the survivor's own frequencies come from the SPINS they took off with; everyone else's from today's Comm Plan
+    const at = inc && spinsAt(cid, inc.report?.takeoff_utc), pr = spinsPR(cid, at?.data), ato = Store.content(cid, "ato")?.missions || [], rows = [];
     const add = (role, callsign, channel, freq, notes = "") => rows.push({ role, callsign, channel, freq, notes });
-    const ch = re => chan(cid, re);
+    const ch = p => chan(cid, p), split = v => { const x = String(v || "").match(/^([A-Z]+ \d+)\s*\(?([\d.]+)?/); return x ? [x[1], x[2] || ""] : ["", v || ""]; };
     const surv = inc ? `${inc.report?.pilot?.callsign || "SURVIVOR"}` : "SURVIVOR";
     add("Survivor — initial", surv, "GUARD", pr.guard, "Initial call only");
-    const p = ch(/^SAR-?A|SURVIVOR|ISOLATED/i) || ch(/RESCORT|SANDY/i); add("Survivor — PR primary", surv, p?.id || "", p?.freq || pr.primary, pr.contact.split(".")[1]?.trim() || "");
-    const a = ch(/^SAR-?B/i); if (a) add("Survivor — PR alternate", surv, a.id, a.freq);
-    const prcc = ch(/PRCC|CSARTF/i); add("PRCC", prcc?.callsign || "GUARDIAN", prcc?.id || "", prcc?.freq || "");
+    const [pId, pF] = split(pr.primary); add("Survivor — PR primary", surv, pId, pF, `SPINS${at?.label ? ` ${at.label}` : ""}: ${pr.contact.split(".")[1]?.trim() || ""}`);
+    if (pr.alternate) { const [aId, aF] = split(pr.alternate); add("Survivor — PR alternate", surv, aId, aF, `SPINS${at?.label ? ` ${at.label}` : ""}`); }
+    const p = { id: pId, freq: pF }, prcc = ch("prcc"); add("PRCC", prcc?.callsign || "GUARDIAN", prcc?.id || "", prcc?.freq || "");
     if (inc) { const a = amc(inc); if (a.id !== "prcc") add("AMC — airborne mission commander", a.callsign, prcc?.id || "", prcc?.freq || "", "Runs the task force on the CSARTF net"); }
-    const res = ch(/RESCORT|SANDY/i); add("OSC — on-scene commander (Sandy 1)", inc ? osc(inc).callsign : "SANDY 1", res?.id || "", res?.freq || "", "Authenticates the survivor, clears the helo in");
+    const res = ch("rescort"); add("OSC — on-scene commander (Sandy 1)", inc ? osc(inc).callsign : "SANDY 1", res?.id || "", res?.freq || "", "Authenticates the survivor, clears the helo in");
     const forceCs = key => inc?.forces?.find(f => f.key === key)?.callsign || "";
     add("Rescue vehicle", forceCs("rv") || "JOLLY", p?.id || "", p?.freq || "", "Talks to the survivor on the PR primary");
-    const dca = ch(/^DCA/i); add("SARCAP / RESCAP", forceCs("sarcap") || dca?.callsign || "", dca?.id || "", dca?.freq || "");
-    const sead = ch(/^SEAD/i); add("SEAD", forceCs("sead") || sead?.callsign || "", sead?.id || "", sead?.freq || "");
-    const aew = ato.find(m => m.role === "AEW"), c2 = ch(/^C2|AWACS|GCI|CHECK IN/i); add("AWACS / GCI", aew?.callsign || c2?.callsign || "", c2?.id || "", c2?.freq || "");
-    const isr = ch(/MQ-9|ISR|RQ-/i); add("ISR", isr?.callsign || "", isr?.id || "", isr?.freq || "", "Eyes on the survivor");
-    const tk = ato.find(m => m.role === "AR"), boom = ch(/BOOM|MPRS|KC-130/i); if (tk) add("Tanker", tk.callsign, boom?.id || "", boom?.freq || "", tk.target || "");
+    const dca = ch("dca"); add("SARCAP / RESCAP", forceCs("sarcap") || dca?.callsign || "", dca?.id || "", dca?.freq || "");
+    const sead = ch("sead"); add("SEAD", forceCs("sead") || sead?.callsign || "", sead?.id || "", sead?.freq || "");
+    const aew = ato.find(m => m.role === "AEW"), c2 = ch("c2") || ch("checkin"); add("AWACS / GCI", aew?.callsign || c2?.callsign || "", c2?.id || "", c2?.freq || "");
+    const isr = ch("isr"); add("ISR", isr?.callsign || "", isr?.id || "", isr?.freq || "", "Eyes on the survivor");
+    // the tanker on its own track frequency (theater map), else its Comm Plan channel by callsign, else the first boom net
+    const tk = ato.find(m => m.role === "AR");
+    if (tk) { const sh = Store.content(cid, "map")?.shapes || [], trk = sh.find(s => up(s.callsign) === up(tk.callsign)) || sh.find(s => s.freq && up(s.name) === up(tk.target)), byCs = comm(cid).find(c => up(c.callsign) === up(tk.callsign) && c.freq);
+      // a track frequency that is not a Comm Plan channel is shown as it is, never against another channel's ID
+      const viaTrack = trk?.freq && comm(cid).find(c => c.freq && Math.abs(+c.freq - +trk.freq) < 1e-6), boom = byCs || viaTrack || (trk?.freq ? null : ch("tanker"));
+      add("Tanker", tk.callsign, boom?.id || "", trk?.freq || boom?.freq || "", [tk.target, trk?.freq && !boom ? "track freq, not on the Comm Plan" : ""].filter(Boolean).join(" · ")); }
     return rows;
   }
 
@@ -219,7 +228,7 @@
       if (st) out.push({ id: `force:${k}`, callsign: lead(st.callsign, st.msn, parseInt(st.type)), label: `${FORCES.find(x => x.key === k).label} — ${st.msn} ${st.callsign}` }); });
     ato.filter(m => /AEW/.test(m.role) || /C-130/.test(m.type)).forEach(m => { if (!out.some(o => o.label.includes(` ${m.msn} `)))
       out.push({ id: `msn:${m.msn}`, callsign: m.callsign, label: `ATO ${m.msn} ${m.callsign} (${m.num}× ${m.type} ${m.role})` }); });
-    out.push({ id: "prcc", callsign: chan(inc.cid, /PRCC|CSARTF/i)?.callsign || "GUARDIAN", label: "No airborne AMC — the PRCC controls from the ground" });
+    out.push({ id: "prcc", callsign: chan(inc.cid, "prcc")?.callsign || "GUARDIAN", label: "No airborne AMC — the PRCC controls from the ground" });
     return out;
   }
   function amc(inc) {

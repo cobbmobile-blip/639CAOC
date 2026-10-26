@@ -226,7 +226,7 @@
   // ATO in USMTF message format (after the AIR TASKING ORDER guide and the 510th vFS ATO example), built from the
   // ATO lines plus what the site already holds: JIPTL targets, theater-map tanker tracks, the AEW line, OPTASKLINK STNs.
   // Sets: TASKUNIT per unit; AMSNDAT / MSNACFT per line (MSNACFT ends STN / Mode 1 / Mode 2 / Mode 3 as 1xx, 2xxxx, 3xxxx).
-  const NET_OF = { SEAD: "SEAD", DEAD: "SEAD", Strike: "STRIKE", AI: "STRIKE", DCA: "DCA", OCA: "DCA", Escort: "DCA", CAS: "CAS COORD", SCAR: "SCAR", CSAR: "PRCC", RESCORT: "RESCORT", SARCAP: "DCA" };
+  const NET_OF = { SEAD: "sead", DEAD: "sead", Strike: "strike", AI: "strike", DCA: "dca", OCA: "dca", Escort: "dca", CAS: "cas", SCAR: "scar", CSAR: "prcc", RESCORT: "rescort", SARCAP: "dca" };
   const LEAD_ORDER = ["Strike", "AI", "DEAD", "SEAD", "CAS", "SCAR"];
   function atoMessage(d, ctx) {
     const S = window.AOC.Store, cid = ctx.campaign.id, rows = d.missions || [];
@@ -240,8 +240,8 @@
     const areaOf = r => (["AR", "AEW"].includes(r.role) && shapes.find(t => t.callsign && up(t.callsign) === up(r.callsign))) || shapes.find(t => up(t.name) === up(r.target));
     const viper = S.content(cid, "optasklink")?.viper || [], awacs = rows.find(r => r.role === "AEW");
     // control nets from the Comm Plan: the mission's own net as primary, check-in as secondary
-    const chans = channels(S.content(cid, "acp")?.matrix), net = role => NET_OF[role] && chans.find(c => up(c.role).startsWith(NET_OF[role]));
-    const desig = c => c ? `${up(c.id)} ${dash(c.callsign)}`.replace(/ -$/, "") : "-", checkIn = chans.find(c => up(c.role) === "CHECK IN");
+    const mx = S.content(cid, "acp")?.matrix, net = role => NET_OF[role] && findChannel(mx, NET_OF[role]);
+    const desig = c => c ? `${up(c.id)} ${dash(c.callsign)}`.replace(/ -$/, "") : "-", checkIn = findChannel(mx, "checkin");
     const times = t => { const [a, b] = String(t || "").split(/[–-]/).map(x => x.trim()); return [dash(a && (/Z$/i.test(a) ? a : `${a}Z`)), dash(b)]; };
     const byCs = c => rows.find(x => up(x.callsign) === up(c));
     // package commander: the first striker in the package (strike, AI, DEAD, SEAD, CAS), else the lowest mission number
@@ -358,7 +358,7 @@
       <h2>2. RULES OF ENGAGEMENT</h2><p>Per the OP ${esc(ctx.campaign.opName)} ROE${d.version ? ` ${esc(d.version)}` : ""}, published with these SPINS. Default weapons control status: ${esc((d.wcs || "Weapons Tight").toUpperCase())}.</p>
       <h2>3. COMMUNICATION</h2>${para("3.1 CHECK-IN & COMM PROCEDURES", d.checkin)}
       <h2>3.2 CODE WORDS</h2>${table([["word", "CODE WORD"], ["meaning", "MEANING / ACTION"]], d.codewords)}
-      ${para("3.3 AUTHENTICATION", d.auth)}${para("3.4 CSAR", d.csar)}
+      ${para("3.3 AUTHENTICATION", d.auth)}${para("3.4 CSAR", [d.csar, window.AOC.PR ? "PR frequencies, authentication and position reporting: section 5." : ""].filter(Boolean).join(" "))}
       ${iff ? `<h2>3.5 IFF / SIF</h2>${kv([["MODE 4", d.mode4]])}${d.iffProc ? `<p>${esc(d.iffProc)}</p>` : ""}
         ${iffRules(ctx).length ? `<p><b>${esc(ctx.campaign.theater.toUpperCase())}:</b> ${iffRules(ctx).map(esc).join(" ")}</p>` : ""}
         ${(d.iffOff || []).length ? table([["area", "IFF-OFF AREA"], ["alt", "ALTITUDES"], ["time", "TIMES"], ["notes", "NOTES"]], d.iffOff) : ""}` : ""}
@@ -519,6 +519,64 @@
   // Every filled cell as a named channel, e.g. WHITE 1 = RAZOR, TAC COORD, 290.050
   const channels = m => (m?.columns || []).flatMap(c => (c.cells || []).slice(0, m.rows).map((cell, i) => ({ id: `${c.color} ${i + 1}`, col: c, ...cell })))
     .filter(ch => ch.role || ch.callsign || ch.freq);
+
+  // ---------- one way to find a Comm Plan channel for a purpose ----------
+  // The hierarchy: the SPINS define the procedures, the JCEOI the standard nets, the Comm Plan (this matrix) the theater's
+  // channels; special plans (CSAR, packages, OPTASKLINK) read their channels from here. Every page asks for a channel by
+  // purpose, so the JCEOI template's role names and a hand-built matrix's (SAR-A, PRCC/CSARTF, HOOMAN C2…) both resolve.
+  const PURPOSES = {
+    checkin: [/^CHECK ?-?IN/], pkg: [/PKG COMMON|PACKAGE|XINT/], strike: [/^STRIKE/], sead: [/^SEAD|^DEAD/], dca: [/^DCA|^CAP\b/],
+    scar: [/^SCAR/, /^STRIKE/], cas: [/CAS COORD/, /^CAS\b/], asoc: [/ASOC|CRC|TAC C2/, /CAS COORD/], jtac: [/JTAC|FAC/],
+    c2: [/AWACS/, /^GCI|\bAIC\b/, /\bC2\b/], prcc: [/PRCC|CSARTF|JPRC/, /^CSAR/], rescort: [/RESCORT|SANDY/],
+    sar: [/^SAR(?!\s*-?\s*B)/, /SURVIVOR|ISOLATED/], sarAlt: [/^SAR\s*-?\s*B/], isr: [/^ISR|MQ-9|RQ-\d|UAV/], tanker: [/BOOM|DROGUE|MPRS|KC-130|TANKER/] };
+  const PURPOSE_LABEL = { checkin: "Check-in", strike: "Strike", sead: "SEAD", dca: "DCA", c2: "AWACS / C2", prcc: "PRCC / CSARTF", rescort: "RESCORT (Sandy)",
+    sar: "SAR (survivor primary)", sarAlt: "SAR alternate", asoc: "ASOC / TAC C2", jtac: "JTAC / FAC(A)", cas: "CAS coord", isr: "ISR", tanker: "Tanker", scar: "SCAR", pkg: "Package common" };
+  // the first channel (with a frequency) whose role, else callsign, fits the purpose
+  function findChannel(m, purpose) {
+    const chs = channels(m).filter(c => c.freq);
+    for (const re of PURPOSES[purpose] || []) { const c = chs.find(x => re.test(String(x.role || "").toUpperCase())) || chs.find(x => re.test(String(x.callsign || "").toUpperCase())); if (c) return c; }
+    return null;
+  }
+  // Comm disconnects across the levels, for the SPINS and Comm Plan editors (and anyone else who asks)
+  function commIssues(cid) {
+    const A = window.AOC, S = A.Store, m = S.content(cid, "acp")?.matrix, sp = S.content(cid, "spins") || {}, out = [], add = (sev, text) => out.push({ sev, text });
+    if (!m) { add("bad", "No Comm Plan: the SPINS, ATO, MAAP, PRCC and OPTASKLINK have no channels to point to."); return out; }
+    const chs = channels(m);
+    // 1) SPINS -> Comm Plan: every channel the SPINS name exists, with the callsign they give; no nets that are not on the plan
+    ["checkin", "auth", "csar", "tanker", "emergency", "iffProc", "prContact"].forEach(k => {
+      const t = String(sp[k] || "");
+      [...t.matchAll(/\b(WHITE|BLUE|YELLOW|GREEN|PURPLE|RED|ORANGE|GRAY|BLACK)\s+(\d+)\b(?:\s*\(([A-Z][A-Z0-9 -]*)\))?/g)].forEach(x => {
+        const c = chs.find(y => y.id === `${x[1]} ${x[2]}`);
+        if (!c) add("bad", `SPINS (${k}) names ${x[1]} ${x[2]}, which is not a Comm Plan channel.`);
+        else if (x[3] && up2(x[3]) !== up2(c.callsign)) add("warn", `SPINS (${k}) calls ${c.id} "${x[3].trim()}"; the Comm Plan has ${c.callsign || "no callsign"}.`);
+      });
+      [...t.matchAll(/\b(STRIKE|PACKAGE|TAC|SAR|RESCUE|CSAR)\s+COMMON\b/gi)].forEach(x => { if (!chs.some(c => up2(c.role).includes(up2(x[0])))) add("bad", `SPINS (${k}) says "${x[0]}", which is not a Comm Plan net — name the channel (e.g. ${findChannel(m, "sar")?.id || "GREEN 3"}).`); });
+    });
+    ["prPrimary", "prAlternate"].forEach(k => { const v = sp[k]; if (v && /^[A-Z]+\s+\d/.test(v) && !chs.some(c => up2(v).startsWith(c.id))) add("bad", `SPINS ${k === "prPrimary" ? "PR primary" : "PR alternate"} "${v}" is not a Comm Plan channel.`); });
+    // 2) JCEOI -> Comm Plan: channels that differ from the standard net plan (allowed, but shown)
+    const X = A.JCEOI, tk = X?.theaterKey(S.campaign(cid).theater);
+    if (X && !X.plan(tk)) { const diff = chs.filter(c => { const n = X.net(c.id); return n && (up2(n.role) !== up2(c.role) || (c.freq && ![n.uhf, n.uhfAlt, n.vhf, n.fm, n.hf].some(f => f != null && Math.abs(f - +c.freq) < 1e-6))); });
+      if (diff.length) add("info", `${diff.length} of ${chs.length} Comm Plan channels differ from the JCEOI standard net plan (${diff.slice(0, 6).map(c => c.id).join(", ")}${diff.length > 6 ? "…" : ""}). Allowed; "Fill from JCEOI" or "Reset to JCEOI plan" on the Comm Plan editor brings them back.`); }
+    // 3) what the products need from the Comm Plan
+    const ato = S.content(cid, "ato")?.missions || [];
+    const need = ["checkin", "c2", "strike", "sead", "dca", "prcc", "rescort", "sar"];
+    if (ato.some(r => /CAS|SCAR/.test(r.role))) need.push("asoc", "jtac");
+    if (ato.some(r => r.role === "AR")) need.push("tanker");
+    need.forEach(p => { if (!findChannel(m, p)) add(["prcc", "sar", "rescort", "c2", "checkin"].includes(p) ? "bad" : "warn", `No ${PURPOSE_LABEL[p]} channel on the Comm Plan: the ${p === "c2" ? "ATO control lines, MAAP, PRCC and OPTASKLINK" : ["prcc", "sar", "rescort"].includes(p) ? "SPINS PR section and the PRCC's CSAR comm plan" : "ATO and MAAP"} fall back to ${p === "sar" ? "the RESCORT net" : "other nets"}.`); });
+    if (!findChannel(m, "sarAlt")) add("info", "No SAR alternate on the Comm Plan: the SPINS PR alternate is the JCEOI all-services SAR common, 282.800.");
+    // 4) theater map tracks and orbits -> Comm Plan
+    (S.content(cid, "map")?.shapes || []).filter(s => s.callsign).forEach(s => {
+      if (!s.freq) add("warn", `${s.name} (${s.callsign}) has no frequency on the theater map${/ORBIT/.test(s.type || "") && findChannel(m, "c2") ? `; products use ${findChannel(m, "c2").id} ${findChannel(m, "c2").freq} (AWACS / C2)` : ""}.`);
+      else if (!chs.some(c => c.freq && Math.abs(+c.freq - +s.freq) < 1e-6)) add("warn", `${s.name} (${s.callsign}) is on ${s.freq}, which is not a Comm Plan channel.`);
+    });
+    // 5) ATO support lines the plan should know
+    // a tanker's track: the map track flown under its callsign, else the track its ATO line names
+    ato.filter(r => r.role === "AR" && r.callsign && r.callsign !== "TBD").forEach(r => { const sh = S.content(cid, "map")?.shapes || [];
+      const trk = sh.find(s => up2(s.callsign) === up2(r.callsign)) || sh.find(s => s.freq && up2(s.name) === up2(r.target));
+      if (!trk?.freq && !chs.some(c => up2(c.callsign) === up2(r.callsign))) add("info", `Tanker ${r.callsign} (ATO ${r.msn}) has no track frequency on the theater map or channel on the Comm Plan.`); });
+    return out;
+  }
+  const up2 = s => String(s ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
   P.acp = {
     code: "ACP", name: "Comm Plan", owner: "Combat Plans", stage: 5,
@@ -717,7 +775,7 @@
   window.AOC.PRODUCTS = P;
   window.AOC.targetIssue = targetIssue;
   window.AOC.COMMS = COMMS;
-  window.AOC.COMM = { COLORS: COMM_COLORS, TEMPLATE: COMM_TEMPLATE, cellStyle, blankMatrix, channels };
+  window.AOC.COMM = { COLORS: COMM_COLORS, TEMPLATE: COMM_TEMPLATE, cellStyle, blankMatrix, channels, findChannel, PURPOSES, commIssues };
   window.AOC.FUTURE = FUTURE;
   window.AOC.MILESTONES = MILESTONES;
   window.AOC.STAGES = STAGES;
