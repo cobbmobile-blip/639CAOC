@@ -226,7 +226,7 @@
   // ATO in USMTF message format (after the AIR TASKING ORDER guide and the 510th vFS ATO example), built from the
   // ATO lines plus what the site already holds: JIPTL targets, theater-map tanker tracks, the AEW line, OPTASKLINK STNs.
   // Sets: TASKUNIT per unit; AMSNDAT / MSNACFT per line (MSNACFT ends STN / Mode 1 / Mode 2 / Mode 3 as 1xx, 2xxxx, 3xxxx).
-  const NET_OF = { SEAD: "SEAD", DEAD: "SEAD", Strike: "STRIKE", AI: "STRIKE", DCA: "DCA", OCA: "DCA", Escort: "DCA", CAS: "CAS COORD", SCAR: "SCAR", CSAR: "PRCC" };
+  const NET_OF = { SEAD: "SEAD", DEAD: "SEAD", Strike: "STRIKE", AI: "STRIKE", DCA: "DCA", OCA: "DCA", Escort: "DCA", CAS: "CAS COORD", SCAR: "SCAR", CSAR: "PRCC", RESCORT: "RESCORT", SARCAP: "DCA" };
   const LEAD_ORDER = ["Strike", "AI", "DEAD", "SEAD", "CAS", "SCAR"];
   function atoMessage(d, ctx) {
     const S = window.AOC.Store, cid = ctx.campaign.id, rows = d.missions || [];
@@ -299,7 +299,7 @@
     { key: "msn", label: "Msn #", w: 70 }, { key: "pkg", label: "Pkg", w: 50 },
     { key: "group", label: "Group", type: "groups" }, { key: "callsign", label: "Callsign" },
     { key: "type", label: "Acft", type: "acft", w: 110 },
-    { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD", "DEAD", "AI", "CAS", "SCAR", "Escort", "Strike", "ISR", "AR", "AEW", "CSAR", "Airlift"] },
+    { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD", "DEAD", "AI", "CAS", "SCAR", "Escort", "Strike", "ISR", "AR", "AEW", "CSAR", "RESCORT", "SARCAP", "Airlift"] },
     { key: "tot", label: "TOT / On-sta", w: 90 }, { key: "target", label: "Target / Area", type: "jiptl" }];
   P.ato = {
     code: "ATO", name: "Air Tasking Order", owner: "Combat Plans", stage: 5,
@@ -366,7 +366,29 @@
       ${(d.naval || []).length ? `<h2>4.2 CARRIERS &amp; SHIPS — TACAN / ICLS</h2>${table([["ship", "SHIP"], ["hull", "TYPE"], ["tacan", "TACAN"], ["tacanCs", "IDENT"], ["icls", "ICLS"], ["notes", "NOTES"]],
         d.naval.map(r => ({ ...r, tacan: r.tacanCh ? `${r.tacanCh}${r.tacanMode || ""}` : "" })))}` : ""}
       <h2>4.3 DIVERT AIRFIELDS</h2>${table([["field", "AIRFIELD"], ["tacan", "TACAN"], ["freq", "TWR"], ["rwy", "RWY"], ["notes", "NOTES"]], d.diverts)}
-      ${para("4.4 EMERGENCY / LOST COMMS", d.emergency)}${sig(ctx)}`;
+      ${para("4.4 EMERGENCY / LOST COMMS", d.emergency)}${prSection(d, ctx)}${sig(ctx)}`;
+  }
+  // SPINS 5: what an isolated crew member needs to authenticate and report a position. Every value is generated for the
+  // campaign (pr.js) unless the SPINS sets it, so the PRCC, the rescue force and the crews all read the same numbers.
+  function prSection(d, ctx) {
+    const PR = window.AOC.PR; if (!PR) return "";
+    const pr = PR.spinsPR(ctx.campaign.id, d), sd = pr.sardot;
+    const key = [...pr.sarneg].map((ch, i) => `${i}=${ch}`).join("  ");
+    const ex = sd ? PR.mgrs(sd.lat, sd.lon).split(" ") : null;
+    return `<h2>5. PERSONNEL RECOVERY</h2>
+      <p>Isolated? Survive, evade, and make contact: authenticate with the word, letter or number of the day and your ISOPREP; report your position in SARNEG or from the SARDOT; follow your EPA. The PRCC holds every crew member's ISOPREP and EPA.</p>
+      ${kv([["SARDOT", sd ? `${esc(sd.name)} — ${PR.ddm(sd.lat, sd.lon)} (${PR.mgrs(sd.lat, sd.lon)})` : "Not set — add a SARDOT point on the theater map"],
+        ["SARNEG", `${pr.sarneg}  (${key})`], ["DURESS WORD", `${pr.duress} — said in any transmission, it means you are under hostile control`],
+        ["ISOPREP", "4 personal statements and a 4-digit number, filed by your group on the unit portal (ISOPREP / EPA). The rescue force asks; never give a whole answer unprompted."]])}
+      <h2>5.1 WORD, LETTER AND NUMBER OF THE DAY</h2><p>Change with the ATO day. Rescue forces challenge with them; a survivor answers only what is asked.</p>
+      ${table([["day", "ATO DAY"], ["wod", "WORD"], ["lod", "LETTER"], ["nod", "NUMBER"]], pr.days)}
+      <h2>5.2 REPORTING YOUR POSITION</h2>
+      <p>From the SARDOT: bearing in degrees true and range in NM ("SARDOT 245 true for 12"). In MGRS: send the grid zone and square in clear and replace every digit with its SARNEG letter${ex ? ` — e.g. ${ex[0]} ${ex[1]} ${ex[2].slice(0, 4)} ${ex[3].slice(0, 4)} is sent as ${ex[0]} ${ex[1]} ${PR.sarnegEncode(ex[2].slice(0, 4), pr.sarneg)} ${PR.sarnegEncode(ex[3].slice(0, 4), pr.sarneg)}` : ""}.</p>
+      <h2>5.3 PR FREQUENCIES AND CONTACT</h2>${kv([["INITIAL", pr.guard], ["PR PRIMARY", pr.primary], ["PR ALTERNATE", pr.alternate || "—"], ["PRCC", pr.prcc || "—"]])}<p>${esc(pr.contact)}</p>
+      <h2>5.4 SIGNALS</h2><p>${esc(pr.signals)}</p>
+      <h2>5.5 EVASION PLAN OF ACTION (EPA)</h2><p>Each crew files an EPA for its mission on the unit portal before take-off. With none filed, the standard EPA applies: ${esc(Object.values(PR.standardEpa(pr)).filter(v => typeof v === "string").slice(0, 3).join(" "))}</p>
+      ${pr.safe.length ? `${table([["name", "SAFE AREA / DAR"], ["loc", "LOCATION"], ["notes", "NOTES"]], pr.safe)}` : ""}
+      ${pr.code ? para("5.6 PR CODE WORDS", pr.code) : ""}`;
   }
   function roeDoc(d, ctx) {
     const R = ROE(); if (!R) return `${head("RULES OF ENGAGEMENT (ROE)", ctx, esc(d.version))}<p>The standing ROE did not load.</p>${sig(ctx)}`;
@@ -426,6 +448,17 @@
         { key: "field", label: "Airfield" }, { key: "tacan", label: "TACAN", w: 80 }, { key: "freq", label: "Tower freq", w: 100 },
         { key: "rwy", label: "Runway", w: 80 }, { key: "notes", label: "Notes" }] },
       { key: "emergency", label: "Emergency / lost comms", type: "textarea" },
+      { type: "section", label: "SPINS — personnel recovery (blank = generated for the campaign)" },
+      { key: "sarneg", label: "SARNEG", type: "text", half: true, hint: "10 letters, none repeated; blank = generated" },
+      { key: "duress", label: "Duress word", type: "text", half: true, hint: "Blank = generated" },
+      { key: "sardotName", label: "SARDOT name", type: "text", half: true, hint: "Blank = the theater map's SARDOT point, else the AO centre" },
+      { key: "sardotLat", label: "SARDOT lat / lon (decimal)", type: "text", half: true },
+      { key: "prPrimary", label: "PR primary", type: "text", half: true, hint: "Blank = Comm Plan SAR-A / RESCORT" },
+      { key: "prAlternate", label: "PR alternate", type: "text", half: true, hint: "Blank = Comm Plan SAR-B" },
+      { key: "prContact", label: "Contact procedures", type: "textarea", hint: "Blank = the standard schedule (H+00 / H+30)" },
+      { key: "prSignals", label: "Signals", type: "textarea" },
+      { key: "prSafe", label: "SAFE areas / DARs", type: "table", columns: [{ key: "name", label: "Name" }, { key: "loc", label: "Location" }, { key: "notes", label: "Notes" }] },
+      { key: "prCode", label: "PR code words", type: "textarea" },
       { type: "section", label: "ROE — the standing rules apply; set the campaign's choices" },
       { key: "wcs", label: "Default weapons control status", type: "select", options: ["Weapons Tight", "Weapons Hold", "Weapons Free"], half: true },
       { key: "declaredHostile", label: "Declared hostile forces", type: "text", half: true, hint: "Blank = all RED coalition military forces in the AO" },

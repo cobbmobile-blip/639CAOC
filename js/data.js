@@ -9,7 +9,23 @@ window.AOC_SEED = {
     { callsign: "SPARTAN", name: "Strategy Division Chief", role: "Strategy", password: "aoc-demo" },
     { callsign: "CHALICE", name: "Combat Plans Chief", role: "Combat Plans", password: "aoc-demo" },
     { callsign: "WIZARD", name: "Targets / ISR Chief", role: "ISR & Targeting", password: "aoc-demo" },
-    { callsign: "DARKSTAR", name: "Airspace Manager", role: "Airspace", password: "aoc-demo" }
+    { callsign: "DARKSTAR", name: "Airspace Manager", role: "Airspace", password: "aoc-demo" },
+    { callsign: "GUARDIAN", name: "PRCC Director (Personnel Recovery)", role: "PRCC", password: "aoc-demo" }
+  ],
+
+  // Pilot ISOPREPs, filed by each group on the unit portal (isoprep.html) and read by the PRCC. Fictional people.
+  // Authentication statements are personal facts only the pilot knows; the number is a 4-digit personal number.
+  isopreps: [
+    { id: "ISO-V11", gid: "g1", callsign: "VIPER 11", player: "Sabre", name: "Sam \"Sabre\" Okafor", nationality: "USA",
+      height: "5'11\"", weight: "180 lb", eyes: "Brown", hair: "Black, short", marks: "Scar on left forearm", blood: "O+",
+      statements: [{ q: "First car", a: "Green 1994 Civic" }, { q: "Childhood pet", a: "Beagle named Rocket" },
+        { q: "Street you grew up on", a: "Larch Lane" }, { q: "Favourite teacher", a: "Mrs Delgado" }],
+      number: "4827", updated: "2026-10-15T18:00:00Z" },
+    { id: "ISO-V12", gid: "g1", callsign: "VIPER 12", player: "Jinx", name: "Ana \"Jinx\" Petrova", nationality: "USA",
+      height: "5'6\"", weight: "135 lb", eyes: "Green", hair: "Red, shoulder length", marks: "None", blood: "A-",
+      statements: [{ q: "First concert", a: "A jazz trio in a park" }, { q: "Grandmother's town", a: "Plovdiv" },
+        { q: "First job", a: "Bakery" }, { q: "Favourite book as a child", a: "The Hobbit" }],
+      number: "1963", updated: "2026-10-15T18:00:00Z" }
   ],
 
   // Participating groups. DEMO ONLY: unit portal sign-in uses `login` + access code "unit-demo".

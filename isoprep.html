@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — ISOPREP / EPA</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  /* panels stack full width */
+  .ilay > section { margin-bottom: 16px; }
+  .t { width: 100%; border-collapse: collapse; } .t td, .t th { font-size: 12.5px; padding: 5px 6px; border-top: 1px solid var(--line); text-align: left; }
+  .t th { font: 600 10.5px var(--mono); text-transform: uppercase; color: var(--muted); }
+  .t tr[data-pick] { cursor: pointer; } .t tr[aria-current="true"] { background: var(--panel-2); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  .st { font: 600 10px var(--mono); text-transform: uppercase; } .st.ok { color: var(--ok); } .st.no { color: var(--warn); }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  // the unit portal (a group's sign-in); AOC staff may look in too
+  if (!AOC.UnitAuth.group() && !AOC.Auth.user()) { location.replace("unit-login.html"); throw new Error("auth required"); }
+</script>
+<script src="js/products.js"></script>
+<script src="js/pr.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px"><div>
+    <h1 style="margin-top:4px">ISOPREP &amp; EPA</h1>
+    <div class="muted small">For personnel recovery. Each pilot keeps an ISOPREP on file (four personal statements and a number only they know); each crew files an evasion plan (EPA) for its mission. Only the PRCC and the rescue force read them, to authenticate and find a downed pilot.</div></div>
+    <div class="toolbar"><select id="campaign" style="width:auto"></select></div>
+  </div>
+  <div class="ilay">
+    <section class="panel"><div class="panel-head"><h2>Pilots (ISOPREP)</h2><button class="btn sm" id="addPilot">+ Pilot</button></div><div id="pilots"></div><div id="isoForm"></div></section>
+    <section class="panel"><div class="panel-head"><h2>Missions (EPA)</h2></div><div id="lines"></div><div id="epaForm"></div></section>
+  </div>
+</main>
+
+<script>
+  const { Store, UnitAuth, Auth, esc, toast, zulu, PR } = AOC;
+  AOC.renderChrome({ unit: true });
+  const me = UnitAuth.group(), staff = me ? null : Auth.user();
+  const gid = me?.id || null;
+  const campaigns = me ? Store.db.campaigns.filter(c => c.groups.includes(me.id)) : Store.db.campaigns;
+  let cid = (() => { try { return localStorage.getItem("aoc.unitCampaign"); } catch { return null; } })();
+  if (!campaigns.some(c => c.id === cid)) cid = campaigns[0]?.id;
+  const sel = document.getElementById("campaign");
+  sel.innerHTML = campaigns.map(c => `<option value="${c.id}">OP ${esc(c.opName)} — ${esc(c.theater)}</option>`).join("");
+  sel.value = cid; sel.onchange = () => { cid = sel.value; render(); };
+  let pilot = null, msn = null;
+  const QS = ["First car", "Childhood pet", "Street you grew up on", "Favourite teacher"];
+
+  // ---------- ISOPREP ----------
+  function renderPilots() {
+    const ps = PR.isopreps(gid);
+    document.getElementById("pilots").innerHTML = `<table class="t"><thead><tr><th>Callsign</th><th>DCS player name</th><th>Name</th><th>Updated</th></tr></thead><tbody>${ps.map(p =>
+      `<tr data-pick="${esc(p.id)}" aria-current="${p.id === pilot}"><td><b>${esc(p.callsign)}</b></td><td>${esc(p.player)}</td><td>${esc(p.name)}</td><td class="small muted">${p.updated ? zulu(new Date(p.updated)) : ""}</td></tr>`).join("")
+      || `<tr><td colspan="4" class="muted">No pilots yet.</td></tr>`}</tbody></table>`;
+    const p = ps.find(x => x.id === pilot);
+    document.getElementById("isoForm").innerHTML = !p ? "" : `<h3 style="margin-top:16px">${esc(p.callsign || "New pilot")}</h3>
+      <div class="grid2">${[["callsign", "Callsign (as on the ATO, e.g. VIPER 11)"], ["player", "DCS player name (matches DKS)"], ["name", "Name"], ["nationality", "Nationality"],
+        ["height", "Height"], ["weight", "Weight"], ["eyes", "Eyes"], ["hair", "Hair"], ["marks", "Marks / scars"], ["blood", "Blood type"]].map(([k, l]) =>
+        `<div class="field"><label>${l}</label><input data-iso="${k}" value="${esc(p[k] || "")}"></div>`).join("")}</div>
+      <h3>Authentication statements</h3><p class="muted small">Facts only you know and will remember under stress. The rescue force asks one; you answer it.</p>
+      ${(p.statements || []).map((s, i) => `<div class="grid2"><div class="field"><label>Statement ${i + 1}</label><input data-sq="${i}" value="${esc(s.q)}"></div>
+        <div class="field"><label>Answer</label><input data-sa="${i}" value="${esc(s.a)}" type="password" autocomplete="off"></div></div>`).join("")}
+      <div class="field" style="max-width:220px"><label>Personal number (4 digits)</label><input data-iso="number" value="${esc(p.number || "")}" maxlength="4" inputmode="numeric" type="password" autocomplete="off"></div>
+      <div class="toolbar"><button class="btn primary" id="saveIso">Save ISOPREP</button></div>`;
+  }
+  document.getElementById("pilots").onclick = e => { const r = e.target.closest("[data-pick]"); if (r) { pilot = r.dataset.pick; renderPilots(); } };
+  document.getElementById("addPilot").onclick = () => {
+    if (!gid) { toast("Sign in as a group to add pilots"); return; }
+    const p = PR.saveIsoprep({ gid, callsign: "", player: "", name: "", statements: QS.map(q => ({ q, a: "" })), number: "" }); pilot = p.id; renderPilots();
+  };
+  document.getElementById("isoForm").addEventListener("input", e => {
+    const p = PR.isopreps(gid).find(x => x.id === pilot); if (!p) return; const t = e.target;
+    if (t.dataset.iso) p[t.dataset.iso] = t.dataset.iso === "number" ? t.value.replace(/\D/g, "").slice(0, 4) : t.value;
+    if (t.dataset.sq != null) p.statements[+t.dataset.sq].q = t.value;
+    if (t.dataset.sa != null) p.statements[+t.dataset.sa].a = t.value;
+  });
+  document.getElementById("isoForm").addEventListener("click", e => {
+    if (e.target.id !== "saveIso") return; const p = PR.isopreps(gid).find(x => x.id === pilot);
+    const missing = [!p.callsign && "callsign", !p.player && "DCS player name", (p.statements || []).some(s => !s.a) && "every answer", !/^\d{4}$/.test(p.number || "") && "a 4-digit number"].filter(Boolean);
+    PR.saveIsoprep(p); renderPilots(); toast(missing.length ? `Saved — still needs ${missing.join(", ")}` : "ISOPREP saved");
+  });
+
+  // ---------- EPA: one per mission the group flies ----------
+  function renderLines() {
+    const ms = (Store.content(cid, "ato")?.missions || []).filter(m => !gid || m.group === gid);
+    document.getElementById("lines").innerHTML = `<table class="t"><thead><tr><th>MSN</th><th>Callsign</th><th>Mission</th><th>TOT</th><th>EPA</th></tr></thead><tbody>${ms.map(m => { const e = PR.epaFor(cid, m.msn);
+      return `<tr data-pick="${esc(m.msn)}" aria-current="${m.msn === msn}"><td class="mono">${esc(m.msn)}</td><td>${esc(m.callsign)}</td><td>${esc(m.num)}× ${esc(m.type)} ${esc(m.role)}</td><td class="mono">${esc(m.tot)}</td>
+        <td><span class="st ${e ? "ok" : "no"}">${e ? "filed" : "standard"}</span></td></tr>`; }).join("") || `<tr><td colspan="5" class="muted">No ATO lines for this group.</td></tr>`}</tbody></table>`;
+    const m = ms.find(x => x.msn === msn), pr = PR.spinsPR(cid);
+    if (!m) { document.getElementById("epaForm").innerHTML = ""; return; }
+    const e = PR.epaFor(cid, m.msn) || { ...PR.standardEpa(pr), cid, gid: m.group, msn: m.msn };
+    document.getElementById("epaForm").innerHTML = `<h3 style="margin-top:16px">EPA — MSN ${esc(m.msn)} ${esc(m.callsign)}</h3>
+      ${e.standard ? `<p class="muted small">Pre-filled with the standard EPA from the SPINS; change what your crew will actually do, then file it.</p>` : ""}
+      ${[["intent", "Initial movement after landing"], ["hide", "Hide site criteria"], ["travel", "Travel plan"], ["dar", "Destination / DAR / SAFE area"], ["contact", "Contact plan"], ["signals", "Signals"], ["notes", "Notes (injuries you'd expect, kit carried)"]]
+        .map(([k, l]) => `<div class="field"><label>${l}</label><textarea data-epa="${k}" rows="2">${esc(e[k] || "")}</textarea></div>`).join("")}
+      <div class="toolbar"><button class="btn primary" id="fileEpa">File EPA</button></div>`;
+    document.getElementById("fileEpa").onclick = () => {
+      const f = { ...e, standard: false, filedBy: me?.name || staff?.callsign || "" };
+      document.querySelectorAll("[data-epa]").forEach(t => { f[t.dataset.epa] = t.value; });
+      PR.saveEpa(f); renderLines(); toast(`EPA filed for MSN ${m.msn}`);
+    };
+  }
+  document.getElementById("lines").onclick = e => { const r = e.target.closest("[data-pick]"); if (r) { msn = r.dataset.pick; renderLines(); } };
+
+  function render() { renderPilots(); renderLines(); }
+  render();
+</script>
+</body>
+</html>

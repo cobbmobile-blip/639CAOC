@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — PRCC</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  /* panels stack full width */
+  .play > section { margin-bottom: 16px; }
+  .ilist button { width: 100%; text-align: left; display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; background: none; border: 0;
+    border-top: 1px solid var(--line); color: var(--text); font: inherit; font-size: 13px; padding: 8px 4px; cursor: pointer; }
+  .ilist button[aria-current="true"] { background: var(--panel-2); }
+  .st { font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+  .st.open { color: var(--danger, #e5484d); } .st.closed { color: var(--muted); }
+  .steps { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 14px; }
+  .steps button { border: 1px solid var(--line); background: none; color: var(--text); border-radius: 999px; padding: 4px 12px; font-size: 12px; cursor: pointer; }
+  .steps button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); }
+  .steps button.done::before { content: "✓ "; color: var(--ok); }
+  .t { width: 100%; border-collapse: collapse; margin: 6px 0 14px; }
+  .t th, .t td { font-size: 12.5px; padding: 5px 6px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .t th { font: 600 10.5px var(--mono); text-transform: uppercase; color: var(--muted); }
+  .kvg { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 4px 12px; font-size: 13px; margin-bottom: 14px; }
+  .kvg > :nth-child(odd) { color: var(--muted); font: 600 11px var(--mono); text-transform: uppercase; padding-top: 2px; }
+  .big { font: 600 16px var(--mono); letter-spacing: .04em; }
+  .answer { filter: blur(5px); cursor: pointer; } .answer.shown { filter: none; }
+  .warnbox { border: 1px solid var(--warn); color: var(--warn); border-radius: var(--radius); padding: 8px 10px; margin-bottom: 12px; font-size: 13px; }
+  #rmap { height: 340px; border-radius: var(--radius); margin-bottom: 10px; }
+  .logl { font-size: 12px; max-height: 220px; overflow: auto; } .logl div { border-top: 1px solid var(--line); padding: 4px 0; }
+  .pkgdoc { background: #fff; color: #111; padding: 24px 28px; border-radius: var(--radius); font-size: 13px; }
+  .pkgdoc h2 { font-size: 14px; margin: 18px 0 6px; border-bottom: 1px solid #999; } .pkgdoc h1 { font-size: 18px; margin: 0; }
+  .pkgdoc table { width: 100%; border-collapse: collapse; } .pkgdoc td, .pkgdoc th { border: 1px solid #bbb; padding: 4px 6px; font-size: 12px; text-align: left; vertical-align: top; }
+  .pkgdoc th { background: #eee; } .pkgdoc .cls { text-align: center; font-weight: 700; color: #c00; }
+  @media print { header, .banner, .play > section:first-child, .noprint { display: none !important; } .pkgdoc { padding: 0; } body { background: #fff; } }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>AOC.Auth.require();</script>
+<script src="js/products.js"></script>
+<script src="js/pr.js"></script>
+<script src="js/ato.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px">
+    <div>
+      <h1 style="margin-top:4px" id="title">PRCC</h1>
+      <div class="muted small">Personnel Recovery Coordination Cell. DKS Debrief reports each ejection here; work it through report, locate &amp; authenticate, support, recover and reintegrate, then publish the CSAR task force package.</div>
+    </div>
+    <div class="toolbar"><button class="btn" id="dksBtn" title="Paste a pr.ejection event from DKS Debrief">Receive from DKS</button>
+      <button class="btn ghost" id="demoBtn" title="Demo: an ejection as DKS would report it">Simulate ejection</button></div>
+  </div>
+  <div class="play">
+    <section class="panel"><div class="panel-head"><h2>Incidents</h2><span class="muted small" id="counts"></span></div><div class="ilist" id="list"></div></section>
+    <section class="panel" id="work"><p class="muted">No incident selected.</p></section>
+  </div>
+</main>
+
+<script>
+  const { Store, esc, toast, zulu, PR, ATO } = AOC;
+  AOC.renderChrome();
+  const cid = new URLSearchParams(location.search).get("c") || Store.currentCampaignId(), campaign = Store.campaign(cid);
+  document.getElementById("title").textContent = `PRCC · OP ${campaign.opName}`;
+  const me = () => AOC.Auth.user() || {};
+  let sel = PR.incidents(cid)[0]?.id || null, tab = null, map = null;
+  const fmtZ = iso => { const t = new Date(iso); return isNaN(t) ? esc(iso || "—") : zulu(t); };
+  const sardotBR = (pr, lat, lon) => pr.sardot ? `${String(Math.round(PR.brg(pr.sardot.lat, pr.sardot.lon, lat, lon))).padStart(3, "0")}° T for ${PR.nm(pr.sardot.lat, pr.sardot.lon, lat, lon).toFixed(1)} NM` : "no SARDOT";
+  const kvg = rows => `<div class="kvg">${rows.map(([k, v]) => `<div>${esc(k)}</div><div>${v ?? "—"}</div>`).join("")}</div>`;
+  const tbl = (cols, rows) => `<table class="t"><thead><tr>${cols.map(c => `<th>${esc(c[1])}</th>`).join("")}</tr></thead><tbody>${rows.map(r =>
+    `<tr>${cols.map(([k, , f]) => `<td>${f ? f(r) : esc(r[k] ?? "")}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${cols.length}" class="muted">None.</td></tr>`}</tbody></table>`;
+
+  // ---------- incident list ----------
+  function renderList() {
+    const all = PR.incidents(cid);
+    document.getElementById("counts").textContent = `${all.filter(i => i.status === "open").length} open · ${all.length} total`;
+    document.getElementById("list").innerHTML = all.map(i => `<button data-id="${esc(i.id)}" aria-current="${i.id === sel}"><span class="mono small">${esc(i.id)}<div class="st ${i.status}">${i.status}</div></span>
+      <span><b>${esc(i.report.pilot?.callsign || "Unknown")}</b> · ${esc(i.report.aircraft?.type || "")}<div class="muted small">${fmtZ(i.report.time_utc || i.received)} · ${esc(PR.STEPS.find(s => s[0] === i.step)?.[1] || "")}</div></span></button>`).join("")
+      || `<p class="muted small">No ejections reported. DKS Debrief sends them here; "Simulate ejection" shows how one arrives.</p>`;
+  }
+  document.getElementById("list").onclick = e => { const b = e.target.closest("[data-id]"); if (b) { sel = b.dataset.id; tab = null; renderList(); renderWork(); } };
+
+  // ---------- the working view of one incident ----------
+  function context(inc) {
+    const pr = PR.spinsPR(cid), at = PR.spinsAt(cid, inc.report.takeoff_utc), prAt = at?.data ? PR.spinsPR(cid, at.data) : pr;
+    const iso = (Store.db.isopreps || []).find(p => p.id === inc.isoprepId) || null;
+    const line = (Store.content(cid, "ato")?.missions || []).find(m => m.msn === inc.msn) || null;
+    const epa = PR.epaFor(cid, inc.msn), day = String(campaign.atoDay || 1), today = prAt.days.find(d => d.day === day) || prAt.days[0];
+    return { pr, at, prAt, iso, line, epa, today, p: inc.position };
+  }
+  function renderWork() {
+    const el = document.getElementById("work"), inc = PR.incident(sel);
+    if (map) { map.remove(); map = null; }
+    if (!inc) { el.innerHTML = `<p class="muted">No incident selected.</p>`; return; }
+    tab = tab || inc.step;
+    const order = PR.STEPS.map(s => s[0]), cur = order.indexOf(inc.step);
+    el.innerHTML = `<div class="panel-head"><div><h2>${esc(inc.id)} · ${esc(inc.report.pilot?.callsign || "Unknown")} <span class="st ${inc.status}">${inc.status}</span></h2>
+        <div class="muted small">${esc(inc.report.aircraft?.type || "")} · MSN ${esc(inc.msn || "?")} · ejected ${fmtZ(inc.report.time_utc)} · reported by ${esc(inc.source)}</div></div>
+        <div class="toolbar noprint">${cur < order.length - 1 && inc.status === "open" ? `<button class="btn primary sm" data-next>Next step: ${esc(PR.STEPS[cur + 1][1])}</button>` : ""}</div></div>
+      <div class="steps noprint">${PR.STEPS.map(([k, l], i) => `<button data-tab="${k}" aria-selected="${tab === k}" class="${i < cur ? "done" : ""}">${i + 1}. ${esc(l)}</button>`).join("")}
+        <button data-tab="package" aria-selected="${tab === "package"}">CSAR task force package</button></div>
+      <div id="tabBody">${({ report, locate, support, recover, reintegrate, package: pkg })[tab](inc, context(inc))}</div>
+      <div class="noprint"><h3 style="margin-top:18px">Log</h3><div class="logl">${inc.log.map(l => `<div><span class="mono small">${fmtZ(l.when)}</span> · <b>${esc(l.by)}</b> — ${esc(l.text)}</div>`).join("")}</div></div>`;
+    if (tab === "recover") drawMap(inc);
+  }
+
+  // 1. REPORT: what DKS sent, matched to the ATO line, the ISOPREP and the SPINS the crew took off with
+  function report(inc, c) {
+    const r = inc.report, warns = [];
+    if (!c.at?.version) warns.push(c.at?.note || "No SPINS has been released for this campaign: the crew had no PR data.");
+    else if (!c.at.latest) warns.push(`The crew took off with SPINS ${esc(c.at.label)}; a newer release came out later. Use the take-off version's PR data with the survivor.`);
+    if (!c.iso) warns.push("No ISOPREP on file for this pilot: authenticate with the word / number of the day only, and ask the group for the pilot's ISOPREP.");
+    if (!c.line) warns.push(`MSN ${esc(inc.msn || "?")} is not on the ATO.`);
+    return `${warns.map(w => `<div class="warnbox">${w}</div>`).join("")}${kvg([
+      ["Survivor", `${esc(r.pilot?.callsign || "")}${r.pilot?.player_name ? ` (${esc(r.pilot.player_name)})` : ""}${c.iso ? ` — ${esc(c.iso.name)}` : ""}`],
+      ["Group", esc(Store.group(inc.gid)?.name || r.pilot?.group || "—")],
+      ["Aircraft / line", `${esc(r.aircraft?.type || "")} · ${c.line ? `MSN ${esc(c.line.msn)} ${esc(c.line.callsign)} (${esc(c.line.num)}× ${esc(c.line.type)} ${esc(c.line.role)}, pkg ${esc(c.line.pkg || "—")})` : `MSN ${esc(inc.msn || "?")}`}`],
+      ["Ejected", `${fmtZ(r.time_utc)}${r.position?.alt_ft != null ? ` at ${Math.round(r.position.alt_ft).toLocaleString()} ft` : ""}${r.cause ? ` — ${esc(r.cause)}` : ""}`],
+      ["Position (DKS)", `<span class="mono">${PR.ddm(c.p.lat, c.p.lon)}</span> · ${PR.mgrs(c.p.lat, c.p.lon)}`],
+      ["Condition", esc([r.status, r.chute === false ? "no chute seen" : r.chute ? "good chute" : "", r.injury].filter(Boolean).join(" · ") || "unknown")],
+      ["Took off", `${fmtZ(r.takeoff_utc)}${r.base ? ` from ${esc(r.base)}` : ""}`],
+      ["SPINS at take-off", c.at?.version ? `${esc(c.at.label)} (release v${c.at.version}, ${fmtZ(c.at.when)})` : "none"],
+      ["ISOPREP", c.iso ? `on file (updated ${fmtZ(c.iso.updated)})` : "not on file"], ["EPA", c.epa ? `filed by ${esc(c.epa.filedBy || "the crew")} ${fmtZ(c.epa.updated)}` : "none filed — standard EPA applies"]])}
+      <details><summary class="small muted">DKS report as received</summary><pre class="small">${esc(JSON.stringify(r, null, 1))}</pre></details>`;
+  }
+
+  // 2. LOCATE & AUTHENTICATE: the survivor's own codes from the SPINS they flew with, and their ISOPREP
+  function locate(inc, c) {
+    const g = PR.mgrs(c.p.lat, c.p.lon).split(" "), enc = `${g[0]} ${g[1]} ${PR.sarnegEncode(g[2].slice(0, 4), c.prAt.sarneg)} ${PR.sarnegEncode(g[3].slice(0, 4), c.prAt.sarneg)}`;
+    const a = inc.auth || {};
+    return `${kvg([["Position", `<span class="mono">${PR.ddm(c.p.lat, c.p.lon)}</span> (${esc(c.p.source)})`], ["MGRS", `<span class="mono">${PR.mgrs(c.p.lat, c.p.lon)}</span>`],
+        ["Survivor would send", `<span class="big">${esc(enc)}</span> <span class="muted small">(SARNEG ${esc(c.prAt.sarneg)}, 4-digit grid)</span>`],
+        ["From the SARDOT", `${esc(c.prAt.sardot?.name || "SARDOT")} ${sardotBR(c.prAt, c.p.lat, c.p.lon)}`]])}
+      <div class="toolbar noprint" style="margin-bottom:14px"><input id="newPos" placeholder="New position: lat, lon (decimal)" style="max-width:260px"><input id="newSrc" placeholder="Source, e.g. Sandy 1 eyes-on" style="max-width:240px">
+        <button class="btn sm" data-pos>Update position</button></div>
+      <h3>Authenticate (SPINS ${esc(c.at?.label || "current")}, ATO day ${esc(c.today.day)})</h3>
+      ${kvg([["Word of the day", `<span class="big">${esc(c.today.wod)}</span>`], ["Letter of the day", `<span class="big">${esc(c.today.lod)}</span>`], ["Number of the day", `<span class="big">${esc(c.today.nod)}</span>`],
+        ["Duress word", `<span class="big">${esc(c.prAt.duress)}</span> <span class="muted small">— heard in any call: survivor under hostile control</span>`]])}
+      ${c.iso ? `<h3>ISOPREP — ${esc(c.iso.name)} <span class="muted small">(click an answer to show it)</span></h3>
+        ${tbl([["q", "Statement"], ["a", "Answer", r => `<span class="answer">${esc(r.a)}</span>`], ["ok", "Asked", (r) => `<label class="small"><input type="checkbox" data-authq="${esc(r.q)}" ${a[r.q] ? "checked" : ""}> correct</label>`]], c.iso.statements || [])}
+        ${kvg([["Personal number", `<span class="answer big">${esc(c.iso.number)}</span> <span class="muted small">ask for one or two digits, e.g. "second digit plus the number of the day"</span>`],
+          ["Description", esc([c.iso.height, c.iso.weight, `eyes ${c.iso.eyes}`, `hair ${c.iso.hair}`, c.iso.marks].filter(Boolean).join(" · "))]])}`
+        : `<div class="warnbox">No ISOPREP: authenticate with the word, letter and number of the day.</div>`}
+      <div class="toolbar noprint"><button class="btn sm ${a.done ? "" : "primary"}" data-authed>${a.done ? `Authenticated ${fmtZ(a.when)} — undo` : "Mark survivor authenticated"}</button></div>
+      <h3>Signals to expect</h3><p class="small">${esc(c.prAt.signals)}</p>`;
+  }
+
+  // 3. SUPPORT: threats around the survivor, the CSAR comm plan, and their EPA
+  function support(inc, c) {
+    const th = PR.threats(cid, c.p.lat, c.p.lon), e = c.epa || PR.standardEpa(c.prAt);
+    return `<h3>Threats within 40 NM</h3>${tbl([["name", "Threat"], ["system", "System"], ["_d", "From survivor", t => `${String(Math.round(t.brg)).padStart(3, "0")}° / ${t.nm.toFixed(1)} NM`],
+        ["_r", "Ring", t => t.ring ? `${t.ring} NM` : "—"], ["_c", "Survivor inside?", t => t.covers ? `<b class="bad">YES — SEAD needed</b>` : "no"]], th)}
+      <h3>CSAR comm plan</h3>${tbl([["role", "Role"], ["callsign", "Callsign"], ["channel", "Channel"], ["freq", "Freq"], ["notes", "Notes"]], PR.commPlan(cid, inc))}
+      <h3>Evasion plan of action ${c.epa ? "" : `<span class="muted small">(none filed — standard EPA)</span>`}</h3>
+      ${kvg([["Initial movement", esc(e.intent)], ["Hide site", esc(e.hide)], ["Travel", esc(e.travel)], ["Destination / DAR", esc(e.dar || "—")], ["Contact plan", esc(e.contact)], ["Signals", esc(e.signals)], ["Notes", esc(e.notes || "")]])}`;
+  }
+
+  // 4. RECOVER: the force (retask a line or request one) and the route over spider points
+  function recover(inc, c) {
+    const ato = Store.content(cid, "ato")?.missions || [], needs = PR.forceNeeds(inc);
+    const rows = needs.map(f => { const have = inc.forces.find(x => x.key === f.key), st = have && PR.forceState(inc, have);
+      const cands = ato.filter(f.fits);
+      return `<tr><td><b>${esc(f.label)}</b><div class="muted small">${f.required ? "required" : "if available"}${f.why ? ` — ${esc(f.why)}` : ""}</div></td>
+        <td>${st ? `${esc(st.msn)} ${esc(st.callsign)} · ${esc(st.type)}<div class="${st.unfilled ? "bad" : "muted"} small">${esc(st.state || st.how)}</div>` : `<span class="${f.required ? "bad" : "muted"}">${f.required ? "not tasked" : "—"}</span>`}</td>
+        <td class="noprint"><select data-assign="${f.key}" style="width:auto;max-width:220px"><option value="">Retask an ATO line…</option>${cands.map(m => `<option value="${esc(m.msn)}">${esc(m.msn)} ${esc(m.callsign)} (${esc(m.num)}× ${esc(m.type)} ${esc(m.role)})</option>`).join("")}</select>
+          <button class="btn sm" data-request="${f.key}" title="New ${esc(f.role)} line: ${f.num}× ${esc(f.airframe)}${f.crew === "AI" ? " (AI)" : " — posted to Discord for a unit to commit"}">Request line</button></td></tr>`; }).join("");
+    const pts = PR.routePoints(cid);
+    return `<h3>CSAR force</h3><table class="t"><thead><tr><th>Element</th><th>Tasked</th><th class="noprint"></th></tr></thead><tbody>${rows}</tbody></table>
+      <h3>Route <span class="muted small">(spider, nav and destination points from the theater map; click a point on the map to add it)</span></h3>
+      <div id="rmap"></div>
+      ${tbl([["seq", "#", (r) => String(inc.route.indexOf(r) + 1)], ["name", "Point"], ["_p", "Position", r => `<span class="mono small">${PR.ddm(r.lat, r.lon)}</span>`],
+        ["_l", "Leg", r => { const i = inc.route.indexOf(r); if (!i) return "—"; const q = inc.route[i - 1]; return `${String(Math.round(PR.brg(q.lat, q.lon, r.lat, r.lon))).padStart(3, "0")}° / ${PR.nm(q.lat, q.lon, r.lat, r.lon).toFixed(1)} NM`; }],
+        ["_x", "", r => `<span class="noprint"><button class="btn sm ghost" data-rup="${inc.route.indexOf(r)}">↑</button><button class="btn sm ghost" data-rdel="${inc.route.indexOf(r)}">✕</button></span>`]], inc.route)}
+      <div class="toolbar noprint"><select id="addPt" style="width:auto"><option value="">+ Add a point…</option>${pts.map(p => `<option value="${esc(p.id)}">${esc(p.name)} (${esc(p.type)})</option>`).join("")}<option value="__surv">Survivor (objective)</option></select>
+        <button class="btn sm" data-dks>Send route to DKS</button><button class="btn sm ghost" data-geo>Download GeoJSON</button></div>`;
+  }
+  function drawMap(inc) {
+    const p = inc.position; map = L.map("rmap").setView([p.lat, p.lon], 9);
+    L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, attribution: "© OpenTopoMap, © OpenStreetMap contributors" }).addTo(map);
+    L.circleMarker([p.lat, p.lon], { radius: 9, color: "#e5484d", weight: 3 }).addTo(map).bindTooltip(`${inc.report.pilot?.callsign || "Survivor"} (survivor)`, { permanent: true });
+    PR.threats(cid, p.lat, p.lon).filter(t => t.ring).forEach(t => L.circle([t.lat, t.lon], { radius: t.ring * 1852, color: "#e5484d", weight: 1, fillOpacity: .06 }).addTo(map).bindTooltip(t.name));
+    PR.routePoints(cid).forEach(pt => L.marker([pt.lat, pt.lon], { title: pt.name }).addTo(map).bindTooltip(pt.name).on("click", () => { addRoute(inc, pt); }));
+    if (inc.route.length) L.polyline(inc.route.map(r => [r.lat, r.lon]), { color: "#f2d14b", weight: 3 }).addTo(map);
+  }
+  function addRoute(inc, pt) { inc.route.push({ name: pt.name, lat: pt.lat, lon: pt.lon, role: pt.role || "" }); PR.log(inc, `Route: added ${pt.name}`); Store.save(); renderWork(); }
+
+  // 5. REINTEGRATE: the outcome, and close the incident
+  function reintegrate(inc) {
+    const OUT = ["Recovered", "Self-recovered (walked out / own forces)", "Captured", "Killed", "Missing", "Exercise ended before recovery"];
+    return `${kvg([["Outcome", `<select data-outcome style="width:auto"><option value=""></option>${OUT.map(o => `<option ${o === inc.outcome ? "selected" : ""}>${o}</option>`).join("")}</select>`],
+      ["Notes for the debrief", `<textarea data-onotes rows="3">${esc(inc.outcomeNotes || "")}</textarea>`]])}
+      <p class="small muted">Reintegration: the survivor's group debriefs them; lessons go to the BDA / MISREP rollup and the next SPINS.</p>
+      <div class="toolbar"><button class="btn ${inc.status === "open" ? "primary" : ""}" data-close>${inc.status === "open" ? "Close incident" : "Re-open incident"}</button></div>`;
+  }
+
+  // CSAR TASK FORCE PACKAGE: everything the rescue force needs, on one sheet
+  function pkg(inc, c) {
+    const r = inc.report, th = PR.threats(cid, c.p.lat, c.p.lon), e = c.epa || PR.standardEpa(c.prAt);
+    const g = PR.mgrs(c.p.lat, c.p.lon).split(" "), enc = `${g[0]} ${g[1]} ${PR.sarnegEncode(g[2].slice(0, 4), c.prAt.sarneg)} ${PR.sarnegEncode(g[3].slice(0, 4), c.prAt.sarneg)}`;
+    const T = (cols, rows) => `<table><tr>${cols.map(x => `<th>${esc(x[1])}</th>`).join("")}</tr>${rows.map(row => `<tr>${cols.map(([k, , f]) => `<td>${f ? f(row) : esc(row[k] ?? "")}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${cols.length}">None.</td></tr>`}</table>`;
+    const forces = PR.forceNeeds(inc).map(f => { const h = inc.forces.find(x => x.key === f.key), st = h && PR.forceState(inc, h); return { el: f.label, by: st ? `${st.msn} ${st.callsign} (${st.type}) — ${st.state || st.how}` : f.required ? "NOT TASKED" : "—" }; });
+    return `<div class="toolbar noprint" style="margin-bottom:10px"><button class="btn primary" data-publish>${inc.published ? `Re-publish to the CSARTF (v${inc.published.v})` : "Publish to the CSAR task force"}</button>
+        <button class="btn" onclick="print()">Print / PDF</button><button class="btn ghost" data-text>Download text</button></div>
+      <div class="pkgdoc" id="pkgdoc"><div class="cls">UNCLASSIFIED // EXERCISE — DCS WORLD</div>
+      <h1>CSAR TASK FORCE PACKAGE — ${esc(inc.id)} · OP ${esc(campaign.opName)}</h1><div>Prepared by the PRCC ${esc(me().callsign || "")} · ${zulu()}${inc.published ? ` · v${inc.published.v}` : ""}</div>
+      <h2>1. SITUATION</h2>${T([["k", "ITEM"], ["v", "DETAIL"]], [
+        { k: "Survivor", v: `${r.pilot?.callsign || ""} (${r.pilot?.player_name || "player ?"}), ${Store.group(inc.gid)?.name || r.pilot?.group || ""}` },
+        { k: "Aircraft / mission", v: `${r.aircraft?.type || ""}, MSN ${inc.msn || "?"}${c.line ? ` ${c.line.callsign} (${c.line.role})` : ""}` },
+        { k: "Ejected", v: `${fmtZ(r.time_utc)}${r.cause ? ` — ${r.cause}` : ""}` }, { k: "Condition", v: [r.status, r.chute ? "good chute" : "", r.injury].filter(Boolean).join(", ") || "unknown" },
+        { k: "Authenticated", v: inc.auth?.done ? `yes, ${fmtZ(inc.auth.when)}` : "NOT YET" }])}
+      <h2>2. LOCATION</h2>${T([["k", "FORMAT"], ["v", "POSITION"]], [{ k: "Lat / long", v: PR.ddm(c.p.lat, c.p.lon) }, { k: "MGRS", v: PR.mgrs(c.p.lat, c.p.lon) },
+        { k: "SARNEG (as the survivor sends it)", v: enc }, { k: `From ${c.prAt.sardot?.name || "SARDOT"}`, v: sardotBR(c.prAt, c.p.lat, c.p.lon) }, { k: "Source", v: c.p.source }])}
+      <h2>3. AUTHENTICATION (SPINS ${esc(c.at?.label || "current")} — the release the survivor flew with)</h2>
+      ${T([["k", "ITEM"], ["v", "VALUE"]], [{ k: `Word / letter / number of the day (ATO day ${c.today.day})`, v: `${c.today.wod} / ${c.today.lod} / ${c.today.nod}` },
+        { k: "SARNEG", v: c.prAt.sarneg }, { k: "Duress word", v: c.prAt.duress }, { k: "Survivor's personal number", v: c.iso?.number || "no ISOPREP" }])}
+      ${c.iso ? `<p><b>ISOPREP — ${esc(c.iso.name)}</b> · ${esc([c.iso.height, c.iso.weight, `eyes ${c.iso.eyes}`, `hair ${c.iso.hair}`, c.iso.marks].filter(Boolean).join(", "))}</p>${T([["q", "STATEMENT"], ["a", "ANSWER"]], c.iso.statements || [])}` : "<p>No ISOPREP on file — use the word, letter and number of the day.</p>"}
+      <h2>4. THREATS</h2>${T([["name", "THREAT"], ["_d", "FROM SURVIVOR", t => `${String(Math.round(t.brg)).padStart(3, "0")}° / ${t.nm.toFixed(1)} NM`], ["_c", "COVERS SURVIVOR", t => t.covers ? "YES" : "no"]], th)}
+      <h2>5. FORCES</h2>${T([["el", "ELEMENT"], ["by", "TASKED"]], forces)}
+      <h2>6. COMMUNICATIONS</h2>${T([["role", "ROLE"], ["callsign", "CALLSIGN"], ["channel", "CHANNEL"], ["freq", "FREQ"], ["notes", "NOTES"]], PR.commPlan(cid, inc))}
+      <p>${esc(c.prAt.contact)}</p>
+      <h2>7. ROUTE (DKS SPIDER POINTS)</h2>${T([["name", "POINT"], ["_p", "POSITION", x => PR.ddm(x.lat, x.lon)]], inc.route)}
+      <h2>8. SURVIVOR'S EVASION PLAN ${c.epa ? "" : "(standard EPA — none filed)"}</h2>${T([["k", "ITEM"], ["v", "PLAN"]], [{ k: "Initial movement", v: e.intent }, { k: "Hide site", v: e.hide },
+        { k: "Travel", v: e.travel }, { k: "Destination / DAR", v: e.dar || "—" }, { k: "Signals", v: e.signals }])}
+      <h2>9. ON-SCENE</h2><p>RESCORT lead (Sandy 1) is the on-scene commander and authenticates the survivor before the rescue vehicle commits. Abort call: code word in the SPINS. Report "survivor on board" to the PRCC on ${esc(c.prAt.prcc || "the PRCC net")}.</p>
+      <div class="cls">UNCLASSIFIED // EXERCISE — DCS WORLD</div></div>`;
+  }
+
+  // ---------- actions ----------
+  const work = document.getElementById("work");
+  work.addEventListener("click", e => {
+    const b = e.target.closest("button, .answer"); if (!b) return; const inc = PR.incident(sel); if (!inc) return;
+    if (b.classList.contains("answer")) { b.classList.toggle("shown"); return; }
+    if (b.dataset.tab) { tab = b.dataset.tab; renderWork(); return; }
+    if (b.hasAttribute("data-next")) { const o = PR.STEPS.map(s => s[0]); PR.setStep(inc, o[o.indexOf(inc.step) + 1]); tab = inc.step; }
+    else if (b.hasAttribute("data-pos")) {
+      const [la, lo] = document.getElementById("newPos").value.split(/[\s,;]+/).map(Number), src = document.getElementById("newSrc").value.trim() || "PRCC update";
+      if (!isFinite(la) || !isFinite(lo)) { toast("Enter lat, lon in decimal degrees"); return; }
+      inc.position = { lat: la, lon: lo, source: src }; PR.log(inc, `Position updated: ${PR.ddm(la, lo)} (${src})`); Store.save();
+    }
+    else if (b.hasAttribute("data-authed")) { inc.auth.done = !inc.auth.done; inc.auth.when = new Date().toISOString(); PR.log(inc, inc.auth.done ? "Survivor authenticated" : "Authentication withdrawn"); Store.save(); }
+    else if (b.dataset.request) { const l = PR.requestLine(inc, b.dataset.request, { gid: "", user: `${me().callsign || "PRCC"} (PRCC)` }); toast(`ATO line ${l.msn} requested${l.crew === "AI" ? "" : " — posted to Discord"}`); }
+    else if (b.dataset.rup != null) { const i = +b.dataset.rup; if (i > 0) { [inc.route[i - 1], inc.route[i]] = [inc.route[i], inc.route[i - 1]]; Store.save(); } }
+    else if (b.dataset.rdel != null) { inc.route.splice(+b.dataset.rdel, 1); Store.save(); }
+    else if (b.hasAttribute("data-dks")) { if (!inc.route.length) { toast("Add route points first"); return; } outbox(PR.routePayload(inc)); PR.log(inc, `Route sent to DKS (${inc.route.length} spider points)`); Store.save(); toast("Route queued for DKS (placeholder until the integration exists)"); }
+    else if (b.hasAttribute("data-geo")) { AOC.download(`${inc.id}-csar-route.geojson`, JSON.stringify({ type: "FeatureCollection", features: [
+        { type: "Feature", geometry: { type: "LineString", coordinates: inc.route.map(p => [p.lon, p.lat]) }, properties: { name: `${inc.id} CSAR route` } },
+        ...inc.route.map((p, i) => ({ type: "Feature", geometry: { type: "Point", coordinates: [p.lon, p.lat] }, properties: { name: p.name, seq: i + 1, dksSection: "Spider points" } })),
+        { type: "Feature", geometry: { type: "Point", coordinates: [inc.position.lon, inc.position.lat] }, properties: { name: "SURVIVOR", kind: "survivor" } }] }, null, 1), "application/geo+json"); return; }
+    else if (b.hasAttribute("data-close")) { inc.status = inc.status === "open" ? "closed" : "open"; PR.log(inc, inc.status === "closed" ? `Incident closed: ${inc.outcome || "no outcome set"}` : "Incident re-opened"); Store.save(); }
+    else if (b.hasAttribute("data-publish")) {
+      // the package goes to every group flying a tasked element (Discord), and to DKS with the route
+      const ato = Store.content(cid, "ato")?.missions || [];
+      const groups = [...new Set(inc.forces.map(f => (f.lineId ? ATO.line(f.lineId)?.committedBy : ato.find(m => m.msn === f.msn)?.group)).filter(Boolean))];
+      inc.published = { v: (inc.published?.v || 0) + 1, when: new Date().toISOString(), groups };
+      outbox({ event: "pr.csartf_package", incident_id: inc.id, campaign_id: cid, version: inc.published.v, recipients: groups.map(g => ({ group_id: g, group: Store.group(g)?.name })),
+        text: AOC.htmlToText(document.getElementById("pkgdoc").innerHTML), route: PR.routePayload(inc) });
+      PR.log(inc, `CSARTF package v${inc.published.v} published to ${groups.length} group${groups.length === 1 ? "" : "s"}`); Store.save(); toast(`Package v${inc.published.v} published`);
+    }
+    else if (b.hasAttribute("data-text")) { AOC.download(`${inc.id}-csartf-package.txt`, AOC.htmlToText(document.getElementById("pkgdoc").innerHTML)); return; }
+    else return;
+    renderList(); renderWork();
+  });
+  work.addEventListener("change", e => {
+    const inc = PR.incident(sel); if (!inc) return; const t = e.target;
+    if (t.dataset.assign && t.value) PR.assignLine(inc, t.dataset.assign, t.value);
+    else if (t.id === "addPt" && t.value) { const pt = t.value === "__surv" ? { name: `${inc.report.pilot?.callsign || "SURVIVOR"} (survivor)`, lat: inc.position.lat, lon: inc.position.lon, role: "objective" } : PR.routePoints(cid).find(p => p.id === t.value); addRoute(inc, pt); return; }
+    else if (t.dataset.authq != null) { inc.auth[t.dataset.authq] = t.checked; PR.log(inc, `ISOPREP "${t.dataset.authq}": ${t.checked ? "correct" : "unchecked"}`); Store.save(); return; }
+    else if (t.hasAttribute("data-outcome")) { inc.outcome = t.value; PR.log(inc, `Outcome: ${t.value}`); Store.save(); return; }
+    else if (t.hasAttribute("data-onotes")) { inc.outcomeNotes = t.value; Store.save(); return; }
+    else return;
+    renderWork();
+  });
+  // events the site hands DKS / the Discord bot (recorded in db.discordOutbox in the prototype)
+  function outbox(payload) { const d = Store.db; d.discordOutbox = d.discordOutbox || []; d.discordOutbox.unshift({ when: new Date().toISOString(), payload }); d.discordOutbox = d.discordOutbox.slice(0, 50); Store.save(); }
+
+  // ---------- intake ----------
+  function receive(payload) {
+    let r; try { r = PR.intake(payload); } catch (err) { toast(`Not valid JSON: ${err.message}`); return; }
+    if (r.error) { toast(r.error); return; }
+    sel = r.id; tab = null; renderList(); renderWork(); toast(`${r.id}: ${r.report.pilot?.callsign || "aircrew"} ejected`);
+  }
+  document.getElementById("dksBtn").onclick = () => {
+    const back = document.createElement("div"); back.className = "modal-back";
+    back.innerHTML = `<div class="panel modal"><h2>Receive a pr.ejection event</h2><p class="muted small">Paste what DKS Debrief sends (docs/PR_DKS_Integration.md). In production DKS posts it to the site's API.</p>
+      <textarea id="dksIn" rows="12" class="mono small"></textarea><div class="toolbar" style="justify-content:flex-end;margin-top:10px"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>Receive</button></div></div>`;
+    document.body.appendChild(back);
+    back.onclick = ev => { if (ev.target === back || ev.target.closest("[data-x]")) back.remove(); else if (ev.target.closest("[data-ok]")) { receive(back.querySelector("#dksIn").value); back.remove(); } };
+  };
+  // demo: the first human line on the ATO loses one aircraft over the target area
+  document.getElementById("demoBtn").onclick = () => {
+    const ato = Store.content(cid, "ato")?.missions || [], m = ato.find(x => x.group && /SEAD|DEAD|Strike|AI/.test(x.role)) || ato[0];
+    const iso = (Store.db.isopreps || []).find(p => p.gid === m?.group), t = Date.now();
+    const tgt = (Store.content(cid, "jiptl")?.rows || []).find(r => r.id === m?.target), area = Store.content(cid, "targeting")?.area;
+    const nomG = Store.content(cid, "targeting")?.results?.jiptl?.find(g => g.targetNumber === m?.target);
+    const lat = (nomG?.lat ?? +area?.lat ?? 42.2) - 0.06 + Math.random() * 0.04, lon = (nomG?.lon ?? +area?.lon ?? 42.5) - 0.1 + Math.random() * 0.05;
+    receive({ event: "pr.ejection", event_id: `dks-${t}`, source: "DKS Debrief", campaign_id: cid, operation: campaign.opName, time_utc: new Date(t).toISOString(),
+      takeoff_utc: new Date(t - 75 * 60000).toISOString(), base: "Kobuleti",
+      pilot: { callsign: iso?.callsign || `${m?.callsign || "VIPER 1"}1`, player_name: iso?.player || "", group_id: m?.group || "", seat: "pilot" },
+      aircraft: { type: m?.type || "F-16C", msn: m?.msn || "", flight: m?.callsign || "" },
+      position: { lat: +lat.toFixed(5), lon: +lon.toFixed(5), alt_ft: 14500 }, status: "ejected", chute: true, injury: "", cause: tgt ? `Hit by SAM near ${tgt.name}` : "Hit by SAM" });
+  };
+
+  renderList(); renderWork();
+</script>
+</body>
+</html>

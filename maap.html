@@ -6,9 +6,8 @@
 <title>Virtual AOC — MAAP</title>
 <link rel="stylesheet" href="css/styles.css">
 <style>
-  .mlay { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
-  @media (max-width: 1100px) { .mlay { grid-template-columns: minmax(0, 1fr); } }
-  .mlay > * { min-width: 0; }
+  /* panels stack full width */
+  .mlay > *, .mlay > aside > * { margin-bottom: 16px; }
   .pkg { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin-bottom: 12px; background: var(--panel-2); }
   .pkg h3 { margin: 0; font: 600 14px var(--mono); }
   .row4 { display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 10px; }
@@ -32,6 +31,7 @@
 <script src="js/app.js"></script>
 <script>AOC.Auth.require();</script>
 <script src="js/products.js"></script>
+<script src="js/pr.js"></script>
 
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:12px">

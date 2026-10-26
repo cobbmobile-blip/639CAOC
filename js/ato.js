@@ -16,7 +16,7 @@
     "E-3A": "E-3A", "E-2C": "E-2C", "C-130": "C-130", "MQ-9 Reaper": "MQ-9"
   };
   const AIRFRAMES = [...new Set(Object.values(DCS_AIRFRAMES))].sort();
-  const ROLES = ["DCA", "OCA", "Escort", "SEAD", "DEAD", "Strike", "AI", "CAS", "SCAR", "ISR", "AR", "AEW", "CSAR", "Airlift"];
+  const ROLES = ["DCA", "OCA", "Escort", "SEAD", "DEAD", "Strike", "AI", "CAS", "SCAR", "ISR", "AR", "AEW", "CSAR", "RESCORT", "SARCAP", "Airlift"];
   // DCS group task -> ATO mission type
   const TASK_TO_ROLE = { "CAP": "DCA", "Intercept": "DCA", "Fighter Sweep": "OCA", "Escort": "Escort", "SEAD": "SEAD", "CAS": "CAS",
     "Ground Attack": "Strike", "Runway Attack": "Strike", "Pinpoint Strike": "Strike", "Antiship Strike": "Strike",

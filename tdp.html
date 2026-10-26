@@ -6,9 +6,8 @@
 <title>Virtual AOC — TDP Book</title>
 <link rel="stylesheet" href="css/styles.css">
 <style>
-  .blay { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px; align-items: start; }
-  @media (max-width: 1000px) { .blay { grid-template-columns: minmax(0, 1fr); } }
-  .blay > * { min-width: 0; }
+  /* panels stack full width */
+  .blay > *, .blay > aside > * { margin-bottom: 16px; }
   .tlist button { width: 100%; text-align: left; display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 8px; align-items: center;
     background: none; border: 0; border-top: 1px solid var(--line); color: var(--text); font: inherit; font-size: 13px; padding: 8px 4px; cursor: pointer; }
   .tlist button[aria-current="true"] { background: var(--panel-2); }
@@ -21,6 +20,7 @@
 <script src="js/app.js"></script>
 <script>AOC.Auth.require();</script>
 <script src="js/products.js"></script>
+<script src="js/pr.js"></script>
 <script src="js/targeting.js"></script>
 <script src="js/miz.js"></script>
 

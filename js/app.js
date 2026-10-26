@@ -39,6 +39,10 @@
     }
     d.submissions = d.submissions || [];
     (seed.submissions || []).forEach(s => { if (!d.submissions.some(x => x.id === s.id)) d.submissions.push(structuredClone(s)); });
+    // staff accounts and pilot ISOPREPs added to the seed after first save
+    (seed.users || []).forEach(u => { if (!d.users.some(x => x.callsign === u.callsign)) d.users.push(structuredClone(u)); });
+    d.isopreps = d.isopreps || [];
+    (seed.isopreps || []).forEach(p => { if (!d.isopreps.some(x => x.id === p.id)) d.isopreps.push(structuredClone(p)); });
     // group sign-in fields added after first save
     seed.groups.forEach(sg => {
       const g = d.groups.find(x => x.id === sg.id);
@@ -110,8 +114,11 @@
       const c = Store.campaign(cid);
       c.shared = c.shared || {};
       const prev = c.shared[pid];
-      c.shared[pid] = { groups, when: new Date().toISOString(), by: Auth.user()?.callsign, version: (prev?.version || 0) + 1,
+      const rel = { groups, when: new Date().toISOString(), by: Auth.user()?.callsign, version: (prev?.version || 0) + 1,
         approval: c.approvals?.[pid], data: structuredClone(data) };
+      // every release is kept, so the site can say which version a crew flew with (e.g. the SPINS at take-off)
+      const hist = prev ? (prev.history || [{ version: prev.version, when: prev.when, by: prev.by, data: prev.data }]) : [];
+      c.shared[pid] = { ...rel, history: [...hist, { version: rel.version, when: rel.when, by: rel.by, data: rel.data }] };
       save();
     },
     // Products released to a given group in a campaign
@@ -248,8 +255,8 @@
     bar.innerHTML = `
       <a class="brand" href="${unit ? "unit.html" : "index.html"}">${LOGO}<span>VIRTUAL AOC<small>${opts.unit ? "OP STATUS · UNIT PORTAL" : "COMBINED AIR OPERATIONS CENTER"}</small></span></a>
       <nav class="topnav">${(unit
-        ? [["unit.html", "Op Status"], ...(load().campaigns.some(c => c.jfacc?.group === unit.id) ? [["mission-file.html", "Mission file"], ["ato-request.html", "ATO requests"], ["debrief.html", "Debrief"]] : []), ["campaign-submit.html", "Submit a campaign"]]
-        : u ? [["index.html", "Dashboard"], ["rollup.html", "Rollup"], ["unit.html", "Op Status"], ["campaign-review.html", "Proposals" + (pending ? ` (${pending})` : "")]] : [])
+        ? [["unit.html", "Op Status"], ["isoprep.html", "ISOPREP / EPA"], ...(load().campaigns.some(c => c.jfacc?.group === unit.id) ? [["mission-file.html", "Mission file"], ["ato-request.html", "ATO requests"], ["debrief.html", "Debrief"]] : []), ["campaign-submit.html", "Submit a campaign"]]
+        : u ? [["index.html", "Dashboard"], ["rollup.html", "Rollup"], ["prcc.html", "PRCC" + ((load().prIncidents || []).some(i => i.status === "open") ? " ●" : "")], ["unit.html", "Op Status"], ["campaign-review.html", "Proposals" + (pending ? ` (${pending})` : "")]] : [])
         .map(([href, label]) => `<a href="${href}" ${location.pathname.endsWith(href) ? 'aria-current="page"' : ""}>${label}</a>`).join("")}</nav>
       <span class="spacer"></span>
       <span class="zulu" id="zulu"></span>
