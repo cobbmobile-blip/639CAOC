@@ -167,7 +167,12 @@
         <td class="noprint"><select data-assign="${f.key}" style="width:auto;max-width:220px"><option value="">Retask an ATO line…</option>${cands.map(m => `<option value="${esc(m.msn)}">${esc(m.msn)} ${esc(m.callsign)} (${esc(m.num)}× ${esc(m.type)} ${esc(m.role)})</option>`).join("")}</select>
           <button class="btn sm" data-request="${f.key}" title="New ${esc(f.role)} line: ${f.num}× ${esc(f.airframe)}${f.crew === "AI" ? " (AI)" : " — posted to Discord for a unit to commit"}">Request line</button></td></tr>`; }).join("");
     const pts = PR.routePoints(cid);
-    return `<h3>CSAR force</h3><table class="t"><thead><tr><th>Element</th><th>Tasked</th><th class="noprint"></th></tr></thead><tbody>${rows}</tbody></table>
+    const a = PR.amc(inc), o = PR.osc(inc);
+    return `<h3>Command</h3>${kvg([["PRCC", esc(PR.commPlan(cid, inc).find(r => r.role === "PRCC")?.callsign || "GUARDIAN")],
+        ["AMC — airborne mission commander", `<select data-amc style="width:auto;max-width:420px">${PR.amcOptions(inc).map(x => `<option value="${esc(x.id)}" ${x.id === a.id ? "selected" : ""}>${esc(x.callsign)} — ${esc(x.label)}</option>`).join("")}</select>
+          <div class="muted small">${a.chosen ? "Chosen by the PRCC" : "Automatic: the HC-130 King if tasked, else the AWACS, else the SARCAP lead"}. Runs the task force from altitude: marshals and sequences the elements, relays to the PRCC.</div>`],
+        ["OSC — on-scene commander", `<b>${esc(o.callsign)}</b> <span class="muted small">${esc(o.from)} — authenticates the survivor and clears the rescue helo in</span>`]])}
+      <h3>CSAR force</h3><table class="t"><thead><tr><th>Element</th><th>Tasked</th><th class="noprint"></th></tr></thead><tbody>${rows}</tbody></table>
       <h3>Route <span class="muted small">(spider, nav and destination points from the theater map; click a point on the map to add it)</span></h3>
       <div id="rmap"></div>
       ${tbl([["seq", "#", (r) => String(inc.route.indexOf(r) + 1)], ["name", "Point"], ["_p", "Position", r => `<span class="mono small">${PR.ddm(r.lat, r.lon)}</span>`],
@@ -217,13 +222,15 @@
         { k: "SARNEG", v: c.prAt.sarneg }, { k: "Duress word", v: c.prAt.duress }, { k: "Survivor's personal number", v: c.iso?.number || "no ISOPREP" }])}
       ${c.iso ? `<p><b>ISOPREP — ${esc(c.iso.name)}</b> · ${esc([c.iso.height, c.iso.weight, `eyes ${c.iso.eyes}`, `hair ${c.iso.hair}`, c.iso.marks].filter(Boolean).join(", "))}</p>${T([["q", "STATEMENT"], ["a", "ANSWER"]], c.iso.statements || [])}` : "<p>No ISOPREP on file — use the word, letter and number of the day.</p>"}
       <h2>4. THREATS</h2>${T([["name", "THREAT"], ["_d", "FROM SURVIVOR", t => `${String(Math.round(t.brg)).padStart(3, "0")}° / ${t.nm.toFixed(1)} NM`], ["_c", "COVERS SURVIVOR", t => t.covers ? "YES" : "no"]], th)}
-      <h2>5. FORCES</h2>${T([["el", "ELEMENT"], ["by", "TASKED"]], forces)}
+      <h2>5. COMMAND AND FORCES</h2>${T([["k", "ROLE"], ["v", "WHO"]], [{ k: "PRCC", v: PR.commPlan(cid, inc).find(x => x.role === "PRCC")?.callsign || "GUARDIAN" },
+        { k: "AMC — airborne mission commander", v: `${PR.amc(inc).callsign} (${PR.amc(inc).label})` }, { k: "OSC — on-scene commander", v: `${PR.osc(inc).callsign} (${PR.osc(inc).from})` }])}
+      ${T([["el", "ELEMENT"], ["by", "TASKED"]], forces)}
       <h2>6. COMMUNICATIONS</h2>${T([["role", "ROLE"], ["callsign", "CALLSIGN"], ["channel", "CHANNEL"], ["freq", "FREQ"], ["notes", "NOTES"]], PR.commPlan(cid, inc))}
       <p>${esc(c.prAt.contact)}</p>
       <h2>7. ROUTE (DKS SPIDER POINTS)</h2>${T([["name", "POINT"], ["_p", "POSITION", x => PR.ddm(x.lat, x.lon)]], inc.route)}
       <h2>8. SURVIVOR'S EVASION PLAN ${c.epa ? "" : "(standard EPA — none filed)"}</h2>${T([["k", "ITEM"], ["v", "PLAN"]], [{ k: "Initial movement", v: e.intent }, { k: "Hide site", v: e.hide },
         { k: "Travel", v: e.travel }, { k: "Destination / DAR", v: e.dar || "—" }, { k: "Signals", v: e.signals }])}
-      <h2>9. ON-SCENE</h2><p>RESCORT lead (Sandy 1) is the on-scene commander and authenticates the survivor before the rescue vehicle commits. Abort call: code word in the SPINS. Report "survivor on board" to the PRCC on ${esc(c.prAt.prcc || "the PRCC net")}.</p>
+      <h2>9. ON-SCENE</h2><p>The AMC, ${esc(PR.amc(inc).callsign)}, runs the task force: marshals the elements, holds the helos clear of threats and relays to the PRCC. The OSC, ${esc(PR.osc(inc).callsign)}, takes control at the survivor: authenticates them before the rescue vehicle commits, and calls the pickup. Abort call: code word in the SPINS. Report "survivor on board" to the PRCC on ${esc(c.prAt.prcc || "the PRCC net")}.</p>
       <div class="cls">UNCLASSIFIED // EXERCISE — DCS WORLD</div></div>`;
   }
 
@@ -266,6 +273,7 @@
     const inc = PR.incident(sel); if (!inc) return; const t = e.target;
     if (t.dataset.assign && t.value) PR.assignLine(inc, t.dataset.assign, t.value);
     else if (t.id === "addPt" && t.value) { const pt = t.value === "__surv" ? { name: `${inc.report.pilot?.callsign || "SURVIVOR"} (survivor)`, lat: inc.position.lat, lon: inc.position.lon, role: "objective" } : PR.routePoints(cid).find(p => p.id === t.value); addRoute(inc, pt); return; }
+    else if (t.hasAttribute("data-amc")) PR.setAmc(inc, t.value);
     else if (t.dataset.authq != null) { inc.auth[t.dataset.authq] = t.checked; PR.log(inc, `ISOPREP "${t.dataset.authq}": ${t.checked ? "correct" : "unchecked"}`); Store.save(); return; }
     else if (t.hasAttribute("data-outcome")) { inc.outcome = t.value; PR.log(inc, `Outcome: ${t.value}`); Store.save(); return; }
     else if (t.hasAttribute("data-onotes")) { inc.outcomeNotes = t.value; Store.save(); return; }

@@ -152,8 +152,9 @@
     add("Survivor — initial", surv, "GUARD", pr.guard, "Initial call only");
     const p = ch(/^SAR-?A|SURVIVOR|ISOLATED/i) || ch(/RESCORT|SANDY/i); add("Survivor — PR primary", surv, p?.id || "", p?.freq || pr.primary, pr.contact.split(".")[1]?.trim() || "");
     const a = ch(/^SAR-?B/i); if (a) add("Survivor — PR alternate", surv, a.id, a.freq);
-    const prcc = ch(/PRCC|CSARTF/i); add("PRCC / CSARTF commander", prcc?.callsign || "GUARDIAN", prcc?.id || "", prcc?.freq || "");
-    const res = ch(/RESCORT|SANDY/i); add("RESCORT (Sandy) — on-scene commander", res?.callsign || "SANDY", res?.id || "", res?.freq || "");
+    const prcc = ch(/PRCC|CSARTF/i); add("PRCC", prcc?.callsign || "GUARDIAN", prcc?.id || "", prcc?.freq || "");
+    if (inc) { const a = amc(inc); if (a.id !== "prcc") add("AMC — airborne mission commander", a.callsign, prcc?.id || "", prcc?.freq || "", "Runs the task force on the CSARTF net"); }
+    const res = ch(/RESCORT|SANDY/i); add("OSC — on-scene commander (Sandy 1)", inc ? osc(inc).callsign : "SANDY 1", res?.id || "", res?.freq || "", "Authenticates the survivor, clears the helo in");
     const forceCs = key => inc?.forces?.find(f => f.key === key)?.callsign || "";
     add("Rescue vehicle", forceCs("rv") || "JOLLY", p?.id || "", p?.freq || "", "Talks to the survivor on the PR primary");
     const dca = ch(/^DCA/i); add("SARCAP / RESCAP", forceCs("sarcap") || dca?.callsign || "", dca?.id || "", dca?.freq || "");
@@ -167,13 +168,14 @@
   // ---------- recover: the CSAR force — retask an ATO line or request one (posted to Discord for a unit to commit) ----------
   const HELOS = /UH-1|Mi-8|CH-47|UH-60|HH-60|MH-60|Mi-24|SA342|Ka-27/i;
   const FORCES = [
-    { key: "rmc", label: "RESCORT — Sandy (on-scene commander)", role: "RESCORT", airframe: "A-10C II", alt: ["A-10C", "AH-64D", "AV-8B"], num: 2, need: "always",
+    { key: "rmc", label: "RESCORT — Sandy (on-scene commander)", role: "RESCORT", callsign: "SANDY 1", airframe: "A-10C II", alt: ["A-10C", "AH-64D", "AV-8B"], num: 2, need: "always",
       fits: m => /RESCORT|CSAR|CAS/.test(m.role) && /A-10|AH-64|AV-8|Ka-50/.test(m.type) },
-    { key: "rv", label: "Rescue vehicle (helicopter)", role: "CSAR", airframe: "MH-60L", alt: ["UH-1H", "Mi-8"], num: 2, need: "always", fits: m => /CSAR|Airlift/.test(m.role) && HELOS.test(m.type) },
+    { key: "rv", label: "Rescue vehicle (helicopter)", role: "CSAR", callsign: "JOLLY 1", airframe: "MH-60L", alt: ["UH-1H", "Mi-8"], num: 2, need: "always", fits: m => /CSAR|Airlift/.test(m.role) && HELOS.test(m.type) },
     // CH-47s fragged when the rescue needs lift beyond the MH-60s (several survivors, a long range or a recovery team)
-    { key: "rv2", label: "Additional lift (CH-47F)", role: "CSAR", airframe: "CH-47F", num: 1, need: "optional", fits: m => /CSAR|Airlift/.test(m.role) && /CH-47/.test(m.type) },
+    { key: "rv2", label: "Additional lift (CH-47F)", role: "CSAR", callsign: "JOLLY 3", airframe: "CH-47F", num: 1, need: "optional", fits: m => /CSAR|Airlift/.test(m.role) && /CH-47/.test(m.type) },
     { key: "sarcap", label: "SARCAP / RESCAP (air cover)", role: "SARCAP", airframe: "F-16C", alt: ["F/A-18C", "F-15C", "F-14B", "M-2000C"], num: 2, need: "always", fits: m => /SARCAP|DCA|OCA|Escort/.test(m.role) },
     { key: "sead", label: "SEAD", role: "SEAD", airframe: "F-16C", alt: ["F/A-18C"], num: 2, need: "threat", fits: m => /SEAD|DEAD/.test(m.role) },
+    { key: "king", label: "HC-130 King (AMC, helo refuelling)", role: "CSAR", callsign: "KING 1", airframe: "KC-130J", num: 1, crew: "AI", need: "optional", fits: m => /C-130/.test(m.type) },
     { key: "aew", label: "AWACS / GCI", role: "AEW", airframe: "E-3A", num: 1, crew: "AI", need: "always", fits: m => m.role === "AEW" },
     { key: "isr", label: "ISR (MQ-9)", role: "ISR", airframe: "MQ-9", num: 1, crew: "AI", need: "optional", fits: m => m.role === "ISR" },
     { key: "ar", label: "Tanker", role: "AR", airframe: "KC-135 MPRS", num: 1, crew: "AI", need: "optional", fits: m => m.role === "AR" }];
@@ -198,13 +200,35 @@
     // a human line goes to the first airframe an active group actually flies, so the Discord post reaches someone
     dropOld(inc, key);
     const airframe = f.crew === "AI" ? f.airframe : [f.airframe, ...(f.alt || [])].find(a => A.recipients(a).length) || f.airframe;
-    const l = A.request(inc.cid, { airframe, num: f.num, role: f.role, crew: f.crew || "Human", target: `${inc.id} survivor`, pkg: "CSAR",
+    const l = A.request(inc.cid, { airframe, num: f.num, role: f.role, crew: f.crew || "Human", callsign: f.callsign || "", target: `${inc.id} survivor`, pkg: "CSAR",
       notes: `${inc.id} personnel recovery — ${f.label}`, source: "PRCC" }, by);
     if (l.status === "draft") A.postLine(l.id);
     inc.forces = inc.forces.filter(x => x.key !== key).concat({ key, msn: l.msn, lineId: l.id, callsign: l.callsign || "TBD", type: `${l.num}× ${l.airframe}`, how: l.crew === "AI" ? "new AI line" : "new line — posted to Discord" });
     log(inc, `${f.label}: requested new ATO line ${l.msn} (${l.num}× ${l.airframe}${l.crew === "AI" ? ", AI" : ", posted for commitment"})`); Store.save();
     return l;
   }
+  // ---------- command: the OSC (on-scene commander) is the RESCORT lead, Sandy 1; the AMC (airborne mission commander)
+  // runs the task force from altitude: the HC-130 King if tasked, else the AWACS, else the SARCAP lead — the PRCC can change it
+  // flight lead of a multi-ship (HAWG 1 -> HAWG 11); a single ship keeps its callsign (KING 1)
+  const lead = (cs, msn, n) => cs && cs !== "TBD" ? (n > 1 && /\d$/.test(cs) ? `${cs}1` : cs) : msn ? `MSN ${msn} lead` : "";
+  function osc(inc) { const f = inc.forces.find(x => x.key === "rmc"), st = f && forceState(inc, f);
+    return st ? { callsign: lead(st.callsign, st.msn, parseInt(st.type)) || "SANDY 1", from: `${st.msn} ${st.callsign} (RESCORT lead)` } : { callsign: "SANDY 1", from: "RESCORT not tasked yet" }; }
+  function amcOptions(inc) {
+    const ato = Store.content(inc.cid, "ato")?.missions || [], out = [];
+    ["king", "aew", "sarcap", "sead"].forEach(k => { const f = inc.forces.find(x => x.key === k), st = f && forceState(inc, f);
+      if (st) out.push({ id: `force:${k}`, callsign: lead(st.callsign, st.msn, parseInt(st.type)), label: `${FORCES.find(x => x.key === k).label} — ${st.msn} ${st.callsign}` }); });
+    ato.filter(m => /AEW/.test(m.role) || /C-130/.test(m.type)).forEach(m => { if (!out.some(o => o.label.includes(` ${m.msn} `)))
+      out.push({ id: `msn:${m.msn}`, callsign: m.callsign, label: `ATO ${m.msn} ${m.callsign} (${m.num}× ${m.type} ${m.role})` }); });
+    out.push({ id: "prcc", callsign: chan(inc.cid, /PRCC|CSARTF/i)?.callsign || "GUARDIAN", label: "No airborne AMC — the PRCC controls from the ground" });
+    return out;
+  }
+  function amc(inc) {
+    const opts = amcOptions(inc), pick = inc.amc && opts.find(o => o.id === inc.amc);
+    const auto = opts.find(o => o.id === "force:king") || opts.find(o => o.id === "force:aew") || opts.find(o => /^msn:/.test(o.id) && /AEW/.test(o.label))
+      || opts.find(o => o.id === "force:sarcap") || opts.at(-1);
+    return { ...(pick || auto), chosen: !!pick };
+  }
+  function setAmc(inc, id) { inc.amc = id || ""; const a = amc(inc); log(inc, `AMC: ${a.callsign} (${a.chosen ? "chosen" : "automatic"} — ${a.label})`); Store.save(); }
   // a requested line shows who committed to it once a unit does
   function forceState(inc, f) {
     if (!f.lineId) return f;
@@ -222,7 +246,7 @@
       points: inc.route.map((p, i) => ({ seq: i + 1, name: p.name, lat: +p.lat.toFixed(5), lon: +p.lon.toFixed(5), dks_section: "Spider points", role: p.role || "" })) };
   }
 
-  window.AOC.PR = { STEPS, spinsPR, sarnegEncode, spinsAt, dayOf, isopreps, isoprepFor, saveIsoprep, epas, epaFor, saveEpa, standardEpa,
+  window.AOC.PR = { STEPS, osc, amc, amcOptions, setAmc, spinsPR, sarnegEncode, spinsAt, dayOf, isopreps, isoprepFor, saveIsoprep, epas, epaFor, saveEpa, standardEpa,
     incidents, incident, intake, setStep, log, threats, commPlan, FORCES, forceNeeds, assignLine, requestLine, forceState, routePoints, routePayload,
     nm, brg, ddm, mgrs, chan };
 })();
