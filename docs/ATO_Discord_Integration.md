@@ -198,3 +198,12 @@ the rollup's **Discord post** button shows the post with the files).
 - A real backend: the prototype stores lines in the browser and records outgoing events in `db.discordOutbox`.
 - Commit deadlines (`commit_by`) are shown but not enforced; an expiry job could re-post or escalate unfilled lines.
 - A withdrawal window for the committing unit (the JFACC can release a commitment today).
+
+## Lines the PRCC requests
+
+The PRCC (`prcc.html`) requests rescue-force lines through the same `ato_line.open` event. They have `source: "PRCC"`,
+`package: "CSAR"`, a target such as `"PR-001 survivor"`, mission types including `RESCORT`, `SARCAP`, `CSAR`, `SEAD`, and
+`requested_by: { "group_id": "", "jfacc": "<callsign> (PRCC)" }` — no requesting group. The airframe is one an active
+group flies (e.g. MH-60L → the 55th RQS); commits work as for any line. Human rescue lines need the same first-commit-wins
+handling; AI lines (HC-130 King, AWACS, ISR, tanker) are not posted.
+

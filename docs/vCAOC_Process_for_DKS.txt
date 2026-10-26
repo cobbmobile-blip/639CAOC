@@ -1,7 +1,7 @@
 ================================================================================
  639 vCAOC WEBSITE -- PROCESS AND DKS INTEGRATION BRIEF
  Prepared for the Digital Kneeboard Simulator (DKS) developer
- Date: 20 Oct 2026
+ Date: 20 Oct 2026 (updated 26 Oct 2026)
  Repo: https://github.com/cobbmobile-blip/639CAOC  (branch: main)
 ================================================================================
 
@@ -17,6 +17,7 @@ CONTENTS
        4.5 Things that are done in DKS, not on the site
        4.6 Campaign package PUBLISH -> DKS
        4.7 ATO line target -> DKS "Assign Target"  ** required **
+       4.8 Personnel recovery: DKS Debrief ejections -> PRCC; CSAR route -> DKS
   5. Data formats (fields you will receive)
   6. Repo layout and paths (files moved!)
   7. Prototype limits / what a real backend needs
@@ -146,22 +147,27 @@ are on the CAOC rollup page (rollup.html) and are editable per campaign.
 The Comm Plan is a campaign-long COMM MATRIX (valid for the whole campaign,
 not per ATO day). It has colored columns (nets), with channels numbered top
 down. A channel is named by its color and row:
-    e.g. RAZOR on 293.500 is WHITE 1.
+    e.g. RAZOR on 290.050 is WHITE 1.
 
-Example used in the prototype (the "v366 Comm Matrix"):
-  WHITE  / TAC ADMIN:    1 TAC COORD RAZOR 293.500 | 2 CTAF UNICOM 304.600 |
-                         3 HOOMAN C2 KEYBOARD 305.200 | 4 RANGE CTL (no freq) |
-                         5 AIC (no freq) | 6 v366 SOF GUNFIGHTER 305.600
-  BLUE   / TANKERS:      1 BOOM 230.200 | 2 BOOM 231.200 | 3 BOOM 352.600 |
-                         4 MPRS 366.300 | 5 MPRS 352.600 | 6 KC-130J 366.300
-  YELLOW / TACTICAL AIR: 1 CHECK IN HOWDY 300.500 | 2 XINT SABRE 280.500 |
-                         3 SEAD SWORD 228.250 | 4 STRIKE ARIES 319.750 |
-                         5 SCAR ATHENA 316.000 | 6 DCA TAILBACK 340.000
-  GREEN  / RESCUE:       1 PRCC/CSARTF GUARDIAN 251.900 | 2 RESCORT SANDY 282.800 |
-                         3 SAR-A PANDA 255.500 | 4 SAR-B BADGER 355.000 |
-                         5 MQ-9 GOGGLES 390.500 | 6 RQ-7 SNIPER 134.500
-  PURPLE / GROUND COORD: 1 ASOC CHAOS 43.000 | 2-4 JTAC/FAC(A) 1-3 30.000 |
-                         5 APACHE STRIKE TONTO 35.000 | 6 CAS COORD APOLLO 130.500
+Example used in the prototype (OP IRON TRIDENT: the JCEOI standard net plan
+with the campaign's callsigns; UHF primaries):
+  WHITE  / TAC ADMIN:    1 TAC COORD RAZOR 290.050 | 2 TAC ADMIN 292.500 |
+                         3 C2 / AWACS DARKSTAR 295.000 | 4 GCI KEYBOARD 297.500 |
+                         5 HOST C2 300.000 | 6 SPARE 302.500
+  BLUE   / TANKERS:      1 BOOM 1 305.000 | 2 BOOM 2 307.500 | 3 DROGUE 1 310.000 |
+                         4 DROGUE 2 312.500 | 5 MPRS 315.000 | 6 SPARE 317.550
+  YELLOW / TACTICAL AIR: 1 CHECK IN HOWDY 230.050 | 2 PKG COMMON 235.100 |
+                         3 STRIKE ARIES 240.000 | 4 SEAD SWORD 245.050 |
+                         5 DCA TAILBACK 254.750 | 6 SCAR ATHENA 255.350
+  GREEN  / RESCUE:       1 CSAR / PRCC GUARDIAN 260.050 | 2 RESCORT SANDY 262.500 |
+                         3 SAR PANDA 265.050 | 4 ISR GOGGLES 267.500 |
+                         5 SAR-B BADGER 270.050 | 6 SPARE 272.500
+  PURPLE / GROUND COORD: 1 ASOC CHAOS 320.050 | 2-4 JTAC/FAC(A) 1-3 323.400 /
+                         326.700 / 330.000 | 5 CAS COORD APOLLO 333.350 | 6 SPARE
+  GRAY   / SPARES:       1-6 SPARE 340.000 ... 356.700
+The comm hierarchy is SPINS -> JCEOI -> Comm Plan -> special plans (CSAR comm
+plan, MAAP package support, ATO control lines, OPTASKLINK JICO voice); every
+page finds a channel by purpose (check-in, SEAD, AWACS / C2, PRCC, SAR ...).
 Available colors: WHITE, BLUE, YELLOW, GREEN, PURPLE, RED, ORANGE, GRAY, BLACK.
 
 Channel list (on the product and in its text export), columns in this order:
@@ -175,8 +181,8 @@ Two DKS buttons on the Comm Plan:
         agency name = callsign, or "<ROLE> <CHANNEL>" when there is no callsign
                       (e.g. "BOOM BLUE 1") so names stay unique
         role, channel (e.g. "WHITE 1"), net (column title), freq
-     Channels with no frequency are skipped and listed (e.g. WHITE 4 RANGE
-     CTL, WHITE 5 AIC). For the sample that is 28 agencies.
+     Channels with no frequency are skipped and listed. Every channel of the
+     sample has a frequency: 36 agencies.
      The send itself is disabled until the integration exists. The intent is
      to send only the released, approved Comm Plan.
 Check-in / comm PROCEDURES are NOT in the Comm Plan; they live in SPINS
@@ -346,8 +352,13 @@ Per assigned line the site can send:
            package, tasked unit (group)
   target:  JIPTL target number, name, category, location (MGRS), desired
            effect, task, grade
-  DMPIs:   from the target's TDP folder when one exists: DMPI id,
-           description, coordinates, weapon
+  DPIs:    from the target folder imagery (folder.html, img/targets/...):
+           one per vehicle -- DPI id (A001...), critical element, unit
+           type, lat/lon, MGRS, elevation (ft MSL), weapon (TDP folder).
+           The DMPI (the vehicles' mean point) is a reference only, never
+           a targeting aimpoint.
+  key task: the Commander's Intent key task the target serves (number and
+           text), as printed on the ATO line (AMPN ... KEY TASK:n)
 Lines whose "Target / Area" is an area (CAP, kill box, AO), not a JIPTL
 number, have no target to assign.
 
@@ -356,6 +367,27 @@ own event, e.g. targets.assigned { ato_day, lines: [...] }), and again
 whenever an ATO change re-matches a line to a different target. Format,
 event name and how DKS identifies the flight (msn, callsign, or the DKS
 mission/flight id) are open -- see question 9 in section 8.
+
+4.8 PERSONNEL RECOVERY: DKS DEBRIEF EJECTIONS -> PRCC; CSAR ROUTE -> DKS
+-------------------------------------------------------------------------
+(Full contract: docs/PR_DKS_Integration.md.)
+  1. DKS Debrief logs each ejection and posts "pr.ejection" to the site:
+     event_id, campaign_id, time_utc, takeoff_utc, pilot {callsign,
+     player_name, group_id}, aircraft {type, msn}, position {lat, lon,
+     alt_ft} (the seat / parachute position, not the wreck), status, chute,
+     injury, cause. One event per crew member.
+  2. The site's PRCC page (prcc.html) matches it to the ATO line (msn), the
+     pilot's ISOPREP (player_name) and the SPINS release in force at
+     takeoff_utc, and works it through report, locate & authenticate,
+     support, recover, reintegrate.
+  3. The PRCC builds the CSAR route from theater-map SPIDER POINTS; the site
+     sends "pr.csar_route" (ordered points, the survivor as the objective,
+     dks_section "Spider points") for DKS to load.
+  4. The CSAR task force package ("pr.csartf_package") goes to the groups
+     flying the rescue; it carries the survivor's ISOPREP answers, so it
+     must reach only those groups' leads.
+  Planned follow-ups from DKS: pr.position_update, pr.status (picked up,
+  captured ...).
 
 --------------------------------------------------------------------------------
 5. DATA FORMATS (FIELDS YOU WILL RECEIVE)
@@ -372,13 +404,16 @@ ATO line (per line):
   callsign, base, notes, commitBy, source (.miz name or "Request form"),
   mizGroup, requestedBy (group id), requestedByUser (JFACC), recipients[],
   status (open|committed|ai|cancelled), postedAt, committedBy,
-  committedAt, committedByUser
+  committedAt, committedByUser. Mission types include RESCORT and SARCAP;
+  lines the PRCC requests have source "PRCC", pkg "CSAR", no requestedBy
+  group and requestedByUser "<callsign> (PRCC)".
 
 ATO mission row (on the ATO product):
   msn, pkg, group (tasked unit or ""), callsign, type, num, crew, role,
   tot, target, tanker, lineId
 
-JIPTL row: id (T10001...), name, task (1-4), grade (A-D), cat, loc, effect
+JIPTL row: id (T10001...), name, task (the CI key task number), taskName,
+  grade (A-D), cat, loc, effect
 Registered group: id, name, airframes ("F-15E" / "F-16C, F/A-18C" ...),
   contact (liaison), members, tz, status (active|pending)
 
@@ -397,16 +432,24 @@ If your integration reads any file by its old path, update it to OLD/...
 
 New root:
   login.html, index.html (staff dashboard), product.html (product builders),
-  map.html (theater map), targeting.html (JIPTL nomination),
-  campaign-review.html, unit-login.html, unit.html (Op Status),
-  ato-request.html (ATO line requests), campaign-submit.html
-  js/app.js        storage, auth gates, roles, shared chrome
+  rollup.html (PUBLISH), map.html (theater map), targeting.html (JIPTL
+  nomination), tdp.html (TDP book), folder.html (target folder), maap.html,
+  jceoi.html, prcc.html (personnel recovery), campaign-review.html,
+  unit-login.html, unit.html (Op Status), isoprep.html (ISOPREP / EPA),
+  mission-file.html, debrief.html, ato-request.html (ATO line requests),
+  campaign-submit.html
+  js/app.js        storage, auth gates, roles, shared chrome, key tasks
   js/data.js       demo seed data
-  js/products.js   product schemas/renderers (incl. comm matrix)
+  js/products.js   product schemas/renderers (incl. comm matrix, comm check)
   js/proposal.js   campaign proposal
-  js/targeting.js  JIPTL pipeline port
+  js/targeting.js  JIPTL pipeline port, CI key-task mapping
   js/ato.js        ATO lines, .miz reader, Discord payloads, commit
-  docs/ATO_Discord_Integration.md
+  js/miz.js        mission file intake, theater projections
+  js/pr.js         personnel recovery
+  js/package.js    deadlines, DKS exports, PUBLISH
+  js/tdl.js, js/iff.js, js/tacan.js, js/jceoi.js (+ jceoi-data.js)
+  tools/jceoi/ (JCEOI data build), tools/target-render/ (folder imagery)
+  docs/ATO_Discord_Integration.md, docs/PR_DKS_Integration.md
   samples/iron_trident_redfor.csv, samples/iron_trident_viper.miz
 
 --------------------------------------------------------------------------------
@@ -446,6 +489,10 @@ New root:
      need (JIPTL number only, or name / location / DMPIs too), how should a
      flight be identified (msn, callsign, a DKS id), and should it come with
      PUBLISH or as soon as the ATO changes?
+ 10. Personnel recovery (section 4.8): can DKS Debrief send pr.ejection with
+     the seat / parachute position and the player name, and can DKS load a
+     pr.csar_route as spider points? Should position / status follow-ups
+     come from DKS?
 
 --------------------------------------------------------------------------------
 9. CONVERSATION LOG (CONDENSED, IN ORDER)
@@ -505,6 +552,22 @@ Requests from the 639 vCAOC lead, and what was built or decided:
     to registered units of that airframe; the post has a Commit button; a
     commit updates the site, and the Group JFACC sees the line filled.
     -> ato-request.html, js/ato.js, docs/ATO_Discord_Integration.md.
+24. Products added and automated: OPTASKLINK, JCEOI (standard net plan),
+    IFF / SIF plan, TACAN / ICLS scrub of the host .miz, SPINS & ROE as two
+    documents (ALR, CDE), a USMTF ATO, the rollup with one PUBLISH.
+25. Target folders: AFLG-style folder per JIPTL target with imagery rendered
+    offline from the .miz units (DCS models on satellite imagery, a TGP
+    view, the DCS F10 chart as the JOG); one DPI per vehicle.
+26. Key tasks come from the Commander's Intent and carry through the JIPTL,
+    AOD, TDP, MAAP, ATO and BDA.
+27. .miz positions convert to lat/lon in seven theaters (projections fitted
+    to DCS beacons).
+28. MAAP packages carry support lines (tankers, AWACS, TAC C2, JTAC).
+29. vPRCC: DKS ejections -> PR steps -> CSAR task force package; SPINS
+    section 5 Personnel recovery; ISOPREP / EPA on the unit portal; 55th RQS
+    (MH-60L) as the CSAR helicopter unit; AMC and OSC named.
+30. Comm hierarchy enforced (SPINS -> JCEOI -> Comm Plan -> special plans),
+    the demo Comm Plan rebased on the JCEOI standard net plan.
 
 ================================================================================
  END

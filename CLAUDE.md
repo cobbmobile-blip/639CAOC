@@ -1,7 +1,8 @@
 # CLAUDE.md — 639 vCAOC website
 
 Context for Claude (and people) working in this repo. Read `docs/vCAOC_Process_for_DKS.txt` for the full
-process brief and `docs/ATO_Discord_Integration.md` for the Discord bot contract.
+process brief, `docs/ATO_Discord_Integration.md` for the Discord bot contract and `docs/PR_DKS_Integration.md` for the
+personnel recovery (DKS Debrief ejection) contract.
 
 ## What this is
 
@@ -17,9 +18,9 @@ software. DKS integration is being built by a separate developer.
   Old paths moved: `tools/…` → `OLD/tools/…`, `docs/…` → `OLD/docs/…`, `scripts/…` → `OLD/scripts/…`.
 
 Run: `python -m http.server 8765` at the repo root, open `http://localhost:8765/login.html`.
-Demo staff: ATLAS (CFC), OVERLORD (CFACC), SPARTAN, CHALICE, WIZARD, DARKSTAR — password `aoc-demo`.
+Demo staff: ATLAS (CFC), OVERLORD (CFACC), SPARTAN, CHALICE, WIZARD, DARKSTAR, GUARDIAN (PRCC) — password `aoc-demo`.
 Demo groups: viper (JFACC group for OP IRON TRIDENT), hornet, eagle, hawg, knights, tomcat, harrier, mistral,
-thunder, keepers, ridge, support — code `unit-demo`.
+thunder, keepers, ridge, support, rqs55 (55th RQS, MH-60L CSAR helicopters) — code `unit-demo`.
 
 ## Pages and files
 
@@ -28,7 +29,10 @@ thunder, keepers, ridge, support — code `unit-demo`.
 | `login.html`, `index.html` | Staff sign-in; campaign dashboard (products, CFACC deliverables tracker, ATO line requests, requests, groups). `AOC.COMMS` (products.js) groups the Comm Plan, OPTASKLINK, JCEOI and IFF / SIF as "Comm / Datalink / IFF": one dashboard group and a link strip on each of those pages; no JCEOI in the top nav |
 | `rollup.html` | CAOC rollup: deadline timeline, readiness, the single PUBLISH (+ DKS Overlay / Agencies exports), Cycle to next mission |
 | `product.html?p=<id>` | Product builder + live document preview: `pcon ci aod jiptl tdp maap ato aco spins acp bda` (`tdp`, `maap` are built on their own pages) |
-| `tdp.html`, `maap.html` | TDP book (folder per JIPTL target); MAAP (packages, checks, Apply to ATO) |
+| `tdp.html`, `maap.html` | TDP book (folder per JIPTL target; Export imagery jobs; Open target folder); MAAP (checks at the top, packages with support lines, Apply to ATO) |
+| `folder.html?t=<target>` | AFLG-style printable target folder, markup drawn from `img/targets/<cid>/<t>/meta.json` (imagery from `tools/target-render`) |
+| `prcc.html` | vPRCC: DKS ejection reports → PR steps → CSAR task force package (`js/pr.js`) |
+| `isoprep.html` | Unit portal: pilots' ISOPREPs and an EPA per ATO line (`db.isopreps`, `db.epas`) |
 | `jceoi.html` | JCEOI: standard Blue net plan, NTTR plan, IFF, clear-channel pool, frequency check, .xlsx export (registers feed the checks, not shown) |
 | `map.html` | Theater map (opened from the ACO) |
 | `targeting.html` | Target nomination — browser port of `OLD/tools/jiptl_pipeline/jiptl_generate.py` |
@@ -39,14 +43,19 @@ thunder, keepers, ridge, support — code `unit-demo`.
 | `debrief.html` | Host unit enters the post-mission debrief |
 | `campaign-submit.html` | Group submits a campaign proposal |
 
-`js/app.js` storage/auth/roles/chrome · `js/data.js` seed data · `js/products.js` product schemas + renderers (a table
+`js/app.js` storage/auth/roles/chrome, `AOC.keyTasks` / `keyTaskOf` · `js/data.js` seed data · `js/products.js` product schemas + renderers,
+`COMM.findChannel` / `commIssues` (a table
 field may set `show(row, group)` to edit a subset of its array, `newRow` defaults, and `iffPanel`; the ATO uses two
 fields on `missions`, human then AI)
 (product registry: add a product = add an entry) · `js/proposal.js` proposal wizard · `js/targeting.js` JIPTL
-pipeline · `js/ato.js` ATO lines, `.miz` reader, Discord payloads, commit · `js/package.js` deadlines, DKS
-exports, PUBLISH, cycle · `css/styles.css` 3 themes. Deadline defaults: `MILESTONES` in `js/products.js`.
+pipeline, CI key-task mapping · `js/ato.js` ATO lines, `.miz` reader, Discord payloads, commit · `js/package.js` deadlines, DKS
+exports, PUBLISH, cycle · `js/miz.js` mission file intake, theater projections · `js/pr.js` personnel recovery ·
+`js/tdl.js` OPTASKLINK · `js/iff.js` IFF · `js/tacan.js` TACAN scrub · `js/jceoi.js` JCEOI · `css/styles.css` 3 themes.
+Deadline defaults: `MILESTONES` in `js/products.js`.
 
-When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload the seed.
+When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload the seed. New seed users, ISOPREPs,
+groups (and their campaign membership) and products merge into saved data without a bump (`mergeNewSeed`); changed
+seed content does not reach a browser that already saved data.
 
 ## Roles and workflow (decided — keep)
 
@@ -69,13 +78,15 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
   into the .miz) and **Comm Plan → DKS Manage Agencies** (persistent theater frequencies for the whole campaign;
   normally only tankers and JTACs change — the rollup shows changes since the last export). No host ".miz sheet".
 - Mission cycle assumes weekly missions: ~4 days from mission to the next PUBLISH (deadlines in `MILESTONES`).
+- **PRCC** (personnel recovery coordination cell, staff role) works each ejection DKS Debrief reports; the PRCC can request
+  ATO lines like a JFACC (posted to Discord), and publishes the CSAR task force package to the groups flying the rescue.
 - PCON (planning conference) and MAAP are internal staff functions (`PACKAGE.INTERNAL`): approved, never released to groups, not in the PUBLISH Discord post, never shown on Op Status; they stay on the staff dashboard and the rollup (marked internal).
 - **Op Status is status-only** — no request/submission forms on it.
 
 ## Product decisions (keep unless the user says otherwise)
 
 - **Comm Plan** is a campaign-long **comm matrix**: colored columns (nets), rows numbered top-down; a channel is
-  `<COLOR> <row>` (e.g. RAZOR 290.050 = WHITE 1; IRON TRIDENT's v366 still has 293.500). Channel list columns: NET, CHANNEL, CALLSIGN, ROLE, FREQ.
+  `<COLOR> <row>` (e.g. RAZOR 290.050 = WHITE 1). Channel list columns: NET, CHANNEL, CALLSIGN, ROLE, FREQ.
   No TACAN/navaids section. **Check-in & comm procedures live in SPINS**, not the Comm Plan.
   Template nets: TAC ADMIN (TAC COORD, TAC ADMIN, C2/AWACS, GCI, host C2), TANKERS, TACTICAL AIR, RESCUE, GROUND COORD,
   SPARES. **Guard is standard and not listed**; airfield/ATC frequencies stay out.
@@ -84,7 +95,13 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
   (single source): the build reads it and stops on any mismatch with its frequency policy; `build.py --check` says
   whether the data is current. New Comm Plans (`blankMatrix`) start with the JCEOI UHF primaries filled in, but only
   when the data was built from the same template. RAZOR = WHITE 1 TAC COORD (callsign fixed; frequency picked clear, 290.050). Existing campaign Comm Plans
-  (IRON TRIDENT's v366) are left as they are.
+  are never changed automatically. The demo IRON TRIDENT Comm Plan is the JCEOI standard plan with the campaign's callsigns
+  (SCAR ATHENA in YELLOW 6 and SAR-B BADGER in GREEN 5, spare rows, because the ATO and SPINS PR section use them).
+- **Comm hierarchy** (decided): 1 SPINS (procedures, PR frequencies) → 2 JCEOI (standard nets) → 3 Comm Plan → 4 special
+  plans (CSAR comm plan, MAAP support, ATO CONTROLA, OPTASKLINK JICO voice). Lower levels read from the one above and
+  find channels **by purpose** with `COMM.findChannel(matrix, purpose)` — never by a role string of their own. The
+  survivor's frequencies come from the SPINS release the crew took off with. `COMM.commIssues` (shown on the SPINS and
+  Comm Plan editors) lists disconnects; keep it clean.
 - **Nevada / NTTR is a pre-decided theater**: official NTTR/Nellis assignments are in its register; Nevada campaigns use
   the CAOC NTTR comm matrix (`tools/jceoi/data/nttr.json`, from NTTR_COMM_PLAN.xlsx) as the Comm Plan. The CAOC's
   2026-10-22 revisions (RAZOR off 293.500 = ROULETTE, preset 5 385.400 typo fix, APOLLO, SNIPER, JTACs from the range JTAC
@@ -103,9 +120,30 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
 - **Target nomination**: the area is called the **AO (Area of Operations)** and is labelled "AO" on the map; it is a
   **box (drag / resize / double-click to rotate) or point + radius defined on that page** — it is **not** taken
   from the ACO, theater map or any BMA. REDFOR comes from Coalition Parser CSVs or the host's mission file (`js/miz.js`).
-  .miz x/y → lat/lon only for **calibrated** theaters (Persian Gulf built in; others fitted once from a Coalition
-  Parser CSV of the same mission, max 25 m). **Never hand-enter or guess a projection.** Score = key-task weight + tier
-  weight; cap per task; numbers T10001+; SAM sites are named after their doctrinally-critical unit.
+  .miz x/y → lat/lon with the built-in projections for Caucasus, Persian Gulf, Syria, Afghanistan, Kola, Nevada and
+  Marianas, each fitted to the terrain's `Beacons.lua` (max 0.52 m; the fit is `tools/target-render/dcs_charts.py`), with a
+  Newton refinement of the inverse. Other theaters are fitted once from a Coalition Parser CSV of the same mission (max
+  25 m). **Never hand-enter or guess a projection.** (`OLD/tools/jiptl_pipeline/theater_projection.py`'s Persian Gulf
+  constants are ~97 km off; superseded.) Units keep their .miz heading.
+- **Key tasks** come from the campaign's **Commander's Intent**, in its order of priority (`TG.keyTasksFromCI`); each is
+  mapped to target categories from its wording (editable, edits kept while the wording is unchanged); a target is
+  scored under the first key task covering its category; none = watchlist. Every product reads key tasks through
+  `AOC.keyTasks` / `keyTaskOf`: JIPTL, AOD objectives, TDP / target folder, MAAP coverage, ATO `AMPN … KEY TASK:n`,
+  BDA key task assessment. Score = key-task weight + tier weight; cap per task; numbers T10001+; SAM sites are named
+  after their doctrinally-critical unit.
+- **Target folders** (`folder.html`): AFLG layout; every vehicle is its own CE and DPI (A001…); the DMPI is the vehicles'
+  mean point, reference only, never a targeting aimpoint; no caps on boxes or list rows; a true-north compass on every
+  graphic; page subject as the title, target as the subtitle. Imagery is built offline (`tools/target-render`, Blender
+  + the DCS install); the JOG is the DCS F10 chart (`RasterCharts`).
+- **Personnel recovery** (`prcc.html`, `js/pr.js`): SPINS section 5 values (SARNEG, SARDOT, duress word, word / letter /
+  number of the day, PR frequencies, contact, signals) are generated per campaign unless the SPINS set them. The CSAR
+  force: RESCORT (OSC = the lead, Sandy 1), rescue helo (MH-60L, 55th RQS), optional CH-47F lift (no group yet), SARCAP,
+  SEAD when a SAM ring covers the survivor, HC-130 King, AWACS, ISR, tanker. AMC defaults to the King, else the AWACS,
+  else the SARCAP lead. Requested human lines use an airframe an active group flies, or are flagged. ATO roles include
+  RESCORT and SARCAP. `.miz` types `UH-60L` / `UH-60L_DAP` (the UH-60L mod) read as MH-60L / MH-60L DAP.
+- **MAAP support lines**: each package's tankers, AWACS / GCI, TAC C2 and JTAC are suggested (only when needed) from the
+  ATO, theater map, ACO and Comm Plan; planners edit, remove or add rows. The checks sit at the top, errors first.
+- **Layout**: every page stacks its panels full width; no side columns or asides.
 - **IFF plan** (`tools/jceoi/data/iff.json` → `js/jceoi-data.js` `iff`; `js/iff.js`): reserved codes (and any slot
   holding one) are never assigned; a line's Mode 3/A block is its Mode 1 code (`IFF.slotsOf`), because the F-16C sends
   its first two code wheels as Mode 1; `campaign.iff.blocks` is no longer used; ATO rows carry `m1`, `m3` (lead), `m3last`,
@@ -134,6 +172,8 @@ When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload
 - No backend yet: real sign-in (vcaoc.com has Discord sign-in), shared database, server-side approval/commit rules,
   the commit endpoint for the bot, file uploads.
 - Threat ring defaults are approximate; commit deadlines are displayed, not enforced.
+- DKS Debrief `pr.ejection` and the `pr.csar_route` / `pr.csartf_package` events are proposals (`docs/PR_DKS_Integration.md`).
+- No group flies the CH-47F yet. ISOPREP answers are visible to any staff login (lock down with a backend).
 
 ## Conventions
 

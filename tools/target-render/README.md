@@ -21,6 +21,9 @@ mission's units drawn as DCS's own 3D models, rendered in Blender.
 The JOG is the DCS F10 map's own chart layer, read from the terrain's `RasterCharts` (`dcs_charts.py`, placed with a
 projection fitted to the terrain's `Beacons.lua`); where a terrain has no chart the Esri topographic map is used.
 
+Tested on Caucasus, Persian Gulf, Syria, Afghanistan, Kola and Nevada. Where Esri has no imagery at the finest zoom
+(Kola), the next coarser zoom fills in.
+
 `cache/`, `out/` and `vendor/` stay local. Imagery: Esri World Imagery and World Topographic Map (attribution printed
 on every page); elevation: AWS Terrain Tiles.
 
