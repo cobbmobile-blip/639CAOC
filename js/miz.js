@@ -67,7 +67,7 @@
     arr(mission?.coalition?.[coalition]?.country).forEach(ct => ["vehicle", "ship", "plane", "helicopter", "static"].forEach(cat =>
       arr(ct?.[cat]?.group).forEach(g => arr(g.units).forEach(u => {
         if (u.x == null || u.y == null) return;
-        out.push({ group: g.name || "", unit: u.name || "", type: u.type || "", x: +u.x, y: +u.y, cat, country: ct.name || "" });
+        out.push({ group: g.name || "", unit: u.name || "", type: u.type || "", x: +u.x, y: +u.y, hdg: u.heading != null ? +u.heading : null, cat, country: ct.name || "" });
       }))));
     return out;
   }
@@ -168,7 +168,9 @@
   // REDFOR rows in the target-nomination shape, or null when the theater has no calibrated projection
   function redRows(mf) {
     const p = projection(mf.theatre); if (!p) return null;
-    return mf.red.map(u => { const [lat, lon] = xyToLatLon(p, u.x, u.y); return { group: u.group, unit: u.unit, type: u.type, lat, lon, source: `${mf.name} v${mf.v}` }; });
+    return mf.red.map(u => { const [lat, lon] = xyToLatLon(p, u.x, u.y); return { group: u.group, unit: u.unit, type: u.type, lat, lon, source: `${mf.name} v${mf.v}`,
+      // .miz heading is radians clockwise from north (older stored files lack it)
+      heading: u.hdg != null ? Math.round(((u.hdg * 180 / Math.PI) % 360 + 360) % 360) : null }; });
   }
 
   // host mission file versions: campaign.missionFiles [{ v, name, size, when, by, user, notes, theatre, date, flights, red, beacons }]

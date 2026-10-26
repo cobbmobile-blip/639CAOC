@@ -22,6 +22,7 @@
 <script>AOC.Auth.require();</script>
 <script src="js/products.js"></script>
 <script src="js/targeting.js"></script>
+<script src="js/miz.js"></script>
 
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:12px">
@@ -39,6 +40,7 @@
         <label class="small" style="margin:0;text-transform:none;letter-spacing:0;color:var(--text)">Folders for grades</label>
         <select id="grades" style="width:auto;padding:4px 6px;font-size:12px"><option value="A">A</option><option value="AB" selected>A–B</option><option value="ABC">A–C</option><option value="ABCD">All</option></select>
         <button class="btn sm" id="draftAll">Draft missing folders</button>
+        <button class="btn sm" id="jobsBtn" title="One file with every JIPTL target's .miz units, for tools/target-render/build_folders.py">Export imagery jobs</button>
       </div>
       <div class="tlist" id="list"></div>
     </section>
@@ -61,7 +63,10 @@
   const jiptl = Store.content(cid, "jiptl")?.rows || [];
   const nom = Store.content(cid, "targeting")?.results;   // target nomination output, when the JIPTL came from it
   const allGroups = nom ? [...nom.jiptl, ...nom.watchlist, ...nom.outOfBMA, ...(nom.continuous || []), ...(nom.dropped || [])] : [];
-  let selected = jiptl[0]?.id || null, dirty = false;
+  let selected = jiptl[0]?.id || null, dirty = false, imagery = {};
+  // folder imagery already built and published with the site (build_folders.py writes this index)
+  fetch(`img/targets/${encodeURIComponent(cid)}/index.json`, { cache: "no-cache" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+    .then(j => { imagery = j || {}; renderEditor(); });
 
   const ddm = (lat, lng) => { const f = (v, p, n, w) => { const a = Math.abs(v), d = Math.floor(a); return `${v >= 0 ? p : n}${String(d).padStart(w, "0")}°${((a - d) * 60).toFixed(3).padStart(6, "0")}'`; };
     return `${f(lat, "N", "S", 2)} ${f(lng, "E", "W", 3)}`; };
@@ -124,7 +129,8 @@
     if (!f) { el.innerHTML = `<div class="panel-head"><h2>${esc(row.id)} · ${esc(row.name)}</h2></div><p class="muted">No folder yet.</p>
       <button class="btn primary" data-draft>Draft folder from nomination data</button>`; return; }
     let html = `<div class="panel-head"><div><h2>${esc(row.id)} · ${esc(row.name)}</h2><div class="muted small">Grade ${esc(row.grade || "—")} · ${esc(row.cat || "")}</div></div>
-      <div class="toolbar"><button class="btn sm" data-redraft title="Rebuild from the nomination data (replaces this folder)">Re-draft</button>
+      <div class="toolbar"><a class="btn sm" href="folder.html?c=${encodeURIComponent(cid)}&t=${encodeURIComponent(row.id)}" title="AFLG-style target folder with imagery">Open target folder</a>
+      <button class="btn sm" data-redraft title="Rebuild from the nomination data (replaces this folder)">Re-draft</button>
       <button class="btn sm ${f.status === "ready" ? "" : "primary"}" data-ready>${f.status === "ready" ? "Mark draft" : "Mark ready"}</button></div></div>`, half = false;
     FIELDS.forEach(fd => {
       if (fd.type === "section") { if (half) { html += "</div>"; half = false; } html += `<div class="section-h">${esc(fd.label)}</div>`; return; }
@@ -137,6 +143,7 @@
       html += `<div class="field"><label>${esc(fd.label)}</label>${input(fd, f[fd.key] ?? "", fd.key)}</div>`;
     });
     if (half) html += "</div>";
+    html += `<div class="muted small" style="margin-top:10px">Folder imagery: ${imagery[row.id] ? `built ${esc(imagery[row.id].generated)}` : "not built yet — Export imagery jobs, then run tools/target-render/build_folders.py"}</div>`;
     el.innerHTML = html;
   }
   const editor = document.getElementById("editor");
@@ -156,6 +163,19 @@
     else return;
     markDirty(); renderList(); renderEditor();
   });
+
+  // imagery jobs: each JIPTL target's units (positions and headings from the .miz) for the offline render tool
+  document.getElementById("jobsBtn").onclick = () => {
+    const imported = (Store.content(cid, "targeting")?.imports || []).flatMap(f => f.rows || []);
+    const cur = AOC.MIZ.current(cid), host = (cur && AOC.MIZ.redRows(cur)) || [];      // headings for units imported before they were kept
+    const targets = jiptl.map(r => { const g = allGroups.find(x => x.targetNumber === r.id); if (!g) return null;
+      const units = imported.filter(u => u.group === g.group).map(u => ({ name: u.unit || u.name, type: u.type, lat: u.lat, lon: u.lon,
+        heading: u.heading ?? host.find(h => h.group === u.group && h.unit === u.unit)?.heading ?? null }));
+      return units.length ? { target: r.id, name: r.name, category: r.cat || g.category, lat: g.lat, lon: g.lon, units } : null; }).filter(Boolean);
+    if (!targets.length) { toast("No JIPTL target has .miz units yet — run Target nomination from the host mission file first"); return; }
+    AOC.download(`${campaign.opName}-imagery-jobs.json`, JSON.stringify({ campaign: cid, op: campaign.opName, exported: new Date().toISOString(), targets }, null, 1), "application/json");
+    toast(`${targets.length} of ${jiptl.length} targets exported — run tools/target-render/build_folders.py on the file`);
+  };
 
   // saving the book makes the TDP product a draft again, so the CFACC approves what changed
   document.getElementById("saveBtn").onclick = () => {

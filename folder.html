@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Target Folder</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  /* AFLG-style target folder: landscape letter pages, built from the TDP folder plus the rendered imagery */
+  .bar { max-width: 1056px; margin: 0 auto 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .pg { width: 1056px; height: 816px; margin: 0 auto 22px; background: #fff; color: #000; position: relative; overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif; border: 1px solid #000; box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+  .hd { position: absolute; inset: 0 0 auto 0; height: 134px; display: grid; grid-template-columns: 140px 476px 160px 1fr; border-bottom: 1.5px solid #000; }
+  .hd > div { border-right: 1.5px solid #000; overflow: hidden; }
+  .hd > div:last-child { border-right: 0; }
+  .hd .logo { display: grid; place-items: center; } .hd .logo img { width: 104px; height: 104px; }
+  .hd .ttl { display: grid; grid-template-rows: auto auto 1fr; }
+  .hd .ttl b { display: block; font-size: 17px; padding: 5px 8px 0; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hd .ttl b + b { padding: 2px 8px 5px; border-bottom: 1.5px solid #000; }
+  .hd .ttl .ids { font: 700 12.5px/1.4 Arial, sans-serif; padding: 6px 8px; display: grid; grid-template-columns: auto auto; column-gap: 18px; align-content: start; }
+  .hd .loc { position: relative; } .hd .loc img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hd .loc i { position: absolute; border: 1.5px solid #e00; }
+  .hd .cls { display: grid; grid-template-rows: 54px 1fr; text-align: center; font-weight: 700; }
+  .hd .cls div:first-child { color: #c00; font-size: 13px; display: grid; place-items: center; border-bottom: 1.5px solid #000; padding: 0 6px; }
+  .hd .cls div:last-child { font-size: 9.5px; line-height: 1.35; display: grid; place-items: center; padding: 4px 8px; }
+  .img { position: absolute; left: 0; right: 0; top: 134px; bottom: 0; background: #222; }
+  .img img { width: 100%; height: 100%; display: block; object-fit: fill; }
+  .img img.bw { filter: grayscale(1) contrast(1.15) brightness(1.05); }
+  .img svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .tag { position: absolute; left: 0; background: #fff; border: 1.5px solid #000; color: #c00; font: 700 10.5px/1.2 Arial, sans-serif; text-align: center; padding: 4px 10px; z-index: 2; }
+  .tag.top { top: 134px; border-top: 0; } .tag.bot { bottom: 0; border-bottom: 0; color: #000; }
+  .attr { position: absolute; right: 6px; bottom: 4px; font: 9.5px Arial, sans-serif; color: #fff; text-shadow: 0 0 3px #000, 0 0 2px #000; z-index: 2; }
+  .noimg { position: absolute; inset: 134px 0 0 0; display: grid; place-items: center; text-align: center; color: #444; font-size: 15px; padding: 40px; background: #eee; }
+  .noimg code { font-size: 12px; background: #fff; padding: 2px 6px; border: 1px solid #bbb; }
+  .bottom { position: absolute; left: 0; right: 0; bottom: 0; height: 46px; background: #fff; border-top: 1.5px solid #000; display: grid; place-items: center;
+    font: 700 17px Arial, sans-serif; z-index: 1; padding-left: 210px; }
+  .sheet { position: absolute; left: 0; right: 0; top: 134px; bottom: 0; padding: 14px 18px; overflow: hidden; font-size: 12px; }
+  .sheet h3 { font-size: 19px; text-align: center; margin: 6px 0 8px; }
+  .sheet table { width: 100%; border-collapse: collapse; margin-bottom: 14px; table-layout: fixed; }
+  .sheet th { background: #555; color: #fff; font-size: 11.5px; padding: 8px 6px; border: 1px solid #fff; }
+  .sheet td { border: 1px solid #aaa; padding: 7px 6px; text-align: center; font-weight: 700; font-size: 11px; vertical-align: middle; word-wrap: break-word; }
+  .sheet td.l { text-align: left; font-weight: 400; }
+  .sheet .kv { display: grid; grid-template-columns: 200px 1fr; border: 1px solid #aaa; margin-bottom: 12px; }
+  .sheet .kv div { padding: 6px 8px; border-bottom: 1px solid #ddd; font-size: 12px; } .sheet .kv div:nth-child(odd) { background: #eee; font-weight: 700; }
+  .cover { position: absolute; inset: 0; }
+  .cover .box { position: absolute; left: 96px; right: 96px; top: 150px; height: 420px; border: 5px solid #000; box-shadow: 14px 14px 0 #888;
+    display: grid; align-content: center; text-align: center; gap: 24px; font-weight: 700; }
+  .cover .box div:nth-child(1) { font-size: 52px; } .cover .box div:nth-child(2) { font-size: 52px; margin-top: 30px; } .cover .box div:nth-child(3) { font-size: 40px; padding: 0 30px; text-transform: uppercase; }
+  .cover .c { position: absolute; left: 50%; transform: translateX(-50%); border: 1.5px solid #000; color: #c00; font: 700 13px Arial, sans-serif; padding: 9px 16px; white-space: nowrap; }
+  .cover .p { position: absolute; left: 50%; transform: translateX(-50%); bottom: 82px; border: 1px solid #000; text-align: center; font: 700 11px/1.45 Arial, sans-serif; padding: 7px 18px; }
+  .cover img { position: absolute; left: 18px; top: 10px; width: 120px; height: 120px; }
+  @media print {
+    @page { size: 11in 8.5in; margin: 0; }
+    body { background: #fff !important; } header, .bar, .site-head, nav { display: none !important; } main.wrap { padding: 0 !important; max-width: none !important; }
+    .pg { margin: 0; border: 0; box-shadow: none; page-break-after: always; break-after: page; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>AOC.Auth.require();</script>
+<script src="js/products.js"></script>
+<script src="js/targeting.js"></script>
+<script src="js/jceoi-data.js"></script>
+
+<main class="wrap">
+  <div class="bar">
+    <div><a class="small" id="back" href="#">← TDP book</a><h1 style="margin:4px 0 0" id="title">Target folder</h1>
+      <div class="muted small" id="sub"></div></div>
+    <div class="toolbar"><button class="btn primary" onclick="print()">Print / save PDF</button></div>
+  </div>
+  <div id="pages"></div>
+</main>
+
+<script>
+(async function () {
+  const { Store, esc, TARGETING: TG } = AOC;
+  AOC.renderChrome();
+  const q = new URLSearchParams(location.search), cid = q.get("c") || Store.currentCampaignId(), tid = q.get("t");
+  const campaign = Store.campaign(cid), folder = Store.content(cid, "tdp")?.folders?.[tid] || {};
+  const row = (Store.content(cid, "jiptl")?.rows || []).find(r => r.id === tid) || {};
+  const nom = Store.content(cid, "targeting")?.results;
+  const group = nom && [...nom.jiptl, ...nom.watchlist, ...nom.outOfBMA].find(g => g.targetNumber === tid);
+  document.getElementById("back").href = `tdp.html?c=${encodeURIComponent(cid)}`;
+  const base = `img/targets/${encodeURIComponent(cid)}/${encodeURIComponent(tid)}/`;
+  let meta = null;
+  try { const r = await fetch(base + "meta.json", { cache: "no-cache" }); if (r.ok) meta = await r.json(); } catch (e) { /* no imagery yet */ }
+
+  const name = folder.name || row.name || meta?.name || tid, cat = folder.category || row.cat || "";
+  document.getElementById("title").textContent = `${tid} · ${name}`;
+  document.getElementById("sub").textContent = meta ? `Imagery built ${meta.generated} · ${meta.units.length} units from the host .miz` :
+    "No imagery built for this target yet — the graphic pages show where it goes.";
+
+  // ---------- formats ----------
+  const up = s => String(s ?? "").toUpperCase();
+  const pad = (n, w, d = 0) => n.toFixed(d).padStart(w + (d ? d + 1 : 0), "0");
+  const hemi = (v, p, n) => v >= 0 ? p : n;
+  const ddm = (lat, lon) => { const f = (v, w) => { const a = Math.abs(v), d = Math.floor(a); return `${pad(d, w)}°${pad((a - d) * 60, 2, 3)}'`; };
+    return [`${hemi(lat, "N", "S")} ${f(lat, 2)}`, `${hemi(lon, "E", "W")} ${f(lon, 3)}`]; };
+  const dms = (lat, lon) => { const f = (v, w) => { let a = Math.abs(v), d = Math.floor(a), m = Math.floor((a - d) * 60), s = ((a - d) * 60 - m) * 60;
+    return `${pad(d, w)}°${pad(m, 2)}'${pad(s, 2, 2)}"`; }; return `${hemi(lat, "N", "S")} ${f(lat, 2)}   ${hemi(lon, "E", "W")} ${f(lon, 3)}`; };
+  const day = d => { const t = new Date(d); return isNaN(t) ? "—" : `${String(t.getUTCDate()).padStart(2, "0")}${t.toLocaleString("en", { month: "short", timeZone: "UTC" }).toUpperCase()}${t.getUTCFullYear()}`; };
+  const ft = m => m == null ? "—" : `${Math.round(m * 3.28084).toLocaleString()} FT`;
+  // WGS84 lat/lon -> MGRS (UTM zones, no Norway/Svalbard exceptions)
+  function mgrs(lat, lon) {
+    const a = 6378137, f = 1 / 298.257223563, e2 = f * (2 - f), ep2 = e2 / (1 - e2), k0 = 0.9996, R = Math.PI / 180;
+    const zone = Math.floor((lon + 180) / 6) + 1, l0 = ((zone - 1) * 6 - 180 + 3) * R, p = lat * R;
+    const N = a / Math.sqrt(1 - e2 * Math.sin(p) ** 2), T = Math.tan(p) ** 2, C = ep2 * Math.cos(p) ** 2, A = Math.cos(p) * (lon * R - l0);
+    const M = a * ((1 - e2 / 4 - 3 * e2 ** 2 / 64 - 5 * e2 ** 3 / 256) * p - (3 * e2 / 8 + 3 * e2 ** 2 / 32 + 45 * e2 ** 3 / 1024) * Math.sin(2 * p)
+      + (15 * e2 ** 2 / 256 + 45 * e2 ** 3 / 1024) * Math.sin(4 * p) - (35 * e2 ** 3 / 3072) * Math.sin(6 * p));
+    const E = k0 * N * (A + (1 - T + C) * A ** 3 / 6 + (5 - 18 * T + T * T + 72 * C - 58 * ep2) * A ** 5 / 120) + 500000;
+    let Y = k0 * (M + N * Math.tan(p) * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * A ** 4 / 24 + (61 - 58 * T + T * T + 600 * C - 330 * ep2) * A ** 6 / 720));
+    if (lat < 0) Y += 10000000;
+    const band = "CDEFGHJKLMNPQRSTUVWXX"[Math.floor((lat + 80) / 8)];
+    const col = ["STUVWXYZ", "ABCDEFGH", "JKLMNPQR"][zone % 3][Math.floor(E / 100000) - 1];
+    const rowL = "ABCDEFGHJKLMNPQRSTUV"[(Math.floor(Y / 100000) + (zone % 2 ? 0 : 5)) % 20];
+    return `${zone}${band} ${col}${rowL} ${String(Math.floor(E % 100000)).padStart(5, "0")} ${String(Math.floor(Y % 100000)).padStart(5, "0")}`;
+  }
+  // first digit / sub-digit of the folder's target-category table (category, then subcategory)
+  const catcode = c => /SAM|AAA|air def/i.test(c) ? "74" : /radar|EWR|early warn/i.test(c) ? "42" : /\bC2\b|command/i.test(c) ? "12"
+    : /airfield|air base/i.test(c) ? "13" : /aircraft/i.test(c) ? "71" : /bridge|\bLOC\b|road|rail/i.test(c) ? "34" : /ammo|ammun/i.test(c) ? "16"
+    : /logist|supply|fuel|POL/i.test(c) ? "18" : /missile|SSM|scud/i.test(c) ? "75" : /naval|ship/i.test(c) ? "73" : /comm/i.test(c) ? "41"
+    : /armor|mech|artillery|ground|infantry/i.test(c) ? "72" : "1";
+  const unitName = t => TG.BUILTIN_UNITS[t]?.name || t;
+  const killFx = t => /\bT-\d|BMP|BTR|M1A|M-2|Leopard|ZSU|tank|MBT|SAU|Msta|2S\d/i.test(t) ? "BLAST, PENETRATION" : "BLAST, FRAGMENTATION";
+
+  const lat = meta?.lat ?? group?.lat, lon = meta?.lon ?? group?.lon;
+  const [gLat, gLon] = lat != null ? ddm(lat, lon) : ["—", ""];
+  const icod = day(nom?.when || meta?.generated), doi = day(meta?.generated);
+  const LOGO = "img/v639-caoc-patch.webp";
+  const CLS = "UNCLASSIFIED // EXERCISE";
+  const prep = `PREPARED BY: 639TH vCAOC ISR &amp; TARGETING<br>OP ${esc(up(campaign.opName))}<br>DCS WORLD TRAINING — NOT REAL WORLD<br>${CLS}`;
+
+  // ---------- critical elements and JDPIs: one CE per unit type (the type that names the target first), one JDPI per unit ----------
+  const units = meta?.units || [];
+  const types = [...new Set(units.map(u => u.type))].sort((a, b) => (a === group?.repType ? -1 : b === group?.repType ? 1 : 0));
+  const ces = types.map((t, i) => ({ n: i + 1, type: t, label: unitName(t), weapon: folder.dmpis?.[i]?.weapon || "",
+    jdpis: units.filter(u => u.type === t).map((u, k) => ({ ...u, id: `${String.fromCharCode(65 + i)}${String(k + 1).padStart(3, "0")}` })) }));
+  const jdpis = ces.flatMap(c => c.jdpis.map(j => ({ ...j, ce: c })));
+
+  // ---------- page parts ----------
+  let pageNo = 0;
+  const header = graphic => `<div class="hd"><div class="logo"><img src="${LOGO}" alt=""></div>
+    <div class="ttl"><b>${esc(name)}</b><b>${esc(graphic)}</b><div class="ids">
+      <span>BE: ${esc(tid)}</span><span>CATCODE: ${catcode(cat)}</span><span>MIDB GEO: ${gLat}</span><span>${gLon}</span><span>ICOD: ${icod}</span><span>DOI: ${doi}</span></div></div>
+    <div class="loc">${meta ? `<img src="${base}${meta.images.locator.file}" alt=""><i style="${locBox()}"></i>` : ""}</div>
+    <div class="cls"><div>${CLS}</div><div>${prep}</div></div></div>`;
+  function locBox() {       // the JOG's extent on the locator map
+    const L = meta.images.locator, J = meta.images.jog, w = J.width_m / L.width_m * 100, h = J.height_m / L.height_m * 100;
+    return `left:${50 - w / 2}%;top:${50 - h / 2}%;width:${Math.max(w, 4)}%;height:${Math.max(h, 4)}%`;
+  }
+  const page = (graphic, body) => { pageNo++; return `<section class="pg">${header(graphic)}${body}</section>`; };
+  const imgPage = (graphic, key, svg, { bw = false, bottom = "" } = {}) => {
+    if (!meta) return page(graphic, `<div class="noimg"><div><b>Imagery not built yet.</b><br><br>On the TDP book, <b>Export imagery jobs</b>, then run<br><br>
+      <code>python tools/target-render/build_folders.py "&lt;file&gt;"</code><br><br>and commit <code>img/targets/</code>.</div></div>`);
+    const im = meta.images[key];
+    return page(graphic, `<div class="img"><img class="${bw ? "bw" : ""}" src="${base}${im.file}" alt="">
+      <svg viewBox="0 0 1600 1000" preserveAspectRatio="none">${svg}</svg></div>
+      <div class="tag top">${CLS}</div><div class="tag bot">${CLS}</div>${bottom}
+      <div class="attr" style="${bottom ? "bottom:50px" : ""}">Imagery: ${esc(im.attribution)}${key === "site" || key === "tgp" ? " · Units: DCS World models" : ""}</div>`);
+  };
+
+  // ---------- SVG markup (1600 x 1000 image space) ----------
+  const W = 1600, H = 1000, T = 2.4;    // T: line weight
+  const geo = (key, la, lo) => { const im = meta.images[key];   // north-up tile images: lat/lon -> image point
+    const e = (lo - meta.lon) * Math.PI / 180 * 6378137 * Math.cos(meta.lat * Math.PI / 180), n = (la - meta.lat) * Math.PI / 180 * 6378137;
+    return [W / 2 + e / im.width_m * W, H / 2 - n / im.height_m * H]; };
+  const spot = (key, u) => { const s = meta.images[key].spots?.[u.name]; return s && s.fx > 0 && s.fx < 1 && s.fy > 0 && s.fy < 1 ? [s.fx * W, s.fy * H] : null; };
+  const tw = (s, px) => s.length * px * 0.7;      // bold Arial caps, generous
+  function box(x, y, lines, { size = 19, anchor } = {}) {     // white callout box; returns svg and its edge point nearest to anchor
+    const w = Math.max(...lines.map(l => tw(l, size))) + 24, h = lines.length * size * 1.25 + 14;
+    const svg = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="#000" stroke-width="3"/>` +
+      lines.map((l, i) => `<text x="${x + 12}" y="${y + 9 + size * (i + 1) * 1.25 - size * .25}" font-family="Arial" font-weight="700" font-size="${size}">${esc(l)}</text>`).join("");
+    const ex = anchor ? Math.min(Math.max(anchor[0], x), x + w) : x, ey = anchor ? Math.min(Math.max(anchor[1], y), y + h) : y;
+    return { svg, w, h, edge: [ex, ey] };
+  }
+  function callout(pt, lines, opt = {}) {                   // box placed away from the point, with a leader line
+    const size = opt.size || 19, w = Math.max(...lines.map(l => tw(l, size))) + 24, h = lines.length * size * 1.25 + 14;
+    let x = pt[0] < W * .55 ? pt[0] - w - 120 : pt[0] + 120, y = pt[1] - h - 110;
+    if (x < 300 && pt[0] < W * .55) x = pt[0] + 120;
+    x = Math.min(Math.max(x, 290), W - w - 20); y = Math.min(Math.max(y, 70), H - h - 70);
+    if (x + w > 1440 && y < 190) y = 190;                    // keep clear of the north arrow
+    const b = box(x, y, lines, { size, anchor: pt });
+    return `<line x1="${pt[0]}" y1="${pt[1]}" x2="${b.edge[0]}" y2="${b.edge[1]}" stroke="${opt.lead || "#fff"}" stroke-width="${T}"/>${b.svg}`;
+  }
+  const cross = ([x, y], s = 34, c = "#fff") => `<path d="M${x - s / 3},${y - s} h${s / 1.5} v${s / 1.5} h${s / 1.5} v${s / 1.5} h-${s / 1.5} v${s / 1.5} h-${s / 1.5} v-${s / 1.5} h-${s / 1.5} v-${s / 1.5} h${s / 1.5} z"
+    fill="none" stroke="#000" stroke-width="${T + 3}"/><path d="M${x - s / 3},${y - s} h${s / 1.5} v${s / 1.5} h${s / 1.5} v${s / 1.5} h-${s / 1.5} v${s / 1.5} h-${s / 1.5} v-${s / 1.5} h-${s / 1.5} v-${s / 1.5} h${s / 1.5} z"
+    fill="none" stroke="${c}" stroke-width="${T}"/><circle cx="${x}" cy="${y}" r="3" fill="${c}"/>`;
+  const north = (c = "#fff") => `<g stroke="#000" stroke-width="1.5"><path d="M1490,150 L1490,60 L1478,82 M1490,60 L1502,82" stroke="${c}" stroke-width="8" fill="none"/>
+    <text x="1512" y="150" font-family="Arial" font-weight="700" font-size="62" fill="${c}" stroke="#000" stroke-width="1.5">N</text></g>`;
+  function scale(width_m) {
+    const target = width_m / 6, nice = [10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000].filter(v => v <= target).pop() || 10, L = nice / width_m * W;
+    return `<g font-family="Arial" font-weight="700" font-size="20" fill="#fff" stroke="#000" stroke-width=".8"><rect x="40" y="${H - 120}" width="${L}" height="12" fill="#fff"/>
+      <rect x="40" y="${H - 120}" width="${L / 2}" height="12" fill="#000"/><text x="40" y="${H - 132}">0</text><text x="${40 + L - 30}" y="${H - 132}">${nice >= 1000 ? `${nice / 1000} KM` : `${nice} M`}</text></g>`;
+  }
+  const tri = ([x, y], c = "#fff") => `<path d="M${x},${y - 30} L${x + 22},${y + 12} L${x - 22},${y + 12} Z" fill="none" stroke="#000" stroke-width="${T + 3}"/>
+    <path d="M${x},${y - 30} L${x + 22},${y + 12} L${x - 22},${y + 12} Z" fill="none" stroke="${c}" stroke-width="${T}"/><circle cx="${x}" cy="${y - 2}" r="6" fill="${c}"/>`;
+  const jdpiLines = j => { const [a, b] = ddm(j.lat, j.lon); return [`JDPI: ${j.id}`, dms(j.lat, j.lon), `${a}   ${b}`, mgrs(j.lat, j.lon),
+    `JDPI MSL: ${ft(j.elev_m)}`, `TLE: CAT I (.MIZ TRUTH DATA)`]; };
+
+  // ---------- pages ----------
+  const out = [];
+  out.push(`<section class="pg"><div class="cover"><img src="${LOGO}" alt=""><div class="c" style="top:22px">${CLS}</div>
+    <div class="box"><div>TARGET FOLDER</div><div>${esc(tid)}</div><div>${esc(name)}</div></div>
+    <div class="p">${prep}</div><div class="c" style="bottom:22px">${CLS}</div></div></section>`);
+
+  const kv = rows => `<div class="kv">${rows.map(([k, v]) => `<div>${esc(k)}</div><div>${esc(v || "—")}</div>`).join("")}</div>`;
+  out.push(page("TARGET SUMMARY 1/1", `<div class="sheet">${kv([["TARGET", `${tid} — ${up(name)}`], ["CATEGORY", `${cat} (CATCODE ${catcode(cat)})`],
+    ["JIPTL GRADE / TASK", `${row.grade || folder.grade || "—"}${row.task ? ` / key task ${row.task}` : ""}`],
+    ["LOCATION", lat != null ? `${gLat} ${gLon} · ${mgrs(lat, lon)}${meta ? ` · ${ft(meta.elev_m)} MSL` : ""}` : folder.coords],
+    ["DESCRIPTION", folder.description], ["DESIRED EFFECT", folder.effect || row.effect], ["CDE", folder.cde ? `CDE ${folder.cde}` : "Not assessed"],
+    ["COLLATERAL / RESTRICTIONS", folder.collateral], ["BDA REQUIREMENTS", folder.bda], ["SOURCES", folder.imagery]])}
+    ${folder.threats?.length ? `<table><thead><tr><th>THREAT SYSTEM</th><th>LOCATION</th><th>TYPE</th></tr></thead><tbody>${folder.threats.map(t =>
+      `<tr><td>${esc(t.sys)}</td><td>${esc(t.loc)}</td><td>${esc(t.range)}</td></tr>`).join("")}</tbody></table>` : ""}</div>`));
+
+  const label = [tid, up(name)];
+  out.push(imgPage("JOINT OPERATIONS GRAPHIC 1/1", "jog", meta && `${cross([W / 2, H / 2], 40, "#000")}${callout([W / 2, H / 2], label, { lead: "#000" })}${north("#000")}${scale(meta.images.jog.width_m).replace(/fill="#fff" stroke="#000" stroke-width=".8"/, 'fill="#000"')}`));
+  out.push(imgPage("ORIENTATION VIEW GRAPHIC 1/1", "orient", meta && (() => {   // site-view extent outlined, as the AFLG outlines the facility
+    const s = meta.images.site, o = meta.images.orient, w = s.width_m / o.width_m * W, h = s.height_m / o.height_m * H;
+    return `<rect x="${W / 2 - w / 2}" y="${H / 2 - h / 2}" width="${w}" height="${h}" fill="none" stroke="#fff" stroke-width="${T + 1}"/>${cross([W / 2, H / 2])}
+      ${callout([W / 2 - w / 2, H / 2 - h / 2], label)}${north()}${scale(o.width_m)}`; })(), { bw: true }));
+
+  out.push(imgPage(`CRITICAL ELEMENT GRAPHIC 1/1`, "site", meta && (() => {
+    const s = meta.images.site, half = Math.max(14, 11 / s.width_m * W);   // ~22 m box per vehicle
+    const parts = ces.map(c => { const pts = c.jdpis.map(j => spot("site", j)).filter(Boolean); if (!pts.length) return "";
+      return pts.map(([x, y]) => `<rect x="${x - half}" y="${y - half}" width="${2 * half}" height="${2 * half}" fill="none" stroke="#fff" stroke-width="${T}"/>`).join("") +
+        callout(pts[0], [`CE${c.n}`, up(c.label)], { size: 17 }); });
+    return parts.join("") + north() + scale(s.width_m); })(), { bw: true }));
+
+  ces.forEach((c, ci) => out.push(imgPage(`JOINT DESIRED POINT OF IMPACT GRAPHIC ${ci + 1}/${ces.length}`, "site", meta && (() => {
+    // data boxes down the right side for this CE's JDPIs (first three); every JDPI of the CE marked
+    let svg = "", y = 180;
+    c.jdpis.forEach((j, k) => { const p = spot("site", j); if (!p) return; svg += tri(p);
+      if (k < 3) { const lines = jdpiLines(j), b = box(W - 470, y, lines, { size: 17, anchor: p });
+        svg += `<line x1="${p[0]}" y1="${p[1] - 30}" x2="${b.edge[0]}" y2="${b.edge[1]}" stroke="#fff" stroke-width="${T}"/>${b.svg}`; y += b.h + 22; }
+      else svg += `<text x="${p[0] + 26}" y="${p[1] + 8}" font-family="Arial" font-weight="700" font-size="20" fill="#fff" stroke="#000" stroke-width=".8">${j.id}</text>`; });
+    return svg + north() + scale(meta.images.site.width_m); })(), { bw: true })));
+  if (!ces.length) out.push(imgPage("JOINT DESIRED POINT OF IMPACT GRAPHIC 1/1", "site", meta && north(), { bw: true }));
+
+  // pod view: JDPIs labelled beside the vehicle, nothing drawn over it
+  out.push(imgPage(`TARGETING POD VIEW GRAPHIC 1/1`, "tgp", meta && jdpis.map(j => { const p = spot("tgp", j); return p ?
+    `<line x1="${p[0] + 14}" y1="${p[1] + 14}" x2="${p[0] + 52}" y2="${p[1] + 52}" stroke="#fff" stroke-width="2"/>
+    <text x="${p[0] + 56}" y="${p[1] + 70}" font-family="Arial" font-weight="700" font-size="20" fill="#fff" stroke="#000" stroke-width=".8">${j.id}</text>` : ""; }).join("")));
+
+  out.push(page("JOINT DESIRED POINT OF IMPACT LIST 1/1", `<div class="sheet"><table><thead><tr><th style="width:62px">JDPI</th><th>DESCRIPTION</th><th style="width:170px">LOCATION</th>
+    <th style="width:150px">MGRS</th><th style="width:84px">JDPI MSL</th><th style="width:76px">TLE</th><th>WEAPON</th><th>DESIRED EFFECT</th></tr></thead><tbody>
+    ${jdpis.slice(0, 14).map(j => { const [a, b] = ddm(j.lat, j.lon); return `<tr><td>${j.id}</td><td>CE${j.ce.n} ${esc(up(j.ce.label))}</td><td>${a}<br>${b}</td>
+      <td>${mgrs(j.lat, j.lon)}</td><td>${ft(j.elev_m)}</td><td>CAT I</td><td>${esc(up(j.ce.weapon)) || "PER WEAPONEERING"}</td><td>${killFx(j.type)}</td></tr>`; }).join("")
+      || `<tr><td colspan="8">No JDPIs until the imagery is built (one JDPI per .miz unit).</td></tr>`}
+    </tbody></table>${jdpis.length > 14 ? `<p>${jdpis.length - 14} more JDPIs — same pattern, see the .miz group.</p>` : ""}
+    <p class="l" style="font-size:11px">JDPI positions and elevations are the .miz unit positions on the imagery's terrain model. Weapon: the TDP folder's DMPI weapon for that element.</p></div>`));
+
+  const lvl = folder.cde, cdeRow = window.AOC_JCEOI?.roe?.cde?.levels?.find(x => String(x.level) === String(lvl));
+  const cdeCol = { 1: "#0a0", 2: "#0a0", 3: "#b90", 4: "#e60", 5: "#d00" }[lvl] || "#000";
+  out.push(imgPage("COLLATERAL DAMAGE ESTIMATE GRAPHIC 1/1", "orient", meta && (() => {
+    const o = meta.images.orient, r = 500 / o.width_m * W, ry = 500 / o.height_m * H;
+    return `<ellipse cx="${W / 2}" cy="${H / 2}" rx="${r}" ry="${ry}" fill="none" stroke="#fff" stroke-width="${T + 1}"/>${cross([W / 2, H / 2], 24)}
+      ${callout([W / 2 + r * .71, H / 2 - ry * .71], ["COLLATERAL ASSESSMENT RADIUS", "500 M (1,640 FT)"])}${north()}${scale(o.width_m)}`; })(),
+    { bw: true, bottom: `<div class="bottom"><span>${lvl ? `<span style="color:${cdeCol}">CDE ${esc(lvl)}</span>${cdeRow ? ` — ${esc(up(cdeRow.text)).slice(0, 80)}` : ""}` : "CDE NOT ASSESSED — SET THE CDE LEVEL ON THE TDP FOLDER"}</span></div>` }));
+
+  const nse = Store.content(cid, "roe")?.restricted || [];
+  out.push(page("COLLATERAL DAMAGE INFORMATION 1/1", `<div class="sheet"><h3>COLLATERAL CONCERNS WITHIN A 500 M RADIUS</h3>
+    <table><thead><tr><th>DESCRIPTION</th><th style="width:120px">CATCODE</th><th>LOCATION</th><th>REMARKS</th></tr></thead><tbody>
+      <tr><td>NONE PLACED IN THE .MIZ</td><td>—</td><td>—</td><td class="l">DCS map scenery (buildings, roads) is not assessed. ${esc(folder.collateral || "")}</td></tr></tbody></table>
+    <h3>NO-STRIKE / RESTRICTED ENTITIES (ROE)</h3>
+    <table><thead><tr><th>TARGET / AREA</th><th>RESTRICTION</th></tr></thead><tbody>${nse.filter(n => n.target || n.restriction).map(n =>
+      `<tr><td>${esc(up(n.target))}</td><td class="l">${esc(n.restriction)}</td></tr>`).join("") || `<tr><td colspan="2">NONE LISTED IN THE ROE</td></tr>`}</tbody></table></div>`));
+
+  const AC = [["BE", "Basic Encyclopedia number", "Unique identifier of a target installation; here the JIPTL target number."],
+    ["CATCODE", "Category code", "Two-digit class of the target: first digit the category, second the subcategory."],
+    ["MIDB GEO", "Database geolocation", "Reference coordinates of the target (the .miz group centre)."],
+    ["ICOD", "Intelligence cut-off date", "Date of the latest intelligence used (the target nomination run)."],
+    ["DOI", "Date of imagery", "Date the folder imagery was produced."], ["CE", "Critical element", "Part of the target that lets it do its job."],
+    ["JDPI", "Joint desired point of impact", "Numbered aimpoint, one per critical-element unit, from the .miz unit position."],
+    ["TLE", "Target location error", "Expected coordinate error; CAT I is under 20 ft. .miz positions are exact."],
+    ["MSL", "Mean sea level", "Elevation reference for JDPI heights."], ["CDE", "Collateral damage estimate", "Level 1–5 assessment of risk to non-combatants, per the ROE."],
+    ["CER", "Collateral effects radius", "Distance within which a weapon's effects may reach collateral objects."],
+    ["NSE", "No-strike entity", "Protected object that must not be attacked (see the ROE)."], ["TGP", "Targeting pod", "Simulated narrow-field FLIR view (white hot)."]];
+  out.push(`<section class="pg"><img src="${LOGO}" alt="" style="position:absolute;left:18px;top:10px;width:110px;height:110px">
+    <div class="sheet" style="top:30px"><h3 style="font-size:32px;text-decoration:underline;margin-bottom:34px">ACRONYMS</h3>
+    <table><thead><tr><th style="width:120px">ACRONYM</th><th style="width:260px">MEANING</th><th>DEFINITION</th></tr></thead><tbody>
+    ${AC.map(([a, b, c]) => `<tr><td>${a}</td><td>${esc(b)}</td><td class="l">${esc(c)}</td></tr>`).join("")}</tbody></table></div></section>`);
+
+  const pagesEl = document.getElementById("pages"); pagesEl.innerHTML = out.join("");
+  // pages are fixed letter size: shrink them to fit narrow screens (printing resets it)
+  const fit = () => { pagesEl.style.zoom = Math.min(1, (pagesEl.parentElement.clientWidth - 4) / 1058); };
+  fit(); addEventListener("resize", fit); addEventListener("beforeprint", () => { pagesEl.style.zoom = 1; }); addEventListener("afterprint", fit);
+})();
+</script>
+</body>
+</html>
