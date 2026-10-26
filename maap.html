@@ -20,7 +20,9 @@
   .lines td, .lines th { font-size: 12px; padding: 4px 6px; }
   .bucket { font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
   .warn { color: var(--warn); } .bad { color: var(--danger, #e5484d); } .ok { color: var(--ok); }
-  .checks li { margin: 4px 0; font-size: 13px; }
+  .checks { columns: 2 420px; column-gap: 28px; margin: 0; }
+  .checks li { margin: 4px 0; font-size: 13px; break-inside: avoid; }
+  #checksPanel.has-bad { border-color: var(--danger, #e5484d); }
   .sup td input, .sup td select { padding: 3px 6px; font-size: 12px; }
   .sup .auto { font: 600 9.5px var(--mono); color: var(--muted); text-transform: uppercase; }
 </style>
@@ -36,7 +38,7 @@
     <div>
       <a class="small" id="back" href="#">← MAAP product (review, approval, publish)</a>
       <h1 style="margin-top:4px" id="title">MAAP</h1>
-      <div class="muted small">Build packages from the ATO lines against the JIPTL. Checks on the right update as you go. "Apply to ATO" writes the package letters onto the ATO missions.</div>
+      <div class="muted small">Build packages from the ATO lines against the JIPTL. Checks at the top update as you go — errors first. "Apply to ATO" writes the package letters onto the ATO missions.</div>
     </div>
     <div class="toolbar"><span class="small" id="state"></span>
       <button class="btn" id="fromAto" title="Start packages from the package letters already on the ATO">Start from ATO</button>
@@ -44,10 +46,11 @@
       <button class="btn" id="applyBtn">Apply to ATO</button>
       <button class="btn primary" id="saveBtn">Save MAAP</button></div>
   </div>
+  <!-- checks first, so errors are seen before anything is saved or applied -->
+  <section class="panel" id="checksPanel" style="margin-bottom:16px"><div class="panel-head"><h2>Checks</h2><span class="small" id="checkN"></span></div><ul class="checks" id="checks"></ul></section>
   <div class="mlay">
     <section id="pkgs"></section>
     <aside>
-      <section class="panel"><div class="panel-head"><h2>Checks</h2></div><ul class="checks" id="checks"></ul></section>
       <section class="panel"><div class="panel-head"><h2>JIPTL coverage</h2><span class="muted small" id="cov"></span></div><div id="coverage"></div></section>
       <section class="panel"><div class="panel-head"><h2>Unassigned ATO lines</h2><span class="muted small" id="poolN"></span></div>
         <div class="muted small" style="margin-bottom:6px">Standing lines (DCA, CAS, AEW) usually stay out of packages.</div><div id="pool"></div></section>
@@ -189,7 +192,12 @@
 
   function renderSide() {
     const cs = checks();
-    document.getElementById("checks").innerHTML = cs.length ? cs.map(([c, t]) => `<li class="${c}">${c === "bad" ? "✕" : "!"} ${esc(t)}</li>`).join("") : `<li class="ok">✓ No conflicts found.</li>`;
+    // errors first, then warnings
+    const bad = cs.filter(([c]) => c === "bad"), warn = cs.filter(([c]) => c !== "bad");
+    document.getElementById("checks").innerHTML = cs.length ? [...bad, ...warn].map(([c, t]) => `<li class="${c}">${c === "bad" ? "✕" : "!"} ${esc(t)}</li>`).join("") : `<li class="ok">✓ No conflicts found.</li>`;
+    const n = document.getElementById("checkN");
+    n.innerHTML = cs.length ? `${bad.length ? `<span class="bad">${bad.length} error${bad.length > 1 ? "s" : ""}</span>` : ""}${bad.length && warn.length ? " · " : ""}${warn.length ? `<span class="warn">${warn.length} warning${warn.length > 1 ? "s" : ""}</span>` : ""}` : "";
+    document.getElementById("checksPanel").classList.toggle("has-bad", bad.length > 0);
     const cov = jiptl.map(r => ({ r, p: maap.packages.filter(p => (p.targets || []).includes(r.id)).map(p => p.name) }));
     document.getElementById("cov").textContent = `${cov.filter(c => c.p.length).length} / ${jiptl.length} covered`;
     document.getElementById("coverage").innerHTML = `<table class="lines"><tbody>${cov.map(({ r, p }) => `<tr><td class="mono">${esc(r.id)}</td><td>${esc(r.name)}</td><td>${esc(r.grade || "")}</td>
