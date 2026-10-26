@@ -17,7 +17,7 @@
     tierWeight: { HIGH: 30, MEDIUM: 20, LOW: 10, IGNORE: 0 },
     defaultGrade: { HIGH: "A", MEDIUM: "B", LOW: "C" }
   };
-  const EXCLUDED_TASKS = ["5"]; // CAS/TST is continuous per doctrine — never ranked into the JIPTL
+  const EXCLUDED_TASKS = ["5"]; // unit-table task 5 (the CAS/TST class) is continuous per doctrine — never ranked into the JIPTL
 
   // ---------- built-in unit classification: DCS type -> [display name, category, task, tier, nominate] ----------
   const U = (name, category, task, tier, nominate = true) => ({ name, category, task, tier, nominate });
@@ -173,6 +173,57 @@
     return new Set();
   }
 
+  // ---------- key tasks: the Commander's Intent's list, in its order of priority, each mapped to the target categories
+  // it attacks. The mapping is read from the task's wording (editable on the nomination page); a target is scored under
+  // the first key task that covers its category, and one no key task covers is held on the watchlist. ----------
+  const CATEGORIES = [...new Set(Object.values(BUILTIN_UNITS).map(u => u.category))].sort();
+  const AIR_DEF = [SAM_L, SAM_M, SHORAD, "AAA", "Early warning radar"];
+  const CAT_RULES = [
+    [/\b(sams?|iads|air defen[cs]es?|sead|dead|shorad|aaa|flak|sa-?\d{1,2}|s-[234]00|patriot|hawk|buk|kub|tor|osa|pantsir)\b/i, AIR_DEF],
+    [/\bair (superiority|supremacy)\b/i, [...AIR_DEF, "Airfield", "Aircraft"]],
+    [/\b(oca|airfields?|air ?bases?|runways?|aircraft|fighters?|bombers?)\b/i, ["Airfield", "Aircraft"]],
+    [/\b(radars?|ewr|early warning|gci)\b/i, ["Early warning radar"]],
+    [/\b(locs?|lines? of communication|interdict\w*|bridges?|roads?|rail\w*|passes?|chokepoints?|msr)\b/i, ["Infrastructure", "Logistics", "Ammo / POL"]],   // with the depots that feed the LOCs
+    [/\b(supply|supplies|resupply|logistic\w*|convoys?|reinforce\w*)\b/i, ["Logistics", "Ammo / POL"]],
+    [/\b(fuel|pol|ammo|ammunition|depots?|storage)\b/i, ["Ammo / POL"]],
+    [/\b(naval|ships?|fleet|ports?|harbou?rs?|maritime|vessels?|sink)\b/i, ["Naval"]],
+    [/\b(anti-?ship|silkworm|c-?802|coastal|hy-?2)\b/i, ["Coastal anti-ship missile"]],
+    [/\b(c2|command|hqs?|headquarters|comms?|communications?|leadership)\b/i, ["C2"]],
+    [/\b(armou?r\w*|tanks?|mechani[sz]ed|fielded|ground forces|echelons?|attrit\w*|manoeuvre|maneuver)\b/i, ["Armor", "Ground forces", "Dismounts"]],
+    [/\b(artillery|mlrs|rocket artillery|howitzers?|fires)\b/i, ["Artillery"]],
+    [/\b(ssms?|scuds?|ballistic|tbms?|missile launchers?)\b/i, ["Surface-to-surface missile"]]
+  ];
+  // defensive tasks (DCA, protect, escort) and CAS attack no planned targets, whatever else their wording mentions
+  const DEFENSIVE_RE = /\b(dca|defend\w*|protect\w*|escort\w*|air cover|cap over)\b/i;
+  const CONTINUOUS_RE = /\b(cas|close air support|xcas|tst|time[- ]sensitive|troops in contact)\b/i;
+  function autoCats(text) {
+    if (DEFENSIVE_RE.test(text) || CONTINUOUS_RE.test(text)) return [];
+    const c = new Set(); CAT_RULES.forEach(([re, cats]) => { if (re.test(text)) cats.forEach(x => c.add(x)); }); return [...c];
+  }
+  const taskKind = (name, cats) => cats.length ? "targets" : CONTINUOUS_RE.test(name) ? "continuous" : "no targets";
+  // one cycle entry per CI key task; weights step down with priority. An analyst's edits to a task are kept while its text is unchanged.
+  function keyTasksFromCI(texts, saved = {}) {
+    const W = [100, 80, 60, 40, 30, 20, 15, 10], C = [10, 8, 6, 6, 6, 4, 4, 4], out = {};
+    texts.filter(Boolean).forEach((name, i) => {
+      const old = Object.values(saved || {}).find(t => t.name === name && t.cats && t.auto === false);
+      out[i + 1] = old ? { ...old } : { name, weight: W[i] ?? 10, cap: C[i] ?? 4, cats: autoCats(name), auto: true };
+      out[i + 1].kind = taskKind(name, out[i + 1].cats);
+    });
+    return out;
+  }
+  // the 639 default tasks when a campaign has no key tasks: each covers the categories its unit-table task number holds
+  function defaultKeyTasks() {
+    const out = structuredClone(DEFAULT_CYCLE.keyTasks);
+    Object.entries(out).forEach(([k, t]) => {
+      t.cats = k === "5" ? [] : [...new Set(Object.values(BUILTIN_UNITS).filter(u => String(u.task) === k).map(u => u.category))];
+      t.kind = k === "5" ? "continuous" : "targets";
+    });
+    return out;
+  }
+  // which key task a group is scored under: the first (highest priority) that covers its category; older cycles without
+  // categories match by the unit-table task number
+  const taskFor = (keyTasks, g) => Object.entries(keyTasks).find(([k, t]) => t.kind !== "continuous" && (t.cats ? t.cats.includes(g.category) : k === g.cls))?.[0] || null;
+
   // ---------- geometry ----------
   const toRad = d => d * Math.PI / 180;
   function haversineNM(a, b, c, d) {
@@ -243,7 +294,7 @@
         for (let i = 0; i < 3; i++) if (ka[i] !== kb[i]) return kb[i] > ka[i] ? b : a;
         return a;
       });
-      const g = { group, unitName: entry.name || best.type, repType: best.type, category: entry.category, task: String(entry.task),
+      const g = { group, unitName: entry.name || best.type, repType: best.type, category: entry.category, cls: String(entry.task),
         tier: entry.tier, lat: members.reduce((s, m) => s + m.lat, 0) / members.length, lon: members.reduce((s, m) => s + m.lon, 0) / members.length,
         unitCount: members.length, composition: comp, source: members[0].source, refId: members[0].refId };
       if (!entry.nominate || entry.tier === "IGNORE") { dropped.push(g); return; }
@@ -252,14 +303,18 @@
 
     const inArea = [], outOfBMA = [];
     groups.forEach(g => (inBMA(g.lat, g.lon, bma) ? inArea : outOfBMA).push(g));
-    inArea.forEach(g => {
-      const kt = cycle.keyTasks[g.task] || { name: "Unknown", weight: 0 };
+    // continuous: CAS/TST-class units (unit-table task 5); the rest are scored under the key task that covers them
+    const continuous = inArea.filter(g => EXCLUDED_TASKS.includes(g.cls)), noTask = [];
+    const scored = inArea.filter(g => !EXCLUDED_TASKS.includes(g.cls));
+    scored.forEach(g => {
+      g.task = taskFor(cycle.keyTasks, g) || "";
+      const kt = cycle.keyTasks[g.task] || { name: "No key task covers this target", weight: 0 };
       g.taskName = kt.name;
       g.score = (+kt.weight || 0) + (+cycle.tierWeight[g.tier] || 0);
       g.grade = cycle.defaultGrade[g.tier] || "D";
+      if (!g.task) noTask.push(g);
     });
-    const ranked = inArea.filter(g => !EXCLUDED_TASKS.includes(g.task)).sort((a, b) => b.score - a.score);
-    const continuous = inArea.filter(g => EXCLUDED_TASKS.includes(g.task));
+    const ranked = scored.filter(g => g.task).sort((a, b) => b.score - a.score);
 
     const jiptl = [], watchlist = [], count = {};
     ranked.forEach(g => {
@@ -267,10 +322,12 @@
       if (cap == null || cap === "" || (count[g.task] || 0) < +cap) { jiptl.push(g); count[g.task] = (count[g.task] || 0) + 1; }
       else watchlist.push(g);
     });
+    watchlist.push(...noTask);       // held, not ranked: promote by hand if the JFACC wants one serviced
     // number the whole universe: JIPTL first so top priorities get the lowest numbers
     [...jiptl, ...watchlist, ...outOfBMA].forEach((g, i) => { g.targetNumber = `T${start + i}`; });
     return { jiptl, watchlist, outOfBMA, continuous, dropped, unclassified };
   }
 
-  window.AOC.TARGETING = { DEFAULT_CYCLE, BUILTIN_UNITS, EXCLUDED_TASKS, run, parseCSV, parseCoord, inBMA, haversineNM };
+  window.AOC.TARGETING = { DEFAULT_CYCLE, BUILTIN_UNITS, EXCLUDED_TASKS, CATEGORIES, autoCats, keyTasksFromCI, defaultKeyTasks, taskFor,
+    run, parseCSV, parseCoord, inBMA, haversineNM };
 })();

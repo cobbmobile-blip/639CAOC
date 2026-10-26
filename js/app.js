@@ -280,5 +280,19 @@
     if (lo) lo.onclick = unit ? UnitAuth.logout : Auth.logout;
   }
 
-  window.AOC = { Store, Auth, UnitAuth, esc, toast, zulu, renderChrome, download, htmlToText, STATUS_LABEL, LOGO };
+  // A campaign's key tasks as its JIPTL was built with them (target nomination), else straight from its Commander's
+  // Intent; the CI's order is the priority. [{ n, name, cats, kind }] — kind: "targets" | "no targets" | "continuous".
+  function keyTasks(cid) {
+    const kt = Store.content(cid, "jiptl")?.cycle?.keyTasks;
+    if (kt && Object.values(kt)[0]?.cats) return Object.entries(kt).map(([n, t]) => ({ n, ...t }));
+    return (Store.content(cid, "ci")?.keytasks || []).filter(Boolean).map((name, i) => ({ n: String(i + 1), name }));
+  }
+  // the key task a JIPTL target serves, or null
+  function keyTaskOf(cid, targetId) {
+    const r = (Store.content(cid, "jiptl")?.rows || []).find(x => x.id === targetId);
+    return r?.task ? keyTasks(cid).find(t => t.n === String(r.task)) || { n: String(r.task), name: r.taskName || "" } : null;
+  }
+  const keyTaskLabel = t => t ? `KT ${t.n}${t.name ? ` — ${t.name}` : ""}` : "";
+
+  window.AOC = { Store, Auth, UnitAuth, esc, toast, zulu, renderChrome, download, htmlToText, STATUS_LABEL, LOGO, keyTasks, keyTaskOf, keyTaskLabel };
 })();

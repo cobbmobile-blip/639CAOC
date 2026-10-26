@@ -83,7 +83,7 @@
   function draftFolder(row) {
     const g = allGroups.find(x => x.targetNumber === row.id);
     const f = { targetId: row.id, name: row.name, grade: row.grade || "", category: row.cat || g?.category || "", coords: row.loc || (g ? ddm(g.lat, g.lon) : ""),
-      mgrs: "", elev: "", effect: [row.effect, row.task && `Supports key task ${row.task}`].filter(Boolean).join(" — "), status: "draft",
+      mgrs: "", elev: "", effect: [row.effect, row.task && `supports ${AOC.keyTaskLabel(AOC.keyTaskOf(cid, row.id))}`].filter(Boolean).join(" — "), status: "draft",
       description: "", dmpis: [], threats: [], collateral: "", imagery: "", bda: BDA_REQ[row.cat] || "Post-strike TGP video; follow-up ISR as required." };
     if (g) {
       const comp = Object.entries(g.composition);

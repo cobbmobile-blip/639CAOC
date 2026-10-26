@@ -251,7 +251,7 @@
 
   const kv = rows => `<div class="kv">${rows.map(([k, v]) => `<div>${esc(k)}</div><div>${esc(v || "—")}</div>`).join("")}</div>`;
   out.push(page("TARGET SUMMARY 1/1", `<div class="sheet">${kv([["TARGET", `${tid} — ${up(name)}`], ["CATEGORY", `${cat} (CATCODE ${catcode(cat)})`],
-    ["JIPTL GRADE / TASK", `${row.grade || folder.grade || "—"}${row.task ? ` / key task ${row.task}` : ""}`],
+    ["JIPTL GRADE", row.grade || folder.grade || "—"], ["KEY TASK", AOC.keyTaskLabel(AOC.keyTaskOf(cid, tid)) || "Not under a key task"],
     ["LOCATION", lat != null ? `${gLat} ${gLon} · ${mgrs(lat, lon)}${meta ? ` · ${ft(meta.elev_m)} MSL` : ""}` : folder.coords],
     ["DESCRIPTION", folder.description], ["DESIRED EFFECT", folder.effect || row.effect], ["CDE", folder.cde ? `CDE ${folder.cde}` : "Not assessed"],
     ["COLLATERAL / RESTRICTIONS", folder.collateral], ["BDA REQUIREMENTS", folder.bda], ["SOURCES", folder.imagery]])}

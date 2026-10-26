@@ -8,10 +8,23 @@
   // WGS84
   const A = 6378137.0, F = 1 / 298.257223563, E2 = F * (2 - F), EP2 = E2 / (1 - E2), RAD = Math.PI / 180;
 
-  // Calibrated against real mission data (see theater_projection.py). DCS convention: x ~ northing, y ~ easting.
+  // Fitted to each terrain's own Beacons.lua (every beacon has map x/z and lat/lon; tools/target-render/dcs_charts.py).
+  // DCS convention: x ~ northing, y ~ easting. A theater not listed here is calibrated once on the Mission file page.
   const BUILTIN = {
-    PersianGulf: { central_meridian_deg: 56.9999597, scale_factor: 0.999600019, false_easting: 104910.012, false_northing: -2986832.08,
-      calibration: "657-point fit vs OP_VENOM_MOCHA_v1.2.miz Coalition Parser export, max residual 1.2m, RMS 0.7m" }
+    Caucasus: { central_meridian_deg: 33.0000150, scale_factor: 0.999599662, false_easting: -99515.747, false_northing: -4998113.235,
+      calibration: "164 DCS beacons, max residual 0.52 m" },
+    PersianGulf: { central_meridian_deg: 57.0000031, scale_factor: 0.999599976, false_easting: 75756.313, false_northing: -2894932.939,
+      calibration: "101 DCS beacons, max residual 0.08 m" },
+    Syria: { central_meridian_deg: 38.9999995, scale_factor: 0.999599982, false_easting: 282800.952, false_northing: -3879865.931,
+      calibration: "151 DCS beacons, max residual 0.08 m" },
+    Afghanistan: { central_meridian_deg: 62.9999970, scale_factor: 0.999599848, false_easting: -300150.272, false_northing: -3759656.442,
+      calibration: "49 DCS beacons, max residual 0.4 m" },
+    Kola: { central_meridian_deg: 20.9999998, scale_factor: 0.999600061, false_easting: -62702.005, false_northing: -7543625.460,
+      calibration: "69 DCS beacons, max residual 0.14 m" },
+    Nevada: { central_meridian_deg: -116.9999986, scale_factor: 0.999599998, false_easting: -193996.687, false_northing: -4410028.054,
+      calibration: "45 DCS beacons, max residual 0.07 m" },
+    MarianaIslands: { central_meridian_deg: 147.0000139, scale_factor: 0.999600026, false_easting: 238419.498, false_northing: -1491840.051,
+      calibration: "19 DCS beacons, max residual 0.06 m" }
   };
   const projection = theatre => BUILTIN[theatre] || Store.db.projections?.[theatre] || null;
 
@@ -37,7 +50,17 @@
     return [N * (a + (1 - T + C) * a ** 3 / 6 + (5 - 18 * T + T * T + 72 * C - 58 * EP2) * a ** 5 / 120),
       M + N * t * (a * a / 2 + (5 - T + 9 * C + 4 * C * C) * a ** 4 / 24 + (61 - 58 * T + T * T + 600 * C - 330 * EP2) * a ** 6 / 720)];
   }
-  function xyToLatLon(p, x, y) { return tmInverse(y - p.false_easting, x - p.false_northing, p.central_meridian_deg, p.scale_factor); }
+  // series inverse, then Newton steps against the forward formula: the series alone drifts by metres far from the
+  // central meridian (Kola, the Caucasus edges); three steps bring every DCS beacon within a metre
+  function xyToLatLon(p, x, y) {
+    let [lat, lon] = tmInverse(y - p.false_easting, x - p.false_northing, p.central_meridian_deg, p.scale_factor);
+    for (let i = 0; i < 3; i++) {
+      const [e, n] = tmForward1(lat, lon, p.central_meridian_deg);
+      const dx = x - (p.false_northing + p.scale_factor * n), dy = y - (p.false_easting + p.scale_factor * e);
+      lat += dx / 111132; lon += dy / (111320 * Math.cos(lat * RAD));
+    }
+    return [lat, lon];
+  }
   const metres = (a, b) => Math.hypot((a[0] - b[0]) * 111320, (a[1] - b[1]) * 111320 * Math.cos(a[0] * RAD));
 
   // Fit a theater projection from pairs { x, y, lat, lon }. For a given central meridian the model is linear:

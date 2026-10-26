@@ -353,9 +353,9 @@ window.AOC_SEED = {
           { id: "T10001", name: "SA-10 Battery KUTAISI EAST", task: "1", grade: "A", cat: "SAM (long range)", loc: "38T LM 012 845", effect: "Destroy" },
           { id: "T10002", name: "SA-11 Battalion SENAKI", task: "1", grade: "A", cat: "SAM (medium range)", loc: "38T KM 645 712", effect: "Destroy" },
           { id: "T10003", name: "Early Warning Radar TSKALTUBO", task: "1", grade: "B", cat: "Early warning radar", loc: "38T LM 041 897", effect: "Disrupt" },
-          { id: "T10004", name: "Road Bridge LIMA (Rioni)", task: "2", grade: "B", cat: "LOC", loc: "38T LM 102 811", effect: "Deny" },
-          { id: "T10005", name: "Fuel Depot SAMTREDIA", task: "2", grade: "B", cat: "Ammo / POL", loc: "38T KM 911 790", effect: "Destroy" },
-          { id: "T10006", name: "Armour Assembly Area GOLD", task: "4", grade: "C", cat: "Armor", loc: "38T KM 822 755", effect: "Attrit 30%" }
+          { id: "T10004", name: "Road Bridge LIMA (Rioni)", task: "3", grade: "B", cat: "LOC", loc: "38T LM 102 811", effect: "Deny" },
+          { id: "T10005", name: "Fuel Depot SAMTREDIA", task: "3", grade: "B", cat: "Ammo / POL", loc: "38T KM 911 790", effect: "Destroy" },
+          { id: "T10006", name: "Armour Assembly Area GOLD", task: "3", grade: "C", cat: "Armor", loc: "38T KM 822 755", effect: "Attrit 30%" }
         ]
       },
       // TDP book: one folder per JIPTL target (built on tdp.html)

@@ -100,6 +100,23 @@
       ${sig(ctx)}`
   };
 
+  // AOD objectives: the CI key tasks in priority order (effect from the task's verb, missions from what it attacks, and
+  // its JIPTL targets), then any objectives the JFACC adds by hand
+  const VERB = [[/destroy|sink/i, "Destroy"], [/neutrali[sz]e|suppress/i, "Neutralise"], [/disrupt/i, "Disrupt"], [/deny/i, "Deny"], [/interdict|isolate|turn back/i, "Interdict"],
+    [/attrit|degrade/i, "Attrit"], [/protect|defend|maintain|establish/i, "Protect"], [/support|provide|cas/i, "Support"]];
+  const MSN_FOR = [[/SAM|AAA|Early warning/, "SEAD/DEAD"], [/Airfield|Aircraft/, "OCA"], [/Infrastructure|Logistics|Ammo/, "AI"], [/Naval|anti-ship/, "Maritime strike"],
+    [/C2/, "Strike"], [/Armor|Ground|Dismounts|Artillery|Surface-to-surface/, "AI"]];
+  function aodObjectives(d, ctx) {
+    const cid = ctx.campaign.id, rows = window.AOC.Store.content(cid, "jiptl")?.rows || [];
+    const auto = window.AOC.keyTasks(cid).map(t => {
+      const tg = rows.filter(r => String(r.task) === t.n).map(r => r.id);
+      const msn = [...new Set((t.cats || []).map(c => MSN_FOR.find(([re]) => re.test(c))?.[1]).filter(Boolean))];
+      const kind = t.kind || ((t.cats || []).length ? "targets" : /cas|close air/i.test(t.name) ? "continuous" : /dca|defend|protect/i.test(t.name) ? "no targets" : "");
+      return { pri: `KT ${t.n}`, objective: t.name, effect: VERB.find(([re]) => re.test(t.name))?.[1] || "",
+        tasks: kind === "continuous" ? "CAS, XCAS (continuous)" : kind === "no targets" ? "DCA" : `${msn.join(", ")}${tg.length ? ` — ${tg.join(", ")}` : ""}` };
+    });
+    return [...auto, ...(d.objectives || []).filter(o => o.objective && !auto.some(a => a.objective === o.objective))];
+  }
   P.aod = {
     code: "AOD", name: "Air Operations Directive", owner: "Strategy", stage: 2,
     desc: "Daily JFACC guidance: objectives, priorities and apportionment for an ATO period.",
@@ -125,7 +142,7 @@
       return `${head("AIR OPERATIONS DIRECTIVE", ctx, `ATO DAY ${esc(d.atoDay)}`)}
       ${kv([["EFFECTIVE", d.period]])}
       ${para("1. JFACC GUIDANCE", d.guidance)}
-      <h2>2. OBJECTIVES (PRIORITY ORDER)</h2>${table([["pri", "PRI"], ["objective", "OBJECTIVE"], ["effect", "EFFECT"], ["tasks", "TASKS"]], d.objectives)}
+      <h2>2. OBJECTIVES (PRIORITY ORDER)</h2>${table([["pri", "PRI"], ["objective", "OBJECTIVE"], ["effect", "EFFECT"], ["tasks", "TASKS"]], aodObjectives(d, ctx))}
       <h2>3. APPORTIONMENT</h2>${table([["mission", "MISSION"], ["pct", "% SORTIES"]], d.apportionment)}
       <p>TOTAL: ${total}%${total !== 100 ? "  *** DOES NOT SUM TO 100% ***" : ""}</p>
       ${para("4. TARGETING GUIDANCE", d.targeting)}${para("5. NOTES", d.notes)}${sig(ctx)}`;
@@ -140,7 +157,8 @@
     fields: [
       { key: "rows", label: "Targets (top row = highest priority — use ↑ ↓ to re-rank)", type: "table", rank: true, columns: [
         { key: "id", label: "Target #", w: 80 }, { key: "name", label: "Target" },
-        { key: "task", label: "Task", type: "select", options: ["1", "2", "3", "4"], w: 60 },
+        { key: "task", label: "Key task", type: "select", w: 70,
+          get options() { const A = window.AOC; return A.keyTasks(new URLSearchParams(location.search).get("c") || A.Store.currentCampaignId()).map(t => t.n); } },
         { key: "grade", label: "Grade", type: "select", options: ["A", "B", "C", "D"], w: 60 },
         { key: "cat", label: "Category" },
         { key: "loc", label: "Location" },
@@ -151,11 +169,14 @@
       const kt = d.cycle?.keyTasks;
       return `${head("JOINT INTEGRATED PRIORITIZED TARGET LIST", ctx, `ATO DAY ${esc(ctx.campaign.atoDay)}`)}
       ${d.cycle ? kv([["AO (AREA OF OPERATIONS)", d.cycle.bma || "Whole theater"], ["NOMINATED", d.cycle.generated ? window.AOC.zulu(new Date(d.cycle.generated)) : ""]]) : ""}
-      ${kt ? `<h2>KEY TASKS</h2>${table([["k", "TASK"], ["name", "KEY TASK"], ["weight", "WEIGHT"], ["cap", "CAP"]],
-        Object.entries(kt).filter(([k]) => k !== "5").map(([k, t]) => ({ k, ...t })))}` : ""}
+      ${(() => { const ks = window.AOC.keyTasks(ctx.campaign.id); if (!ks.length) return "";
+        const covers = t => t.cats?.length ? t.cats.join(", ") : t.kind === "continuous" ? "Continuous (CAS/TST) — not ranked" : t.kind === "no targets" ? "No planned targets" : "";
+        const live = (t, v) => !t.kind || t.kind === "targets" ? String(v ?? "") : "—";
+        return `<h2>KEY TASKS (COMMANDER'S INTENT)</h2>${table([["n", "KT"], ["name", "KEY TASK"], ["_c", "TARGETS IT COVERS", covers], ["weight", "WEIGHT", t => live(t, t.weight)], ["cap", "CAP", t => live(t, t.cap)],
+          ["_t", "ON JIPTL", t => String(rows.filter(r => String(r.task) === t.n).length)]], ks)}`; })()}
       <h2>TARGETS</h2>
-      ${table([["_r", "RANK", r => r._r], ["id", "TGT #"], ["name", "TARGET"], ["task", "TASK"], ["grade", "GRADE"], ["cat", "CATEGORY"], ["loc", "LOCATION"], ["effect", "EFFECT"]], rows)}
-      <p>Grades: A = must service this cycle, B = service if capacity allows, C/D = opportunity. Task 5 (CAS/TST) is continuous and not ranked.</p>${sig(ctx)}`;
+      ${table([["_r", "RANK", r => r._r], ["id", "TGT #"], ["name", "TARGET"], ["task", "KT", r => r.task ? `KT ${r.task}` : "—"], ["grade", "GRADE"], ["cat", "CATEGORY"], ["loc", "LOCATION"], ["effect", "EFFECT"]], rows)}
+      <p>Grades: A = must service this cycle, B = service if capacity allows, C/D = opportunity. KT = the Commander's Intent key task the target serves. CAS/TST is continuous and not ranked.</p>${sig(ctx)}`;
     }
   };
 
@@ -241,7 +262,8 @@
         if (tgt) out.push(`GTGTLOC/P/TOT:${t1}/-/-/${up(tgt.name)}//`, `TGTS/${up(tgt.id)}/${dash(tgt.cat)}/${dash(tgt.loc)}/${dash(tgt.effect)}//`);
         else out.push(`AMSNLOC/${t1}/${t2}/${dash(tk?.name || r.target)}/${tk?.altLo ? `${dash(tk.altLo)}${tk.altHi ? `-${dash(tk.altHi)}` : ""}` : "-"}//`);
         const cde = tgt && tdpOf(tgt.id)?.cde;
-        out.push(`AMPN/ALR:${up(alr)}${cde ? ` CDE:${cde}` : ""}//`);
+        const kt = tgt && window.AOC.keyTaskOf(cid, tgt.id);
+        out.push(`AMPN/ALR:${up(alr)}${cde ? ` CDE:${cde}` : ""}${kt ? ` KEY TASK:${kt.n}` : ""}//`);
         if (tk?.type === "TANKER TRACK") out.push(`REFTSK/-/-/-/PFREQ:${dash(tk.freq)}/-/${tk.tacanCh ? `${tk.tacanCh}${up(tk.tacanMode)}` : "-"}//`);
         if (r.role === "AEW") out.push(`ASACSDAT/AWAC/${cs(r.callsign)}/AWACS/AEW//`);
         const tanker = r.tanker && r.tanker !== "—" ? byCs(r.tanker) : null;
@@ -262,7 +284,12 @@
       ["type", "ACFT", r => `${r.num || ""}x${r.type || ""}`], ["role", "MISSION"], ["pkg", "PKG", r => r.pkg && r.pkg !== "—" ? r.pkg : ""], ["tot", "TOT / ON-STA"], ["target", "TGT / AREA"],
       ["tanker", "TANKER", r => r.tanker && r.tanker !== "—" ? r.tanker : ""], ["m1", "M1"], ["m3", "M3"]];
     const h = rows.filter(human), ai = rows.filter(r => !human(r));
+    // which key tasks this ATO's strike lines serve
+    const A = window.AOC, byKt = {};
+    rows.forEach(r => { const t = r.target && A.keyTaskOf(ctx.campaign.id, r.target); if (t) (byKt[t.n] = byKt[t.n] || { t, n: 0 }).n++; });
+    const kts = Object.values(byKt).sort((a, b) => a.t.n - b.t.n);
     return `<h2>SUMMARY</h2><p>ATO day ${esc(d.atoDay)}, ${esc(d.period)}: ${rows.length} missions, ${n} aircraft${pkgs.length ? `, packages ${pkgs.map(esc).join(", ")}` : ""}.</p>
+      ${kts.length ? `<p>Key tasks served: ${kts.map(k => `${esc(A.keyTaskLabel(k.t))} (${k.n} line${k.n > 1 ? "s" : ""})`).join("; ")}.</p>` : ""}
       <h2>HUMAN (${h.length})</h2>${table(cols, h)}<h2>AI (${ai.length})</h2>${table(cols, ai)}`;
   }
 
@@ -488,6 +515,17 @@
   };
 
   const RESULTS = ["Hit — destroyed", "Hit — damaged", "Hit — unknown", "Miss", "No drop", "Aborted", "Not flown"];
+  // BDA against the Commander's Intent: per key task, its JIPTL targets, how many were attacked, and their assessed state
+  function bdaByKeyTask(m, b, ctx) {
+    const A = window.AOC, cid = ctx.campaign.id, rows = A.Store.content(cid, "jiptl")?.rows || [];
+    const ks = A.keyTasks(cid).filter(t => rows.some(r => String(r.task) === t.n));
+    if (!ks.length) return "";
+    const last = id => [...b].reverse().find(x => x.target === id)?.status || "";
+    return `<h2>3. KEY TASK ASSESSMENT</h2>${table([["n", "KT"], ["name", "KEY TASK"], ["_j", "JIPTL TGTS"], ["_a", "ATTACKED"], ["_d", "DESTROYED"], ["_g", "DAMAGED"], ["_r", "RE-ATK"]],
+      ks.map(t => { const ids = rows.filter(r => String(r.task) === t.n).map(r => r.id), st = ids.map(last);
+        return { ...t, _j: String(ids.length), _a: String(ids.filter(id => m.some(x => x.target === id)).length), _d: String(st.filter(s => s === "Destroyed").length),
+          _g: String(st.filter(s => /damage/i.test(s) && s !== "No damage").length), _r: ids.filter(id => b.some(x => x.target === id && x.reattack === "Yes")).join(", ") || "—" }; }))}`;
+  }
   P.bda = {
     code: "BDA", name: "BDA / MISREP Rollup", owner: "ISR & Targeting", stage: 6,
     desc: "Mission reports from groups rolled up into target assessments for the next cycle.",
@@ -519,7 +557,8 @@
       ${kv([["PERIOD", d.period], ["MISREPS RECEIVED", String(m.length)], ["MISSIONS WITH HITS", `${hits} of ${m.length}`], ["RE-ATTACK", reattack.join(", ") || "None"]])}
       <h2>1. MISSION REPORTS</h2>${table([["msn", "MSN"], ["callsign", "CALLSIGN"], ["target", "TGT"], ["tot", "TOT"], ["ord", "ORDNANCE"], ["result", "RESULT"], ["remarks", "REMARKS"]], m)}
       <h2>2. TARGET ASSESSMENT</h2>${table([["target", "TGT"], ["phase", "PHASE"], ["status", "STATUS"], ["source", "SOURCE"], ["reattack", "RE-ATK"]], b)}
-      ${para("3. NEW THREATS OBSERVED", d.threats)}${para("4. RECOMMENDATIONS FOR NEXT ATO", d.recommendations)}${sig(ctx)}`;
+      ${bdaByKeyTask(m, b, ctx)}
+      ${para("4. NEW THREATS OBSERVED", d.threats)}${para("5. RECOMMENDATIONS FOR NEXT ATO", d.recommendations)}${sig(ctx)}`;
     }
   };
 
@@ -536,8 +575,13 @@
       return `${head("MASTER AIR ATTACK PLAN", ctx, `ATO DAY ${esc(ctx.campaign.atoDay)}`)}
       ${kv([["PACKAGES", String(pk.length)], ["JIPTL TARGETS COVERED", d.coverage || ""]])}
       ${pk.map(p => `<h2>PACKAGE ${esc(p.name)} — TOT ${esc(p.tot || "TBD")}${p.push ? ` · PUSH ${esc(p.push)}` : ""}</h2>
-        ${kv([["TARGETS", (p.targets || []).join(", ")], ["STRIKE", (p.strike || []).map(L).join("; ")], ["SEAD / DEAD", (p.sead || []).map(L).join("; ")],
+        ${kv([["TARGETS", (p.targets || []).join(", ")], ["KEY TASKS", [...new Set((p.targets || []).map(t => window.AOC.keyTaskLabel(window.AOC.keyTaskOf(ctx.campaign.id, t))).filter(Boolean))].join("; ")],
+          ["STRIKE", (p.strike || []).map(L).join("; ")], ["SEAD / DEAD", (p.sead || []).map(L).join("; ")],
           ["ESCORT / SWEEP", (p.escort || []).map(L).join("; ")], ["TANKER", (p.tanker || []).map(L).join("; ")], ["NOTES", p.notes]])}`).join("") || "<p>No packages yet.</p>"}
+      ${(() => { const A = window.AOC, cid = ctx.campaign.id, rows = A.Store.content(cid, "jiptl")?.rows || [], ks = A.keyTasks(cid).filter(t => rows.some(r => String(r.task) === t.n));
+        return ks.length ? `<h2>KEY TASK COVERAGE</h2>${table([["n", "KT"], ["name", "KEY TASK"], ["_j", "JIPTL TARGETS"], ["_p", "IN A PACKAGE"]], ks.map(t => {
+          const ids = rows.filter(r => String(r.task) === t.n).map(r => r.id);
+          return { ...t, _j: ids.join(", "), _p: ids.filter(id => pk.some(p => (p.targets || []).includes(id))).join(", ") || "NONE" }; }))}` : ""; })()}
       ${sig(ctx)}`;
     }
   };

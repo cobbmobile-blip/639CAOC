@@ -128,6 +128,9 @@
     ps.forEach(p => (p.targets || []).forEach(t => { const i = AOC.targetIssue(cid, t, jiptl); if (i) out.push(["bad", `Package ${p.name}: ${i}.`]); }));
     ps.forEach(p => (p.lines || []).map(byMsn).filter(Boolean).forEach(m => { const i = AOC.targetIssue(cid, m.target, jiptl); if (i) out.push(["warn", `Line ${m.msn}: ${i}.`]); }));
     jiptl.filter(r => r.grade === "A" && !ps.some(p => (p.targets || []).includes(r.id))).forEach(r => out.push(["bad", `Grade A target ${r.id} ${r.name} is not in any package.`]));
+    // every key task with JIPTL targets should be worked by at least one package
+    AOC.keyTasks(cid).filter(t => jiptl.some(r => String(r.task) === t.n) && !ps.some(p => (p.targets || []).some(id => String(jiptl.find(r => r.id === id)?.task) === t.n)))
+      .forEach(t => out.push(["warn", `${AOC.keyTaskLabel(t)}: none of its JIPTL targets is in a package.`]));
     return out;
   }
 

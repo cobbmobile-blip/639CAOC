@@ -15,7 +15,11 @@
   .step { margin-bottom: 14px; }
   .step h3 { font: 600 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
   .kt td input { padding: 4px 6px; font-size: 12px; }
-  .kt td { padding: 3px 4px; }
+  .kt td { padding: 3px 4px; vertical-align: top; }
+  .kt td.wrap { white-space: normal; font-size: 12px; }
+  .kt summary { cursor: pointer; font-size: 11.5px; list-style: none; }
+  .kt .cats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 8px; margin-top: 4px; }
+  .kt .cats label { font-size: 11px; margin: 0; text-transform: none; letter-spacing: 0; color: var(--text); display: flex; gap: 4px; align-items: center; }
   .mini { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
   .mini label { margin: 0 0 2px; font-size: 10.5px; }
   .mini input, .mini select { padding: 4px 6px; font-size: 12px; }
@@ -72,10 +76,11 @@
     <section class="panel">
       <div class="step">
         <h3>1 · Key tasks & priorities</h3>
-        <table class="kt"><thead><tr><th>#</th><th>Key task</th><th style="width:70px">Weight</th><th style="width:60px">Cap</th></tr></thead><tbody id="kt"></tbody></table>
-        <div class="note" style="margin:6px 0 10px">Score = task weight + tier weight. Cap = most targets this task may put on the JIPTL; the rest go to the watchlist. Task 5 (CAS/TST) is continuous and never ranked.</div>
+        <div class="note" id="ktSrc" style="margin:0 0 6px"></div>
+        <table class="kt"><thead><tr><th>#</th><th>Key task</th><th style="width:34%">Targets it covers</th><th style="width:58px">Weight</th><th style="width:48px">Cap</th></tr></thead><tbody id="kt"></tbody></table>
+        <div class="note" style="margin:6px 0 10px">Each target is scored under the first key task that covers its category: score = task weight + tier weight. Cap = most targets a task may put on the JIPTL; the rest, and targets no key task covers, go to the watchlist. CAS/TST is continuous and never ranked.</div>
         <div class="mini" id="tiers"></div>
-        <div class="toolbar" style="margin-top:8px"><button class="btn sm" id="ciTasks">Use Commander's Intent key tasks</button><button class="btn sm ghost" id="resetCycle">Reset to 639 defaults</button></div>
+        <div class="toolbar" style="margin-top:8px"><button class="btn sm ghost" id="resetCycle" title="Re-read the key tasks and their target categories from the Commander's Intent, dropping edits made here">Re-read the Commander's Intent</button></div>
       </div>
 
       <div class="step">
@@ -123,8 +128,13 @@
 
   // ---------- state (saved per campaign) ----------
   const saved = Store.content(cid, "targeting") || {};
+  // key tasks always come from this campaign's Commander's Intent (its order is the priority); edits to a task's target
+  // categories, weight and cap are kept while its wording is unchanged. No CI key tasks: the 639 default tasks.
+  const ciTasks = (Store.content(cid, "ci")?.keytasks || []).filter(Boolean);
+  const cycleKeyTasks = (keep = saved.cycle?.keyTasks) => ciTasks.length ? TG.keyTasksFromCI(ciTasks, keep)
+    : keep && Object.values(keep)[0]?.cats ? keep : TG.defaultKeyTasks();
   const st = {
-    cycle: structuredClone(saved.cycle || TG.DEFAULT_CYCLE),
+    cycle: { ...structuredClone(saved.cycle || TG.DEFAULT_CYCLE), keyTasks: cycleKeyTasks() },
     // AO (Area of Operations), owned by this page: { mode: "box" | "point" | "none", ... } (shapes in step 2 below)
     area: saved.area || { mode: "box" },
     imports: saved.imports || [],    // [{ name, rows }]
@@ -147,29 +157,39 @@
   const unitTable = () => st.table ? { ...TG.BUILTIN_UNITS, ...st.table.units } : TG.BUILTIN_UNITS;
 
   // ---------- step 1: key tasks & tiers ----------
+  const KIND_NOTE = { "no targets": "No planned targets (defensive) — not on the JIPTL", continuous: "Continuous (CAS/TST) — not ranked" };
+  const catSummary = t => (t.cats.length ? esc(t.cats.join(", ")) : `<span class="muted">${KIND_NOTE[t.kind] || "None — tick the categories it attacks"}</span>`)
+    + (t.auto === false ? ' <span class="muted small">(edited)</span>' : "");
   function renderCycle() {
-    document.getElementById("kt").innerHTML = Object.entries(st.cycle.keyTasks).map(([k, t]) => `<tr>
-      <td class="mono">${k}</td><td><input data-kt="${k}" data-f="name" value="${esc(t.name)}"></td>
-      <td><input data-kt="${k}" data-f="weight" value="${esc(t.weight)}" ${TG.EXCLUDED_TASKS.includes(k) ? "disabled" : ""}></td>
-      <td><input data-kt="${k}" data-f="cap" value="${esc(t.cap)}" ${TG.EXCLUDED_TASKS.includes(k) ? "disabled" : ""}></td></tr>`).join("");
+    document.getElementById("ktSrc").textContent = ciTasks.length
+      ? "From the Commander's Intent, in its order of priority. The categories each task covers are read from its wording; change them here if needed."
+      : "This campaign's Commander's Intent has no key tasks yet, so the 639 default tasks are used.";
+    document.getElementById("kt").innerHTML = Object.entries(st.cycle.keyTasks).map(([k, t]) => { const live = t.kind === "targets";
+      return `<tr><td class="mono">${k}</td><td class="wrap">${esc(t.name)}</td>
+      <td><details><summary data-sum="${k}">${catSummary(t)}</summary><div class="cats">${TG.CATEGORIES.map(c =>
+        `<label><input type="checkbox" data-kt="${k}" data-cat="${esc(c)}" ${t.cats.includes(c) ? "checked" : ""}>${esc(c)}</label>`).join("")}</div></details></td>
+      <td><input data-kt="${k}" data-f="weight" value="${esc(t.weight)}" ${live ? "" : "disabled"}></td>
+      <td><input data-kt="${k}" data-f="cap" value="${esc(t.cap)}" ${live ? "" : "disabled"}></td></tr>`; }).join("");
     document.getElementById("tiers").innerHTML = ["HIGH", "MEDIUM", "LOW"].map(t => `<div><label>${t} tier weight</label><input data-tier="${t}" value="${esc(st.cycle.tierWeight[t])}"></div>`).join("")
       + `<div><label>Default grades</label><input data-grades value="${["HIGH", "MEDIUM", "LOW"].map(t => st.cycle.defaultGrade[t]).join(" / ")}" title="Grade seeded for HIGH / MEDIUM / LOW — re-grade lines after the run"></div>`;
   }
-  document.getElementById("kt").addEventListener("input", e => { const i = e.target; st.cycle.keyTasks[i.dataset.kt][i.dataset.f] = i.dataset.f === "name" ? i.value : i.value.replace(/[^\d.]/g, ""); touch(); });
+  document.getElementById("kt").addEventListener("change", e => {
+    const i = e.target, t = st.cycle.keyTasks[i.dataset.kt]; if (!t) return;
+    if (i.dataset.cat) {
+      t.cats = i.checked ? [...new Set([...t.cats, i.dataset.cat])] : t.cats.filter(c => c !== i.dataset.cat); t.auto = false;
+      t.kind = t.cats.length ? "targets" : t.kind === "targets" ? "no targets" : t.kind;
+      document.querySelector(`[data-sum="${i.dataset.kt}"]`).innerHTML = catSummary(t);
+      document.querySelectorAll(`input[data-kt="${i.dataset.kt}"][data-f]`).forEach(x => { x.disabled = t.kind !== "targets"; });
+    } else if (i.dataset.f) { t[i.dataset.f] = i.value.replace(/[^\d.]/g, ""); t.auto = false; }
+    touch();
+  });
   document.getElementById("tiers").addEventListener("input", e => {
     const i = e.target;
     if (i.dataset.tier) st.cycle.tierWeight[i.dataset.tier] = i.value.replace(/[^\d.]/g, "");
     if (i.hasAttribute("data-grades")) { const g = i.value.split("/").map(x => x.trim().toUpperCase()); ["HIGH", "MEDIUM", "LOW"].forEach((t, n) => { if (g[n]) st.cycle.defaultGrade[t] = g[n]; }); }
     touch();
   });
-  document.getElementById("resetCycle").onclick = () => { st.cycle = structuredClone(TG.DEFAULT_CYCLE); renderCycle(); touch(); };
-  // Commander's Intent key tasks become task names 1–4 (weights/caps are kept)
-  document.getElementById("ciTasks").onclick = () => {
-    const kts = (Store.content(cid, "ci")?.keytasks || []).filter(Boolean);
-    if (!kts.length) { toast("This campaign's Commander's Intent has no key tasks yet"); return; }
-    kts.slice(0, 4).forEach((t, i) => { st.cycle.keyTasks[i + 1].name = t; });
-    renderCycle(); touch(); toast(`Loaded ${Math.min(4, kts.length)} key tasks from the Commander's Intent`);
-  };
+  document.getElementById("resetCycle").onclick = () => { st.cycle.keyTasks = cycleKeyTasks({}); renderCycle(); touch(); };
 
   // ---------- step 2: AO, Area of Operations (a box or a point + radius, set on the map) ----------
   // box: { mode: "box", lat, lon (centre), wNM, hNM, rot (degrees clockwise from north) }; point: { mode: "point", lat, lon, radius }
@@ -317,15 +337,15 @@
     const list = rowsFor(tab), isJ = tab === "jiptl";
     const capsLeft = {}; // show the cut line per task on the JIPTL
     el.innerHTML = `<p class="note">${{ jiptl: "Ranked by score, capped per key task. Re-grade or re-order lines, cut a line to the watchlist, then send to the JIPTL for CFACC approval.",
-        watchlist: "Inside the AO and nominate-eligible, but cut by a key task's cap. Promote a line to put it on the JIPTL.",
+        watchlist: "Inside the AO and nominate-eligible, but cut by a key task's cap, or not covered by any key task (task: none). Promote a line to put it on the JIPTL.",
         outOfBMA: "Classified targets outside the AO — kept for traceability. Promote one to include it anyway.",
-        notTargets: "Task 5 (continuous CAS/TST) and groups below the value floor (dismounts, clutter) — never ranked." }[tab]}</p>
+        notTargets: "Continuous CAS/TST-class groups and groups below the value floor (dismounts, clutter) — never ranked." }[tab]}</p>
       ${list.length ? `<table class="res"><thead><tr>${isJ ? "<th>#</th>" : ""}<th>Target</th><th>Unit / group</th><th>Task</th><th>Grade</th><th>Category</th><th>Tier</th><th>Score</th><th>Units</th><th>Location</th><th>Source</th><th></th></tr></thead>
       <tbody>${list.map((g, i) => `<tr>
         ${isJ ? `<td class="mono">${i + 1}</td>` : ""}
         <td class="mono">${esc(g.targetNumber || "—")}</td>
         <td class="wrap"><b>${esc(g.unitName)}</b><div class="muted small">${esc(g.group)}</div></td>
-        <td title="${esc(g.taskName || "")}">${esc(g.task)}</td>
+        <td title="${esc(g.taskName || "")}">${g.task ? `KT ${esc(g.task)}` : `<span class="muted" title="No key task covers ${esc(g.category)}">none</span>`}</td>
         <td>${g.grade ? `<select data-grade="${i}">${GRADES.map(x => `<option ${x === g.grade ? "selected" : ""}>${x}</option>`).join("")}</select>` : "—"}</td>
         <td>${esc(g.category)}</td><td><span class="tier ${g.tier}">${g.tier}</span></td><td class="mono">${g.score ?? "—"}</td>
         <td title="${esc(Object.entries(g.composition).map(([t, n]) => `${n}× ${t}`).join("\n"))}">${g.unitCount}</td>
@@ -363,7 +383,7 @@
     back.onclick = ev => {
       if (ev.target === back || ev.target.closest("[data-x]")) { back.remove(); return; }
       const mode = ev.target.closest("[data-mode]")?.dataset.mode; if (!mode) return;
-      const rows = r.jiptl.map(g => ({ id: g.targetNumber, name: g.unitName === g.group ? g.unitName : `${g.unitName} — ${g.group}`, task: g.task, grade: g.grade,
+      const rows = r.jiptl.map(g => ({ id: g.targetNumber, name: g.unitName === g.group ? g.unitName : `${g.unitName} — ${g.group}`, task: g.task, taskName: g.taskName, grade: g.grade,
         cat: g.category, tier: g.tier, score: String(g.score), loc: ddm(g.lat, g.lon), effect: EFFECT[g.category] || "Destroy",
         units: Object.entries(g.composition).map(([t, n]) => `${n}× ${t}`).join("; ") }));
       const keep = mode === "append" ? cur.filter(c => !rows.some(x => x.id === c.id)) : [];
