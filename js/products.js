@@ -678,6 +678,22 @@
     }
   };
 
+  // GRG: gridded reference graphics for CAS / urban talk-ons, built on grg.html (one printable sheet each)
+  P.grg = {
+    code: "GRG", name: "Gridded Reference Graphics", owner: "Combat Plans", stage: 5, page: { href: "grg.html", label: "Open GRGs" },
+    desc: "Lettered / numbered grids over CAS and urban areas, buildings numbered in each cell, with the campaign's control measures — one sheet and version for JTACs and aircrew.",
+    fields: [],
+    render: (d, ctx) => {
+      const PR = window.AOC.PR, sh = d.sheets || [];
+      const corner = (s, e, n) => { const lat = s.lat + n / 111320, lon = s.lon + e / (111320 * Math.cos(s.lat * Math.PI / 180)); return PR ? PR.mgrs(lat, lon) : `${lat.toFixed(4)}, ${lon.toFixed(4)}`; };
+      return `${head("GRIDDED REFERENCE GRAPHICS", ctx, `${sh.length} sheet${sh.length === 1 ? "" : "s"}`)}
+      ${table([["name", "GRG"], ["v", "VER", s => `v${s.v}`], ["_c", "CELLS", s => `${s.cell} m · ${s.cols} × ${s.rows}`], ["_m", "CENTRE (MGRS)", s => PR ? PR.mgrs(s.lat, s.lon) : ""],
+        ["_nw", "NW CORNER", s => corner(s, -s.cols * s.cell / 2, s.rows * s.cell / 2)], ["_se", "SE CORNER", s => corner(s, s.cols * s.cell / 2, -s.rows * s.cell / 2)],
+        ["_b", "BUILDINGS", s => s.bldgs?.length ? `${s.bldgs.length} numbered` : "—"]], sh)}
+      <p>A1 is the north-west cell; columns are lettered west to east, rows numbered north to south. Buildings are numbered in each cell from 1, north-west to south-east. Talk on as "C4 building 12" (or "C4 keypad 7" where a sheet shows keypads). The printable sheets are on the GRG page; everyone flies the same version.</p>${sig(ctx)}`;
+    }
+  };
+
   P.optasklink = {
     code: "OPTASKLINK", name: "OPTASKLINK", owner: "Combat Plans / JICO", stage: 5,
     desc: "Datalink plan: STNs, SADL and IDM nets, built from the ATO and the host mission file.",

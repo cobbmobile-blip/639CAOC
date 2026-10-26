@@ -66,7 +66,7 @@ window.AOC_SEED = {
           { msn: "7103", callsign: "SPRINGFIELD 3", target: "T10005", flown: "No — aborted", result: "", remarks: "Weather" }],
         bda: [{ target: "T10002", status: "Moderate damage", reattack: "Yes", notes: "" }, { target: "T10003", status: "Destroyed", reattack: "No", notes: "TGP video" }], losses: [] } },
       groups: ["g1", "g2", "g3", "g4", "g6", "g7", "g8", "g10", "g11", "g12", "g13", "g9", "g14"], // g9 joined by committing to line 8601; g14 the CSAR helos
-      status: { pcon: "approved", ci: "published", aod: "published", jiptl: "approved", tdp: "draft", maap: "approved", ato: "published", aco: "review", spins: "published", acp: "published", bda: "draft" },
+      status: { pcon: "approved", ci: "published", aod: "published", jiptl: "approved", tdp: "draft", maap: "approved", ato: "published", aco: "review", spins: "published", acp: "published", grg: "draft", bda: "draft" },
       // seed release history (version + time) for products already published
       releases: {
         ci: { v: 1, when: "2026-10-12T12:00:00Z" },
@@ -574,6 +574,8 @@ window.AOC_SEED = {
           { id: "s3", kind: "rectangle", name: "KILL BOX 38TLM", color: "RED", aco: "KILL BOX 38TLM", latlngs: [[42.05, 42.55], [42.25, 42.55], [42.25, 42.85], [42.05, 42.85]], notes: "SFC–FL250, 0700Z–1000Z" }
         ]
       },
+      // an urban GRG over Kutaisi (built and printed on grg.html)
+      grg: { sheets: [{ id: "G-KUT", name: "GRG KUTAISI CENTRE", lat: 42.2705, lon: 42.7035, cell: 100, cols: 8, rows: 6, keypads: false, measures: true, v: 1, from: "" }] },
       // the demo Comm Plan, built on the JCEOI standard net plan (roles and frequencies), with the campaign's callsigns.
       // SCAR (YELLOW 6) and SAR-B (GREEN 5) sit in spare rows: the ATO and the SPINS PR section use them. Named colour + row, e.g. WHITE 1 = RAZOR.
       acp: {

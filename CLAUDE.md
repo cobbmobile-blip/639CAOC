@@ -28,9 +28,10 @@ thunder, keepers, ridge, support, rqs55 (55th RQS, MH-60L CSAR helicopters) — 
 |---|---|
 | `login.html`, `index.html` | Staff sign-in; campaign dashboard (products, CFACC deliverables tracker, ATO line requests, requests, groups). `AOC.COMMS` (products.js) groups the Comm Plan, OPTASKLINK, JCEOI and IFF / SIF as "Comm / Datalink / IFF": one dashboard group and a link strip on each of those pages; no JCEOI in the top nav |
 | `rollup.html` | CAOC rollup: deadline timeline, readiness, the single PUBLISH (+ DKS Overlay / Agencies exports), Cycle to next mission |
-| `product.html?p=<id>` | Product builder + live document preview: `pcon ci aod jiptl tdp maap ato aco spins acp bda` (`tdp`, `maap` are built on their own pages) |
+| `product.html?p=<id>` | Product builder + live document preview: `pcon ci aod jiptl tdp maap ato aco spins acp grg bda` (`tdp`, `maap`, `grg` are built on their own pages) |
 | `tdp.html`, `maap.html` | TDP book (folder per JIPTL target; Export imagery jobs; Open target folder); MAAP (checks at the top, packages with support lines, Apply to ATO) |
 | `folder.html?t=<target>` | AFLG-style printable target folder, markup drawn from `img/targets/<cid>/<t>/meta.json` (imagery from `tools/target-render`) |
+| `grg.html` | GRGs: DCS ALT map (DCS Olympus tiles), fixed grid, map dragged under it, scale slider, DCS buildings numbered per cell |
 | `prcc.html` | vPRCC: DKS ejection reports → PR steps → CSAR task force package (`js/pr.js`) |
 | `isoprep.html` | Unit portal: pilots' ISOPREPs and an EPA per ATO line (`db.isopreps`, `db.epas`) |
 | `jceoi.html` | JCEOI: standard Blue net plan, NTTR plan, IFF, clear-channel pool, frequency check, .xlsx export (registers feed the checks, not shown) |
@@ -135,6 +136,12 @@ seed content does not reach a browser that already saved data.
   mean point, reference only, never a targeting aimpoint; no caps on boxes or list rows; a true-north compass on every
   graphic; page subject as the title, target as the subtitle. Imagery is built offline (`tools/target-render`, Blender
   + the DCS install); the JOG is the DCS F10 chart (`RasterCharts`).
+- **GRGs** (`grg.html`): for the kneeboard packages (pilots, JTACs, controllers), so no talk-on tool on the page. Only
+  the larger grid (keypads off by default); every building numbered in its cell, white number centred on it. Background
+  is the DCS F10 ALT map from DCS Olympus's tile server (no public DCS SAT tiles exist); buildings are detected off those
+  tiles, trees / roads / lettering excluded (bump `BLDG_V` when detection changes). Grid fixed on the page, map dragged
+  under it; the scale slider sets zoom and the scale bar follows. Sharp type: black grid lines, no halos or shadows,
+  grid labels plain black text. Real-world imagery + OpenStreetMap buildings only where a theater has no ALT export.
 - **Personnel recovery** (`prcc.html`, `js/pr.js`): SPINS section 5 values (SARNEG, SARDOT, duress word, word / letter /
   number of the day, PR frequencies, contact, signals) are generated per campaign unless the SPINS set them. The CSAR
   force: RESCORT (OSC = the lead, Sandy 1), rescue helo (MH-60L, 55th RQS), optional CH-47F lift (no group yet), SARCAP,

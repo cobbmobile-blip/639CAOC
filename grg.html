@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — GRG</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  /* panels stack full width */
+  .stack > section { margin-bottom: 16px; }
+  .sheets button { text-align: left; background: none; border: 1px solid var(--line); color: var(--text); border-radius: var(--radius); padding: 6px 10px; margin: 0 6px 6px 0; cursor: pointer; font: inherit; font-size: 13px; }
+  .sheets button[aria-current="true"] { border-color: var(--accent); color: var(--accent); }
+  .row6 { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 900px) { .row6 { grid-template-columns: 1fr 1fr; } }
+  /* the sheet: landscape letter like the target folder */
+  .pg { width: 1056px; height: 816px; margin: 0 auto; background: #fff; color: #000; position: relative; overflow: hidden; font-family: Arial, Helvetica, sans-serif; border: 1px solid #000; }
+  .hd { position: absolute; inset: 0 0 auto 0; height: 92px; display: grid; grid-template-columns: 96px 1fr 300px; border-bottom: 1.5px solid #000; }
+  .hd > div { border-right: 1.5px solid #000; padding: 6px 10px; overflow: hidden; } .hd > div:last-child { border-right: 0; }
+  .hd img { width: 76px; height: 76px; }
+  .hd b.t { display: block; font-size: 22px; } .hd .sub { font: 700 12.5px Arial; } .hd .ids { font: 700 10.5px/1.4 Arial; margin-top: 3px; }
+  .hd .cls { color: #c00; font: 700 12px Arial; text-align: center; } .hd .note { font: 10px/1.35 Arial; margin-top: 4px; }
+  .mapf { position: absolute; left: 0; right: 0; top: 92px; bottom: 26px; background: #ddd; }
+  .mapf svg { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; user-select: none; }
+  .ft { position: absolute; left: 0; right: 0; bottom: 0; height: 26px; border-top: 1.5px solid #000; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; font: 700 10.5px Arial; }
+  .ft .cls { color: #c00; }
+  @media print { @page { size: 11in 8.5in; margin: 0; } header, .banner, .noprint { display: none !important; } main.wrap { padding: 0 !important; max-width: none !important; }
+    .pg { border: 0; } body { background: #fff !important; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>AOC.Auth.require();</script>
+<script src="js/products.js"></script>
+<script src="js/pr.js"></script>
+
+<main class="wrap stack">
+  <div class="panel-head noprint" style="margin-bottom:12px"><div>
+    <a class="small" id="back" href="#">← GRG product (review, approval, publish)</a>
+    <h1 style="margin-top:4px" id="title">GRG</h1>
+    <div class="muted small">Gridded reference graphics for CAS and urban talk-ons: a lettered / numbered grid over the area, every building numbered in its cell, the campaign's control measures on top. Everyone — JTACs, aircrew, the ground commander — uses the same sheet and version.</div></div>
+    <div class="toolbar"><span class="small" id="state"></span><button class="btn" onclick="print()">Print / PDF</button><button class="btn ghost" id="geoBtn">GeoJSON (DKS Overlay)</button><button class="btn primary" id="saveBtn">Save GRGs</button></div>
+  </div>
+
+  <section class="panel noprint">
+    <div class="panel-head"><h2>Sheets</h2><div class="toolbar"><select id="place" style="width:auto"></select><button class="btn sm" id="placeBtn">Zoom to settlement</button><select id="newFrom" style="width:auto"></select><button class="btn sm" id="newBtn">+ New sheet</button></div></div>
+    <div class="sheets" id="sheets"></div>
+    <div id="form"></div>
+  </section>
+
+  <div id="sheet"></div>
+</main>
+
+<script>
+  const { Store, esc, toast, zulu, PR } = AOC;
+  AOC.renderChrome();
+  const cid = new URLSearchParams(location.search).get("c") || Store.currentCampaignId(), campaign = Store.campaign(cid);
+  document.getElementById("back").href = `product.html?p=grg&c=${encodeURIComponent(cid)}`;
+  document.getElementById("title").textContent = `GRG · OP ${campaign.opName}`;
+  const data = structuredClone(Store.content(cid, "grg") || { sheets: [] }); data.sheets = data.sheets || [];
+  const map = Store.content(cid, "map") || {}, shapes = map.shapes || [], points = map.points || [];
+  let sel = data.sheets[0]?.id || null, dirty = false;
+  const markDirty = () => { dirty = true; const s = document.getElementById("state"); s.textContent = "Unsaved changes"; s.style.color = "var(--warn)"; };
+
+  // ---------- geometry: ground metres east / north of the sheet centre <-> lat/lon <-> web-mercator pixels ----------
+  const R = 6378137, RAD = Math.PI / 180;
+  const toGeo = (s, e, n) => [s.lat + n / 111320, s.lon + e / (111320 * Math.cos(s.lat * RAD))];
+  const toEN = (s, lat, lon) => [(lon - s.lon) * 111320 * Math.cos(s.lat * RAD), (lat - s.lat) * 111320];
+  const merc = (lat, lon, z) => { const W = 256 * 2 ** z, p = lat * RAD; return [(lon + 180) / 360 * W, (1 - Math.log(Math.tan(p) + 1 / Math.cos(p)) / Math.PI) / 2 * W]; };
+  const colName = i => (i >= 26 ? String.fromCharCode(64 + Math.floor(i / 26)) : "") + String.fromCharCode(65 + i % 26);
+  const nice = v => [50, 100, 200, 250, 500, 1000, 2000, 2500, 5000].find(x => x >= v) || 5000;
+  // a sheet: centre, size in cells, cell size; the grid starts at the north-west corner (A1), rows count down
+  const frame = s => ({ w: s.cols * s.cell, h: s.rows * s.cell });
+  // map scale: the sheet's zoom is web-map zoom at one tile pixel per page pixel; the map fills the page (1056 × 698 px on letter
+  // landscape) and the grid fills it at that scale, less a margin for the column / row labels
+  const MAP_W = 1056, MAP_H = 698, EDGE = 26;
+  const mppAt = (s, zoom) => 2 * Math.PI * R * Math.cos(s.lat * RAD) / (256 * 2 ** zoom);        // ground metres per page pixel
+  const zoomOf = s => s.zoom ?? Math.round(4 * Math.log2(2 * Math.PI * R * Math.cos(s.lat * RAD) / 256 / Math.max(s.cols * s.cell / (MAP_W - 2 * EDGE), s.rows * s.cell / (MAP_H - 2 * EDGE)))) / 4;
+  const fitGrid = s => { const m = mppAt(s, s.zoom); s.cols = Math.max(2, Math.min(52, Math.floor((MAP_W - 2 * EDGE) * m / s.cell))); s.rows = Math.max(2, Math.min(40, Math.floor((MAP_H - 2 * EDGE) * m / s.cell))); };
+  const ratio = (s, zoom = zoomOf(s)) => Math.round(mppAt(s, zoom) / (0.0254 / 96) / 50) * 50;      // printed at 100 % on letter
+  const zoomText = (s, zoom = zoomOf(s)) => { const t = { ...s, zoom }; if (zoom !== zoomOf(s)) fitGrid(t); return `Zoom ${zoom.toFixed(2)} · 1:${ratio(s, zoom).toLocaleString()} · ${t.cols} × ${t.rows} cells of ${s.cell} m`; };
+
+  // ---------- areas a sheet can start from: kill boxes, ROZs, other areas on the theater map; or a point ----------
+  function areas() {
+    const out = [];
+    shapes.forEach(sh => {
+      const ll = sh.latlngs?.length ? sh.latlngs : sh.kind === "circle" ? (() => { const d = sh.radius / 111320; return [[sh.lat - d, sh.lng - d / Math.cos(sh.lat * RAD)], [sh.lat + d, sh.lng + d / Math.cos(sh.lat * RAD)]]; })() : null;
+      if (!ll || !/rectangle|polygon|circle/.test(sh.kind)) return;
+      const la = ll.map(p => p[0]), lo = ll.map(p => p[1]);
+      out.push({ id: sh.id, name: sh.name, lat: (Math.min(...la) + Math.max(...la)) / 2, lon: (Math.min(...lo) + Math.max(...lo)) / 2,
+        w: (Math.max(...lo) - Math.min(...lo)) * 111320 * Math.cos(la[0] * RAD), h: (Math.max(...la) - Math.min(...la)) * 111320 });
+    });
+    return out;
+  }
+  document.getElementById("newFrom").innerHTML = `<option value="">From a point (urban, 3 × 2 km)</option>` +
+    areas().map(a => `<option value="${esc(a.id)}">${esc(a.name)} (${(a.w / 1000).toFixed(1)} × ${(a.h / 1000).toFixed(1)} km)</option>`).join("");
+  document.getElementById("newBtn").onclick = () => {
+    const a = areas().find(x => x.id === document.getElementById("newFrom").value);
+    const area = Store.content(cid, "targeting")?.area;
+    const lat = a?.lat ?? (+area?.lat || 42.25), lon = a?.lon ?? (+area?.lon || 42.7), w = a?.w ?? 3000, h = a?.h ?? 2000;
+    // about twelve columns by nine rows: urban sheets get 200-250 m cells, a kill box 1-2.5 km
+    const cell = nice(Math.max(w / 12, h / 9)), n = data.sheets.length + 1;
+    const s = { id: "G" + Date.now().toString(36), name: a ? `GRG ${a.name}` : `GRG ${n}`, lat: +lat.toFixed(5), lon: +lon.toFixed(5), cell,
+      cols: Math.max(2, Math.round(w / cell)), rows: Math.max(2, Math.round(h / cell)), keypads: false, measures: true, v: 1, from: a?.name || "" };
+    data.sheets.push(s); sel = s.id; markDirty(); render();
+  };
+
+  // ---------- OpenStreetMap: settlements on a sheet, building footprints (the same real world as the imagery) ----------
+  // the public servers are often busy: one query at a time, each tried on the main server and the mirrors, twice round
+  const OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
+  let opQueue = Promise.resolve();
+  function overpass(q) {
+    const run = async () => { let last;
+      for (let round = 0; round < 2; round++) for (const url of OVERPASS) {
+        try { const r = await fetch(url, { method: "POST", body: "data=" + encodeURIComponent(`[out:json][timeout:90];${q}`), signal: AbortSignal.timeout(100000) });
+          if (r.ok) return (await r.json()).elements; last = new Error(`OpenStreetMap busy (${r.status})`); }
+        catch (e) { last = new Error(`OpenStreetMap ${e.name === "TimeoutError" ? "timed out" : "unreachable"}`); }
+        await new Promise(r => setTimeout(r, 2000 * (round + 1))); }
+      throw last; };
+    const p = opQueue.then(run, run); opQueue = p.catch(() => {}); return p;
+  }
+  const bbox = s => { const f = frame(s), sw = toGeo(s, -f.w / 2, -f.h / 2), ne = toGeo(s, f.w / 2, f.h / 2); return `${sw[0]},${sw[1]},${ne[0]},${ne[1]}`; };
+  const placeCache = {};
+  async function loadPlaces() {
+    const s = data.sheets.find(x => x.id === sel), el = document.getElementById("place"); if (!s) { el.innerHTML = ""; return; }
+    const k = bbox(s);
+    if (!placeCache[k]) { el.innerHTML = `<option value="">Finding settlements…</option>`;
+      placeCache[k] = overpass(`node[place~"^(city|town|village|hamlet|suburb|neighbourhood)$"](${k});out;`).then(els => els.map(e => ({ name: e.tags["name:en"] || e.tags.name || "unnamed", kind: e.tags.place, lat: e.lat, lon: e.lon }))).catch(() => (delete placeCache[k], null)); }
+    const got = await placeCache[k];
+    if (!got) { if (data.sheets.find(x => x.id === sel) === s) el.innerHTML = `<option value="">OpenStreetMap busy — reopen the sheet to retry</option>`; return; }
+    const list = got.map(p => ({ ...p, d: Math.hypot(...toEN(s, p.lat, p.lon)) })).sort((a, b) => a.d - b.d);
+    if (data.sheets.find(x => x.id === sel) !== s) return;
+    el.innerHTML = list.length ? list.map((p, i) => `<option value="${i}">${esc(p.name)} (${p.kind}, ${(p.d / 1000).toFixed(1)} km from centre)</option>`).join("") : `<option value="">No settlements found</option>`;
+    el._list = list;
+  }
+  // ---------- the DCS ALT map: the F10 map's Alt layer as web tiles (exported from DCS by the DCS Olympus project) ----------
+  // the sim's own scenery, buildings drawn near-black; Kola, Afghanistan and the newer maps have no export yet (real-world imagery then)
+  const ALT_LAYERS = { caucasus: ["caucasus", 18], syria: ["syria", 17], nevada: ["nevada", 17], persiangulf: ["persiangulf", 17], marianas: ["marianaislands-modern", 18],
+    marianaislands: ["marianaislands-modern", 18], normandy: ["Normandy", 17], germanycoldwar: ["GermanyCW", 15], germanycw: ["GermanyCW", 15] };
+  const altLayer = ALT_LAYERS[(campaign.theater || "").toLowerCase().replace(/[^a-z]/g, "")];
+  const altTile = (z, x, y) => `https://maps.dcsolympus.com/maps/alt-${altLayer[0]}/${z}/${x}/${y}.png`;
+  const esriTile = (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+  const bgOf = s => altLayer && s.bg !== "imagery" ? "dcs" : "imagery";
+  const loadImg = url => new Promise(res => { const im = new Image(); im.crossOrigin = "anonymous"; im.onload = () => res(im); im.onerror = () => res(null); im.src = url; });
+  const tileOf = (lat, lon, z) => merc(lat, lon, z).map(v => Math.floor(v / 256));
+  // the deepest zoom the export has over the whole area (it is deeper round towns and airfields): centre and corners all present
+  async function altZoom(o, w, h) {
+    const pts = [[0, 0], [-w / 2, h / 2], [w / 2, h / 2], [-w / 2, -h / 2], [w / 2, -h / 2]].map(([e, n]) => toGeo(o, e, n));
+    for (let z = altLayer[1]; z > 13; z--) {
+      const ok = await Promise.all(pts.map(q => { const [x, y] = tileOf(q[0], q[1], z); return fetch(altTile(z, x, y), { method: "HEAD" }).then(r => r.ok, () => false); }));
+      if (ok.every(Boolean)) return z;
+    }
+    return 13;
+  }
+  // buildings off the ALT tiles: near-black grey pixels in compact blobs (roads run long and thin, place names are blue).
+  // Trees at the deeper zooms are dark green with an olive rim, place names blue-grey type: a dark blob that touches tree green or lettering blue is not a building
+  async function altBuildings(o, w, h, z) {
+    const nw = toGeo(o, -w / 2, h / 2), se = toGeo(o, w / 2, -h / 2), [ax, ay] = merc(nw[0], nw[1], z), [bx, by] = merc(se[0], se[1], z);
+    const X0 = Math.floor(ax), Y0 = Math.floor(ay), W = Math.ceil(bx) - X0, H = Math.ceil(by) - Y0;
+    const g = Object.assign(document.createElement("canvas"), { width: W, height: H }).getContext("2d", { willReadFrequently: true }), jobs = [];
+    for (let tx = Math.floor(ax / 256); tx <= Math.floor(bx / 256); tx++) for (let ty = Math.floor(ay / 256); ty <= Math.floor(by / 256); ty++)
+      jobs.push(loadImg(altTile(z, tx, ty)).then(im => im && g.drawImage(im, tx * 256 - X0, ty * 256 - Y0)));
+    await Promise.all(jobs);
+    const d = g.getImageData(0, 0, W, H).data, m = new Uint8Array(W * H);
+    const not = new Uint8Array(W * H);
+    for (let i = 0; i < W * H; i++) { const r = d[4 * i], gr = d[4 * i + 1], b = d[4 * i + 2], Y = .3 * r + .59 * gr + .11 * b;
+      m[i] = d[4 * i + 3] > 128 && Y < 70 && b < r + 24 && gr <= r + 6 ? 1 : 0;
+      not[i] = Y < 110 && (gr > r + 12 && b < r * .6 || b > r + 16) || Y >= 60 && Y < 130 && b >= 50 && b < r && gr < r + 6 ? 1 : 0; }   // tree green; lettering
+    const Wm = 256 * 2 ** z, mpp = 2 * Math.PI * R * Math.cos(o.lat * RAD) / Wm, out = [], stack = [];
+    const en = (px, py) => toEN(o, Math.atan(Math.sinh(Math.PI * (1 - 2 * (Y0 + py) / Wm))) / RAD, (X0 + px) / Wm * 360 - 180).map(Math.round);
+    for (let i0 = 0; i0 < W * H; i0++) {
+      if (m[i0] !== 1) continue;
+      let n = 0, nt = 0, x0 = W, x1 = 0, y0 = H, y1 = 0; const rows = new Map(); m[i0] = 2; stack.push(i0);
+      while (stack.length) {
+        const i = stack.pop(), x = i % W, y = (i - x) / W; n++;
+        x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+        const r = rows.get(y); if (!r) rows.set(y, [x, x]); else { r[0] = Math.min(r[0], x); r[1] = Math.max(r[1], x); }
+        for (const j of [x > 0 ? i - 1 : -1, x < W - 1 ? i + 1 : -1, y > 0 ? i - W : -1, y < H - 1 ? i + W : -1]) { if (j < 0) continue; nt += not[j]; if (m[j] === 1) { m[j] = 2; stack.push(j); } }
+      }
+      const bw = (x1 - x0 + 1) * mpp, bh = (y1 - y0 + 1) * mpp, area = n * mpp * mpp;
+      if (nt >= Math.max(3, .25 * n) || area < 12 || area > 8000 || Math.max(bw, bh) > 150 || n / ((x1 - x0 + 1) * (y1 - y0 + 1)) < .35) continue;
+      const pts = []; rows.forEach(([a, b], y) => pts.push([a, y], [b + 1, y], [a, y + 1], [b + 1, y + 1]));
+      out.push(hull(pts).map(([px, py]) => en(px, py)));
+    }
+    return out;
+  }
+  const hull = P => { P.sort((a, b) => a[0] - b[0] || a[1] - b[1]); const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]), lo = [], up = [];
+    for (const q of P) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+    for (const q of P.slice().reverse()) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+    return lo.slice(0, -1).concat(up.slice(0, -1)); };
+
+  // a sheet around a settlement: its building cluster (the sim's on the ALT map, else OpenStreetMap's), about eight cells across
+  document.getElementById("placeBtn").onclick = async () => {
+    const el = document.getElementById("place"), p = el._list?.[+el.value]; if (!p) return;
+    toast(`Sizing a sheet on ${p.name}…`);
+    const o = { lat: p.lat, lon: p.lon }, dcs = !!altLayer;
+    let en = [];
+    try {
+      if (dcs) en = (await altBuildings(o, 2400, 2400, Math.min(16, await altZoom(o, 2400, 2400)))).map(q => [q.reduce((a, v) => a + v[0], 0) / q.length, q.reduce((a, v) => a + v[1], 0) / q.length]);
+      else en = (await overpass(`way[building](around:1200,${p.lat},${p.lon});out center;`)).filter(e => e.center).map(e => toEN(o, e.center.lat, e.center.lon));
+    } catch (e) { toast(e.message); }
+    if (dcs) en = en.filter(v => Math.hypot(...v) < 1200);
+    const pc = (a, q) => a.slice().sort((x, y) => x - y)[Math.floor(q * (a.length - 1))];
+    // the core of it: buildings within 700 m, centred on their median, at most 1.5 x 1 km, widened to the page's shape; ten cells across at most
+    const near = en.filter(v => Math.hypot(...v) < 700), few = near.length < 20, E = near.map(v => v[0]), N = near.map(v => v[1]);
+    const ce = few ? 0 : pc(E, .5), cn = few ? 0 : pc(N, .5);
+    let w = few ? 1000 : Math.min(1500, pc(E, .95) - pc(E, .05) + 200), h = few ? 700 : Math.min(1000, pc(N, .95) - pc(N, .05) + 200);
+    w = Math.max(w, h * 1.5, 600); h = Math.max(h, w / 1.5);
+    const cell = [100, 150, 200, 250].find(x => w / x <= 10) || 250;
+    const [lat, lon] = toGeo(o, ce, cn);
+    const s = { id: "G" + Date.now().toString(36), name: `GRG ${p.name.toUpperCase()}`, lat: +lat.toFixed(5), lon: +lon.toFixed(5), cell,
+      cols: Math.ceil(w / cell), rows: Math.ceil(h / cell), keypads: false, measures: true, v: 1, from: p.name };
+    data.sheets.push(s); sel = s.id; markDirty(); render();
+  };
+  // buildings: footprints in the grid, numbered 1… in each cell north-west to south-east (bands a fifth of a cell deep, west to east in each).
+  // On the ALT map they are the sim's own, read off the tiles (zoom 16 or deeper); on real-world imagery, OpenStreetMap's.
+  // BLDG_V: bump when the detection changes, so saved sheets renumber once
+  const BLDG_MAX_CELL = 500, ALT_MIN_Z = 16, BLDG_V = 2, bkey = s => [s.lat, s.lon, s.cell, s.cols, s.rows, bgOf(s), BLDG_V].join(","), inflight = {};
+  async function numberBuildings(s) {
+    const f = frame(s), cells = {};
+    let polys;
+    if (bgOf(s) === "dcs") { s.altZ = await altZoom(s, f.w, f.h); polys = s.altZ < ALT_MIN_Z ? [] : await altBuildings(s, f.w, f.h, s.altZ); }
+    else polys = (await overpass(`way[building](${bbox(s)});out geom;`)).filter(w => w.geometry?.length).map(w => w.geometry.slice(0, -1).map(g => toEN(s, g.lat, g.lon).map(Math.round)));
+    polys.forEach(p => { const c = [p.reduce((a, q) => a + q[0], 0) / p.length, p.reduce((a, q) => a + q[1], 0) / p.length];
+      const ci = Math.floor((c[0] + f.w / 2) / s.cell), rj = Math.floor((f.h / 2 - c[1]) / s.cell);
+      if (ci >= 0 && rj >= 0 && ci < s.cols && rj < s.rows) { const cr = c.map(Math.round); (cells[`${ci},${rj}`] ||= []).push({ c: cr, p: p.flatMap(q => [q[0] - cr[0], q[1] - cr[1]]) }); } });
+    const band = s.cell / 5, out = [];
+    Object.entries(cells).forEach(([k, list]) => { const [ci, rj] = k.split(",").map(Number), top = f.h / 2 - rj * s.cell;
+      list.sort((a, b) => Math.floor((top - a.c[1]) / band) - Math.floor((top - b.c[1]) / band) || a.c[0] - b.c[0]);
+      list.forEach((b, i) => out.push({ cell: `${colName(ci)}${rj + 1}`, n: i + 1, ...b })); });
+    return out;
+  }
+  function ensureBuildings(s) {
+    if (!s || s.cell > BLDG_MAX_CELL || s.bkey === bkey(s) || inflight[s.id] === bkey(s)) return;
+    const k = inflight[s.id] = bkey(s), st = document.getElementById("state"); st.textContent = "Numbering buildings…"; st.style.color = "var(--muted)";
+    numberBuildings(s).then(b => { if (bkey(s) !== k) return; s.bldgs = b; s.bkey = k; markDirty(); renderForm(); if (sel === s.id) { renderSheet(); fit(); } })
+      .catch(e => { st.textContent = `Buildings not numbered: ${e.message}`; st.style.color = "var(--danger)"; }).finally(() => { if (inflight[s.id] === k) delete inflight[s.id]; });
+  }
+  // stored compactly: the outline as a flat list of metre offsets from the centre point
+  const outline = b => b.p.reduce((a, v, i) => (i % 2 ? a[a.length - 1].push(b.c[1] + v) : a.push([b.c[0] + v]), a), []);
+  const bldgs = s => s.cell <= BLDG_MAX_CELL && s.bkey === bkey(s) ? s.bldgs || [] : [];
+
+  // ---------- the form for the selected sheet ----------
+  function renderForm() {
+    const s = data.sheets.find(x => x.id === sel);
+    document.getElementById("sheets").innerHTML = data.sheets.map(x => `<button data-id="${esc(x.id)}" aria-current="${x.id === sel}"><b>${esc(x.name)}</b> <span class="muted small">v${x.v} · ${x.cols}×${x.rows} @ ${x.cell} m${bldgs(x).length ? ` · ${bldgs(x).length} bldgs` : ""}</span></button>`).join("")
+      || `<p class="muted small">No GRGs yet. Start one from a kill box or ROZ on the theater map, or from a point.</p>`;
+    document.getElementById("form").innerHTML = !s ? "" : `<div class="row6">
+      <div class="field"><label>Name</label><input data-k="name" value="${esc(s.name)}"></div>
+      <div class="field"><label>Centre lat, lon</label><input data-k="ll" value="${s.lat}, ${s.lon}"></div>
+      <div class="field"><label>Cell size (m)</label><select data-k="cell">${[100, 150, 200, 250, 500, 1000, 2000, 2500].map(v => `<option ${v === s.cell ? "selected" : ""}>${v}</option>`).join("")}</select></div>
+      <div class="field"><label>Columns × rows</label><input data-k="size" value="${s.cols} × ${s.rows}"></div>
+      <div class="field"><label>Background</label><select data-k="bg">${altLayer ? `<option value="dcs" ${bgOf(s) === "dcs" ? "selected" : ""}>DCS ALT map</option>` : ""}<option value="imagery" ${bgOf(s) === "imagery" ? "selected" : ""}>Real-world imagery</option></select></div>
+      <div class="field"><label>Show</label><label class="small" style="text-transform:none;letter-spacing:0;color:var(--text)"><input type="checkbox" data-k="keypads" ${s.keypads ? "checked" : ""} style="width:auto"> keypads</label>
+        <label class="small" style="text-transform:none;letter-spacing:0;color:var(--text)"><input type="checkbox" data-k="measures" ${s.measures ? "checked" : ""} style="width:auto"> control measures</label></div></div>
+      <div class="field"><label>Map scale</label><div style="display:flex;gap:12px;align-items:center"><span class="small muted">Out</span>
+        <input type="range" data-k="zoom" min="12" max="19" step="0.25" value="${zoomOf(s)}" style="flex:1;padding:0"><span class="small muted">In</span>
+        <span class="small" id="zoomOut" style="white-space:nowrap;font-family:var(--mono);min-width:300px">${zoomText(s)}</span></div>
+        <div class="muted small" style="margin-top:4px">The grid stays put on the page: drag the map under it to place the area you want.</div></div>
+      <div class="toolbar"><button class="btn sm ghost" data-del>Delete sheet</button><span class="muted small">${s.cell > BLDG_MAX_CELL ? `Buildings are numbered on sheets with cells of ${BLDG_MAX_CELL} m or less — zoom to a settlement. ` : s.bkey === bkey(s) && !s.bldgs?.length ? (bgOf(s) === "dcs" ? (s.altZ < ALT_MIN_Z ? `The ALT map is only exported to zoom ${s.altZ} here, too coarse to pick out buildings. ` : "No DCS buildings on this sheet. ") : "OpenStreetMap has no building footprints mapped here, so nothing is numbered. ") : ""}Changing the grid renumbers the buildings and makes a new version (v${s.v}${s.changed ? ` → v${s.v + 1} on save` : ""}); keep everyone on the same one.</span></div>`;
+  }
+  document.getElementById("sheets").onclick = e => { const b = e.target.closest("[data-id]"); if (b) { sel = b.dataset.id; render(); } };
+  document.getElementById("form").addEventListener("change", e => {
+    const s = data.sheets.find(x => x.id === sel), k = e.target.dataset.k; if (!s || !k) return;
+    if (k === "name") s.name = e.target.value;
+    else if (k === "ll") { const [a, b] = e.target.value.split(/[\s,;]+/).map(Number); if (isFinite(a) && isFinite(b)) { s.lat = a; s.lon = b; s.changed = true; } }
+    else if (k === "cell") { s.zoom = zoomOf(s); s.cell = +e.target.value; fitGrid(s); s.changed = true; }
+    else if (k === "zoom") { s.zoom = +e.target.value; fitGrid(s); s.changed = true; }
+    else if (k === "bg") { s.bg = e.target.value; s.changed = true; }
+    else if (k === "size") { const [c, r] = e.target.value.split(/[^\d]+/).map(Number); if (c > 0 && r > 0) { s.cols = Math.min(c, 52); s.rows = Math.min(r, 40); delete s.zoom; s.changed = true; } }
+    else s[k] = e.target.checked;
+    markDirty(); render();
+  });
+  // the slider's readout follows it as it moves; the sheet redraws when it is let go
+  document.getElementById("form").addEventListener("input", e => { if (e.target.dataset.k !== "zoom") return;
+    const s = data.sheets.find(x => x.id === sel); document.getElementById("zoomOut").textContent = zoomText(s, +e.target.value); });
+  document.getElementById("form").addEventListener("click", e => { if (!e.target.closest("[data-del]")) return;
+    const s = data.sheets.find(x => x.id === sel); if (!confirm(`Delete ${s.name}?`)) return; data.sheets = data.sheets.filter(x => x !== s); sel = data.sheets[0]?.id || null; markDirty(); render(); });
+
+  // ---------- the sheet ----------
+  function renderSheet() {
+    const el = document.getElementById("sheet"), s = data.sheets.find(x => x.id === sel);
+    if (!s) { el.innerHTML = ""; return; }
+    const f = frame(s), nw = toGeo(s, -f.w / 2, f.h / 2), se = toGeo(s, f.w / 2, -f.h / 2), ne = toGeo(s, f.w / 2, f.h / 2), sw = toGeo(s, -f.w / 2, -f.h / 2);
+    // tiles at least as fine as the page's scale
+    const zoom = zoomOf(s), z = Math.min(18, Math.max(8, Math.ceil(zoom)));
+    // sheet coordinates: mercator pixels from the north-west corner (absolute ones pass 10^7 at high zoom, past SVG's float precision)
+    const [mx, my] = merc(nw[0], nw[1], z), [mx1, my1] = merc(se[0], se[1], z), P = (lat, lon) => { const [a, b] = merc(lat, lon, z); return [a - mx, b - my]; };
+    const x0 = 0, y0 = 0, x1 = mx1 - mx, y1 = my1 - my;
+    // the view: the whole map area at the sheet's scale, centred on the sheet; u is one page pixel in it
+    const u = 2 ** (z - zoom), [cx, cy] = P(s.lat, s.lon), vb = [cx - MAP_W * u / 2, cy - MAP_H * u / 2, MAP_W * u, MAP_H * u];
+    // labels: solid type on a plain white tag, no halos, so they print sharp on any background (y is the baseline)
+    const tag = (x, y, t, size, anchor = "start", color = "#000") => { t = String(t); const w = t.length * size * .64 + size * .4, l = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w : x;
+      return `<rect x="${l}" y="${y - size * .92}" width="${w}" height="${size * 1.14}" fill="#fff"/><text x="${l + size * .2}" y="${y}" font-size="${size}" fill="${color}">${esc(t)}</text>`; };
+    // the grid's own identifiers: plain black type straight on the map
+    const plain = (x, y, t, size, anchor = "start") => `<text x="${x}" y="${y}" font-size="${size}" text-anchor="${anchor}" fill="#000">${esc(String(t))}</text>`;
+    // a tile layer at its own zoom, scaled to the sheet's; the ALT map gets a zoom-13 layer under it where the deeper export has gaps
+    const layer = (url, tz) => { const k = 2 ** (z - tz), T = 256 * k, ax = mx + vb[0] - vb[2] / 2, ay = my + vb[1] - vb[3] / 2; let t = "";
+      for (let tx = Math.floor(ax / T); tx <= Math.floor((ax + 2 * vb[2]) / T); tx++) for (let ty = Math.floor(ay / T); ty <= Math.floor((ay + 2 * vb[3]) / T); ty++)
+        t += `<image href="${url(tz, tx, ty)}" x="${tx * T - mx}" y="${ty * T - my}" width="${T + .6 * k}" height="${T + .6 * k}"/>`;
+      return t; };
+    const dcs = bgOf(s) === "dcs", tiles = dcs ? layer(altTile, 13) + layer(altTile, Math.max(13, s.bkey === bkey(s) && s.altZ || 15)) : layer(esriTile, z);
+    // grid, keypads, labels
+    const X = i => P(...toGeo(s, -f.w / 2 + i * s.cell, 0))[0], Y = j => P(...toGeo(s, 0, f.h / 2 - j * s.cell))[1];
+    let grid = "", lab = "", kp = "";
+    for (let i = 0; i <= s.cols; i++) grid += `<line x1="${X(i)}" y1="${Y(0)}" x2="${X(i)}" y2="${Y(s.rows)}"/>`;
+    for (let j = 0; j <= s.rows; j++) grid += `<line x1="${X(0)}" y1="${Y(j)}" x2="${X(s.cols)}" y2="${Y(j)}"/>`;
+    const cw = X(1) - X(0), fs = Math.min(cw * 0.18, 18 * u);
+    for (let i = 0; i < s.cols; i++) for (let j = 0; j < s.rows; j++) {
+      lab += plain(X(i) + 3 * u, Y(j) + 2 * u + fs * .92, `${colName(i)}${j + 1}`, fs);
+      if (s.keypads) { const ch = Y(j + 1) - Y(j);
+        kp += `<path d="M${X(i) + cw / 3},${Y(j)} V${Y(j + 1)} M${X(i) + 2 * cw / 3},${Y(j)} V${Y(j + 1)} M${X(i)},${Y(j) + ch / 3} H${X(i + 1)} M${X(i)},${Y(j) + 2 * ch / 3} H${X(i + 1)}"/>`;
+        if (cw > 70 * u) for (let k = 0; k < 9; k++) kp += `<text x="${X(i) + cw * ((k % 3) + .5) / 3}" y="${Y(j) + ch * (Math.floor(k / 3) + .5) / 3 + fs * .2}" font-size="${fs * .55}" text-anchor="middle" stroke="none">${k + 1}</text>`; }
+    }
+    // buildings: footprint outlines, the number in each
+    const bl = bldgs(s), Q = ([e, n]) => P(...toGeo(s, e, n)), bf = Math.max(7, Math.min(11, cw / u * .09)) * u;
+    let bd = "", bn = "";
+    bl.forEach(b => { if (!dcs) bd += `<polygon points="${outline(b).map(q => Q(q).join(",")).join(" ")}"/>`; const [a, c] = Q(b.c), w = String(b.n).length * bf * .62 + bf * .3;
+      // a solid backing the buildings' own black, so the number reads on a house smaller than it
+      bn += `<rect x="${a - w / 2}" y="${c - bf * .55}" width="${w}" height="${bf * 1.1}" rx="${bf * .15}" fill="#1a1a1a"/><text x="${a}" y="${c + bf * .36}">${b.n}</text>`; });
+    let edge = "";
+    for (let i = 0; i < s.cols; i++) edge += plain((X(i) + X(i + 1)) / 2, Y(0) - 7 * u, colName(i), 14 * u, "middle") + plain((X(i) + X(i + 1)) / 2, Y(s.rows) + 19 * u, colName(i), 14 * u, "middle");
+    for (let j = 0; j < s.rows; j++) edge += plain(X(0) - 13 * u, (Y(j) + Y(j + 1)) / 2 + 5 * u, j + 1, 14 * u, "middle") + plain(X(s.cols) + 13 * u, (Y(j) + Y(j + 1)) / 2 + 5 * u, j + 1, 14 * u, "middle");
+    // control measures from the theater map (and its points), clipped to the sheet
+    let cm = "";
+    if (s.measures) {
+      const pl = ll => ll.map(p => P(p[0], p[1]).join(",")).join(" ");
+      shapes.forEach(sh => {
+        const st = sh.type === "FLOT" ? ["#1e5bd8", 4, ""] : sh.type === "FSCL" ? ["#000", 3, ""] : /ROZ/.test(sh.type || "") ? ["#f28c28", 3, "12 8"] : /KILL/i.test(sh.name) ? ["#e00", 3, "16 8"] : ["#ff0", 2.5, "10 6"];
+        const sw_ = st[1] * u, dash = st[2] ? `stroke-dasharray="${st[2].split(" ").map(v => v * u).join(" ")}"` : "";
+        if (sh.latlngs?.length && /polyline|track/.test(sh.kind)) cm += `<polyline points="${pl(sh.latlngs)}" fill="none" stroke="${st[0]}" stroke-width="${sw_}" ${dash}/>`;
+        else if (sh.latlngs?.length && /polygon|rectangle/.test(sh.kind)) cm += `<polygon points="${pl(sh.latlngs)}" fill="none" stroke="${st[0]}" stroke-width="${sw_}" ${dash}/>`;
+        else if (sh.kind === "circle") { const [cx, cy] = P(sh.lat, sh.lng), r = P(sh.lat, sh.lng + sh.radius / (111320 * Math.cos(sh.lat * RAD)))[0] - cx; cm += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${st[0]}" stroke-width="${sw_}" ${dash}/>`; }
+        // its name where it crosses the sheet
+        const vs = (sh.latlngs || [[sh.lat, sh.lng]]).map(p => P(p[0], p[1])), inside = ([a, b]) => a > x0 + 20 * u && a < x1 - 60 * u && b > y0 + 20 * u && b < y1 - 20 * u;
+        let v = vs.find(inside);
+        for (let i = 0; !v && i < vs.length - 1; i++) for (let t = 0; t <= 1 && !v; t += 0.01) { const q = [vs[i][0] + (vs[i + 1][0] - vs[i][0]) * t, vs[i][1] + (vs[i + 1][1] - vs[i][1]) * t]; if (inside(q)) v = q; }
+        // an area the sheet sits inside (its edges all off-sheet or on the border): label it at its centre
+        if (!v && vs.length > 2) { const c = [vs.reduce((a, q) => a + q[0], 0) / vs.length, vs.reduce((a, q) => a + q[1], 0) / vs.length]; if (inside(c)) v = c; }
+        if (v) cm += tag(v[0] + 6 * u, v[1] - 6 * u, sh.name, 14 * u, "start", st[0] === "#ff0" ? "#000" : st[0]);
+      });
+      points.forEach(pt => { const [a, b] = P(pt.lat, pt.lng); if (a < x0 || a > x1 || b < y0 || b > y1) return;
+        const c = pt.type === "THREAT" ? "#e00" : "#ffd400";
+        cm += `<circle cx="${a}" cy="${b}" r="${6 * u}" fill="${c}" stroke="#000" stroke-width="${1.5 * u}"/>${tag(a + 9 * u, b + 5 * u, pt.name, 13 * u, "start", pt.type === "THREAT" ? "#c00" : "#000")}`;
+        if (pt.type === "THREAT" && +pt.range) { const r = P(pt.lat, pt.lng + +pt.range * 1852 / (111320 * Math.cos(pt.lat * RAD)))[0] - a; cm += `<circle cx="${a}" cy="${b}" r="${r}" fill="none" stroke="#e00" stroke-width="${2 * u}" stroke-dasharray="${8 * u} ${6 * u}"/>`; } });
+    }
+    // corners, scale, north (sheet is north up)
+    const corner = (ll, x, y, anc) => tag(x, y, PR.mgrs(ll[0], ll[1]), 11 * u, anc);
+    const sbM = [100, 200, 250, 500, 1000, 2000, 5000].filter(v => v <= f.w / 4).pop() || 100, sbL = X(0) + (sbM / f.w) * (X(s.cols) - X(0)) - X(0);
+    const sb = `<g><rect x="${x0 + 14 * u}" y="${y1 - 34 * u}" width="${sbL}" height="${8 * u}" fill="#fff" stroke="#000" stroke-width="${u}"/><rect x="${x0 + 14 * u}" y="${y1 - 34 * u}" width="${sbL / 2}" height="${8 * u}" fill="#000"/>
+      ${tag(x0 + 14 * u, y1 - 40 * u, "0", 13 * u)}${tag(x0 + 14 * u + sbL, y1 - 40 * u, sbM >= 1000 ? sbM / 1000 + " KM" : sbM + " M", 13 * u, "end")}
+      ${tag(x0 + 14 * u, y1 - 12 * u, `1:${ratio(s, zoom).toLocaleString()} ON LETTER`, 11 * u)}</g>`;
+    const nx = x1 - 40 * u, ny = y1 - 60 * u, na = `<g><path d="M${nx},${ny - 40 * u} L${nx + 14 * u},${ny} L${nx},${ny - 10 * u} L${nx - 14 * u},${ny} Z" fill="#fff" stroke="#000" stroke-width="${1.5 * u}"/>${tag(nx, ny + 20 * u, "N", 18 * u, "middle")}</g>`;
+    const theater = campaign.theater || "";
+    el.innerHTML = `<section class="pg" id="pg"><div class="hd"><div><img src="img/v639-caoc-patch.webp" alt=""></div>
+        <div><b class="t">${esc(s.name)}</b><div class="sub">GRIDDED REFERENCE GRAPHIC · v${s.v} · OP ${esc(campaign.opName)}</div>
+          <div class="ids">CELLS ${s.cell} M (${s.cols} × ${s.rows}) · A1 = NORTH-WEST${s.keypads ? " · KEYPAD 1–9 TOP-LEFT TO BOTTOM-RIGHT" : ""}${bl.length ? ` · ${bl.length} BLDGS, NUMBERED PER CELL NW TO SE` : ""} · CENTRE ${PR.mgrs(s.lat, s.lon)}<br>
+          ${bl.length ? `NW ${PR.mgrs(nw[0], nw[1])} (${PR.ddm(nw[0], nw[1])}) · SE ${PR.mgrs(se[0], se[1])}` : `NW ${PR.ddm(nw[0], nw[1])} · SE ${PR.ddm(se[0], se[1])} · ${zulu()}`} · 1:${ratio(s, zoom).toLocaleString()}</div></div>
+        <div><div class="cls">UNCLASSIFIED // EXERCISE</div><div class="note">${dcs ? `<b>DCS F10 map, Alt layer.</b> The sim's own ${esc(theater)} scenery: the numbered buildings are the ones DCS draws, in the same places aircrew and JTACs see them.`
+          : `<b>Real-world imagery and buildings.</b> DCS ${esc(theater)} scenery may differ${/Caucasus/i.test(theater) ? ", most on this map" : ""}: confirm a numbered building against the sim (a TGP look or the F10 map) before a talk-on.`}</div></div></div>
+      <div class="mapf"><svg id="sv" viewBox="${vb.join(" ")}" preserveAspectRatio="xMidYMid meet" style="font-family:Arial;font-weight:700">
+        <rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" fill="#fff"/>
+        <svg x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" viewBox="${vb.join(" ")}" overflow="hidden"><g class="pan">${tiles}</g>
+          ${s.keypads ? `<g stroke="#fff" stroke-width="${1.2 * u}" stroke-dasharray="${3 * u} ${4 * u}" opacity=".75" fill="#fff" class="kp">${kp}</g>` : ""}
+          <g fill="none" stroke="${dcs ? "#000" : "#ffd400"}" stroke-width="${1.5 * u}" shape-rendering="crispEdges">${grid}</g>
+          <g class="pan"><g fill="none" stroke="#00e5ff" stroke-width="${.9 * u}" opacity=".85">${bd}</g>
+          <g class="bnum" fill="#fff" font-size="${bf}" text-anchor="middle">${bn}</g>${cm}</g>
+          <g>${lab}</g>${sb}${na}</svg>
+        <g>${edge}</g>
+        ${bl.length ? "" : corner(nw, x0 + 4 * u, y0 + 40 * u + fs * 1.3, "start") + corner(ne, x1 - 4 * u, y0 + fs * 2.5, "end") + corner(sw, x0 + 4 * u, y1 - 50 * u, "start") + corner(se, x1 - 4 * u, y1 - 8 * u, "end")}
+      </svg></div>
+      <div class="ft"><span class="cls">UNCLASSIFIED // EXERCISE — DCS WORLD</span><span>${dcs ? "Map and buildings: DCS World F10 map (Alt), tiles by DCS Olympus" : `Imagery: Esri, Maxar, Earthstar Geographics${bl.length ? " · Buildings: © OpenStreetMap contributors" : ""}`} · Control measures: OP ${esc(campaign.opName)} theater map</span><span>${esc(s.name)} v${s.v}${bl.length ? ` · ${zulu()}` : ""}</span></div></section>`;
+    // drag: the map slides under the fixed grid; let go and the sheet is re-centred there and its buildings renumbered
+    const sv = document.getElementById("sv"), pans = sv.querySelectorAll(".pan");
+    let drag = null;
+    sv.onpointerdown = ev => { if (ev.button !== 0) return; drag = { x: ev.clientX, y: ev.clientY, k: vb[2] / sv.getBoundingClientRect().width, dx: 0, dy: 0 }; sv.setPointerCapture(ev.pointerId); sv.style.cursor = "grabbing"; };
+    sv.onpointermove = ev => { if (!drag) return; drag.dx = (ev.clientX - drag.x) * drag.k; drag.dy = (ev.clientY - drag.y) * drag.k;
+      pans.forEach(g => g.setAttribute("transform", `translate(${drag.dx} ${drag.dy})`)); sv.querySelector(".bnum").style.opacity = .25; };
+    sv.onpointerup = sv.onpointercancel = () => { if (!drag) return; const d = drag; drag = null; sv.style.cursor = "";
+      if (Math.hypot(d.dx, d.dy) < 2 * u) { pans.forEach(g => g.removeAttribute("transform")); sv.querySelector(".bnum").style.opacity = ""; return; }
+      const W = 256 * 2 ** z, X = mx + cx - d.dx, Y = my + cy - d.dy;
+      s.lon = +(X / W * 360 - 180).toFixed(5); s.lat = +(Math.atan(Math.sinh(Math.PI * (1 - 2 * Y / W))) / RAD).toFixed(5); s.changed = true;
+      markDirty(); render(); };
+  }
+  // ---------- save (a changed grid is a new version) and the DKS overlay ----------
+  document.getElementById("saveBtn").onclick = () => {
+    data.sheets.forEach(s => { if (s.changed) { s.v++; delete s.changed; } s.saved = new Date().toISOString(); });
+    Store.setContent(cid, "grg", structuredClone(data)); Store.setStatus(cid, "grg", "draft");
+    Store.log(cid, `GRGs saved (${data.sheets.length} sheet${data.sheets.length === 1 ? "" : "s"})`);
+    dirty = false; const st = document.getElementById("state"); st.textContent = "Saved — submit for review on the GRG product"; st.style.color = "var(--ok)"; render(); toast("GRGs saved");
+  };
+  document.getElementById("geoBtn").onclick = () => {
+    const s = data.sheets.find(x => x.id === sel); if (!s) return; const f = frame(s), feats = [], ll = (e, n) => { const [a, b] = toGeo(s, e, n); return [+b.toFixed(6), +a.toFixed(6)]; };
+    for (let i = 0; i <= s.cols; i++) feats.push({ type: "Feature", geometry: { type: "LineString", coordinates: [ll(-f.w / 2 + i * s.cell, f.h / 2), ll(-f.w / 2 + i * s.cell, -f.h / 2)] }, properties: { kind: "grgLine", grg: s.name, v: s.v, dksSection: "Overlay" } });
+    for (let j = 0; j <= s.rows; j++) feats.push({ type: "Feature", geometry: { type: "LineString", coordinates: [ll(-f.w / 2, f.h / 2 - j * s.cell), ll(f.w / 2, f.h / 2 - j * s.cell)] }, properties: { kind: "grgLine", grg: s.name, v: s.v, dksSection: "Overlay" } });
+    for (let i = 0; i < s.cols; i++) for (let j = 0; j < s.rows; j++) feats.push({ type: "Feature", geometry: { type: "Point", coordinates: ll(-f.w / 2 + (i + .5) * s.cell, f.h / 2 - (j + .5) * s.cell) }, properties: { kind: "grgCell", name: `${colName(i)}${j + 1}`, grg: s.name, v: s.v, dksSection: "Overlay" } });
+    bldgs(s).forEach(b => feats.push({ type: "Feature", geometry: { type: "Point", coordinates: ll(...b.c) }, properties: { kind: "grgBuilding", name: `${b.cell}-${b.n}`, grg: s.name, v: s.v, dksSection: "Overlay" } }));
+    AOC.download(`${s.name.replace(/\W+/g, "_")}_v${s.v}.geojson`, JSON.stringify({ type: "FeatureCollection", features: feats }, null, 1), "application/geo+json");
+  };
+  window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+  function fit() { const pg = document.getElementById("pg"); if (pg) pg.style.zoom = Math.min(1, (document.getElementById("sheet").clientWidth - 4) / 1058); }
+  addEventListener("resize", fit); addEventListener("beforeprint", () => { const pg = document.getElementById("pg"); if (pg) pg.style.zoom = 1; }); addEventListener("afterprint", fit);
+  function render() { renderForm(); renderSheet(); fit(); ensureBuildings(data.sheets.find(x => x.id === sel)); loadPlaces(); }
+  render();
+</script>
+</body>
+</html>

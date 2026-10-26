@@ -26,10 +26,11 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | `index.html` | CAOC staff | Campaign dashboard: products, deliverables tracker (CFACC), requests, groups. The Comm Plan, OPTASKLINK, JCEOI and IFF / SIF sit together as one **Comm / Datalink / IFF** group (built at the same sitting); the JCEOI is reached from there, not the top nav |
 | `product.html?p=optasklink` | CAOC staff | OPTASKLINK: built automatically from the ATO and the host mission file — nothing to fill in but notes |
 | `rollup.html` | CAOC staff (CFACC/CFC publish) | CAOC rollup: deadline timeline (campaign build / mission cycle), product readiness, host mission file, host debriefs, DKS export preview (Overlay, Agencies changes), the one **PUBLISH** button (products to the groups, DKS exports, and a Discord post of every non-DKS product to the host and every active group; **Discord post** previews it) and **Cycle to next mission** |
-| `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS & ROE, Comm Plan, BDA) |
+| `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS & ROE, Comm Plan, GRG, BDA) |
 | `tdp.html` | CAOC staff | TDP book: one target folder per JIPTL target, drafted from the nomination data; **Export imagery jobs** for the render tool; **Open target folder** |
 | `folder.html?t=<target>` | CAOC staff | AFLG-style printable target folder (see [Target folders](#target-folders-and-imagery)) |
 | `maap.html` | CAOC staff | MAAP: checks at the top (errors first), packages of ATO lines against JIPTL targets with each package's **support** (tankers, AWACS / GCI, TAC C2, JTAC), coverage per target and per key task; Apply to ATO |
+| `grg.html` | CAOC staff | Gridded reference graphics for CAS and urban areas: DCS F10 ALT map, fixed grid, every DCS building numbered in its cell (see [GRGs](#grgs-gridded-reference-graphics)) |
 | `prcc.html` | CAOC staff (PRCC) | vPRCC — personnel recovery: DKS ejection reports worked through report, locate & authenticate, support, recover, reintegrate, then the CSAR task force package (see [Personnel recovery](#personnel-recovery-vprcc)) |
 | `jceoi.html` | CAOC staff | JCEOI: standard Blue net plan (the Comm Plan matrix, clear in every theater), Nevada (NTTR) plan, IFF / SIF, clear-channel pool, frequency check, `.xlsx` export. The per-theater registers are used for every check but not shown |
 | `map.html` | CAOC staff | Theater map from the ACO: nav/spider/dest points, threats with DCS range rings, FLOT, FSCL, MRR, AR tracks, HVAA orbits, artillery ROZ |
@@ -303,6 +304,26 @@ commit `img/targets/`. It renders the .miz units as the DCS 3D models on Esri sa
 and a simulated white-hot TGP view), and the JOG is the **DCS F10 map's own chart** read from the terrain's
 `RasterCharts` (1:250,000 where DCS has it; the Esri topographic map where a terrain has none). Tested on Caucasus,
 Persian Gulf, Syria, Afghanistan, Kola and Nevada. See `tools/target-render/README.md` for setup.
+
+## GRGs (gridded reference graphics)
+
+`grg.html` builds the one-page GRGs that go in the kneeboard packages for pilots, JTACs and controllers. A sheet is a
+lettered / numbered grid (A1 = north-west, rows counting south) with every building numbered in its cell, 1 upward,
+north-west to south-east, so a talk-on is "D5 building 3".
+
+- **Background**: the **DCS F10 map's Alt layer**, as web tiles exported from DCS by the
+  [DCS Olympus](https://github.com/Pax1601/DCSOlympus) project (`maps.dcsolympus.com`): Caucasus, Syria, Nevada,
+  Persian Gulf, Marianas, Normandy, Germany (Cold War). Theaters without an export (Kola, Afghanistan, …) use real-world
+  imagery instead.
+- **Buildings**: on the ALT map they are the sim's own, read off the tiles (near-black blobs; trees, roads and map
+  lettering are left out), at zoom 16 or deeper. On real-world imagery they come from OpenStreetMap. Numbers are white on
+  each building.
+- **Making a sheet**: from a point, from a kill box / ROZ on the theater map, or **Zoom to settlement** (the settlement's
+  core, sized to the page). The **map scale** slider sets the zoom (1:N on letter); the grid stays fixed on the page and
+  the map is **dragged** under it. Moving the map, the scale or the cells renumbers the buildings and makes a new version
+  on save.
+- **Out**: Print / PDF (letter landscape), the GRG product (sheet list for review and publish), GeoJSON for the DKS
+  Overlay.
 
 ## Personnel recovery (vPRCC)
 
