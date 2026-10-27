@@ -167,6 +167,11 @@ input, select, textarea {
 [data-theme="nvg"] input, [data-theme="nvg"] select, [data-theme="nvg"] textarea { border-radius: 0; }
 textarea { min-height: 80px; resize: vertical; }
 input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+/* dropdown lists: the browser draws them, so give them the theme's colours (otherwise light text on a white list) */
+:root, [data-theme="ops"], [data-theme="nvg"] { color-scheme: dark; }
+[data-theme="staff"] { color-scheme: light; }
+select option, select optgroup { background: var(--panel); color: var(--text); }
+select option:checked { background: var(--panel-2); color: var(--text); font-weight: 600; }
 
 /* Layout */
 .wrap { max-width: 1400px; margin: 0 auto; padding: 20px; }
