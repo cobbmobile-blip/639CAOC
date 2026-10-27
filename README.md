@@ -199,7 +199,7 @@ must change in the mission file so it matches the CAOC's documents. Nobody fills
   altitude when the track gives one.
 - **FIX** — what the checks found: TACAN / ICLS scrub checks 1–3, 5 and 6, datalink settings in the `.miz` (AI STNs,
   F/A-18C channels, team and donors), a tanker radio outside the Comm Plan, airframe / number / crew differences on a
-  matched line, **tanker airspeed** (300 ± 5 KCAS; the Mission Editor speed is true airspeed, so the log gives the
+  matched line, **tanker airspeed** (± 5 KCAS of 300 for the KC-135, KC-135 MPRS, KC-10 and S-3B, of 100 for the KC-130, which refuels helicopters; the Mission Editor speed is true airspeed, so the log gives the
   number to type for the orbit altitude, about 430 kt at 25,000 ft), JIPTL targets with no RED unit within 1 NM in the
   `.miz`, and a mission start after the ATO's first TOT.
 - **REMOVE** — groups of cancelled lines; targets BDA rates destroyed (when the campaign carries damage).

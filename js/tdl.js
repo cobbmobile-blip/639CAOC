@@ -144,7 +144,7 @@
     if (m) {
       const ids = new Set((m.units || []).map(u => u.unitId)), awx = m.c2.filter(r => r.role.startsWith("AWACS"));
       m.hornet.forEach(r => {
-        if (r.ch !== hornetPlan) add("warn", `F/A-18C ${r.callsign || r.unit}: Link 16 channels AIC/FF1/FF2/VOCA/VOCB ${r.ch} differ from the rest (${hornetPlan}).`);
+        if (r.ch.split("/").some(Boolean) && r.ch !== hornetPlan) add("warn", `F/A-18C ${r.callsign || r.unit}: Link 16 channels AIC/FF1/FF2/VOCA/VOCB ${r.ch} differ from the rest (${hornetPlan}).`);
         r.teamIds.concat(r.donorIds).filter(id => !ids.has(id)).forEach(id => add("warn", `F/A-18C ${r.callsign || r.unit}: team member / donor unit ${id} is not a datalink aircraft in the mission.`));
       });
       awx.forEach(a => { const no = m.hornet.filter(r => !r.donorIds.includes(a.unitId)).map(r => r.callsign || r.unit);

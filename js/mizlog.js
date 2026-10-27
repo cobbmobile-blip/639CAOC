@@ -23,7 +23,9 @@
   const ORDER = { add: 0, set: 1, fix: 2, remove: 3 };
 
   // ---------- airspeed: the Mission Editor's speed is true airspeed; tankers fly 300 KCAS ---------- (ISA, troposphere)
-  const TANKER_KCAS = 300, TANKER_TOL = 5;
+  // KC-135, KC-135 MPRS, KC-10 and S-3B: 300 KCAS; the KC-130 refuels helicopters at 100 KCAS
+  const TANKER_KCAS = 300, HELO_TANKER_KCAS = 100, TANKER_TOL = 5;
+  const kcasFor = type => /KC-?130/i.test(type || "") ? HELO_TANKER_KCAS : TANKER_KCAS;
   const atm = h => { const T = 288.15 - 0.0065 * Math.min(h, 11000), p = 101325 * (T / 288.15) ** 5.25588; return { T, p, a: Math.sqrt(1.4 * 287.053 * T) }; };
   function casFromTas(tas, h) {   // m/s, m -> m/s
     const { p, a } = atm(h), M = tas / a, qc = p * ((1 + 0.2 * M * M) ** 3.5 - 1);
@@ -78,6 +80,7 @@
     // ATO lines against the .miz flights
     const match = matchFlights(cid, mf);
     run("ATO lines in the .miz", () => {
+      if (!missions.length && !lines.length) return "the ATO has no lines yet";
       const out = [];
       match.rows.forEach(({ m, f, line, by }) => {
         const what = `${m.msn} ${m.num}× ${m.type} ${m.role}${m.crew === "AI" ? " (AI)" : " (client slots)"}${m.callsign && m.callsign !== "TBD" ? `, ${m.callsign}` : ""}${m.target ? `, ${m.target}` : ""}${m.tot && m.tot !== "TBD" ? `, ${m.tot}` : ""}`;
@@ -95,12 +98,17 @@
     // CAOC assignments that live in the .miz
     if (!scrub) notChecked.push({ label: "TACAN, ICLS and tanker radios", why: "this .miz was sent before beacons were read; the host sends it again" });
     else {
-      run("Tanker TACAN and radio against the tanker tracks", () => fromScrub(f => f.check === 4 && /^4\|track/.test(f.key), "set"));
-      run("Carrier TACAN and ICLS against the SPINS", () => fromScrub(f => f.check === 4 && /^4\|ship/.test(f.key), "set"));
-      run("Tanker radios in the Comm Plan", () => fromScrub(f => f.check === 4 && /^4\|acp/.test(f.key), "fix"));
+      // a check with nothing planned to compare against is "not checked", never "OK"
+      const X = window.AOC.JCEOI, tk = X?.theaterKey(mf.theatre) || X?.theaterKey(c.theater);
+      const tracks = (Store.content(cid, "map")?.shapes || []).some(x => x.type === "TANKER TRACK" && x.callsign) || (X?.plan(tk)?.caoc.tankers || []).length > 0;
+      const naval = (Store.content(cid, "spins")?.naval || []).some(r => r.ship || r.hull);
+      const plan = window.AOC.COMM.channels(Store.content(cid, "acp")?.matrix).some(ch => ch.freq);
+      run("Tanker TACAN and radio against the tanker tracks", () => tracks ? fromScrub(f => f.check === 4 && /^4\|track/.test(f.key), "set") : "no tanker tracks on the theater map");
+      run("Carrier TACAN and ICLS against the SPINS", () => naval ? fromScrub(f => f.check === 4 && /^4\|ship/.test(f.key), "set") : "the SPINS have no carriers");
+      run("Tanker radios in the Comm Plan", () => plan ? fromScrub(f => f.check === 4 && /^4\|acp/.test(f.key), "fix") : "no Comm Plan yet");
     }
     run("AI support radios against the Comm Plan", () => supportRadios(cid, mf));
-    run(`Tanker airspeed (${TANKER_KCAS} ± ${TANKER_TOL} KCAS)`, () => tankerSpeed(mf));
+    run(`Tanker airspeed (${TANKER_KCAS} ± ${TANKER_TOL} KCAS; KC-130 ${HELO_TANKER_KCAS})`, () => tankerSpeed(mf));
     run("Tanker altitude against the tanker tracks", () => tankerAltitude(cid, mf));
 
     // the checks the CAOC already runs, as host fixes
@@ -150,20 +158,22 @@
     return out;
   }
 
-  // tanker orbits at 300 KCAS: the Mission Editor speed is TAS, so the right number depends on altitude (about 430 kt at FL250)
+  // tanker orbits at 300 KCAS (KC-130 100): the Mission Editor speed is TAS, so the right number depends on altitude (about 430 kt at FL250)
   function tankerSpeed(mf) {
     if (!mf.routes) return "this .miz was sent before routes were read; the host sends it again";
     const tankers = mf.routes.filter(r => isTanker({ type: r.type }) || r.task === "Refueling");
     if (!tankers.length) return "no tankers in the .miz";
     const out = [];
     tankers.forEach(r => {
-      const legs = r.points.filter(p => p.orbit).length ? r.points.filter(p => p.orbit) : r.points.filter(p => !/^(TakeOff|Land)/i.test(p.type) && p.n > 1);
+      const want = kcasFor(r.type);
+      const legs = r.points.filter(p => p.orbit).length ? r.points.filter(p => p.orbit) : r.points.filter(p => !/^(TakeOff|Land)/i.test(p.type) && p.n > 1), bad = {};
       legs.forEach(p => {
         const tas = p.orbit?.speed ?? p.speed, alt = p.orbit?.alt ?? p.alt; if (tas == null || alt == null) return;
-        const cas = kt(casFromTas(tas, alt));
-        if (Math.abs(cas - TANKER_KCAS) > TANKER_TOL)
-          out.push({ key: `spd|${r.group}|${p.n}`, kind: "fix", text: `Group ${r.group}: waypoint ${p.n}${p.orbit ? " orbit" : ""} at ${Math.round(ft(alt) / 100) * 100} ft is ${Math.round(kt(tas))} kt (${Math.round(cas)} KCAS). Set ${Math.round(kt(tasFromCas(TANKER_KCAS / 1.943844, alt)))} kt in the Mission Editor for ${TANKER_KCAS} KCAS.` });
+        const cas = kt(casFromTas(tas, alt)), k = `${Math.round(ft(alt) / 100) * 100}|${Math.round(kt(tas))}`;
+        if (Math.abs(cas - want) > TANKER_TOL) (bad[k] = bad[k] || { alt, tas, cas, wps: [], orbit: !!p.orbit }).wps.push(p.n);
       });
+      Object.entries(bad).forEach(([k, b]) => out.push({ key: `spd|${r.group}|${k}`, kind: "fix",
+        text: `Group ${r.group}: ${b.wps.length > 1 ? `waypoints ${b.wps.join(", ")}` : `waypoint ${b.wps[0]}`}${b.orbit ? " orbit" : ""} at ${Math.round(ft(b.alt) / 100) * 100} ft ${b.wps.length > 1 ? "are" : "is"} ${Math.round(kt(b.tas))} kt (${Math.round(b.cas)} KCAS). Set ${Math.round(kt(tasFromCas(want / 1.943844, b.alt)))} kt in the Mission Editor for ${want} KCAS.` }));
     });
     return out;
   }
@@ -302,5 +312,5 @@
     .sev.error{color:var(--danger,#e5484d)}.sev.warn{color:var(--warn)}.sev.info{color:var(--muted)}`;
   if (document?.head && !document.getElementById("mlk-css")) { const st = document.createElement("style"); st.id = "mlk-css"; st.textContent = CSS; document.head.appendChild(st); }
 
-  window.AOC.MIZLOG = { TANKER_KCAS, TANKER_TOL, build, matchFlights, syncTankers, delta, due, text, post, acknowledge, html, parseLoc, casFromTas, tasFromCas };
+  window.AOC.MIZLOG = { TANKER_KCAS, HELO_TANKER_KCAS, TANKER_TOL, kcasFor, build, matchFlights, syncTankers, delta, due, text, post, acknowledge, html, parseLoc, casFromTas, tasFromCas };
 })();

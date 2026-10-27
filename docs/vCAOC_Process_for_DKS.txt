@@ -624,7 +624,7 @@ Requests from the 639 vCAOC lead, and what was built or decided:
 40. Host .miz change log: from the host's .miz, the ATO and the CAOC products,
     a list of ADD (ATO lines not in the .miz), SET (CAOC values that live in
     the .miz: tanker / carrier TACAN and ICLS, AI support radios), FIX (the
-    scrub, .miz datalinks, tanker airspeed 300 +/- 5 KCAS, JIPTL targets not
+    scrub, .miz datalinks, tanker airspeed 300 +/- 5 KCAS (KC-130 100), JIPTL targets not
     in the .miz, start time after the first TOT) and REMOVE items, with the
     checks that passed. Goes to the host's Discord after each .miz upload and
     with PUBLISH; items close when the next upload passes. Cockpit / DKS items

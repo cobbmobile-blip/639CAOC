@@ -200,7 +200,7 @@ seed content does not reach a browser that already saved data.
   Check 6 flags TACAN 1X / ICLS 1 (DCS defaults).
 - **Host .miz change log** (`MIZLOG.build`): ADD (ATO lines not in the .miz), SET (CAOC-assigned values that live in the
   .miz: tanker / carrier TACAN, ICLS, AI support radios, tanker altitude), FIX (scrub, .miz datalinks, tanker airspeed
-  300 ± 5 KCAS from TAS + altitude, JIPTL targets with no RED within 1 NM, start after first TOT, line mismatches),
+  300 ± 5 KCAS (KC-130: 100, helo AAR) from TAS + altitude, JIPTL targets with no RED within 1 NM, start after first TOT, line mismatches),
   REMOVE (cancelled lines, BDA-destroyed targets); passed checks listed. Never cockpit / DKS items (radio presets,
   STNs, TNs, IDM, IFF). **Tanker callsigns come from the .miz** (`syncTankers` on upload). Posted as `miz.changes` to
   the host's registered channel after an upload that changes it and with PUBLISH (`opts.mizlog`); state in
