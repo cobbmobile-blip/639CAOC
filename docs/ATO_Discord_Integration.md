@@ -197,6 +197,30 @@ message; the same zip downloads from the Dashboard and from Op Status.
 `db.discordOutbox` with the zip's name and contents list, not the zip (it is rebuilt from the released versions; the
 Dashboard's **Discord post** button shows the post and downloads the zip).
 
+## Host .miz change log (`miz.changes`)
+
+What the host JFACC must change in their `.miz` to match the CAOC's documents (built by `js/mizlog.js`). The bot posts
+it to the **host's registered channel** only, never to the other groups. It is sent after a `.miz` upload that changes
+the log and with PUBLISH (when ticked). `content` is the log as text (also attached as a `.txt`): items marked `[NEW]`
+since the last post, a FIXED section for what the new version fixed, the checks that passed and any that could not run.
+
+```json
+{
+  "event": "miz.changes", "campaign_id": "iron-trident", "operation": "IRON TRIDENT", "ato": "AH", "log": 2,
+  "reason": "host mission file v5",
+  "mission_file": { "version": 5, "name": "iron_trident_viper.miz" },
+  "recipients": [ { "group_id": "g1", "group": "Viper Ops Group", "host": true } ],
+  "counts": { "add": 3, "set": 1, "fix": 2, "remove": 0 }, "new": 1, "fixed": 3,
+  "title": "OP IRON TRIDENT — .miz change log #2",
+  "content": "MIZ CHANGE LOG #2 — OP IRON TRIDENT — ATO AH\nAgainst host mission file v5 …\n\nREQUIRED ADDITIONS\n  ADD    8115 2× F-16C SEAD …",
+  "attachment": { "filename": "OP_IRON_TRIDENT_MIZ_CHANGES_2.txt" }
+}
+```
+
+An **Acknowledge** button on the post should call back with `{ "campaign_id", "log", "by" }` (the site records it as
+`campaign.mizLog.ack`, the same as the mission file page's button). Items are not ticked off: they close when the next
+`.miz` upload passes the check.
+
 ## Not in the prototype yet
 
 - A real backend: the prototype stores lines in the browser and records outgoing events in `db.discordOutbox`.

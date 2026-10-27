@@ -1,11 +1,12 @@
 // TACAN / ICLS scrub of a host mission file. Reports only -- the host fixes their own .miz; the CAOC never edits it.
 // Checks: 1 duplicates in the .miz · 2 clashes with the map's own TACANs · 3 callsign problems ·
-// 4 mismatches with what the CAOC published (tanker tracks, SPINS carriers, Comm Plan) · 5 beacons likely to fail in flight.
+// 4 mismatches with what the CAOC published (tanker tracks, SPINS carriers, Comm Plan) · 5 beacons likely to fail in flight ·
+// 6 channels left at the DCS default (TACAN 1X, ICLS 1).
 (function () {
   const { Store } = window.AOC;
   const TANKER = /KC-?135|KC135|KC-?130|KC130|S-3B Tanker|IL-78|KC-?10\b|KC_10/i;
   const CARRIER = /^(CVN_7\d|CVN-7\d|Stennis|CV_1143_5|KUZNECOW|LHA_Tarawa|Forrestal|CV_59|hms_invincible)/i;
-  const CHECK = { 1: "Duplicate in the mission", 2: "Clash with a map TACAN", 3: "Callsign", 4: "Differs from CAOC products", 5: "Likely to fail in flight" };
+  const CHECK = { 1: "Duplicate in the mission", 2: "Clash with a map TACAN", 3: "Callsign", 4: "Differs from CAOC products", 5: "Likely to fail in flight", 6: "Left at the DCS default" };
   const norm = s => String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   // flight key: "TEXACO 1" and DCS's "Texaco11" (Texaco 1-1) both become TEXACO1
   const flightKey = s => { const m = norm(s).match(/^([A-Z]+)(\d)/); return m ? m[1] + m[2] : norm(s); };
@@ -106,6 +107,10 @@
       if (b.channel == null || b.channel < 1 || b.channel > 20) add(5, "error", `iclsrange${k}`, `${who(b)}: ICLS channel ${b.channel ?? "missing"} is outside 1–20.`);
       if (!b.enabled) add(5, "warn", `iclsoff${k}`, `${who(b)}: ICLS task is disabled.`);
     });
+
+    // 6 -- the Mission Editor's starting values, almost always never changed
+    tacans.filter(b => b.channel === 1 && b.mode === "X").forEach(b => add(6, "warn", `def${b.group}${b.unit}${b.waypoint}`, `${who(b)}: TACAN is 1X, the DCS default — set the planned channel.`));
+    icls.filter(b => b.channel === 1).forEach(b => add(6, "warn", `idef${b.group}${b.unit}${b.waypoint}`, `${who(b)}: ICLS is channel 1, the DCS default — set the planned channel.`));
 
     const order = { error: 0, warn: 1, info: 2 };
     out.sort((a, b) => order[a.sev] - order[b.sev] || a.check - b.check);

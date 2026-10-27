@@ -35,6 +35,7 @@
 <script src="js/jceoi.js"></script>
 <script src="js/tacan.js"></script>
 <script src="js/tdl.js"></script>
+<script src="js/mizlog.js"></script>
 
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:12px">
@@ -53,6 +54,7 @@
 
   <section class="panel hidden" id="calPanel"></section>
 
+  <section class="panel" id="logPanel"></section>
   <section class="panel"><div class="panel-head"><h2>Versions</h2><span class="muted small" id="vN"></span></div><div id="versions"></div></section>
   <section class="panel" id="scrubPanel"></section>
   <section class="panel" id="tdlPanel"></section>
@@ -103,6 +105,12 @@
       <div class="field" style="margin-top:10px"><label>Notes for the CAOC</label><textarea id="notes" placeholder="What changed in this version"></textarea></div>
       <div class="toolbar"><button class="btn primary" id="sendBtn">Send as version ${fs.length + 1}</button><button class="btn" id="dropBtn">Discard</button></div>`
       : `<p class="muted small">Choose your draft .miz (REDFOR laid in). Nothing is sent until you press Send.</p>`;
+    // what the host must change in the .miz (built from the current version, the ATO and the CAOC products)
+    const L = AOC.MIZLOG, lp = L && Store.campaign(cid).mizLog?.posts?.[0], acked = Store.campaign(cid).mizLog?.ack?.n === lp?.n;
+    document.getElementById("logPanel").innerHTML = L ? `<div class="panel-head"><div><h2>.miz change log</h2>
+        <div class="muted small">What to change in your .miz so it matches the CAOC's documents. Each item closes when the next version you send passes that check.</div></div>
+        <div class="toolbar"><button class="btn" id="logTxt">Download as text</button>${isHost() && lp && !acked ? `<button class="btn primary" id="logAck">Acknowledge log #${lp.n}</button>` : ""}</div></div>
+      ${L.html(cid, { staff: !!staff })}` : "";
     // versions
     document.getElementById("vN").textContent = fs.length ? `current v${cur.v}` : "none yet";
     document.getElementById("versions").innerHTML = fs.length ? `<div class="table-scroll"><table class="mt"><thead><tr><th>V</th><th>File</th><th>Received</th><th>From</th><th>BLUE</th><th>RED</th><th>Changes</th><th>Notes</th></tr></thead><tbody>
@@ -211,8 +219,16 @@
     if (e.target.id === "dropBtn") { pending = null; render(); }
     if (e.target.id === "sendBtn") {
       const c = camp(), rec = MIZ.submit(cid, { ...pending, by: me.id, user: c.jfacc?.callsign || me.contact, notes: document.getElementById("notes").value.trim() });
-      pending = null; toast(`Version ${rec.v} sent to the CAOC`); render();
+      // the ATO takes tanker callsigns from the .miz; then the change log goes to the host's Discord if it changed
+      AOC.MIZLOG?.syncTankers(cid);
+      const lg = AOC.MIZLOG?.due(cid) ? AOC.MIZLOG.post(cid, `host mission file v${rec.v}`) : null;
+      pending = null; toast(`Version ${rec.v} sent to the CAOC${lg ? ` · .miz change log #${lg.n}: ${lg.items.length} open${lg.fixed.length ? `, ${lg.fixed.length} fixed` : ""}` : ""}`); render();
     }
+  });
+  document.getElementById("logPanel").addEventListener("click", e => {
+    if (e.target.id === "logTxt") { const c = camp(), a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([AOC.MIZLOG.text(cid)], { type: "text/plain" })); a.download = `OP_${c.opName.replace(/\s+/g, "_")}_MIZ_CHANGES.txt`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+    if (e.target.id === "logAck") { AOC.MIZLOG.acknowledge(cid, camp().jfacc?.callsign || me.contact); toast("Acknowledged"); render(); }
   });
   render();
 </script>

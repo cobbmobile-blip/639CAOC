@@ -143,6 +143,8 @@
     // after the release, so newly approved SPINS go to the kneeboards in the same PUBLISH
     if (opts.kneeboard) { const k = sendKneeboard(cid, { when, package: c.packageRelease.version }); if (k) c.packageRelease.dks.push(`Kneeboard v${k.v}`); }
     if (released.length) ev("package.published", { products: c.packageRelease.current });
+    // the host's .miz change log, to the host's registered Discord channel
+    if (opts.mizlog && window.AOC.MIZLOG) { const lg = window.AOC.MIZLOG.post(cid, `with PUBLISH v${c.packageRelease.version}`); if (lg) c.packageRelease.mizlog = { n: lg.n, open: lg.items.length }; }
     d.dksOutbox = d.dksOutbox.slice(0, 50);
     // Discord: the prototype records the post and the zip's contents, not the zip itself (it is rebuilt from the released versions)
     if (opts.discord) {
@@ -264,6 +266,8 @@
       <label class="check-row"><input type="checkbox" id="oKb" ${kbOk ? (ex.kneeboard.changed || bull || approved.includes("spins") || review.includes("spins") ? "checked" : "") : "disabled"}> Kneeboards — SPINS Addendum A (AET tables, RAMRODs)${kbOk ? last(ex.kneeboard.last) : why("spins")}</label>
       <div class="section-h" style="margin-top:12px">Discord</div>
       <label class="check-row"><input type="checkbox" id="oDisc" checked> Post the pilot package (zip) to the host and every active group</label>
+      ${(() => { const L = window.AOC.MIZLOG, lg = L?.build(cid); if (!lg?.mf) return "";
+        return `<label class="check-row"><input type="checkbox" id="oMiz" ${L.due(cid) ? "checked" : ""}> Post the .miz change log to the host's channel — ${lg.items.length ? `${lg.items.length} change${lg.items.length === 1 ? "" : "s"} required` : "no changes required"}${L.due(cid) ? "" : ' <span class="muted small">(unchanged since the last post)</span>'}</label>`; })()}
       <p class="small muted" style="margin:0 0 0 26px">${esc(PILOT.filter(p => want.includes(p)).map(p => PRODUCTS[p]?.code).filter(Boolean).join(", "))} as printable pages${want.includes("tdp") ? "; TDPs only for INT targets" : ""}. Internal products never go.</p>
       <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>PUBLISH</button></div></div>`;
     document.body.appendChild(back);
@@ -273,8 +277,8 @@
       back.querySelector("#relList").textContent = codes([...new Set([...approved, ...picked(), ...(ck("oBull") ? ["spins"] : [])])]) || "none approved yet"; });
     back.querySelector("[data-x]").onclick = () => back.remove();
     back.querySelector("[data-ok]").onclick = () => {
-      const opts = { approve: picked(), bullseye: ck("oBull"), products: ck("oProd"), overlay: ck("oOv"), agencies: ck("oAg"), kneeboard: ck("oKb"), discord: ck("oDisc") };
-      if (!opts.products && !opts.overlay && !opts.agencies && !opts.kneeboard && !opts.discord) { toast("Nothing selected"); return; }
+      const opts = { approve: picked(), bullseye: ck("oBull"), products: ck("oProd"), overlay: ck("oOv"), agencies: ck("oAg"), kneeboard: ck("oKb"), discord: ck("oDisc"), mizlog: ck("oMiz") };
+      if (!opts.products && !opts.overlay && !opts.agencies && !opts.kneeboard && !opts.discord && !opts.mizlog) { toast("Nothing selected"); return; }
       const rel = publish(cid, opts); back.remove();
       toast(`Package v${rel.version}: ${rel.products.length} products${rel.dks.length ? ", DKS " + rel.dks.join(", ") : ""}${rel.discord ? `, zip to ${rel.discord.recipients} groups` : ""}`);
       done?.(rel);

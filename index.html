@@ -42,6 +42,7 @@
 <script src="js/miz.js"></script>
 <script src="js/tacan.js"></script>
 <script src="js/tdl.js"></script>
+<script src="js/mizlog.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <main class="wrap">
@@ -82,6 +83,9 @@
     </section>
     <section class="panel" id="atoLines"></section>
     <section class="panel"><div class="panel-head"><h2>Host mission file</h2><a class="small" id="mfLink" href="mission-file.html">Open →</a></div><div id="mfile"></div></section>
+    <section class="panel"><div class="panel-head"><div><h2>Host .miz change log</h2>
+        <div class="muted small">What the host must change in the .miz to match the CAOC's documents. Built automatically; goes to the host's Discord with PUBLISH and after each .miz upload.</div></div>
+        <div class="toolbar" id="logTools"></div></div><div id="mizlog"></div></section>
     <section class="panel"><div class="panel-head"><h2>Debriefs from the host</h2></div><div id="debriefs"></div></section>
     <section class="panel">
       <div class="panel-head"><div><h2>DKS exports</h2><div class="muted small">Sent as options of PUBLISH. The Overlay is drawn on the DKS theater map; it is not written into the host's .miz.
@@ -259,6 +263,17 @@
       : `<p class="muted small">None yet. The host enters it on their Debrief page after each mission.</p>`;
   }
 
+  // ---------- the host's .miz change log (mizlog.js) ----------
+  function renderMizLog() {
+    const L = AOC.MIZLOG, log = L.build(cid), sync = log.caoc.some(t => /Use \.miz tanker callsigns/.test(t));
+    document.getElementById("mizlog").innerHTML = L.html(cid);
+    document.getElementById("logTools").innerHTML = `${sync ? `<button class="btn sm" id="logSync" title="The ATO and the tanker tracks take the tanker callsigns from the host's .miz">Use .miz tanker callsigns</button>` : ""}
+      ${log.mf ? `<button class="btn sm" id="logTxt">Download as text</button>` : ""}`;
+    document.getElementById("logSync")?.addEventListener("click", () => { const d = L.syncTankers(cid); toast(d.length ? `ATO: ${d.join(", ")}` : "Nothing to change"); render(); });
+    document.getElementById("logTxt")?.addEventListener("click", () => { const c = Store.campaign(cid), a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([L.text(cid)], { type: "text/plain" })); a.download = `OP_${c.opName.replace(/\s+/g, "_")}_MIZ_CHANGES.txt`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); });
+  }
+
   // ---------- what PUBLISH sends to DKS, in detail ----------
   const table = (rows, cols) => rows.length ? `<div class="table-scroll"><table class="rt"><thead><tr>${cols.map(([, l]) => `<th>${esc(l)}</th>`).join("")}</tr></thead>
     <tbody>${rows.map(r => `<tr>${cols.map(([k]) => `<td>${esc(r[k])}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : `<p class="muted small">None.</p>`;
@@ -300,6 +315,7 @@
     renderTimeline();
     renderAtoLines();
     renderMission();
+    renderMizLog();
     renderDks();
     const c = Store.campaign(cid), db = Store.db;
     document.getElementById("opName").textContent = "OP " + c.opName;

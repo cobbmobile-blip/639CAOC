@@ -106,7 +106,7 @@
       ["plane", "helicopter", "ship", "vehicle"].forEach(cat => arr(ct?.[cat]?.group).forEach(g => {
         const units = arr(g.units), cs = u => u && typeof u.callsign === "object" ? u.callsign.name || "" : String(u?.callsign ?? "");
         const base = { side, cat, group: g.name || "", groupId: g.groupId, lateActivation: !!g.lateActivation, freq: g.frequency != null ? +g.frequency : null,
-          units: units.map(u => ({ name: u.name || "", type: u.type || "", unitId: u.unitId, callsign: cs(u) })) };
+          units: units.map(u => ({ name: u.name || "", type: u.type || "", unitId: u.unitId, callsign: cs(u), freq: u.frequency != null ? (+u.frequency > 1e5 ? +u.frequency / 1e6 : +u.frequency) : null })) };
         out.push({ ...base, kind: "group" });   // every group, so tankers and carriers without a beacon are still seen
         arr(g.route?.points).forEach((pt, wi) => {
           (function walk(node, enabled) {
@@ -163,6 +163,24 @@
     return out;
   }
 
+  // BLUE aircraft routes: each waypoint's altitude (m) and speed (m/s true airspeed, which the Mission Editor shows as ground
+  // speed in still air), plus any Orbit task's own speed and altitude -- what the tanker speed check reads
+  function routesOf(mission) {
+    const out = [];
+    arr(mission?.coalition?.blue?.country).forEach(ct => ["plane", "helicopter"].forEach(cat => arr(ct?.[cat]?.group).forEach(g => {
+      const u = arr(g.units)[0]; if (!u) return;
+      const points = arr(g.route?.points).map((pt, i) => {
+        let orbit = null;
+        (function walk(node) { if (!node || typeof node !== "object" || orbit) return;
+          if (node.id === "Orbit" && node.params) { orbit = { pattern: node.params.pattern || "", speed: node.params.speed != null ? +node.params.speed : null, alt: node.params.altitude != null ? +node.params.altitude : null }; return; }
+          Object.values(node).forEach(walk); })(pt.task);
+        return { n: i + 1, type: pt.type || "", alt: pt.alt != null ? +pt.alt : null, altType: pt.alt_type || "", speed: pt.speed != null ? +pt.speed : null, orbit };
+      });
+      out.push({ group: g.name || "", type: u.type || "", task: g.task || "", callsign: typeof u.callsign === "object" ? u.callsign?.name || "" : String(u.callsign ?? ""), points });
+    })));
+    return out;
+  }
+
   // the BLUE coalition's bullseye (map x/y). RED's bullseye is never used: the SPINS are for BLUE aircrew
   const blueBullseye = mission => { const b = mission?.coalition?.blue?.bullseye; return b && isFinite(+b.x) && isFinite(+b.y) ? { x: +b.x, y: +b.y } : null; };
   async function read(file) {
@@ -179,7 +197,7 @@
     }
     return { theatre: mission.theatre || "", start: mission.start_time ?? null, date: mission.date ? `${mission.date.Year}-${String(mission.date.Month).padStart(2, "0")}-${String(mission.date.Day).padStart(2, "0")}` : "",
       flights: ATO.mizFlights(mission, "blue"), red: coalitionUnits(mission, "red"), beacons: beaconsOf(mission), tdl: tdlOf(mission),
-      bullseye: blueBullseye(mission) };
+      bullseye: blueBullseye(mission), routes: routesOf(mission) };
   }
 
   // mission start time (DCS start_time is theater local time, seconds after midnight) as a UTC Date

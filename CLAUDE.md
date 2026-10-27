@@ -51,7 +51,7 @@ fields on `missions`, human then AI)
 (product registry: add a product = add an entry) · `js/proposal.js` proposal wizard · `js/targeting.js` JIPTL
 pipeline, CI key-task mapping · `js/ato.js` ATO lines, `.miz` reader, Discord payloads, commit · `js/package.js` deadlines, DKS
 exports, PUBLISH, cycle · `js/miz.js` mission file intake, theater projections · `js/pr.js` personnel recovery ·
-`js/tdl.js` OPTASKLINK · `js/iff.js` IFF · `js/tacan.js` TACAN scrub · `js/jceoi.js` JCEOI · `css/styles.css` 3 themes.
+`js/tdl.js` OPTASKLINK · `js/iff.js` IFF · `js/tacan.js` TACAN scrub · `js/mizlog.js` host .miz change log · `js/jceoi.js` JCEOI · `css/styles.css` 3 themes.
 Deadline defaults: `MILESTONES` in `js/products.js`.
 
 When the seed data's shape changes, bump `KEY` in `js/app.js` so browsers reload the seed. New seed users, ISOPREPs,
@@ -197,6 +197,14 @@ seed content does not reach a browser that already saved data.
   SADL. All STNs are unique across the network; campaigns own STN blocks and a moniker (`campaign.tdl`).
 - **TACAN scrub** reports only (the CAOC never edits the .miz). Planned values: tanker tracks on the theater map
   (`tacanCh`, `tacanMode`, `tacanCs`) and the SPINS `naval` table. Map TACANs come from the JCEOI DCS beacon list.
+  Check 6 flags TACAN 1X / ICLS 1 (DCS defaults).
+- **Host .miz change log** (`MIZLOG.build`): ADD (ATO lines not in the .miz), SET (CAOC-assigned values that live in the
+  .miz: tanker / carrier TACAN, ICLS, AI support radios, tanker altitude), FIX (scrub, .miz datalinks, tanker airspeed
+  300 ± 5 KCAS from TAS + altitude, JIPTL targets with no RED within 1 NM, start after first TOT, line mismatches),
+  REMOVE (cancelled lines, BDA-destroyed targets); passed checks listed. Never cockpit / DKS items (radio presets,
+  STNs, TNs, IDM, IFF). **Tanker callsigns come from the .miz** (`syncTankers` on upload). Posted as `miz.changes` to
+  the host's registered channel after an upload that changes it and with PUBLISH (`opts.mizlog`); state in
+  `campaign.mizLog` (posts, ack). CAOC-side issues (two tankers on one track) stay on the Dashboard.
 - **ATO lines**: the JFACC/LNO requests lines (from the group's `.miz`: player slots → Human, others → AI, or a form).
   AI lines go straight on the ATO. Human lines are posted via the existing Discord bot to every active registered
   group flying that airframe, with a Commit button; **first commit wins**, the line fills on the ATO and the JFACC

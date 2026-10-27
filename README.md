@@ -38,7 +38,7 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | `unit-login.html` | Participating groups | Group sign-in |
 | `unit.html` | Groups (staff can observe) | Op Status: product board, distribution matrix, ATO lines, group pack and **pilot package (zip)** download. A participating squadron can **Request a line** from the host (same questions as Create an ATO Line) and follow its approval; the host JFACC group sees its lines filling and the requests waiting for it |
 | `isoprep.html` | Groups (staff can read) | ISOPREP / EPA: each pilot's ISOPREP (4 authentication statements, a 4-digit number, description) and an evasion plan per ATO line, read by the PRCC |
-| `mission-file.html` | Host unit (staff can read) | Host mission file intake: upload the draft `.miz` (and every new version); BLUE flights → ATO requests, REDFOR → target nomination; per-theater coordinate calibration; TACAN / ICLS scrub |
+| `mission-file.html` | Host unit (staff can read) | Host mission file intake: upload the draft `.miz` (and every new version); BLUE flights → ATO requests, REDFOR → target nomination; per-theater coordinate calibration; TACAN / ICLS scrub; the **.miz change log** (the host acknowledges it here) |
 | `debrief.html` | Host unit (campaign's JFACC group) | Post-mission debrief: lines flown, BDA, losses, progress — feeds the CAOC's next cycle |
 | `ato-request.html` | Campaign's Group JFACC / LNO (the host) | ATO lines: **Create an ATO line** from the group's `.miz` (player slots → Human, rest → AI) or the form; Human lines are saved as drafts (Edit, Remove) and go out only when the host presses **Post to Discord**. **Line requests from squadrons** with Approve / Deny (deny takes a reason); an approved request goes on the ATO assigned to that squadron |
 | `campaign-submit.html` | Groups | Campaign proposal wizard (JFACC, intent, win/loss, REDFOR, schedule…) |
@@ -178,9 +178,40 @@ Every host `.miz` version is scrubbed for beacons (`js/tacan.js`). It reports on
    Plan channel; planned tankers/carriers missing from the `.miz` and ones with no plan.
 5. **Likely to fail** — no channel or mode, channel outside 1–126, ICLS outside 1–20, disabled task, beacon on a later
    waypoint, late-activated group, task pointing at a unit not in the group.
+6. **Left at the DCS default** — a TACAN on 1X or an ICLS on channel 1 (the Mission Editor's starting values).
 
 Findings new since the previous version are marked; fixed ones are listed. The Dashboard shows the count. Tanker tracks
 have optional TACAN channel / X-Y / ident fields; SPINS has a Carriers & ships table (TACAN, ident, ICLS).
+
+## Host .miz change log
+
+`js/mizlog.js` builds, from the host's current `.miz`, the ATO and the CAOC products, the list of what the host JFACC
+must change in the mission file so it matches the CAOC's documents. Nobody fills it in, and the CAOC never edits the
+`.miz`. Items:
+
+- **ADD** — ATO lines the `.miz` doesn't have: requested lines (awaiting commit or committed) and CAOC support lines.
+  ATO rows match `.miz` flights by the line's own `.miz` group, then by callsign. **Tanker callsigns come from the
+  `.miz`**: a tanker line matches an unclaimed `.miz` tanker of the same airframe, and the ATO (and the theater map's
+  track) take its callsign when the host uploads (or with **Use .miz tanker callsigns** on the Dashboard). Only a
+  tanker the CAOC added that the `.miz` doesn't have is an ADD.
+- **SET** — values the CAOC assigned that live in the `.miz`: tanker TACAN and radio (tanker tracks), carrier TACAN and
+  ICLS (SPINS), the radios of AI support assets the Comm Plan names by callsign (AWACS, tankers, ships), tanker orbit
+  altitude when the track gives one.
+- **FIX** — what the checks found: TACAN / ICLS scrub checks 1–3, 5 and 6, datalink settings in the `.miz` (AI STNs,
+  F/A-18C channels, team and donors), a tanker radio outside the Comm Plan, airframe / number / crew differences on a
+  matched line, **tanker airspeed** (300 ± 5 KCAS; the Mission Editor speed is true airspeed, so the log gives the
+  number to type for the orbit altitude, about 430 kt at 25,000 ft), JIPTL targets with no RED unit within 1 NM in the
+  `.miz`, and a mission start after the ATO's first TOT.
+- **REMOVE** — groups of cancelled lines; targets BDA rates destroyed (when the campaign carries damage).
+
+Every check that ran clean is listed as passed; one that couldn't run says why. Not `.miz` changes, so never listed:
+human-flight radio presets, Link 16 STNs, SADL TNs, IDM and IFF / SIF (cockpit or DKS). **CAOC-side** problems (two
+tankers fragged to one track at one time, a tanker callsign the ATO hasn't taken) show on the Dashboard only.
+
+The log goes to the **host's registered Discord channel** (`miz.changes`): after every `.miz` upload that changes it,
+and with PUBLISH (a tick, pre-ticked when it changed since the last post). Each post marks new items and lists what
+the new version fixed; an item closes itself when the next upload passes its check. The host acknowledges it on the
+mission file page (or the Discord button). It shows on the Dashboard and the mission file page and downloads as text.
 
 ## JCEOI (frequency registers and standard net plan)
 
@@ -417,6 +448,7 @@ theater-map tracks and orbits off the plan, tankers without a frequency.
 - `js/pr.js` — personnel recovery: incidents, DKS intake, SPINS PR data, ISOPREP / EPA, CSAR comm plan, forces, route
 - `js/jceoi.js`, `js/jceoi-data.js` — JCEOI registers, net plan, IFF and TDL data (built by `tools/jceoi`)
 - `js/iff.js`, `js/tdl.js`, `js/tacan.js`, `js/package.js` — IFF / SIF plan and checks, OPTASKLINK, TACAN / ICLS scrub, group pack and DKS exports
+- `js/mizlog.js` — the host's `.miz` change log (ADD / SET / FIX / REMOVE, checks passed) and its Discord post
 - `tools/target-render/` — offline target-folder imagery (Blender pipeline, DCS chart JOG); `img/targets/` holds its output
 - `samples/iron_trident_redfor.csv` — sample Coalition Parser export for the demo campaign
 - `samples/iron_trident_viper.miz` — sample sponsor `.miz` for ATO line requests
