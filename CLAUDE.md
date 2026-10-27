@@ -31,7 +31,7 @@ thunder, keepers, ridge, support, rqs55 (55th RQS, MH-60L CSAR helicopters) — 
 | `product.html?p=<id>` | Product builder + live document preview: `pcon ci aod jiptl tdp maap ato aco spins acp grg bda` (`tdp`, `maap`, `grg` are built on their own pages) |
 | `tdp.html`, `maap.html` | TDP book (folder per JIPTL target; Export imagery jobs; Open target folder); MAAP (checks at the top, packages with support lines, Apply to ATO) |
 | `folder.html?t=<target>` | AFLG-style printable target folder, markup drawn from `img/targets/<cid>/<t>/meta.json` (imagery from `tools/target-render`) |
-| `grg.html` | GRGs: DCS ALT map (DCS Olympus tiles), fixed grid, map dragged under it, scale slider, DCS buildings numbered per cell |
+| `grg.html` | GRGs: DCS ALT map (DCS Olympus tiles), fixed grid, map dragged and wheel-zoomed under it, DCS buildings numbered per cell |
 | `prcc.html` | vPRCC: DKS ejection reports → PR steps → CSAR task force package (`js/pr.js`) |
 | `isoprep.html` | Unit portal: pilots' ISOPREPs and an EPA per ATO line (`db.isopreps`, `db.epas`) |
 | `jceoi.html` | JCEOI: standard Blue net plan, NTTR plan, IFF, clear-channel pool, frequency check, .xlsx export (registers feed the checks, not shown) |
@@ -140,7 +140,7 @@ seed content does not reach a browser that already saved data.
   the larger grid (keypads off by default); every building numbered in its cell, white number centred on it. Background
   is the DCS F10 ALT map from DCS Olympus's tile server (no public DCS SAT tiles exist); buildings are detected off those
   tiles, trees / roads / lettering excluded (bump `BLDG_V` when detection changes). Grid fixed on the page, map dragged
-  under it; the scale slider sets zoom and the scale bar follows. Sharp type: black grid lines, no halos or shadows,
+  under it and zoomed with the mouse wheel (no slider); the scale bar follows. Sharp type: black grid lines, no halos or shadows,
   grid labels plain black text. Real-world imagery + OpenStreetMap buildings only where a theater has no ALT export.
 - **Personnel recovery** (`prcc.html`, `js/pr.js`): SPINS section 5 values (SARNEG, SARDOT, duress word, word / letter /
   number of the day, PR frequencies, contact, signals) are generated per campaign unless the SPINS set them. The CSAR

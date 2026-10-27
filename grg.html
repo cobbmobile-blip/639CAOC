@@ -253,10 +253,8 @@
       <div class="field"><label>Background</label><select data-k="bg">${altLayer ? `<option value="dcs" ${bgOf(s) === "dcs" ? "selected" : ""}>DCS ALT map</option>` : ""}<option value="imagery" ${bgOf(s) === "imagery" ? "selected" : ""}>Real-world imagery</option></select></div>
       <div class="field"><label>Show</label><label class="small" style="text-transform:none;letter-spacing:0;color:var(--text)"><input type="checkbox" data-k="keypads" ${s.keypads ? "checked" : ""} style="width:auto"> keypads</label>
         <label class="small" style="text-transform:none;letter-spacing:0;color:var(--text)"><input type="checkbox" data-k="measures" ${s.measures ? "checked" : ""} style="width:auto"> control measures</label></div></div>
-      <div class="field"><label>Map scale</label><div style="display:flex;gap:12px;align-items:center"><span class="small muted">Out</span>
-        <input type="range" data-k="zoom" min="12" max="19" step="0.25" value="${zoomOf(s)}" style="flex:1;padding:0"><span class="small muted">In</span>
-        <span class="small" id="zoomOut" style="white-space:nowrap;font-family:var(--mono);min-width:300px">${zoomText(s)}</span></div>
-        <div class="muted small" style="margin-top:4px">The grid stays put on the page: drag the map under it to place the area you want.</div></div>
+      <div class="field"><label>Map scale</label><div class="small" style="font-family:var(--mono)">${zoomText(s)}</div>
+        <div class="muted small" style="margin-top:4px">The grid stays put on the page: scroll the mouse wheel over the map to zoom it, drag it to place the area you want.</div></div>
       <div class="toolbar"><button class="btn sm ghost" data-del>Delete sheet</button><span class="muted small">${s.cell > BLDG_MAX_CELL ? `Buildings are numbered on sheets with cells of ${BLDG_MAX_CELL} m or less — zoom to a settlement. ` : s.bkey === bkey(s) && !s.bldgs?.length ? (bgOf(s) === "dcs" ? (s.altZ < ALT_MIN_Z ? `The ALT map is only exported to zoom ${s.altZ} here, too coarse to pick out buildings. ` : "No DCS buildings on this sheet. ") : "OpenStreetMap has no building footprints mapped here, so nothing is numbered. ") : ""}Changing the grid renumbers the buildings and makes a new version (v${s.v}${s.changed ? ` → v${s.v + 1} on save` : ""}); keep everyone on the same one.</span></div>`;
   }
   document.getElementById("sheets").onclick = e => { const b = e.target.closest("[data-id]"); if (b) { sel = b.dataset.id; render(); } };
@@ -265,15 +263,11 @@
     if (k === "name") s.name = e.target.value;
     else if (k === "ll") { const [a, b] = e.target.value.split(/[\s,;]+/).map(Number); if (isFinite(a) && isFinite(b)) { s.lat = a; s.lon = b; s.changed = true; } }
     else if (k === "cell") { s.zoom = zoomOf(s); s.cell = +e.target.value; fitGrid(s); s.changed = true; }
-    else if (k === "zoom") { s.zoom = +e.target.value; fitGrid(s); s.changed = true; }
     else if (k === "bg") { s.bg = e.target.value; s.changed = true; }
     else if (k === "size") { const [c, r] = e.target.value.split(/[^\d]+/).map(Number); if (c > 0 && r > 0) { s.cols = Math.min(c, 52); s.rows = Math.min(r, 40); delete s.zoom; s.changed = true; } }
     else s[k] = e.target.checked;
     markDirty(); render();
   });
-  // the slider's readout follows it as it moves; the sheet redraws when it is let go
-  document.getElementById("form").addEventListener("input", e => { if (e.target.dataset.k !== "zoom") return;
-    const s = data.sheets.find(x => x.id === sel); document.getElementById("zoomOut").textContent = zoomText(s, +e.target.value); });
   document.getElementById("form").addEventListener("click", e => { if (!e.target.closest("[data-del]")) return;
     const s = data.sheets.find(x => x.id === sel); if (!confirm(`Delete ${s.name}?`)) return; data.sheets = data.sheets.filter(x => x !== s); sel = data.sheets[0]?.id || null; markDirty(); render(); });
 
@@ -381,6 +375,20 @@
       const W = 256 * 2 ** z, X = mx + cx - d.dx, Y = my + cy - d.dy;
       s.lon = +(X / W * 360 - 180).toFixed(5); s.lat = +(Math.atan(Math.sinh(Math.PI * (1 - 2 * Y / W))) / RAD).toFixed(5); s.changed = true;
       markDirty(); render(); };
+    // wheel: the map zooms under the fixed grid about the pointer; a moment after the wheel stops the sheet takes the new scale
+    // (the grid refits its cells to the page) and its buildings are renumbered
+    let wz = null;
+    sv.addEventListener("wheel", ev => { ev.preventDefault(); if (drag) return;
+      if (!wz) { const r = sv.getBoundingClientRect(), k = vb[2] / r.width; wz = { dz: 0, px: vb[0] + (ev.clientX - r.left) * k, py: vb[1] + (ev.clientY - r.top) * k }; }
+      const d = ev.deltaMode === 1 ? ev.deltaY * 33 : ev.deltaMode === 2 ? ev.deltaY * 400 : ev.deltaY;
+      wz.dz = Math.min(19 - zoom, Math.max(12 - zoom, wz.dz - d / 400));     // a wheel notch (100) is a quarter zoom level
+      const m = 2 ** wz.dz;
+      pans.forEach(g => g.setAttribute("transform", `translate(${wz.px} ${wz.py}) scale(${m}) translate(${-wz.px} ${-wz.py})`)); sv.querySelector(".bnum").style.opacity = .25;
+      clearTimeout(wz.t); wz.t = setTimeout(() => { const w = wz; wz = null; if (Math.abs(w.dz) < .01) { pans.forEach(g => g.removeAttribute("transform")); sv.querySelector(".bnum").style.opacity = ""; return; }
+        const m = 2 ** w.dz, W = 256 * 2 ** z, X = mx + w.px + (cx - w.px) / m, Y = my + w.py + (cy - w.py) / m;
+        s.lon = +(X / W * 360 - 180).toFixed(5); s.lat = +(Math.atan(Math.sinh(Math.PI * (1 - 2 * Y / W))) / RAD).toFixed(5);
+        s.zoom = Math.round((zoom + w.dz) * 100) / 100; fitGrid(s); s.changed = true; markDirty(); render(); }, 350);
+    }, { passive: false });
   }
   // ---------- save (a changed grid is a new version) and the DKS overlay ----------
   document.getElementById("saveBtn").onclick = () => {

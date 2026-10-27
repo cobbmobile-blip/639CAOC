@@ -319,7 +319,7 @@ north-west to south-east, so a talk-on is "D5 building 3".
   lettering are left out), at zoom 16 or deeper. On real-world imagery they come from OpenStreetMap. Numbers are white on
   each building.
 - **Making a sheet**: from a point, from a kill box / ROZ on the theater map, or **Zoom to settlement** (the settlement's
-  core, sized to the page). The **map scale** slider sets the zoom (1:N on letter); the grid stays fixed on the page and
+  core, sized to the page). The **mouse wheel** over the map zooms it (1:N on letter); the grid stays fixed on the page and
   the map is **dragged** under it. Moving the map, the scale or the cells renumbers the buildings and makes a new version
   on save.
 - **Out**: Print / PDF (letter landscape), the GRG product (sheet list for review and publish), GeoJSON for the DKS
