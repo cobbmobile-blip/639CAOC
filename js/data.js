@@ -507,6 +507,7 @@ window.AOC_SEED = {
         measures: [
           { name: "CAP KNIFE", type: "CAP", geo: "Center N42°10' E041°40', R 15 NM", alt: "FL200–FL300", time: "0600Z–1800Z", ctrl: "DARKSTAR" },
           { name: "AR TRACK ALPHA", type: "AR Track", geo: "N41°55' E042°05' → N41°50' E042°35'", alt: "FL220–FL240", time: "0600Z–2200Z", ctrl: "DARKSTAR" },
+          { name: "AR TRACK BRAVO", type: "AR Track", geo: "N41°35' E041°50' → N41°30' E042°20'", alt: "FL200–FL220", time: "0600Z–2200Z", ctrl: "DARKSTAR" },
           { name: "KILL BOX 38TLM", type: "Kill Box", geo: "38T LM 00/80 to 20/95", alt: "SFC–FL250", time: "0700Z–1000Z", ctrl: "CHALICE" },
           { name: "ROZ HAMMER", type: "ROZ", geo: "AO HAMMER boundary", alt: "SFC–15,000 ft", time: "0800Z–1400Z", ctrl: "JTAC MAGNUM" }
         ]
@@ -578,6 +579,10 @@ window.AOC_SEED = {
             arcp: [41.75, 42.70], heading: "280", length: "50", width: "20", aripOn: "Yes",
             rel: { entry: { a: -10, c: 20 }, exit: { a: 65, c: 0 }, arip: { a: -10, c: 0 } },
             altLo: "FL220", altHi: "FL240", callsign: "TEXACO 1", freq: "305.000", tacanCh: "41", tacanMode: "Y", tacanCs: "TEX", notes: "BOOM — BLUE 1" },
+          { id: "m4b", type: "TANKER TRACK", kind: "anchor", name: "AR TRACK BRAVO", color: "BLUE", aco: "AR TRACK BRAVO",
+            arcp: [41.50, 42.35], heading: "280", length: "50", width: "20", aripOn: "Yes",
+            rel: { entry: { a: -10, c: 20 }, exit: { a: 65, c: 0 }, arip: { a: -10, c: 0 } },
+            altLo: "FL200", altHi: "FL220", callsign: "ARCO 1", freq: "315.000", tacanCh: "44", tacanMode: "Y", tacanCs: "ARC", notes: "MPRS — BLUE 5" },
           { id: "m5", type: "HVAA ORBIT", kind: "track", name: "ORBIT WEST", color: "PURPLE", latlngs: [[41.22, 41.90], [41.12, 42.45]], width: "15", altLo: "FL290", altHi: "FL310", callsign: "DARKSTAR", freq: "295.000", notes: "E-3 orbit — keep 60 NM behind the FLOT" },
           { id: "m6", type: "ARTY ROZ", kind: "polygon", name: "ARTY ROZ 1", color: "ORANGE", latlngs: [[41.90, 42.28], [41.995, 42.28], [42.01, 42.52], [41.90, 42.52]], altLo: "SFC", maxord: "18,000 ft", unit: "2-14 FA (M109)", time: "0700Z–1100Z", notes: "Fires north across the FLOT — remain clear below MAXORD" },
           // plain overlay shapes linked to ACO measures

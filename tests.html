@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Test Run</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .tr td, .tr th { font-size: 12px; padding: 5px 6px; vertical-align: top; }
+  .pass { color: var(--ok); font: 600 11px var(--mono); } .fail { color: var(--danger, #e5484d); font: 600 11px var(--mono); }
+  .tr .why { color: var(--muted); }
+</style>
+</head>
+<body>
+<!-- the test run works on its own copy of the data, from the seed, every time; the site's data is never touched -->
+<script>window.AOC_DB_KEY = "aoc.db.test"; try { localStorage.removeItem("aoc.db.test"); } catch {}</script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/products.js"></script>
+<script src="js/pr.js"></script>
+<script src="js/ato.js"></script>
+<script src="js/package.js"></script>
+<script src="js/targeting.js"></script>
+<script src="js/jceoi-data.js"></script>
+<script src="js/jceoi.js"></script>
+<script src="js/iff.js"></script>
+<script src="js/miz.js"></script>
+<script src="js/tacan.js"></script>
+<script src="js/tdl.js"></script>
+<script src="js/mizlog.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px">
+    <div><h1>Test run</h1>
+      <div class="muted small">Runs the CAOC process end to end on a fresh copy of the demo data and the sample .miz files: parsers, products,
+        ATO lines and commits, the host .miz change log, the PUBLISH check list, PUBLISH, the go/no-go and Cycle. Run it after every change.
+        The site's own data is never touched.</div></div>
+    <div class="toolbar"><button class="btn primary" id="runBtn">Run again</button>
+      <label class="btn" style="margin:0;text-transform:none;letter-spacing:0;font-size:13px">Also check .miz files…<input type="file" id="mizIn" accept=".miz" multiple hidden></label></div>
+  </div>
+  <section class="panel"><div class="panel-head"><h2 id="sum">Running…</h2></div>
+    <div class="table-scroll"><table class="tr"><thead><tr><th>Area</th><th>Test</th><th>Result</th></tr></thead><tbody id="out"></tbody></table></div></section>
+  <section class="panel hidden" id="mizPanel"><div class="panel-head"><h2>Your .miz files</h2></div><div id="mizOut"></div></section>
+</main>
+
+<script>
+  const { Store, esc, PRODUCTS, PACKAGE: PK, ATO, MIZ, MIZLOG: L, TACAN } = AOC;
+  const CID = "iron-trident", results = [];
+  let area = "";
+  const ok = (cond, why) => { if (!cond) throw new Error(why || "failed"); };
+  const near = (a, b, tol, what) => ok(Math.abs(a - b) <= tol, `${what}: ${a} is not within ${tol} of ${b}`);
+  async function t(name, fn) {
+    try { const note = await fn(); results.push({ area, name, pass: true, note: note || "" }); }
+    catch (e) { results.push({ area, name, pass: false, note: e.message }); }
+  }
+  const sample = async name => { const b = await (await fetch(`samples/${name}`, { cache: "reload" })).blob(); return { name, size: b.size, ...(await MIZ.read(new File([b], name))) }; };
+  // run as the CFACC (approvals); the real session comes back afterwards
+  function asCfacc() { const u = Store.db.users.find(x => /CFACC/.test(x.role)), was = sessionStorage.getItem("aoc.session");
+    sessionStorage.setItem("aoc.session", JSON.stringify({ callsign: u.callsign, name: u.name, role: u.role }));
+    return () => { if (was == null) sessionStorage.removeItem("aoc.session"); else sessionStorage.setItem("aoc.session", was); }; }
+
+  async function run() {
+    results.length = 0; Store.reset();
+    const restore = asCfacc();
+    try {
+      const c = () => Store.campaign(CID), host = c().jfacc.group;
+
+      area = "Parsers";
+      await t("300 KCAS at 25,000 ft is about 432 kt TAS", () => { const tas = L.tasFromCas(300 / 1.943844, 7620) * 1.943844; near(tas, 432, 2, "TAS");
+        near(L.casFromTas(tas / 1.943844, 7620) * 1.943844, 300, 0.5, "round trip"); });
+      await t("MGRS target location reads back to the same grid", () => { const ll = L.parseLoc("38T LM 012 845"); ok(ll, "not parsed"); ok(AOC.PR.mgrs(...ll).startsWith("38T LM 011"), AOC.PR.mgrs(...ll)); });
+      await t("DDM target location reads back", () => { const ll = L.parseLoc(AOC.PR.ddm(42.2874, 42.5887)); near(ll[0], 42.2874, 0.0002, "lat"); near(ll[1], 42.5887, 0.0002, "lon"); });
+      await t("ATO designators run AA, AB … AZ, BA", () => { ok([1, 2, 26, 27].map(AOC.atoId).join() === "AA,AB,AZ,BA", [1, 2, 26, 27].map(AOC.atoId).join()); });
+      await t("Tanker speed targets: KC-135 300, KC-130 100", () => { ok(L.kcasFor("KC135MPRS") === 300 && L.kcasFor("S-3B Tanker") === 300 && L.kcasFor("KC130") === 100 && L.kcasFor("KC130J") === 100); });
+
+      area = "Products";
+      for (const pid of Object.keys(PRODUCTS)) await t(`${PRODUCTS[pid].code} renders from the demo data`, () => {
+        const P = PRODUCTS[pid], data = Store.content(CID, pid); if (data == null) return "no demo content";
+        const ctx = { campaign: c(), user: { callsign: "TEST", role: "CFACC" }, approval: null, group: g => Store.group(g) };
+        (P.docs || [{ render: P.render }]).forEach(x => { if (!x.render) return; const h = x.render(data, ctx); ok(typeof h === "string" && h.length > 50, "empty document"); });
+      });
+      await t("Products wanted: the ATO is always produced", () => { const was = c().productsWanted; PK.setWanted(CID, []); ok(PK.wanted(c()).join() === "ato", PK.wanted(c()).join());
+        PK.setWanted(CID, ["tdp"]); ok(PK.wanted(c()).includes("jiptl"), "TDPs bring the JIPTL"); if (was === undefined) delete c().productsWanted; else c().productsWanted = was; });
+
+      area = "ATO lines";
+      await t("A human line posts, takes the first commit, refuses the second", () => {
+        const l = ATO.request(CID, { airframe: "F-16C", num: 2, role: "DCA", crew: "Human", tot: "0900Z", target: "CAP KNIFE", callsign: "TEST 1" }, { gid: host, user: "TEST" });
+        ok(l.status === "draft", `status ${l.status}`); ATO.postLine(l.id); ok(ATO.lines(CID).find(x => x.id === l.id).status === "open", "not open");
+        ok(Store.db.discordOutbox.some(e => e.payload?.event === "ato_line.open"), "no Discord post");
+        // the post goes to the groups flying the airframe; one of them commits, a group flying something else is refused
+        const sent = ATO.lines(CID).find(x => x.id === l.id).recipients, flier = sent[0]; ok(flier, "posted to no group");
+        const other = Store.db.groups.find(g => g.status === "active" && !sent.includes(g.id));
+        if (other) ok(ATO.commit(l.id, other.id, "TEST").error === "airframe_mismatch", "a group that doesn't fly the F-16C could commit");
+        const r = ATO.commit(l.id, flier, "TEST"); ok(r.ok !== false, `commit refused: ${r.error}`); ok(ATO.commit(l.id, flier, "TEST").error === "already_committed", "second commit accepted");
+        ok(Store.content(CID, "ato").missions.some(m => m.lineId === l.id), "not on the ATO");
+      });
+
+      area = "Host .miz";
+      const viper = await sample("iron_trident_viper.miz"), draft2 = await sample("iron_trident_host_draft_v2.miz");
+      await t("Sample .miz files parse (flights, REDFOR, beacons, routes)", () => { [viper, draft2].forEach(m => ok(m.flights.length && m.red.length && m.beacons.length && m.routes, `${m.name} incomplete`)); });
+      await t("TACAN scrub finds the duplicate 41X and 71X in draft v2", () => { const keys = TACAN.scrub(CID, draft2).findings.map(f => f.key); ok(keys.includes("1|tacan41X") && keys.includes("1|tacan71X"), keys.slice(0, 6).join(", ")); });
+      await t("No .miz: go/no-go is NO-GO", () => { const g = L.gonogo(CID); ok(g.state === "no-go" && /hasn't sent/.test(g.reasons[0]), JSON.stringify(g.reasons)); });
+      const sub = (mf, n) => MIZ.submit(CID, { ...structuredClone(mf), name: n || mf.name, by: host, user: "TEST" });
+      await t("Upload → change log with SET items, posted to the host's channel only", () => {
+        sub(draft2); L.syncTankers(CID); const log = L.build(CID);
+        ok(log.items.some(i => i.kind === "set" && /Texaco/.test(i.text) && /41Y/.test(i.text)), "no Texaco TACAN SET");
+        ok(log.items.some(i => i.kind === "add"), "no ADD items"); ok(L.due(CID), "not due");
+        const p = L.post(CID, "test upload"), e = Store.db.discordOutbox[0].payload;
+        ok(p && e.event === "miz.changes" && e.recipients.length === 1 && e.recipients[0].group_id === host, JSON.stringify(e.recipients));
+        ok(!L.due(CID), "still due right after posting");
+        return `${log.items.length} items`;
+      });
+      await t("Same .miz again: nothing new, no second post", () => { sub(draft2); ok(!L.due(CID), "due again"); });
+      await t("Host acknowledges the log", () => { L.acknowledge(CID, "TEST"); ok(c().mizLog.ack?.n === c().mizLog.posts[0].n); });
+      await t("A slow tanker is a FIX; fixing it closes the item", () => {
+        const slow = structuredClone(draft2), r = slow.routes.find(r => /KC/i.test(r.type)); const p = r.points.find(p => p.orbit) || r.points[1];
+        if (p.orbit) p.orbit.speed = 120; else p.speed = 120; if (!p.alt && !p.orbit?.alt) p.alt = 7000;
+        sub(slow, "slow.miz"); const k = L.build(CID).items.find(i => i.key.startsWith(`spd|${r.group}`)); ok(k, "no speed FIX");
+        const fast = structuredClone(slow), q = fast.routes.find(x => x.group === r.group), pp = q.points.find(x => x.orbit) || q.points[1], alt = pp.orbit?.alt ?? pp.alt;
+        const tas = L.tasFromCas(L.kcasFor(r.type) / 1.943844, alt); if (pp.orbit) pp.orbit.speed = tas; else pp.speed = tas;
+        L.post(CID, "slow"); sub(fast, "fixed.miz"); const d = L.delta(CID); ok(d.fixed.some(i => i.key === k.key), "not closed");
+      });
+      await t("Go/no-go stays NO-GO with open items", () => { const g = L.gonogo(CID); ok(g.state === "no-go" && g.reasons.some(r => /open/.test(r)), JSON.stringify(g.reasons)); });
+
+      area = "PUBLISH";
+      await t("Check list on the demo: no errors", () => { const e = PK.preflight(CID).filter(f => f.sev === "error"); ok(!e.length, e.map(f => f.text).join(" | ")); return `${PK.preflight(CID).length} warnings`; });
+      await t("Check list catches an INT line off the JIPTL and a missing AR track", () => {
+        const ato = Store.content(CID, "ato"), keep = structuredClone(ato);
+        ato.missions.find(m => m.role === "INT").target = "T99999"; ato.missions.find(m => m.role === "AR").target = "AR TRACK ZULU"; Store.setContent(CID, "ato", ato);
+        const e = PK.preflight(CID).filter(f => f.sev === "error").map(f => f.text).join(" | "); Store.setContent(CID, "ato", keep);
+        ok(/T99999/.test(e) && /AR TRACK ZULU/.test(e), e);
+      });
+      await t("PUBLISH approves, releases, exports to DKS and posts the pilot package", async () => {
+        Object.keys(PRODUCTS).forEach(pid => { if (Store.content(CID, pid) != null && !["published", "approved"].includes(Store.status(CID, pid))) Store.setStatus(CID, pid, "review"); });
+        const v0 = c().packageRelease?.version || 0, dks0 = Store.db.dksOutbox?.length || 0;
+        const rel = PK.publish(CID, { approve: true, products: true, overlay: true, agencies: true, kneeboard: true, discord: true, mizlog: true });
+        ok(rel.version === v0 + 1, "version"); ok(rel.products.length > 0, "nothing released");
+        ok((Store.db.dksOutbox?.length || 0) > dks0, "no DKS events");
+        const post = Store.db.discordOutbox.find(e => e.payload?.event === "package.posted")?.payload; ok(post?.attachment.documents.includes("00_INDEX.html"), "no zip index");
+        const z = await PK.packageZip(CID); ok(z.docs.some(d => d.pid === "ato"), "no ATO in the zip"); ok(!z.docs.some(d => PK.INTERNAL.has(d.pid)), "internal product in the zip");
+        return `${rel.products.length} released · ${z.docs.length} documents in the zip`;
+      });
+      await t("A .miz older than PUBLISH is a NO-GO", () => { const g = L.gonogo(CID); ok(g.reasons.some(r => /since PUBLISH/.test(r)), JSON.stringify(g.reasons)); });
+      await t("ATO-only campaign: the zip holds the ATO alone and still posts", async () => {
+        const was = c().productsWanted; PK.setWanted(CID, []); const z = await PK.packageZip(CID); const pids = [...new Set(z.docs.map(d => d.pid))];
+        if (was === undefined) delete c().productsWanted; else c().productsWanted = was; ok(pids.join() === "ato", pids.join());
+      });
+
+      area = "Cycle";
+      await t("Cycle moves to the next ATO and puts the daily products back in work", () => { const d0 = +c().atoDay; PK.cycle(CID, new Date(Date.now() + 7 * 864e5).toISOString());
+        ok(+c().atoDay === d0 + 1, "ATO day"); ok(PK.DAILY.filter(p => Store.content(CID, p) != null).every(p => Store.status(CID, p) === "draft"), "daily products not back to draft"); });
+    } finally { restore(); }
+    render();
+  }
+
+  function render() {
+    const f = results.filter(r => !r.pass).length;
+    document.getElementById("sum").innerHTML = f ? `<span class="fail">${f} FAILED</span> · ${results.length - f} passed` : `<span class="pass">ALL ${results.length} PASSED</span>`;
+    document.getElementById("out").innerHTML = results.map(r => `<tr><td>${esc(r.area)}</td><td>${esc(r.name)}</td>
+      <td><span class="${r.pass ? "pass" : "fail"}">${r.pass ? "PASS" : "FAIL"}</span>${r.note ? ` <span class="why">${esc(r.note)}</span>` : ""}</td></tr>`).join("");
+    document.title = `Virtual AOC — Test Run (${f ? `${f} failed` : "passed"})`;
+  }
+
+  // the change log on any .miz: does it parse and check without errors (on a scratch campaign: no ATO, no products)
+  document.getElementById("mizIn").onchange = async e => {
+    const files = [...e.target.files], rows = []; e.target.value = ""; if (!files.length) return;
+    Store.db.campaigns.push({ id: "_scratch", opName: "SCRATCH", theater: "", groups: [], status: {}, atoDay: 1, atoPeriod: "0000Z–2359Z" });
+    try { for (const f of files) {
+      try { const mf = await MIZ.read(f); Store.campaign("_scratch").missionFiles = [{ ...mf, name: f.name, v: 1, when: new Date().toISOString() }];
+        const log = L.build("_scratch"); rows.push(`<tr><td>${esc(f.name)}</td><td>${esc(mf.theatre)}</td><td class="pass">OK</td><td>${log.items.length} item${log.items.length === 1 ? "" : "s"}</td>
+          <td class="small">${log.items.map(i => `<div>${esc(i.kind.toUpperCase())} ${esc(i.text)}</div>`).join("")}</td></tr>`); }
+      catch (err) { rows.push(`<tr><td>${esc(f.name)}</td><td></td><td class="fail">ERROR</td><td colspan="2">${esc(err.message)}</td></tr>`); }
+    } } finally { Store.db.campaigns = Store.db.campaigns.filter(c => c.id !== "_scratch"); }
+    document.getElementById("mizPanel").classList.remove("hidden");
+    document.getElementById("mizOut").innerHTML = `<div class="table-scroll"><table class="tr"><thead><tr><th>File</th><th>Theater</th><th>Read</th><th>Change log</th><th>Items</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+  };
+  document.getElementById("runBtn").onclick = () => run();
+  run();
+</script>
+</body>
+</html>

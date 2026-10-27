@@ -807,7 +807,7 @@
       { id: "optasklink", label: "OPTASKLINK (built from the ATO and the host .miz)", owner: "CAOC", offset: -6, check: "optasklink" },
       { id: "acp", label: "Comm Plan — built last", owner: "CAOC", offset: -5, check: "acp" },
       { id: "publish", label: "CFACC approvals → PUBLISH on the Dashboard (products, DKS exports, pilot package zip) — no later than T-72h", owner: "CAOC", offset: -3, check: "publish" },
-      { id: "mizBuild", label: "Host builds the final .miz", owner: "HOST", offset: -1 },
+      { id: "mizBuild", label: "Host builds the final .miz — T-24h go/no-go: .miz change log clear", owner: "HOST", offset: -1, check: "mizGo" },
       { id: "brief", label: "Readiness, mass brief and first mission", owner: "HOST", offset: 0 },
       { id: "debrief", label: "Host enters the mission debrief", owner: "HOST", offset: 1, check: "debrief" }
     ],
@@ -823,7 +823,7 @@
       { id: "acp", label: "Tanker / JTAC frequency changes and SPINS changes (if any)", owner: "CAOC", offset: -3.5 },
       { id: "optasklink", label: "OPTASKLINK update (rebuilt from the ATO and the host .miz)", owner: "CAOC", offset: -3.5, check: "optasklink" },
       { id: "publish", label: "PUBLISH on the Dashboard (products, DKS exports if changed, pilot package zip) — no later than T-72h", owner: "CAOC", offset: -3, check: "publish" },
-      { id: "mizBuild", label: "Host updates the .miz", owner: "HOST", offset: -1 },
+      { id: "mizBuild", label: "Host updates the .miz — T-24h go/no-go: .miz change log clear", owner: "HOST", offset: -1, check: "mizGo" },
       { id: "brief", label: "Mass brief and mission", owner: "HOST", offset: 0 }
     ]
   };

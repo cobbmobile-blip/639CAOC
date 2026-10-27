@@ -209,6 +209,7 @@
       <p class="small" style="margin:0 0 8px">Products wanted: <b>${esc(want.map(id => PRODUCTS[id].code).join(", "))}</b>${want.length === 1 ? " (the ATO only: it still posts to Discord)" : ""}
         ${can ? `<button class="btn sm ghost" id="wantBtn" title="What the host asked for; the ATO is always produced">Change…</button>` : ""}</p>
       <ul class="list">${chip(by("approved"), "Approved — goes out with the next PUBLISH", "ok")}${chip(by("review"), "Saved and ready — the CFACC approves them in PUBLISH", "warn")}${chip(by("draft"), "Back in work for this ATO — open and save to make ready", "off")}${chip(by("none"), "Not started", "off")}${chip(by("published"), "Released and current", "ok")}</ul>
+      ${PK.preflightHtml(cid)}
       ${(() => { const b = PK.bullseyeCheck(cid); return b ? `<p class="small" style="color:var(--warn);margin:8px 0 0">Host mission file v${b.v} moved the BLUE bullseye; PUBLISH will update the SPINS.</p>` : ""; })()}`;
     document.getElementById("pubBtn").onclick = () => PK.publishDialog(cid, () => render());
     document.getElementById("cycleBtn")?.addEventListener("click", () => PK.cycleDialog(cid, () => render()));

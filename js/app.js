@@ -2,7 +2,8 @@
 // Prototype note: storage is the browser's localStorage and the login gate is client-side only.
 // A real deployment needs server-side auth (e.g. Discord OAuth + role check) and an API/database.
 (function () {
-  const KEY = "aoc.db.v21"; // bumped when the seed's shape changes
+  // bumped when the seed's shape changes; tests.html runs on its own copy (window.AOC_DB_KEY)
+  const KEY = window.AOC_DB_KEY || "aoc.db.v21";
   const SESSION = "aoc.session";
   const THEME = "aoc.theme";
 

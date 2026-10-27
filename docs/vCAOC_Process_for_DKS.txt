@@ -630,6 +630,12 @@ Requests from the 639 vCAOC lead, and what was built or decided:
     with PUBLISH; items close when the next upload passes. Cockpit / DKS items
     (radio presets, STNs, IFF) are never on it. The ATO takes tanker
     callsigns from the .miz. New scrub check: TACAN 1X / ICLS 1 defaults.
+41. PUBLISH check list: the products checked against each other before
+    release. Errors (INT off the JIPTL, a tanker track not on the ACO, a TOT
+    outside the ATO period, IFF / datalink errors) block PUBLISH; warnings
+    need a "reviewed" tick. T-24h go/no-go on the host's .miz: NO-GO while
+    change-log items are open or no .miz came after PUBLISH. tests.html runs
+    the whole process end to end after every change.
 
 ================================================================================
  END

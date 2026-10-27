@@ -19,6 +19,8 @@ software. DKS integration is being built by a separate developer.
   Old paths moved: `tools/…` → `OLD/tools/…`, `docs/…` → `OLD/docs/…`, `scripts/…` → `OLD/scripts/…`.
 
 Run: `python -m http.server 8765` at the repo root, open `http://localhost:8765/login.html`.
+**After every change, open `tests.html` and get ALL PASSED** (end-to-end run on its own data copy, `window.AOC_DB_KEY =
+"aoc.db.test"`; the site's data is never touched). Add a test there for every new check or flow.
 Demo staff: ATLAS (CFC), OVERLORD (CFACC), SPARTAN, CHALICE, WIZARD, DARKSTAR, GUARDIAN (PRCC) — password `aoc-demo`.
 Demo groups: viper (JFACC group for OP IRON TRIDENT), hornet, eagle, hawg, knights, tomcat, harrier, mistral,
 thunder, keepers, ridge, support, rqs55 (55th RQS, MH-60L CSAR helicopters) — code `unit-demo`.
@@ -198,6 +200,13 @@ seed content does not reach a browser that already saved data.
 - **TACAN scrub** reports only (the CAOC never edits the .miz). Planned values: tanker tracks on the theater map
   (`tacanCh`, `tacanMode`, `tacanCs`) and the SPINS `naval` table. Map TACANs come from the JCEOI DCS beacon list.
   Check 6 flags TACAN 1X / ICLS 1 (DCS defaults).
+- **PUBLISH check list** (`PACKAGE.preflight`): cross-product checks before release. Errors block the dialog's PUBLISH
+  (INT off the JIPTL, SCAR with no area, AR track missing from ACO / map, TOT outside the period, IFF / datalink errors,
+  empty ATO); warnings need a "reviewed" tick (area not on the ACO, grouped per area; tanker / AWACS with no frequency;
+  two tankers on one track; uncommitted human lines; no bullseye; IFF warnings; Comm Plan problems). `publish()` itself
+  doesn't check: the gate is the dialog.
+- **T-24h go/no-go** (`MIZLOG.gonogo`): NO-GO for no .miz, none since the last PUBLISH, or open ADD / SET / FIX items;
+  the `mizBuild` milestone's check (`mizGo`).
 - **Host .miz change log** (`MIZLOG.build`): ADD (ATO lines not in the .miz), SET (CAOC-assigned values that live in the
   .miz: tanker / carrier TACAN, ICLS, AI support radios, tanker altitude), FIX (scrub, .miz datalinks, tanker airspeed
   300 ± 5 KCAS (KC-130: 100, helo AAR) from TAS + altitude, JIPTL targets with no RED within 1 NM, start after first TOT, line mismatches),

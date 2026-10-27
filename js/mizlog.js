@@ -181,14 +181,15 @@
   // the orbit altitude against the theater map's tanker track (when the track has one), within 500 ft
   function tankerAltitude(cid, mf) {
     if (!mf.routes) return "this .miz was sent before routes were read";
-    const tracks = (Store.content(cid, "map")?.shapes || []).filter(s => s.type === "TANKER TRACK" && s.callsign && s.alt);
+    const tracks = (Store.content(cid, "map")?.shapes || []).filter(s => s.type === "TANKER TRACK" && s.callsign && (s.altLo || s.alt));
     if (!tracks.length) return "no tanker track gives an altitude";
     const feet = s => { const m = String(s).toUpperCase().match(/FL\s*(\d{2,3})|(\d{4,5})/); return m ? (m[1] ? +m[1] * 100 : +m[2]) : null; };
     const out = [];
     tracks.forEach(t => {
-      const r = mf.routes.find(r => flightKey(r.callsign) === flightKey(t.callsign)), want = feet(t.alt); if (!r || want == null) return;
+      const r = mf.routes.find(r => flightKey(r.callsign) === flightKey(t.callsign)), lo = feet(t.altLo || t.alt), hi = feet(t.altHi || t.altLo || t.alt); if (!r || lo == null) return;
       const p = r.points.find(p => p.orbit) || r.points.find(p => p.n > 1); const alt = p && (p.orbit?.alt ?? p.alt); if (alt == null) return;
-      if (Math.abs(ft(alt) - want) > 500) out.push({ key: `alt|${r.group}`, kind: "set", text: `Group ${r.group}: orbit altitude ${Math.round(ft(alt) / 100) * 100} ft → ${t.alt} (${t.name}).` });
+      const band = t.altHi && t.altHi !== t.altLo ? `${t.altLo}–${t.altHi}` : t.altLo || t.alt;
+      if (ft(alt) < lo - 200 || ft(alt) > hi + 200) out.push({ key: `alt|${r.group}`, kind: "set", text: `Group ${r.group}: orbit altitude ${Math.round(ft(alt) / 100) * 100} ft → ${band} (${t.name}).` });
     });
     return out;
   }
@@ -244,6 +245,30 @@
     return done;
   }
 
+  // ---------- T-24h go/no-go: is the host's .miz ready to fly? ----------
+  // NO-GO: no .miz, none since the last PUBLISH, or ADD / SET / FIX items open. GO with notes: only REMOVE items, or the
+  // host hasn't acknowledged the last log. Due 24 h before T-0 (PACKAGE.t0).
+  function gonogo(cid) {
+    const c = Store.campaign(cid), PK = window.AOC.PACKAGE, log = build(cid), mf = log.mf, rel = c.packageRelease, st = state(cid);
+    const due = PK ? new Date(PK.t0(c, PK.mode(c)).getTime() - 864e5) : null, no = [], notes = [];
+    if (!mf) no.push("The host hasn't sent a .miz.");
+    else {
+      if (rel?.when && new Date(mf.when) < new Date(rel.when)) no.push(`No .miz since PUBLISH v${rel.version} (${window.AOC.zulu(new Date(rel.when))}); the latest is v${mf.v}.`);
+      const open = log.items.filter(i => i.kind !== "remove");
+      if (open.length) no.push(`${open.length} .miz change${open.length === 1 ? "" : "s"} open (${["add", "set", "fix"].map(k => [k, open.filter(i => i.kind === k).length]).filter(([, n]) => n).map(([k, n]) => `${n} ${KIND[k]}`).join(", ")}).`);
+      const rm = log.items.filter(i => i.kind === "remove").length; if (rm) notes.push(`${rm} REMOVE item${rm === 1 ? "" : "s"} (only if the campaign carries damage).`);
+      if (st.posts[0] && st.ack?.n !== st.posts[0].n) notes.push(`The host hasn't acknowledged log #${st.posts[0].n}.`);
+    }
+    const state_ = no.length ? "no-go" : notes.length ? "go-notes" : "go";
+    return { state: state_ === "go-notes" ? "go" : state_, notes: state_ === "go-notes", reasons: no, info: notes, due, late: !!due && Date.now() > due.getTime() && !!no.length };
+  }
+  function gonogoHtml(cid, g = gonogo(cid)) {
+    const { esc, zulu } = window.AOC, go = g.state === "go";
+    return `<p class="small" style="margin:0 0 8px"><b style="font:600 12px var(--mono);padding:2px 8px;border-radius:4px;border:1px solid;color:${go ? "var(--ok)" : "var(--danger,#e5484d)"}">${go ? "GO" : "NO-GO"}</b>
+      T-24h .miz go/no-go${g.due ? `, due ${esc(zulu(g.due))}` : ""}${g.late ? ' · <span style="color:var(--danger,#e5484d);font-weight:600">overdue</span>' : ""}
+      ${[...g.reasons, ...g.info].length ? `<br>${[...g.reasons.map(r => `<span style="color:var(--danger,#e5484d)">${esc(r)}</span>`), ...g.info.map(r => `<span class="muted">${esc(r)}</span>`)].join(" · ")}` : " · the .miz matches the CAOC's documents."}</p>`;
+  }
+
   // ---------- posting: the host's registered Discord channel ----------
   const state = cid => { const c = Store.campaign(cid); return (c.mizLog = c.mizLog || { posts: [] }); };
   const last = cid => state(cid).posts[0] || null;
@@ -260,6 +285,7 @@
     if (!mf) { L.push("No host mission file yet."); return L.join("\n"); }
     L.push(`Against host mission file v${mf.v} ${mf.name}`);
     L.push(log.items.length ? `${log.items.length} change${log.items.length === 1 ? "" : "s"} required in the .miz.` : "No changes required: every check passed.");
+    const g = gonogo(cid); L.push(`T-24h go/no-go: ${g.state === "go" ? "GO" : "NO-GO"}${g.due ? ` (due ${window.AOC.zulu(g.due)})` : ""}${g.reasons.length ? ` — ${g.reasons.join(" ")}` : ""}`);
     ["add", "set", "fix", "remove"].forEach(k => { const xs = log.items.filter(i => i.kind === k); if (!xs.length) return;
       L.push("", { add: "REQUIRED ADDITIONS", set: "CAOC ASSIGNMENTS TO SET", fix: "DISCREPANCIES TO FIX", remove: "TO REMOVE" }[k]);
       xs.forEach(i => L.push(`  ${KIND[k].padEnd(6)} ${i.text}${extra.fresh?.has(i.key) ? "  [NEW]" : ""}`)); });
@@ -297,7 +323,7 @@
     const head = `<p class="small">${p ? `Last sent: log #${p.n}, ${esc(zulu(new Date(p.when)))} (${esc(p.reason)})${st.ack?.n === p.n ? ` · <span style="color:var(--ok)">acknowledged by ${esc(st.ack.by)}</span>` : " · not acknowledged"}` : "Not sent yet."}
       ${staff && due(cid) ? ` · <span style="color:var(--warn)">changed since — goes with the next PUBLISH</span>` : ""}</p>`;
     const sec = (k, h) => { const xs = log.items.filter(i => i.kind === k); return xs.length ? `<div class="section-h">${h}</div><ul class="finds">${xs.map(i => `<li>${tag(k)} ${esc(i.text)}${fresh.has(i.key) && p ? `<span class="newb">NEW</span>` : ""}</li>`).join("")}</ul>` : ""; };
-    return `${caoc}${head}
+    return `${caoc}${gonogoHtml(cid)}${head}
       ${log.items.length ? "" : `<p class="small" style="color:var(--ok)">✓ No .miz changes required against v${log.mf.v}.</p>`}
       ${sec("add", "Required additions — ATO lines not in the .miz")}${sec("set", "CAOC assignments to set in the .miz")}${sec("fix", "Discrepancies to fix")}${sec("remove", "To remove")}
       ${d.fixed.length && p ? `<div class="section-h">Fixed since log #${p.n}</div><ul class="finds">${d.fixed.map(i => `<li><span class="sev info">fixed</span> ${esc(i.text)}</li>`).join("")}</ul>` : ""}
@@ -312,5 +338,5 @@
     .sev.error{color:var(--danger,#e5484d)}.sev.warn{color:var(--warn)}.sev.info{color:var(--muted)}`;
   if (document?.head && !document.getElementById("mlk-css")) { const st = document.createElement("style"); st.id = "mlk-css"; st.textContent = CSS; document.head.appendChild(st); }
 
-  window.AOC.MIZLOG = { TANKER_KCAS, HELO_TANKER_KCAS, TANKER_TOL, kcasFor, build, matchFlights, syncTankers, delta, due, text, post, acknowledge, html, parseLoc, casFromTas, tasFromCas };
+  window.AOC.MIZLOG = { gonogo, gonogoHtml, TANKER_KCAS, HELO_TANKER_KCAS, TANKER_TOL, kcasFor, build, matchFlights, syncTankers, delta, due, text, post, acknowledge, html, parseLoc, casFromTas, tasFromCas };
 })();

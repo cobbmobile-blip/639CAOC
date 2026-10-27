@@ -201,7 +201,7 @@ Dashboard's **Discord post** button shows the post and downloads the zip).
 
 What the host JFACC must change in their `.miz` to match the CAOC's documents (built by `js/mizlog.js`). The bot posts
 it to the **host's registered channel** only, never to the other groups. It is sent after a `.miz` upload that changes
-the log and with PUBLISH (when ticked). `content` is the log as text (also attached as a `.txt`): items marked `[NEW]`
+the log and with PUBLISH (when ticked). `content` is the log as text (also attached as a `.txt`), headed by the T-24h go/no-go (GO / NO-GO and why): items marked `[NEW]`
 since the last post, a FIXED section for what the new version fixed, the checks that passed and any that could not run.
 
 ```json

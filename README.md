@@ -18,6 +18,12 @@ python -m http.server 8765
 
 then browse to http://localhost:8765/login.html. (The theater map and target nomination pages load Leaflet and map tiles from the internet.)
 
+**Test run:** open http://localhost:8765/tests.html after every change. It runs the CAOC process end to end on its own
+fresh copy of the demo data (the site's data is never touched) and the sample `.miz` files: parsers, every product's
+render, ATO line post and commit, the host `.miz` change log (upload, post, acknowledge, a slow tanker fixed), the
+PUBLISH check list, PUBLISH (approve, release, DKS, the pilot package zip), the go/no-go and Cycle. **Also check .miz
+files…** runs the change log on any mission files you pick (against an empty scratch campaign).
+
 ## Pages
 
 | Page | Who | What |
@@ -92,6 +98,13 @@ Two people can run a campaign: products are built (most of it generated) and **s
 approval*; the CFACC approves them on the product page or in PUBLISH. There is one release path, the **PUBLISH** button
 on the Dashboard (CFACC or CFC). Its dialog:
 
+0. **Check list** — the CAOC's products against each other (also shown in the Dashboard's PUBLISH panel). **Errors
+   block PUBLISH**: an INT line off the JIPTL, SCAR with no ACO area, a tanker line on a track that is on neither the ACO
+   nor the theater map, a TOT outside the ATO period, IFF / SIF errors, datalink (STN / TN / IDM) errors, an empty ATO.
+   **Warnings** need a tick ("reviewed") before PUBLISH goes: DCA / CAS / XCAS / XINT / AEW / ISR lines fragged to an
+   area not on the ACO or map (one line per area), a tanker or AWACS with no frequency (track, orbit or Comm Plan
+   callsign), two tankers on one track at one time, uncommitted human lines, no SPINS bullseye, IFF warnings, Comm Plan
+   problems.
 1. **Approve** — every product saved and ready, one tick each (untick to hold one back), plus the SPINS bullseye if the
    host's latest mission file moved the BLUE bullseye (the SPINS are updated and released).
 2. **Release** — every approved product to every active group's Op Status (versioned).
@@ -184,6 +197,11 @@ Findings new since the previous version are marked; fixed ones are listed. The D
 have optional TACAN channel / X-Y / ident fields; SPINS has a Carriers & ships table (TACAN, ident, ICLS).
 
 ## Host .miz change log
+
+**T-24h go/no-go** (heads the change log on the Dashboard and mission file page, in the log text, and is the check on the
+timeline's "Host builds / updates the .miz" deadline): **NO-GO** while there is no `.miz`, no `.miz` since the last
+PUBLISH, or any ADD / SET / FIX item open; **GO** otherwise, with notes for REMOVE items and an unacknowledged log.
+Due 24 hours before T-0; shown overdue after that.
 
 `js/mizlog.js` builds, from the host's current `.miz`, the ATO and the CAOC products, the list of what the host JFACC
 must change in the mission file so it matches the CAOC's documents. Nobody fills it in, and the CAOC never edits the
@@ -448,6 +466,7 @@ theater-map tracks and orbits off the plan, tankers without a frequency.
 - `js/pr.js` — personnel recovery: incidents, DKS intake, SPINS PR data, ISOPREP / EPA, CSAR comm plan, forces, route
 - `js/jceoi.js`, `js/jceoi-data.js` — JCEOI registers, net plan, IFF and TDL data (built by `tools/jceoi`)
 - `js/iff.js`, `js/tdl.js`, `js/tacan.js`, `js/package.js` — IFF / SIF plan and checks, OPTASKLINK, TACAN / ICLS scrub, group pack and DKS exports
+- `tests.html` — the test run (its own data copy: `window.AOC_DB_KEY`)
 - `js/mizlog.js` — the host's `.miz` change log (ADD / SET / FIX / REMOVE, checks passed) and its Discord post
 - `tools/target-render/` — offline target-folder imagery (Blender pipeline, DCS chart JOG); `img/targets/` holds its output
 - `samples/iron_trident_redfor.csv` — sample Coalition Parser export for the demo campaign

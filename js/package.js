@@ -47,7 +47,8 @@
       lineReq: () => lines.length > 0,
       lineCommit: () => lines.length > 0 && lines.every(l => !["open", "draft"].includes(l.status)),
       publish: () => !!c.packageRelease && (m === "build" || c.packageRelease.atoDay === c.atoDay),
-      debrief: () => !!c.debriefs?.[m === "build" ? 1 : c.atoDay - 1]
+      debrief: () => !!c.debriefs?.[m === "build" ? 1 : c.atoDay - 1],
+      mizGo: () => window.AOC.MIZLOG?.gonogo(cid).state === "go"
     };
     // a product the host didn't ask for has no deadline
     const skip = id => PRODUCTS[id] && !INTERNAL.has(id) && !want.includes(id);
@@ -100,6 +101,62 @@
     Store.save();
     Store.log(cid, `SPINS Addendum A (SPINS v${sh.version}, ${payload.pages.length} ATOs) sent to DKS kneeboards, v${c.dks.kneeboard.v}`);
     return { ...c.dks.kneeboard, pages: payload.pages.map(p => p.ato) };
+  }
+
+  // ---------- the PUBLISH check list: the CAOC's products against each other, before anything goes out ----------
+  // errors block PUBLISH (what goes out would be wrong); warnings go out once the CFACC ticks that they were reviewed
+  const ROLE_AREA = { AR: "error", DCA: "warn", CAS: "warn", XCAS: "warn", XINT: "warn", AEW: "warn", ISR: "warn" };
+  function preflight(cid) {
+    const A = window.AOC, c = Store.campaign(cid), want = wanted(c), out = [], add = (sev, text, href) => out.push({ sev, text, href });
+    const up = v => String(v || "").trim().toUpperCase(), nrm = v => up(v).replace(/[^A-Z0-9]/g, ""), word = v => (nrm(v).match(/^[A-Z]+/) || [""])[0];
+    const ato = Store.content(cid, "ato") || {}, missions = (ato.missions || []).filter(m => m.msn), link = p => `product.html?p=${p}&c=${encodeURIComponent(cid)}`;
+    const map = Store.content(cid, "map") || {}, aco = Store.content(cid, "aco") || {};
+    const areas = new Map([...(aco.measures || []), ...(map.shapes || [])].filter(a => a.name).map(a => [nrm(a.name), a]));
+    const chans = COMM.channels(Store.content(cid, "acp")?.matrix);
+    if (!missions.length) add("error", "The ATO has no lines.", link("ato"));
+    const missing = {};
+    missions.forEach(m => {
+      const t = String(m.target || "").trim(), id = `${m.msn} ${m.callsign && m.callsign !== "TBD" ? m.callsign : m.type}`;
+      // INT against the JIPTL, SCAR in an ACO area
+      if (["INT", "SCAR"].includes(m.role)) { const why = A.targetIssue?.(cid, t, null, m.role); if (why) add("error", `ATO ${id}: ${why}.`, link("ato")); return; }
+      const sev = ROLE_AREA[m.role];
+      if (sev && t && t !== "—" && !areas.has(nrm(t))) ((missing[`${sev}|${nrm(t)}`] = missing[`${sev}|${nrm(t)}`] || { sev, t, ids: [] }).ids.push(m.msn));
+      // tankers and AWACS need a frequency: their track / orbit on the map, or a Comm Plan channel with their callsign
+      if (["AR", "AEW"].includes(m.role) && want.includes("acp")) {
+        const shape = areas.get(nrm(t)), ch = chans.find(x => x.callsign && x.freq && word(x.callsign) === word(m.callsign));
+        if (!shape?.freq && !ch) add("warn", `ATO ${id} (${m.role}) has no frequency: none on ${t || "its track"} and no Comm Plan channel for ${m.callsign || "its callsign"}.`, link("acp"));
+      }
+    });
+    Object.values(missing).forEach(x => add(x.sev, `${x.t} is not on the ACO or the theater map; ATO ${x.ids.length > 1 ? "lines" : "line"} ${x.ids.join(", ")} ${x.ids.length > 1 ? "are" : "is"} fragged to it.`, `map.html?c=${encodeURIComponent(cid)}`));
+    // TOTs inside the ATO period (when the period is shorter than a day)
+    const pm = String(ato.period || c.atoPeriod || "").match(/(\d{2})(\d{2})Z\s*[–-]\s*(\d{2})(\d{2})Z/);
+    if (pm) { const p0 = +pm[1] * 60 + +pm[2], p1 = +pm[3] * 60 + +pm[4], span = (p1 - p0 + 1440) % 1440;
+      if (span && span < 1439) missions.forEach(m => (String(m.tot || "").match(/\d{4}Z/g) || []).forEach(x => { const v = +x.slice(0, 2) * 60 + +x.slice(2, 4);
+        if ((v - p0 + 1440) % 1440 > span) add("error", `ATO ${m.msn}: TOT ${x} is outside the ATO period (${pm[0]}).`, link("ato")); })); }
+    // two tankers on one track at one time, and the like (mizlog.js)
+    (A.MIZLOG?.build(cid).caoc || []).filter(t => /fragged to/.test(t)).forEach(t => add("warn", t, link("ato")));
+    // human lines nobody has committed
+    const open = (A.ATO?.lines(cid) || []).filter(l => l.status === "open");
+    if (open.length) add("warn", `${open.length} human ATO line${open.length === 1 ? " is" : "s are"} not committed: ${open.map(l => l.msn).join(", ")}.`, "index.html");
+    // the SPINS bullseye
+    if (want.includes("spins") && !Store.content(cid, "spins")?.bullseye) add("warn", "The SPINS have no bullseye.", link("spins"));
+    // IFF / SIF codes on every line
+    if (A.IFF && missions.length) { const tk = A.JCEOI?.theaterKey(c.theater), fs = A.IFF.check(cid, missions, tk);
+      fs.filter(f => f.sev === "error").forEach(f => add("error", `IFF ${f.msn}: ${f.text}`, "jceoi.html"));
+      const w = fs.filter(f => f.sev === "warn").length; if (w) add("warn", `${w} IFF / SIF warning${w === 1 ? "" : "s"}.`, "jceoi.html"); }
+    // datalinks (STNs, SADL TNs, IDM)
+    if (A.TDL && want.includes("optasklink")) { const mf = A.MIZ?.current(cid), d = { ...(Store.content(cid, "optasklink") || {}) }; if (mf?.tdl) d.miz = A.TDL.pull(mf);
+      A.TDL.check(cid, d).filter(f => f.sev === "error").forEach(f => add("error", `Datalinks: ${f.text}`, link("optasklink"))); }
+    // the Comm Plan's own problems
+    if (want.includes("acp")) (COMM.commIssues?.(cid) || []).filter(f => f.sev === "bad").forEach(f => add("warn", `Comm Plan: ${f.text}`, link("acp")));
+    const order = { error: 0, warn: 1 };
+    return [...new Map(out.map(f => [f.text, f])).values()].sort((a, b) => order[a.sev] - order[b.sev]);
+  }
+  function preflightHtml(cid, list = preflight(cid)) {
+    const esc = window.AOC.esc, e = list.filter(f => f.sev === "error").length, w = list.length - e;
+    if (!list.length) return `<p class="small" style="color:var(--ok)">✓ Check list clear: the ATO, ACO, Comm Plan, SPINS, IFF and datalinks agree.</p>`;
+    return `<p class="small"><b>Check list:</b> <span style="${e ? "color:var(--danger,#e5484d);font-weight:600" : ""}">${e} error${e === 1 ? "" : "s"}</span> · <span style="${w ? "color:var(--warn)" : ""}">${w} warning${w === 1 ? "" : "s"}</span>${e ? " — errors block PUBLISH" : ""}</p>
+      <ul class="small" style="margin:0 0 8px;padding-left:18px">${list.map(f => `<li style="color:${f.sev === "error" ? "var(--danger,#e5484d)" : "var(--warn)"}">${esc(f.text)}${f.href ? ` <a href="${f.href}">fix →</a>` : ""}</li>`).join("")}</ul>`;
   }
 
   // the BLUE bullseye of the host's current mission file, when it differs from the SPINS' (a .miz uploaded after the SPINS were built)
@@ -248,12 +305,14 @@
     const codes = ids => ids.map(p => PRODUCTS[p].code).join(", "), last = l => l ? ` <span class="muted small">(last v${l.v})</span>` : "";
     const why = pid => ` <span class="muted small">(${PRODUCTS[pid].code} not ${want.includes(pid) ? "approved" : "requested"})</span>`;
     // a DKS export is ready when its product is approved, or waits for the approval this PUBLISH gives
-    const bull = bullseyeCheck(cid);
+    const bull = bullseyeCheck(cid), pf = preflight(cid), pfErr = pf.filter(f => f.sev === "error").length, pfWarn = pf.length - pfErr;
     const ok = (pid, ready) => ready || (canApprove && review.includes(pid)), rel0 = canApprove ? [...new Set([...approved, ...review, ...(bull ? ["spins"] : [])])] : approved;
     const ovOk = want.includes("aco") && ok("aco", ex.overlay.ready), agOk = want.includes("acp") && ok("acp", ex.agencies.ready), kbOk = want.includes("spins") && ok("spins", ex.kneeboard.ready);
     const back = document.createElement("div"); back.className = "modal-back";
     back.innerHTML = `<div class="panel modal" style="max-width:640px"><h2>PUBLISH package v${(c.packageRelease?.version || 0) + 1} · ATO ${window.AOC.atoId(c.atoDay)}</h2>
       ${late ? `<p class="small" style="color:var(--warn)">Inside T-72h — the host has less than three days to build and brief.</p>` : ""}
+      ${preflightHtml(cid, pf)}
+      ${pfErr ? "" : pfWarn ? `<label class="check-row"><input type="checkbox" id="oWarn"> I've reviewed the ${pfWarn} warning${pfWarn === 1 ? "" : "s"}; publish anyway</label>` : ""}
       ${review.length && canApprove ? `<div class="section-h">Approve (CFACC) — saved and ready</div>${review.map(p => `<label class="check-row"><input type="checkbox" data-approve="${p}" checked> ${esc(PRODUCTS[p].code)} — ${esc(PRODUCTS[p].name)} <a class="small" href="product.html?p=${p}&c=${encodeURIComponent(cid)}" target="_blank">review →</a></label>`).join("")}`
         : review.length ? `<p class="small" style="color:var(--warn)">${esc(codes(review))} wait for CFACC approval and stay back.</p>` : ""}
       ${bull ? `<label class="check-row"><input type="checkbox" id="oBull" ${canApprove ? "checked" : "disabled"}> <span style="color:var(--warn)">Host mission file v${bull.v} moved the BLUE bullseye.</span> Update the SPINS to ${esc(bull.text)}${bull.was ? ` (was ${esc(bull.was)})` : ""} and release them</label>` : ""}
@@ -269,7 +328,7 @@
       ${(() => { const L = window.AOC.MIZLOG, lg = L?.build(cid); if (!lg?.mf) return "";
         return `<label class="check-row"><input type="checkbox" id="oMiz" ${L.due(cid) ? "checked" : ""}> Post the .miz change log to the host's channel — ${lg.items.length ? `${lg.items.length} change${lg.items.length === 1 ? "" : "s"} required` : "no changes required"}${L.due(cid) ? "" : ' <span class="muted small">(unchanged since the last post)</span>'}</label>`; })()}
       <p class="small muted" style="margin:0 0 0 26px">${esc(PILOT.filter(p => want.includes(p)).map(p => PRODUCTS[p]?.code).filter(Boolean).join(", "))} as printable pages${want.includes("tdp") ? "; TDPs only for INT targets" : ""}. Internal products never go.</p>
-      <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>PUBLISH</button></div></div>`;
+      <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok ${pfErr ? `disabled title="Fix the check list errors first"` : ""}>PUBLISH</button></div></div>`;
     document.body.appendChild(back);
     const ck = id => !!back.querySelector("#" + id)?.checked;
     const picked = () => [...back.querySelectorAll("[data-approve]:checked")].map(x => x.dataset.approve);
@@ -278,6 +337,8 @@
     back.querySelector("[data-x]").onclick = () => back.remove();
     back.querySelector("[data-ok]").onclick = () => {
       const opts = { approve: picked(), bullseye: ck("oBull"), products: ck("oProd"), overlay: ck("oOv"), agencies: ck("oAg"), kneeboard: ck("oKb"), discord: ck("oDisc"), mizlog: ck("oMiz") };
+      if (pfErr) { toast("Fix the check list errors first"); return; }
+      if (pfWarn && !ck("oWarn")) { toast("Tick that you've reviewed the warnings"); return; }
       if (!opts.products && !opts.overlay && !opts.agencies && !opts.kneeboard && !opts.discord && !opts.mizlog) { toast("Nothing selected"); return; }
       const rel = publish(cid, opts); back.remove();
       toast(`Package v${rel.version}: ${rel.products.length} products${rel.dks.length ? ", DKS " + rel.dks.join(", ") : ""}${rel.discord ? `, zip to ${rel.discord.recipients} groups` : ""}`);
@@ -316,5 +377,5 @@
       toast(`Now planning ATO ${id(Store.campaign(cid).atoDay)}`); done?.(); };
   }
 
-  window.AOC.PACKAGE = { INTERNAL, PILOT, DAILY, ALWAYS, OPTIONAL, wanted, setWanted, wantedDialog, mode, t0, tlabel, milestones, dksExports, sendKneeboard, packageDocs, packageZip, downloadZip, discordPost, publish, publishDialog, bullseyeCheck, cycle, cycleDialog };
+  window.AOC.PACKAGE = { preflight, preflightHtml, INTERNAL, PILOT, DAILY, ALWAYS, OPTIONAL, wanted, setWanted, wantedDialog, mode, t0, tlabel, milestones, dksExports, sendKneeboard, packageDocs, packageZip, downloadZip, discordPost, publish, publishDialog, bullseyeCheck, cycle, cycleDialog };
 })();
