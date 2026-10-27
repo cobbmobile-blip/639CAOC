@@ -82,9 +82,6 @@
   }
 
   // Products the sponsor asked for become the campaign's deliverables list for the CFACC
-  const WANTED = { "Commander's Intent": "ci", "AOD": "aod", "ATO": "ato", "ACO": "aco", "SPINS": "spins", "JIPTL": "jiptl",
-    "TDPs": "tdp", "Comm Plan": "acp", "BDA / MISREP rollup": "bda" };
-  const wantedIds = names => { const ids = (names || []).map(n => WANTED[n]).filter(Boolean); return ids.length ? [...new Set(["ci", ...ids])] : undefined; };
 
   // Accepting turns the proposal into a live campaign with a drafted CI
   function createCampaign(s) {
@@ -93,7 +90,7 @@
     while (d.campaigns.some(c => c.id === id)) id += "-2";
     d.campaigns.push({ id, opName: p.opName.toUpperCase(), theater: p.theater, phase: "Phase 0 — Planning", dday: p.start, atoDay: 0,
       atoPeriod: "TBD", nextEvent: p.start && p.sessionTime ? `${p.start}T${p.sessionTime.replace(/\D/g, "").padEnd(4, "0").replace(/(\d\d)(\d\d)/, "$1:$2")}:00Z` : undefined,
-      groups: [s.gid], status: { ci: "draft" }, proposal: s.id, productsWanted: wantedIds(p.products),
+      groups: [s.gid], status: { ci: "draft" }, proposal: s.id,
       jfacc: { callsign: p.leadCallsign, group: s.gid, discord: p.leadDiscord, deputy: p.backup } });
     d.content[id] = { ci: { commander: `${p.leadCallsign} (JFACC, ${Store.group(s.gid)?.name || "sponsor"})`, purpose: p.purpose, method: p.method, endstate: p.endstate,
       keytasks: (p.keytasks || []).filter(Boolean), constraints: p.constraints, restraints: p.restraints, risk: p.risk } };

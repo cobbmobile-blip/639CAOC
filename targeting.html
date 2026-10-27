@@ -388,7 +388,7 @@
         units: Object.entries(g.composition).map(([t, n]) => `${n}× ${t}`).join("; ") }));
       const keep = mode === "append" ? cur.filter(c => !rows.some(x => x.id === c.id)) : [];
       Store.setContent(cid, "jiptl", { ...(Store.content(cid, "jiptl") || {}), rows: [...keep, ...rows], cycle: { bma: r.bmaName, generated: r.when, keyTasks: st.cycle.keyTasks } });
-      Store.setStatus(cid, "jiptl", "draft");
+      Store.setStatus(cid, "jiptl", "review");
       Store.log(cid, `JIPTL ${mode === "append" ? "extended" : "rebuilt"} from target nomination (${rows.length} targets)`);
       back.remove(); toast("JIPTL updated — open it to review and submit for CFACC approval");
       setTimeout(() => location.href = `product.html?p=jiptl&c=${encodeURIComponent(cid)}`, 900);

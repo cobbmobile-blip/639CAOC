@@ -30,16 +30,16 @@
 <body>
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
-<script>AOC.Auth.require();</script>
+<script>if (!AOC.UnitAuth.group() && !AOC.Auth.user()) { location.replace("unit-login.html"); throw new Error("auth required"); }</script>
 <script src="js/products.js"></script>
 <script src="js/pr.js"></script>
 
 <main class="wrap stack">
   <div class="panel-head noprint" style="margin-bottom:12px"><div>
-    <a class="small" id="back" href="#">← GRG product (review, approval, publish)</a>
+    <a class="small" id="back" href="unit.html">← Op Status</a>
     <h1 style="margin-top:4px" id="title">GRG</h1>
     <div class="muted small">Gridded reference graphics for CAS and urban talk-ons: a lettered / numbered grid over the area, every building numbered in its cell, the campaign's control measures on top. Everyone — JTACs, aircrew, the ground commander — uses the same sheet and version.</div></div>
-    <div class="toolbar"><span class="small" id="state"></span><button class="btn" onclick="print()">Print / PDF</button><button class="btn ghost" id="geoBtn">GeoJSON (DKS Overlay)</button><button class="btn primary" id="saveBtn">Save GRGs</button></div>
+    <div class="toolbar"><span class="small" id="state"></span><button class="btn" onclick="print()">Print / PDF</button><button class="btn ghost" id="geoBtn" title="The grid, cells and numbered buildings, to load into DKS">Download GeoJSON</button><button class="btn primary" id="saveBtn">Save GRGs</button></div>
   </div>
 
   <section class="panel noprint">
@@ -53,13 +53,18 @@
 
 <script>
   const { Store, esc, toast, zulu, PR } = AOC;
-  AOC.renderChrome();
-  const cid = new URLSearchParams(location.search).get("c") || Store.currentCampaignId(), campaign = Store.campaign(cid);
-  document.getElementById("back").href = `product.html?p=grg&c=${encodeURIComponent(cid)}`;
+  // GRGs are made by the groups, for the ops they fly and only when they want one: each group sees and saves its own
+  // sheets (staff see every group's). Not a CAOC product, not in PUBLISH
+  const me = AOC.UnitAuth.group();
+  AOC.renderChrome(me ? { unit: true } : {});
+  const cid = new URLSearchParams(location.search).get("c") || (me && Store.db.campaigns.find(c => c.groups.includes(me.id))?.id) || Store.currentCampaignId(), campaign = Store.campaign(cid);
+  const owner = me?.id || "caoc", mineOf = sh => me ? sh.filter(x => x.owner === me.id) : sh;
   document.getElementById("title").textContent = `GRG · OP ${campaign.opName}`;
   const data = structuredClone(Store.content(cid, "grg") || { sheets: [] }); data.sheets = data.sheets || [];
+  // sheets saved before GRGs belonged to groups: the seed's owner, else the CAOC
+  data.sheets.forEach(x => { x.owner = x.owner || (window.AOC_SEED.content?.[cid]?.grg?.sheets || []).find(y => y.id === x.id)?.owner || "caoc"; });
   const map = Store.content(cid, "map") || {}, shapes = map.shapes || [], points = map.points || [];
-  let sel = data.sheets[0]?.id || null, dirty = false;
+  let sel = mineOf(data.sheets)[0]?.id || null, dirty = false;
   const markDirty = () => { dirty = true; const s = document.getElementById("state"); s.textContent = "Unsaved changes"; s.style.color = "var(--warn)"; };
 
   // ---------- geometry: ground metres east / north of the sheet centre <-> lat/lon <-> web-mercator pixels ----------
@@ -99,8 +104,8 @@
     const area = Store.content(cid, "targeting")?.area;
     const lat = a?.lat ?? (+area?.lat || 42.25), lon = a?.lon ?? (+area?.lon || 42.7), w = a?.w ?? 3000, h = a?.h ?? 2000;
     // about twelve columns by nine rows: urban sheets get 200-250 m cells, a kill box 1-2.5 km
-    const cell = nice(Math.max(w / 12, h / 9)), n = data.sheets.length + 1;
-    const s = { id: "G" + Date.now().toString(36), name: a ? `GRG ${a.name}` : `GRG ${n}`, lat: +lat.toFixed(5), lon: +lon.toFixed(5), cell,
+    const cell = nice(Math.max(w / 12, h / 9)), n = mineOf(data.sheets).length + 1;
+    const s = { id: "G" + Date.now().toString(36), owner, name: a ? `GRG ${a.name}` : `GRG ${n}`, lat: +lat.toFixed(5), lon: +lon.toFixed(5), cell,
       cols: Math.max(2, Math.round(w / cell)), rows: Math.max(2, Math.round(h / cell)), keypads: false, measures: true, v: 1, from: a?.name || "" };
     data.sheets.push(s); sel = s.id; markDirty(); render();
   };
@@ -208,7 +213,7 @@
     w = Math.max(w, h * 1.5, 600); h = Math.max(h, w / 1.5);
     const cell = [100, 150, 200, 250].find(x => w / x <= 10) || 250;
     const [lat, lon] = toGeo(o, ce, cn);
-    const s = { id: "G" + Date.now().toString(36), name: `GRG ${p.name.toUpperCase()}`, lat: +lat.toFixed(5), lon: +lon.toFixed(5), cell,
+    const s = { id: "G" + Date.now().toString(36), owner, name: `GRG ${p.name.toUpperCase()}`, lat: +lat.toFixed(5), lon: +lon.toFixed(5), cell,
       cols: Math.ceil(w / cell), rows: Math.ceil(h / cell), keypads: false, measures: true, v: 1, from: p.name };
     data.sheets.push(s); sel = s.id; markDirty(); render();
   };
@@ -243,7 +248,7 @@
   // ---------- the form for the selected sheet ----------
   function renderForm() {
     const s = data.sheets.find(x => x.id === sel);
-    document.getElementById("sheets").innerHTML = data.sheets.map(x => `<button data-id="${esc(x.id)}" aria-current="${x.id === sel}"><b>${esc(x.name)}</b> <span class="muted small">v${x.v} · ${x.cols}×${x.rows} @ ${x.cell} m${bldgs(x).length ? ` · ${bldgs(x).length} bldgs` : ""}</span></button>`).join("")
+    document.getElementById("sheets").innerHTML = mineOf(data.sheets).map(x => `<button data-id="${esc(x.id)}" aria-current="${x.id === sel}"><b>${esc(x.name)}</b>${me ? "" : ` <span class="muted small">${esc(Store.group(x.owner)?.name || "CAOC")}</span>`} <span class="muted small">v${x.v} · ${x.cols}×${x.rows} @ ${x.cell} m${bldgs(x).length ? ` · ${bldgs(x).length} bldgs` : ""}</span></button>`).join("")
       || `<p class="muted small">No GRGs yet. Start one from a kill box or ROZ on the theater map, or from a point.</p>`;
     document.getElementById("form").innerHTML = !s ? "" : `<div class="row6">
       <div class="field"><label>Name</label><input data-k="name" value="${esc(s.name)}"></div>
@@ -269,7 +274,7 @@
     markDirty(); render();
   });
   document.getElementById("form").addEventListener("click", e => { if (!e.target.closest("[data-del]")) return;
-    const s = data.sheets.find(x => x.id === sel); if (!confirm(`Delete ${s.name}?`)) return; data.sheets = data.sheets.filter(x => x !== s); sel = data.sheets[0]?.id || null; markDirty(); render(); });
+    const s = data.sheets.find(x => x.id === sel); if (!confirm(`Delete ${s.name}?`)) return; data.sheets = data.sheets.filter(x => x !== s); sel = mineOf(data.sheets)[0]?.id || null; markDirty(); render(); });
 
   // ---------- the sheet ----------
   function renderSheet() {
@@ -393,9 +398,10 @@
   // ---------- save (a changed grid is a new version) and the DKS overlay ----------
   document.getElementById("saveBtn").onclick = () => {
     data.sheets.forEach(s => { if (s.changed) { s.v++; delete s.changed; } s.saved = new Date().toISOString(); });
-    Store.setContent(cid, "grg", structuredClone(data)); Store.setStatus(cid, "grg", "draft");
-    Store.log(cid, `GRGs saved (${data.sheets.length} sheet${data.sheets.length === 1 ? "" : "s"})`);
-    dirty = false; const st = document.getElementById("state"); st.textContent = "Saved — submit for review on the GRG product"; st.style.color = "var(--ok)"; render(); toast("GRGs saved");
+    Store.setContent(cid, "grg", structuredClone(data));
+    const n = mineOf(data.sheets).length;
+    Store.log(cid, `${me ? me.name : "CAOC"} saved GRGs (${n} sheet${n === 1 ? "" : "s"})`, me?.name);
+    dirty = false; const st = document.getElementById("state"); st.textContent = "Saved — print it for your kneeboards"; st.style.color = "var(--ok)"; render(); toast("GRGs saved");
   };
   document.getElementById("geoBtn").onclick = () => {
     const s = data.sheets.find(x => x.id === sel); if (!s) return; const f = frame(s), feats = [], ll = (e, n) => { const [a, b] = toGeo(s, e, n); return [+b.toFixed(6), +a.toFixed(6)]; };

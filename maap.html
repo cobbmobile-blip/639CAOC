@@ -262,9 +262,9 @@
     return out;
   }
   function save() {
-    Store.setContent(cid, "maap", snapshot()); Store.setStatus(cid, "maap", "draft");
+    Store.setContent(cid, "maap", snapshot()); Store.setStatus(cid, "maap", "review");
     Store.log(cid, `MAAP saved (${maap.packages.length} packages)`);
-    dirty = false; const s = document.getElementById("state"); s.textContent = "Saved — submit for review on the MAAP product"; s.style.color = "var(--ok)";
+    dirty = false; const s = document.getElementById("state"); s.textContent = "Saved — ready for CFACC approval"; s.style.color = "var(--ok)";
   }
   document.getElementById("saveBtn").onclick = () => { save(); toast("MAAP saved"); };
   // the ATO follows the MAAP: package letters on, stale letters off; the ATO goes back to draft for re-approval
@@ -276,7 +276,7 @@
     missions.forEach(m => { const p = inPkg[m.msn];
       if (p) { if (m.pkg !== p.name) { m.pkg = p.name; n++; } if (bucket(m.role) !== "strike" && !jiptl.some(r => r.id === m.target)) m.target = `Pkg ${p.name}`; }
       else if (names.has(m.pkg) || /^[A-Z]$/.test(m.pkg || "")) { m.pkg = "—"; n++; } });
-    Store.setContent(cid, "ato", ato); Store.setStatus(cid, "ato", "draft"); save();
+    Store.setContent(cid, "ato", ato); Store.setStatus(cid, "ato", "review"); save();
     Store.log(cid, `MAAP applied to the ATO (${n} lines changed) — ATO back to draft`);
     toast(`Applied: ${n} ATO lines changed. ATO is back to draft for re-approval.`);
   };

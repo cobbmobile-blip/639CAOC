@@ -106,7 +106,7 @@
         return { msn: r.msn, callsign: r.callsign, target: r.target, tot: r.flown === "Yes" ? m.tot || "" : "—", ord: "", result: r.flown === "Yes" ? r.result : "Not flown", remarks: r.remarks }; }),
       bda: d.bda.filter(r => r.status).map(r => ({ target: r.target, phase: "Phase 1 — Physical", status: r.status, source: "Host debrief", reattack: r.reattack })),
       threats: d.redLosses || bda.threats || "" });
-    Store.setStatus(cid, "bda", "draft");
+    Store.setStatus(cid, "bda", "review");
     Store.log(cid, `Mission debrief for ATO ${AOC.atoId(day)} received from ${me.name}`, c.jfacc?.callsign || me.contact);
     const s = document.getElementById("state"); s.textContent = "Sent to the CAOC"; s.style.color = "var(--ok)"; toast("Debrief sent to the CAOC");
   };

@@ -58,6 +58,9 @@
 <script src="js/jceoi-data.js"></script>
 <script src="js/jceoi.js"></script>
 <script src="js/iff.js"></script>
+<script src="js/miz.js"></script>
+<script src="js/tdl.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <main class="wrap">
   <section class="campaign-head">
@@ -224,7 +227,7 @@
     el.classList.remove("hidden");
     let html = `<div class="panel-head"><div><h2>Campaign package ${rel ? `v${rel.version}` : ""}</h2><div class="muted small">${rel
       ? `Published ${esc(zulu(new Date(rel.when)))} by ${esc(rel.by)} for ATO ${AOC.atoId(rel.atoDay)}: ${rel.current.filter(p => !staffOnly(p.pid)).map(p => `${esc(PRODUCTS[p.pid]?.code)} v${p.v}`).join(", ")}`
-        + (c.dks?.overlay || c.dks?.agencies ? `<br>In DKS: ${[c.dks.overlay && `ACO Overlay v${c.dks.overlay.v}`, c.dks.agencies && `Manage Agencies v${c.dks.agencies.v} (${c.dks.agencies.list.length} agencies)`].filter(Boolean).join(" · ")}` : "")
+        + (c.dks?.overlay || c.dks?.agencies || c.dks?.kneeboard ? `<br>In DKS: ${[c.dks.overlay && `ACO Overlay v${c.dks.overlay.v}`, c.dks.agencies && `Manage Agencies v${c.dks.agencies.v} (${c.dks.agencies.list.length} agencies)`, c.dks.kneeboard && `Kneeboards v${c.dks.kneeboard.v} (SPINS Addendum A)`].filter(Boolean).join(" · ")}` : "")
       : "The CAOC has not published the package yet."}</div></div>
       ${host ? `<div class="toolbar"><a class="btn sm" href="mission-file.html?c=${encodeURIComponent(cid)}">Mission file${c.missionFiles?.length ? ` v${c.missionFiles.length}` : ""}</a><a class="btn sm primary" href="debrief.html?c=${encodeURIComponent(cid)}">Enter mission debrief</a></div>` : ""}</div>`;
     if (host) {
@@ -286,10 +289,13 @@
           : `<tr><td colspan="7" class="muted">No lines on the released ATO.</td></tr>`}
       </tbody></table></div>
       ${requestsHtml()}
-      <div class="dks" style="margin-top:12px">
-        <span><b style="color:var(--text)">DKS export</b> — send this group pack to Digital Kneeboard Simulator for mission planning. Integration coming soon.</span>
-        <button class="btn sm" disabled title="Waiting on the DKS integration">Send to DKS</button>
-      </div>`;
+      ${camp().packageRelease ? `<div class="dks" style="margin-top:12px">
+        <span><b style="color:var(--text)">Pilot package</b> — every released document your aircrew need, as printable pages: the same zip posted to your Discord. The ACO, Comm Plan and SPINS Addendum A are also in DKS.</span>
+        <button class="btn sm primary" id="zipBtn">Download pilot package (zip)</button>
+      </div>` : ""}`;
+    document.getElementById("zipBtn")?.addEventListener("click", async e => { e.target.disabled = true;
+      try { const z = await AOC.PACKAGE.downloadZip(cid); Store.log(cid, `${me?.name || "CAOC staff"} downloaded the pilot package`, me?.name); toast(`${z.filename}: ${z.docs.length} documents`); } catch (err) { toast(err.message); }
+      e.target.disabled = false; });
     document.getElementById("packBtn").onclick = () => {
       download(`${opFile()}_${me.login}_group_pack.txt`, groupPack());
       Store.log(cid, `${me.name} downloaded group pack`, me.name);
@@ -312,8 +318,7 @@
         <div class="muted small">Released ${zulu(new Date(s.when))} by ${esc(s.by)}</div>
         <div class="bar" title="${cur} of ${n} groups current"><i style="width:${n ? cur / n * 100 : 0}%"></i></div>
         <div class="muted small">${cur} / ${n} groups current</div>
-        <div class="toolbar"><button class="btn sm" data-view="${id}">View</button><button class="btn sm" data-dl="${id}">Download .txt</button>
-          ${PRODUCTS[id].fields.some(f => f.type === "matrix") ? `<button class="btn sm" disabled title="DKS integration coming soon — will load this matrix into the DKS comm page">Send to DKS</button>` : ""}</div></div>`;
+        <div class="toolbar"><button class="btn sm" data-view="${id}">View</button><button class="btn sm" data-dl="${id}">Download .txt</button></div></div>`;
     }).join("");
   }
 

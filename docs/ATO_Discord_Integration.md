@@ -159,17 +159,17 @@ are mapped to those names (`F-15ESE` → `F-15E`, `FA-18C_hornet` → `F/A-18C`,
 
 ## PUBLISH product post (`package.posted`)
 
-When the CFACC or CFC presses **PUBLISH** on the rollup (with "Discord post" ticked, the default), the site emits one
+When the CFACC or CFC presses **PUBLISH** on the Dashboard (with the Discord post ticked, the default), the site emits one
 `package.posted` event. The bot posts it to the registered channel of every recipient: the host unit (the campaign
 JFACC's group, flagged `host: true`) and every active participating group, using the same group registration it uses for
 ATO lines. No channel is set per campaign.
 
-The post carries every released product that is **not** a DKS export: CI, AOD, JIPTL, TDP, ATO, SPINS & ROE
-(two files), OPTASKLINK, BDA. The ACO and Comm Plan go to DKS (Overlay, Manage Agencies) and are only named in a line.
-The Planning Conference and MAAP are staff functions and are never posted.
-Each product is a `.txt` file with the same text as the product page's "Download .txt". `change` is `new` (first
-release), `changed` (released in this PUBLISH) or `unchanged`. Discord allows ten files per message: send `files` in
-`messages` messages, `content` on the first.
+The post carries **one attachment, the pilot package**: a zip of printable HTML pages, `00_INDEX.html` then one page
+per document in order: CI, AOD, ATO, SPINS, SPINS Addendum A, ROE, Comm Plan, ACO, OPTASKLINK, and the TDPs of the
+targets the released ATO strikes with INT lines. Internal staff products (Planning Conference, JIPTL, MAAP, BDA) are
+never in it. `change` is `new` (first release), `changed` (released in this PUBLISH) or `unchanged`. The bot builds the
+zip with the site's `AOC.PACKAGE.packageZip(campaign_id)` (or receives it from the backend) and attaches it to one
+message; the same zip downloads from the Dashboard and from Op Status.
 
 ```json
 {
@@ -182,19 +182,18 @@ release), `changed` (released in this PUBLISH) or `unchanged`. Discord allows te
   "published_at": "2026-10-24T18:00:00Z",
   "published_by": "OVERLORD",
   "title": "OP IRON TRIDENT — PUBLISH v5 · ATO AH",
-  "content": "**OP IRON TRIDENT — PUBLISH v5 · ATO AH**\n• CI v1\n• ATO v4 — **CHANGED**\n• SPINS & ROE v3\nIn DKS: Overlay v2\nFull set on Op Status. Files attached.",
+  "content": "**OP IRON TRIDENT — PUBLISH v5 · ATO AH**\n• CI v1\n• ATO v4 — **CHANGED**\n• SPINS & ROE v3\nIn DKS: Overlay v2\nPilot package attached (zip). Also on Op Status.",
   "recipients": [ { "group_id": "g1", "group": "Viper Ops Group", "host": true }, { "group_id": "g2", "group": "Hornet Bay vCVW", "host": false } ],
-  "products": [ { "product": "ato", "code": "ATO", "name": "Air Tasking Order", "version": 4, "change": "changed", "files": ["IRON_TRIDENT_ATO_D8_v4.txt"] } ],
+  "products": [ { "product": "ato", "code": "ATO", "name": "Air Tasking Order", "version": 4, "change": "changed", "files": ["03_ATO_v4.html"] } ],
   "dks": ["Overlay v2"],
   "op_status": "unit.html",
-  "messages": 1,
-  "files": [ { "filename": "IRON_TRIDENT_ATO_D8_v4.txt", "content": "UNCLASSIFIED // EXERCISE\nAIR TASKING ORDER\n…" } ]
+  "attachment": { "filename": "OP_IRON_TRIDENT_ATO_AH_PUBLISH_v5.zip", "documents": ["00_INDEX.html", "01_CI_v1.html", "02_AOD_v1.html", "03_ATO_v4.html", "04_SPINS_v3.html", "05_SPINS-ADD-A_v3.html", "06_ROE_v3.html", "07_ACP_v1.html", "08_ACO_v2.html"] }
 }
 ```
 
 `op_status` is the Op Status page; production should send its absolute URL. The prototype records the event in
-`db.discordOutbox` with each file's name and size instead of its text (the text is rebuilt from the released versions;
-the rollup's **Discord post** button shows the post with the files).
+`db.discordOutbox` with the zip's name and contents list, not the zip (it is rebuilt from the released versions; the
+rollup's **Discord post** button shows the post and downloads the zip).
 
 ## Not in the prototype yet
 

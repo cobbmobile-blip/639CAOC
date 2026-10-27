@@ -179,11 +179,6 @@
       if (i >= 0) d.submissions[i] = sub; else d.submissions.unshift(sub);
       save();
     },
-    addRequest(cid, gid, product, note) {
-      const d = load();
-      d.requests.unshift({ id: "r" + Date.now(), campaign: cid, group: gid, product, note, when: new Date().toISOString(), state: "open" });
-      save();
-    },
     log(cid, text, by) {
       const d = load();
       d.activity = d.activity || [];
@@ -269,7 +264,7 @@
     const mon = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][d.getUTCMonth()];
     return `${p(d.getUTCDate())}${p(d.getUTCHours())}${p(d.getUTCMinutes())}Z ${mon} ${String(d.getUTCFullYear()).slice(2)}`;
   }
-  const STATUS_LABEL = { none: "Not started", draft: "Draft", review: "In review", approved: "Approved", published: "Published" };
+  const STATUS_LABEL = { none: "Not started", draft: "Draft", review: "Ready for approval", approved: "Approved", published: "Published" };
 
   // the v639th CAOC patch (sized by .brand .logo in styles.css)
   const LOGO = `<img class="logo" src="img/v639-caoc-patch.webp" alt="v639th CAOC patch" width="28" height="28">`;
@@ -291,7 +286,7 @@
     bar.innerHTML = `
       <a class="brand" href="${unit ? "unit.html" : "index.html"}">${LOGO}<span>VIRTUAL AOC<small>${opts.unit ? "OP STATUS · UNIT PORTAL" : "COMBINED AIR OPERATIONS CENTER"}</small></span></a>
       <nav class="topnav">${(unit
-        ? [["unit.html", "Op Status"], ["isoprep.html", "ISOPREP / EPA"], ...(load().campaigns.some(c => c.jfacc?.group === unit.id) ? [["mission-file.html", "Mission file"], ["ato-request.html", "ATO requests"], ["debrief.html", "Debrief"]] : []), ["campaign-submit.html", "Submit a campaign"]]
+        ? [["unit.html", "Op Status"], ["isoprep.html", "ISOPREP / EPA"], ["grg.html", "GRGs"], ...(load().campaigns.some(c => c.jfacc?.group === unit.id) ? [["mission-file.html", "Mission file"], ["ato-request.html", "ATO requests"], ["debrief.html", "Debrief"]] : []), ["campaign-submit.html", "Submit a campaign"]]
         : u ? [["index.html", "Dashboard"], ["rollup.html", "Rollup"], ["prcc.html", "PRCC" + ((load().prIncidents || []).some(i => i.status === "open") ? " ●" : "")], ["unit.html", "Op Status"], ["campaign-review.html", "Proposals" + (pending ? ` (${pending})` : "")]] : [])
         .map(([href, label]) => `<a href="${href}" ${location.pathname.endsWith(href) ? 'aria-current="page"' : ""}>${label}</a>`).join("")}</nav>
       <span class="spacer"></span>

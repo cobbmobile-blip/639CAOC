@@ -13,6 +13,13 @@
 <script src="js/products.js"></script>
 <script src="js/pr.js"></script>
 <script src="js/ato.js"></script>
+<script src="js/package.js"></script>
+<script src="js/jceoi-data.js"></script>
+<script src="js/jceoi.js"></script>
+<script src="js/iff.js"></script>
+<script src="js/miz.js"></script>
+<script src="js/tdl.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <main class="wrap">
   <section class="campaign-head">
@@ -29,6 +36,8 @@
 
   <section class="kpis" id="kpis"></section>
 
+  <section class="panel" id="publishPanel" style="margin-bottom:16px"></section>
+
   <div class="grid cols-dash">
     <section class="panel">
       <div class="panel-head">
@@ -43,12 +52,7 @@
     </section>
 
     <aside class="grid" style="align-content:start">
-      <section class="panel" id="deliverables"></section>
       <section class="panel" id="atoLines"></section>
-      <section class="panel">
-        <div class="panel-head"><h2>Product requests</h2><span class="muted small" id="reqCount"></span></div>
-        <ul class="list" id="requests"></ul>
-      </section>
       <section class="panel">
         <div class="panel-head"><h2>Participating groups</h2><a class="small" href="unit.html">Op Status →</a></div>
         <ul class="list" id="groups"></ul>
@@ -132,30 +136,6 @@
     }
   }
 
-  // CFACC view: every deliverable this campaign needs, by where it sits in the approval workflow
-  function renderDeliverables() {
-    const c = Store.campaign(cid);
-    const needed = (c.productsWanted || Object.keys(PRODUCTS)).filter(id => PRODUCTS[id]);
-    const buckets = [
-      ["review", "Awaiting CFACC approval", "warn"],
-      ["approved", "Approved — ready to publish", "ok"],
-      ["draft", "In work", "off"],
-      ["none", "Not started", "off"],
-      ["published", "Released", "ok"]
-    ];
-    const done = needed.filter(id => ["approved", "published"].includes(Store.status(cid, id))).length;
-    const canApprove = AOC.Auth.can("approve");
-    document.getElementById("deliverables").innerHTML = `<div class="panel-head"><h2>Deliverables</h2><span class="muted small">${done} / ${needed.length} approved</span></div>
-      <div class="bar" style="height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-bottom:10px"><i style="display:block;height:100%;width:${needed.length ? done / needed.length * 100 : 0}%;background:var(--ok)"></i></div>
-      <p class="muted small" style="margin-top:0">The CFACC makes sure every deliverable is built and approved. ${canApprove ? "You can approve and publish." : "Approval and publishing are done by the CFACC or CFC."}</p>
-      <ul class="list">${buckets.map(([st, label, dot]) => {
-        const ids = needed.filter(id => Store.status(cid, id) === st);
-        if (!ids.length) return "";
-        return `<li><span class="dot ${dot}"></span><div class="grow"><b class="small">${label}</b><div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap">
-          ${ids.map(id => `<a class="btn sm" href="${link(id)}">${PRODUCTS[id].code}</a>`).join("")}</div></div></li>`;
-      }).join("")}</ul>`;
-  }
-
   // ATO lines requested by the campaign's JFACC and their commitment state (commits arrive from the Discord post)
   function renderAtoLines() {
     const ls = AOC.ATO.lines(cid).filter(l => l.status !== "cancelled"), el = document.getElementById("atoLines");
@@ -168,8 +148,33 @@
   }
   window.addEventListener("storage", e => { if (e.key && e.key.startsWith("aoc.db")) location.reload(); });
 
+  // PUBLISH: the one release. Products are built and approved on their pages; this releases them to the groups, sends the
+  // DKS exports and posts the pilot package zip to Discord (package.js)
+  function renderPublish() {
+    const PK = AOC.PACKAGE, c = Store.campaign(cid), want = PK.wanted(c), st = pid => Store.status(cid, pid), rel = c.packageRelease;
+    const by = s => want.filter(pid => st(pid) === s), ex = PK.dksExports(cid), can = AOC.Auth.can("publish");
+    const changed = want.filter(pid => ["approved", "review"].includes(st(pid)));
+    const chip = (ids, label, dot) => ids.length ? `<li><span class="dot ${dot}"></span><div class="grow"><b class="small">${label}</b><div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap">
+      ${ids.map(id => `<a class="btn sm" href="${link(id)}">${PRODUCTS[id].code}</a>`).join("")}</div></div></li>` : "";
+    const dks = [["Overlay", ex.overlay.last], ["Agencies", ex.agencies.last], ["Kneeboard", ex.kneeboard.last]]
+      .map(([n, l]) => `${n} ${l ? `v${l.v}` : "not sent"}`).join(" · ");
+    document.getElementById("publishPanel").innerHTML = `<div class="panel-head"><div><h2>PUBLISH</h2>
+        <div class="muted small">${rel ? `Last: package v${rel.version}, ATO ${esc(AOC.atoId(rel.atoDay))}, ${esc(AOC.zulu(new Date(rel.when)))} by ${esc(rel.by || "")}` : "Nothing published yet"} · DKS ${esc(dks)}</div></div>
+        <div class="toolbar">${rel ? `<button class="btn" id="zipBtn" title="The pilot package as posted to Discord, rebuilt from the released versions">Download pilot package (zip)</button>` : ""}
+          <a class="btn ghost" href="rollup.html?c=${encodeURIComponent(cid)}">Deadlines, DKS detail, Discord post →</a>
+          ${c.atoDay > 0 ? `<button class="btn" id="cycleBtn" ${can ? "" : "disabled"} title="After the host's debrief: the daily products go back to work for the next ATO">Cycle to ATO ${esc(AOC.atoId(+c.atoDay + 1))}…</button>` : ""}
+          <button class="btn primary" id="pubBtn" ${can ? "" : "disabled title=\"CFACC or CFC only\""}>PUBLISH${changed.length ? ` (${changed.length})` : ""}…</button></div></div>
+      <p class="small" style="margin:0 0 8px">One button: approves what's waiting (CFACC), releases every approved product to the groups' Op Status, sends the DKS exports (Overlay, Manage Agencies, kneeboards) and posts the pilot package zip to every group's Discord.</p>
+      <ul class="list">${chip(by("approved"), "Approved — goes out with the next PUBLISH", "ok")}${chip(by("review"), "Saved and ready — the CFACC approves them in PUBLISH", "warn")}${chip(by("draft"), "Back in work for this ATO — open and save to make ready", "off")}${chip(by("none"), "Not started", "off")}${chip(by("published"), "Released and current", "ok")}</ul>
+      ${(() => { const b = PK.bullseyeCheck(cid); return b ? `<p class="small" style="color:var(--warn);margin:8px 0 0">Host mission file v${b.v} moved the BLUE bullseye; PUBLISH will update the SPINS.</p>` : ""; })()}`;
+    document.getElementById("pubBtn").onclick = () => PK.publishDialog(cid, () => render());
+    document.getElementById("cycleBtn")?.addEventListener("click", () => PK.cycleDialog(cid, () => render()));
+    document.getElementById("zipBtn")?.addEventListener("click", async e => { e.target.disabled = true;
+      try { const z = await PK.downloadZip(cid); AOC.toast(`${z.filename}: ${z.docs.length} documents`); } catch (err) { AOC.toast(err.message); } e.target.disabled = false; });
+  }
+
   function render() {
-    renderDeliverables();
+    renderPublish();
     renderAtoLines();
     const c = Store.campaign(cid), db = Store.db;
     document.getElementById("opName").textContent = "OP " + c.opName;
@@ -181,23 +186,14 @@
     const statuses = Object.keys(PRODUCTS).map(id => Store.status(cid, id));
     const ato = Store.content(cid, "ato"), jiptl = Store.content(cid, "jiptl");
     const sorties = (ato?.missions || []).reduce((s, r) => s + (parseInt(r.num) || 0), 0);
-    const openReq = db.requests.filter(r => r.campaign === cid && r.state === "open");
     const kpis = [
       [statuses.filter(s => s === "published").length + " / " + statuses.length, "Products published"],
       [jiptl?.rows?.length || 0, "Targets on JIPTL"],
       [sorties, "Sorties on current ATO"],
       [c.groups.length, "Participating groups"],
-      [openReq.length, "Open requests"]
+      [AOC.ATO.lines(cid).filter(l => l.status === "open").length, "ATO lines awaiting commit"]
     ];
     document.getElementById("kpis").innerHTML = kpis.map(([v, l]) => `<div class="panel kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
-
-    document.getElementById("reqCount").textContent = openReq.length + " open";
-    document.getElementById("requests").innerHTML = openReq.length ? openReq.map(r => {
-      const g = Store.group(r.group), p = PRODUCTS[r.product];
-      return `<li><span class="dot warn"></span><div class="grow"><b>${esc(g?.name)}</b> · <span class="mono small">${p?.code}</span>
-        <div class="muted small">${esc(r.note)}</div></div>
-        <a class="btn sm primary" href="${link(r.product)}&req=${r.id}">Fulfil</a></li>`;
-    }).join("") : `<li class="muted">No open requests.</li>`;
 
     document.getElementById("groups").innerHTML = c.groups.map(gid => {
       const g = Store.group(gid);

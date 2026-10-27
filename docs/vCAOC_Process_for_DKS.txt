@@ -35,9 +35,10 @@ released products. Products apply to a WHOLE GROUP, not to individual flights.
 
 Current state: a working clickable PROTOTYPE -- static HTML/CSS/JS, no backend.
 Data lives in the browser (localStorage) and logins are a demo gate only.
-Every "Send to DKS" / "Publish to DKS" button is a placeholder until the
-integration is built. The data the buttons would send is already defined
-(section 5).
+Everything for DKS goes out through ONE PUBLISH button on the CAOC
+Dashboard; there are no per-page "Send to DKS" buttons (the PRCC's rescue
+buttons excepted). Until the integration is built, PUBLISH queues the
+events in the prototype's DKS outbox; their data is defined in 4.6.
 
 Run it: serve the repo root with any static server, e.g.
     python -m http.server 8765
@@ -118,7 +119,7 @@ are on the CAOC rollup page (rollup.html) and are editable per campaign.
  10. Comm Plan -- built LAST, once everything else is final (T-5). TAC ADMIN
      net carries TAC COORD and TAC ADMIN; Guard is standard and not listed;
      airfield/ATC frequencies stay out.
- 11. CFACC approvals, then ONE PUBLISH on the CAOC rollup, NO LATER THAN
+ 11. CFACC approvals, then ONE PUBLISH on the CAOC Dashboard, NO LATER THAN
      T-72h: every approved product -> every active campaign group
      (versioned), plus three optional DKS exports (section 4.6):
        - ACO + theater map -> DKS OVERLAY (drawn on the DKS theater map for
@@ -174,9 +175,9 @@ Available colors: WHITE, BLUE, YELLOW, GREEN, PURPLE, RED, ORANGE, GRAY, BLACK.
 Channel list (on the product and in its text export), columns in this order:
     NET | CHANNEL | CALLSIGN | ROLE | FREQ
 
-Two DKS buttons on the Comm Plan:
-  a) "Send to DKS"  -> push the matrix to the DKS comm page.   (placeholder)
-  b) "Publish to DKS Agencies" -> populate DKS "Manage Agencies" with every
+The Comm Plan goes to DKS with PUBLISH (section 4.6):
+  a) the matrix -> the DKS comm page (format still open, question 3)
+  b) Manage Agencies -> populate DKS "Manage Agencies" with every
      channel as a SELECTABLE DEFAULT agency. The site previews exactly what
      would be sent:
         agency name = callsign, or "<ROLE> <CHANNEL>" when there is no callsign
@@ -311,9 +312,12 @@ In the prototype, the request page's "Discord post" preview has "Commit as
 
 4.4 GROUP PACK -> DKS
 ---------------------
-On Op Status each group can download a "group pack": one text file with the
-group's ATO lines plus every product released to that group, in cycle order.
-A "Send to DKS" button (placeholder) is meant to hand that pack to DKS.
+On Op Status each group can download a "group pack" (one text file: the
+group's ATO lines plus every product released to it) and the PILOT PACKAGE:
+the zip of printable pages that PUBLISH posts to the group's Discord (CI,
+AOD, ATO, SPINS, SPINS Addendum A, ROE, Comm Plan, ACO, OPTASKLINK, and TDPs
+for INT targets). Groups make their own GRGs (grg.html, unit portal) and can
+download each as GeoJSON for DKS.
 
 4.5 THINGS THAT ARE DONE IN DKS, NOT ON THE SITE
 -------------------------------------------------
@@ -324,13 +328,13 @@ A "Send to DKS" button (placeholder) is meant to hand that pack to DKS.
 
 4.6 CAMPAIGN PACKAGE PUBLISH -> DKS
 -----------------------------------
-PUBLISH (rollup.html, due NLT T-72h) has four ticks: release products,
-export Overlay, export Agencies, export Kneeboard. Overlay is pre-ticked on
-its first export; Agencies is pre-ticked only when the Comm Plan changed
-since the last export (the rollup lists added / changed / removed channels;
-tanker and JTAC channels are marked "may change"); Kneeboard is pre-ticked
-when the SPINS were re-released or the ATO cycled since the last send. The
-SPINS page also has a "Send to DKS kneeboard" button (same export). Each
+PUBLISH (index.html, the CAOC Dashboard, due NLT T-72h) is one dialog:
+approve the products saved and ready (one tick each), release to the groups,
+the three DKS exports, and the Discord pilot package. Overlay is pre-ticked
+on its first export or when the ACO changed; Agencies only when the Comm Plan
+changed since the last export (the rollup lists added / changed / removed
+channels; tanker and JTAC channels are marked "may change"); Kneeboard when
+the SPINS were re-released or the ATO cycled since the last send. Each
 export is versioned per campaign. ATOs are designated by letters (day 1 =
 AA, day 8 = AH); events carry ato_day (number) and ato (letters).
 Events queued (prototype: db.dksOutbox; formats to be agreed):
@@ -511,6 +515,8 @@ New root:
  11. Kneeboards (section 4.6, kneeboard.update): which DKS kneeboard section
      should SPINS Addendum A go to, and does DKS want the page data (AET
      table cells, RAMROD) or the rendered page (html)?
+ 12. Pilot package: would DKS rather receive the same zip PUBLISH posts to
+     Discord (printable HTML pages per document) for its kneeboards?
 
 --------------------------------------------------------------------------------
 9. CONVERSATION LOG (CONDENSED, IN ORDER)
@@ -594,10 +600,20 @@ Requests from the 639 vCAOC lead, and what was built or decided:
     check-in, authentication at aircrew discretion (sequential, RAMROD or AET
     table, briefed), code words from the 639th codeword reference list. The
     SPINS are directive, not a training document.
-34. SPINS Addendum A: an AET table and a RAMROD per ATO -> DKS kneeboards,
-    from PUBLISH or the SPINS page (kneeboard.update, section 4.6).
+34. SPINS Addendum A: an AET table and a RAMROD per ATO -> DKS kneeboards
+    with PUBLISH (kneeboard.update, section 4.6).
 35. The AOC Support Cell group was removed; its tanker and AWACS lines are
     AI lines.
+36. One PUBLISH on the Dashboard does everything: approves what's ready (per
+    product), releases to Op Status, sends the DKS exports, posts the pilot
+    package zip to every group's Discord. No per-page publish or Send to DKS
+    buttons. Save = ready for approval (no Submit for review). Cycle to the
+    next ATO is on the Dashboard too. Product requests and the proposal's
+    "products wanted" / DKS questions were retired: every campaign gets the
+    full set. IFF codes are assigned on every ATO save.
+37. GRGs moved to the groups: made in the unit portal when a group wants one,
+    not a CAOC product. BDA is internal. PUBLISH checks the SPINS bullseye
+    against the host's latest .miz BLUE bullseye.
 
 ================================================================================
  END

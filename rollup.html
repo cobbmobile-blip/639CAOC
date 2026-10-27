@@ -42,17 +42,18 @@
 <script src="js/jceoi.js"></script>
 <script src="js/tacan.js"></script>
 <script src="js/tdl.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:12px">
     <div><h1 id="title">CAOC rollup</h1>
-      <div class="muted small">Everything the CAOC owes this campaign, against the deadline timeline. One PUBLISH, no later than T-72h before the mission, releases the approved products to the groups and exports the ACO overlay and Comm Plan agencies to DKS.</div></div>
+      <div class="muted small">Everything the CAOC owes this campaign, against the deadline timeline. One PUBLISH on the Dashboard, no later than T-72h before the mission, releases the approved products to the groups, sends the DKS exports and posts the pilot package zip to Discord.</div></div>
     <div class="toolbar"><select id="camp" style="width:auto"></select></div>
   </div>
 
   <section class="panel pub">
     <div class="panel-head"><div><h2>Package</h2><div class="muted small" id="relInfo"></div></div>
-      <div class="toolbar"><button class="btn" id="cycleBtn">Cycle to next mission…</button><button class="btn" id="discBtn" title="What the last PUBLISH posts to Discord">Discord post</button><button class="btn primary" id="pubBtn">PUBLISH package</button></div></div>
+      <div class="toolbar"><button class="btn" id="discBtn" title="What the last PUBLISH posts to Discord">Discord post</button><a class="btn primary" id="pubBtn" href="index.html">PUBLISH is on the Dashboard →</a></div></div>
     <div id="pubSummary"></div>
   </section>
 
@@ -143,8 +144,6 @@
       ${notReady.length ? ` Not approved yet: <span style="color:var(--warn)">${notReady.map(p => esc(PRODUCTS[p].code)).join(", ")}</span>.` : " Every product is approved or released."}
       PUBLISH goes to ${c.groups.filter(g => Store.group(g)?.status === "active").length} active groups${rel?.dks?.length ? ` · last DKS export: ${esc(rel.dks.join(", "))}` : ""}.</p>`;
     const can = Auth.can("publish");
-    document.getElementById("pubBtn").disabled = !can; document.getElementById("pubBtn").title = can ? "" : "CFACC or CFC only";
-    document.getElementById("cycleBtn").disabled = !can || !(c.atoDay > 0);
 
     // DKS exports
     const ex = PK.dksExports(cid), ov = ex.overlay, ag = ex.agencies, kb = ex.kneeboard, since = l => l ? `last sent v${l.v} ${esc(zulu(new Date(l.when)))} by ${esc(l.by)}` : "never sent";
@@ -168,30 +167,6 @@
     c.milestoneOffsets = c.milestoneOffsets || {}; (c.milestoneOffsets[m] = c.milestoneOffsets[m] || {})[id] = +e.target.value; Store.save(); render();
   });
 
-  // PUBLISH: products to the groups, and the DKS exports as options (agencies pre-ticked only when something changed)
-  document.getElementById("pubBtn").onclick = () => {
-    const c = Store.campaign(cid), want = PK.wanted(c), ready = want.filter(pid => Store.status(cid, pid) === "approved");
-    const notReady = want.filter(pid => !["approved", "published"].includes(Store.status(cid, pid))), ex = PK.dksExports(cid);
-    const agChanged = ex.agencies.changes == null || ex.agencies.changes.length > 0, late = Date.now() > PK.t0(c, m).getTime() - 3 * 864e5;
-    const back = document.createElement("div"); back.className = "modal-back";
-    back.innerHTML = `<div class="panel modal"><h2>PUBLISH package v${(c.packageRelease?.version || 0) + 1}</h2>
-      ${late ? `<p class="small" style="color:var(--warn)">Inside T-72h — the host has less than three days to build and brief.</p>` : ""}
-      <label class="check-row"><input type="checkbox" id="oProd" ${ready.length ? "checked" : "disabled"}> Release approved products to the groups — ${ready.length ? esc(ready.map(p => PRODUCTS[p].code).join(", ")) : "none waiting"}</label>
-      ${notReady.length ? `<p class="small muted" style="margin:0 0 8px 26px">Not approved, stays back: ${esc(notReady.map(p => PRODUCTS[p].code).join(", "))}</p>` : ""}
-      <label class="check-row"><input type="checkbox" id="oOv" ${ex.overlay.ready ? (ex.overlay.last ? "" : "checked") : "disabled"}> Export ACO + theater map to DKS Overlay ${ex.overlay.ready ? (ex.overlay.last ? `<span class="muted small">(last v${ex.overlay.last.v})</span>` : "") : `<span class="muted small">(ACO not approved)</span>`}</label>
-      <label class="check-row"><input type="checkbox" id="oAg" ${ex.agencies.ready ? (agChanged ? "checked" : "") : "disabled"}> Export Comm Plan to DKS Manage Agencies <span class="muted small">${!ex.agencies.ready ? "(Comm Plan not approved)" : ex.agencies.changes == null ? `(first export, ${ex.agencies.list.length} agencies)` : agChanged ? `(${ex.agencies.changes.length} change${ex.agencies.changes.length > 1 ? "s" : ""})` : "(no changes)"}</span></label>
-      <label class="check-row"><input type="checkbox" id="oKb" ${ex.kneeboard.ready ? (ex.kneeboard.changed || ready.includes("spins") ? "checked" : "") : "disabled"}> Export SPINS Addendum A (AET tables, RAMRODs) to DKS kneeboards <span class="muted small">${!ex.kneeboard.ready ? "(SPINS not approved)" : ex.kneeboard.last ? `(last v${ex.kneeboard.last.v}, SPINS v${ex.kneeboard.last.spins})` : "(first export)"}</span></label>
-      <label class="check-row"><input type="checkbox" id="oDisc" checked> Discord post to the host and every active group — every released product except the DKS exports (ACO, Comm Plan), as text files</label>
-      <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>PUBLISH</button></div></div>`;
-    document.body.appendChild(back);
-    back.querySelector("[data-x]").onclick = () => back.remove();
-    back.querySelector("[data-ok]").onclick = () => {
-      const opts = { products: back.querySelector("#oProd").checked, overlay: back.querySelector("#oOv").checked, agencies: back.querySelector("#oAg").checked, kneeboard: back.querySelector("#oKb").checked, discord: back.querySelector("#oDisc").checked };
-      if (!opts.products && !opts.overlay && !opts.agencies && !opts.kneeboard) { toast("Nothing selected"); return; }
-      const rel = PK.publish(cid, opts); back.remove();
-      toast(`Package v${rel.version}: ${rel.products.length} products${rel.dks.length ? ", DKS " + rel.dks.join(", ") : ""}${rel.discord ? `, Discord post to ${rel.discord.recipients} groups` : ""}`); render();
-    };
-  };
   // the Discord post of the last PUBLISH, as the bot sends it to the host and every active group
   document.getElementById("discBtn").onclick = () => {
     const c = Store.campaign(cid);
@@ -201,27 +176,15 @@
     const body = esc(p.content).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
     back.innerHTML = `<div class="panel modal" style="max-width:680px;max-height:calc(100vh - 32px);overflow:auto">
       <div class="panel-head"><h2>Discord post · PUBLISH v${p.package}</h2><button class="btn sm" data-x>Close</button></div>
-      <p class="muted small" style="margin-top:0">Preview of what the CAOC bot posts to each group's registered channel${p.messages > 1 ? ` (${p.messages} messages, ten files each)` : ""}. The live post goes out through that integration.</p>
+      <p class="muted small" style="margin-top:0">Preview of what the CAOC bot posts to each group's registered channel: one message, one zip. The live post goes out through that integration.</p>
       <div class="dpost"><span class="who">CAOC Tasking<small>BOT · ATO ${esc(p.ato || AOC.atoId(p.ato_day))}</small></span>
         <div class="body">${body}</div>
-        <div class="att">${p.files.map((f, i) => { const u = URL.createObjectURL(new Blob([f.content], { type: "text/plain" })); urls.push(u); return `<a href="${u}" download="${esc(f.filename)}">📄 ${esc(f.filename)}</a>`; }).join("")}</div></div>
+        <div class="att"><a href="#" data-zip>📦 ${esc(p.attachment.filename)}</a><div class="muted small">${p.attachment.documents.map(esc).join(" · ")}</div></div></div>
       <p class="small" style="margin-top:10px">Posted to: ${p.recipients.map(r => `${esc(r.group)}${r.host ? " <b>(host)</b>" : ""}`).join(", ")}</p></div>`;
     document.body.appendChild(back);
+    back.querySelector("[data-zip]").onclick = e => { e.preventDefault(); PK.downloadZip(cid).catch(err => toast(err.message)); };
     const close = () => { urls.forEach(u => URL.revokeObjectURL(u)); back.remove(); };
     back.querySelector("[data-x]").onclick = close; back.onclick = e => { if (e.target === back) close(); };
-  };
-  document.getElementById("cycleBtn").onclick = () => {
-    const c = Store.campaign(cid), have = c.debriefs?.[c.atoDay];
-    const back = document.createElement("div"); back.className = "modal-back";
-    const next = new Date(new Date(c.nextEvent).getTime() + 7 * 864e5).toISOString().slice(0, 16);
-    back.innerHTML = `<div class="panel modal"><h2>Cycle to ATO ${AOC.atoId(+c.atoDay + 1)}</h2>
-      <p class="small">${have ? `The host's debrief for ATO ${AOC.atoId(c.atoDay)} is in.` : `<span style="color:var(--warn)">No host debrief for ATO ${AOC.atoId(c.atoDay)} yet.</span> Usually you wait for it — it drives BDA and the next JIPTL.`}</p>
-      <p class="muted small">AOD, JIPTL, TDP, MAAP, ATO and BDA go back to draft for the new cycle. Released versions stay with the groups until the next PUBLISH.</p>
-      <div class="field"><label>Next mission (UTC)</label><input type="datetime-local" id="nx" value="${next}"></div>
-      <div class="toolbar" style="justify-content:flex-end"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>Cycle</button></div></div>`;
-    document.body.appendChild(back);
-    back.querySelector("[data-x]").onclick = () => back.remove();
-    back.querySelector("[data-ok]").onclick = () => { PK.cycle(cid, new Date(back.querySelector("#nx").value + "Z").toISOString()); back.remove(); m = "cycle"; render(); toast(`Now planning ATO ${AOC.atoId(Store.campaign(cid).atoDay)}`); };
   };
   render();
 </script>

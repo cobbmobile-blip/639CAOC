@@ -65,7 +65,7 @@ window.AOC_SEED = {
           { msn: "7103", callsign: "SPRINGFIELD 3", target: "T10005", flown: "No — aborted", result: "", remarks: "Weather" }],
         bda: [{ target: "T10002", status: "Moderate damage", reattack: "Yes", notes: "" }, { target: "T10003", status: "Destroyed", reattack: "No", notes: "TGP video" }], losses: [] } },
       groups: ["g1", "g2", "g3", "g4", "g7", "g8", "g10", "g11", "g12", "g13", "g9", "g14"], // g9 joined by committing to line 8601; g14 the CSAR helos
-      status: { pcon: "approved", ci: "published", aod: "published", jiptl: "approved", tdp: "draft", maap: "approved", ato: "published", aco: "review", spins: "published", acp: "published", grg: "draft", bda: "draft" },
+      status: { pcon: "approved", ci: "published", aod: "published", jiptl: "approved", tdp: "draft", maap: "approved", ato: "published", aco: "review", spins: "published", acp: "published", bda: "draft" },
       // seed release history (version + time) for products already published
       releases: {
         ci: { v: 1, when: "2026-10-12T12:00:00Z" },
@@ -336,14 +336,6 @@ window.AOC_SEED = {
     }
   ],
 
-  // Product requests from participating groups ("on user request")
-  requests: [
-    { id: "r1", campaign: "iron-trident", group: "g1", product: "ato", note: "ATO AI for Thursday 2000Z event", when: "2026-10-19T14:10Z", state: "open" },
-    { id: "r2", campaign: "iron-trident", group: "g4", product: "tdp", note: "TDP for JIPTL #4 (Bridge LIMA)", when: "2026-10-19T09:42Z", state: "open" },
-    { id: "r3", campaign: "iron-trident", group: "g2", product: "aco", note: "Updated ACO — need CAP KNIFE altitudes", when: "2026-10-18T21:05Z", state: "open" },
-    { id: "r5", campaign: "iron-trident", group: "g11", product: "ato", note: "Volunteer for open line 8203 (DCA, CAP KNIFE 1400–1800Z) with 2× M-2000C", when: "2026-10-19T20:15Z", state: "open" },
-    { id: "r4", campaign: "desert-lance", group: "g5", product: "ci", note: "Commander's Intent for squadron brief", when: "2026-10-18T17:30Z", state: "open" }
-  ],
 
   // Pre-filled example content for IRON TRIDENT so the builders show realistic products
   content: {
@@ -593,8 +585,8 @@ window.AOC_SEED = {
           { id: "s3", kind: "rectangle", name: "KILL BOX 38TLM", color: "RED", aco: "KILL BOX 38TLM", latlngs: [[42.05, 42.55], [42.25, 42.55], [42.25, 42.85], [42.05, 42.85]], notes: "SFC–FL250, 0700Z–1000Z" }
         ]
       },
-      // an urban GRG over Kutaisi (built and printed on grg.html)
-      grg: { sheets: [{ id: "G-KUT", name: "GRG KUTAISI CENTRE", lat: 42.2705, lon: 42.7035, cell: 100, cols: 8, rows: 6, keypads: false, measures: true, v: 1, from: "" }] },
+      // an urban GRG over Kutaisi, made by the Warthog CAS group on grg.html (GRGs are the groups' own, not a CAOC product)
+      grg: { sheets: [{ id: "G-KUT", owner: "g4", name: "GRG KUTAISI CENTRE", lat: 42.2705, lon: 42.7035, cell: 100, cols: 8, rows: 6, keypads: false, measures: true, v: 1, from: "" }] },
       // the demo Comm Plan, built on the JCEOI standard net plan (roles and frequencies), with the campaign's callsigns.
       // SCAR (YELLOW 6) and SAR-B (GREEN 5) sit in spare rows: the ATO and the SPINS PR section use them. Named colour + row, e.g. WHITE 1 = RAZOR.
       acp: {

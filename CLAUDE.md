@@ -13,7 +13,8 @@ software. DKS integration is being built by a separate developer.
 
 - Static HTML/CSS/JS at the repo root, no build step, no framework, no backend.
 - Data lives in browser `localStorage` (`js/app.js` `Store`, key `aoc.db.vNN`); logins are a client-side demo gate.
-- Every "Send/Publish/Export to DKS" button is a placeholder; the payloads are already defined (see the brief).
+- DKS exports go only through PUBLISH on the Dashboard and are queued in `db.dksOutbox` (payloads in the brief); the
+  only other DKS buttons are the PRCC's live rescue ones. Never add per-page "Send to DKS" or publish buttons.
 - `OLD/` is the earlier repo content (docs, tool snapshots, the Python JIPTL pipeline, scripts), archived unchanged.
   Old paths moved: `tools/…` → `OLD/tools/…`, `docs/…` → `OLD/docs/…`, `scripts/…` → `OLD/scripts/…`.
 
@@ -26,12 +27,12 @@ thunder, keepers, ridge, support, rqs55 (55th RQS, MH-60L CSAR helicopters) — 
 
 | Page | Purpose |
 |---|---|
-| `login.html`, `index.html` | Staff sign-in; campaign dashboard (products, CFACC deliverables tracker, ATO line requests, requests, groups). `AOC.COMMS` (products.js) groups the Comm Plan, OPTASKLINK, JCEOI and IFF / SIF as "Comm / Datalink / IFF": one dashboard group and a link strip on each of those pages; no JCEOI in the top nav |
-| `rollup.html` | CAOC rollup: deadline timeline, readiness, the single PUBLISH (+ DKS Overlay / Agencies exports), Cycle to next mission |
-| `product.html?p=<id>` | Product builder + live document preview: `pcon ci aod jiptl tdp maap ato aco spins acp grg bda` (`tdp`, `maap`, `grg` are built on their own pages) |
+| `login.html`, `index.html` | Staff sign-in; campaign dashboard: the one **PUBLISH** (`PACKAGE.publishDialog`) and **Cycle to next ATO** (`PACKAGE.cycleDialog`), products, ATO line requests, groups. `AOC.COMMS` (products.js) groups the Comm Plan, OPTASKLINK, JCEOI and IFF / SIF as "Comm / Datalink / IFF": one dashboard group and a link strip on each of those pages; no JCEOI in the top nav |
+| `rollup.html` | CAOC rollup: deadline timeline, readiness, DKS export detail, Discord post preview (PUBLISH and Cycle are on the Dashboard) |
+| `product.html?p=<id>` | Product builder + live document preview: `pcon ci aod jiptl tdp maap ato aco spins acp bda optasklink` (`tdp`, `maap` are built on their own pages). Save = ready for approval |
 | `tdp.html`, `maap.html` | TDP book (folder per JIPTL target; Export imagery jobs; Open target folder); MAAP (checks at the top, packages with support lines, Apply to ATO) |
 | `folder.html?t=<target>` | AFLG-style printable target folder, markup drawn from `img/targets/<cid>/<t>/meta.json` (imagery from `tools/target-render`) |
-| `grg.html` | GRGs: DCS ALT map (DCS Olympus tiles), fixed grid, map dragged and wheel-zoomed under it, DCS buildings numbered per cell |
+| `grg.html` | GRGs, the groups' own tool (unit portal; each group sees its own sheets, staff all): DCS ALT map (DCS Olympus tiles), fixed grid, map dragged and wheel-zoomed under it, DCS buildings numbered per cell |
 | `prcc.html` | vPRCC: DKS ejection reports → PR steps → CSAR task force package (`js/pr.js`) |
 | `isoprep.html` | Unit portal: pilots' ISOPREPs and an EPA per ATO line (`db.isopreps`, `db.epas`) |
 | `jceoi.html` | JCEOI: standard Blue net plan, NTTR plan, IFF, clear-channel pool, frequency check, .xlsx export (registers feed the checks, not shown) |
@@ -62,27 +63,34 @@ seed content does not reach a browser that already saved data.
 
 - **CFC** manages the CAOC; decides on campaign proposals; may assist the CFACC (approve/publish).
 - **CFACC** makes sure every deliverable is built and approved; approves and publishes. Does **not** manage campaigns.
-- **CAOC staff** build products and submit them for review.
+- **CAOC staff** build products; saving one makes it ready for the CFACC's approval.
 - **Group JFACC / LNO** is elected by the sponsoring group, manages the campaign, is the CAOC's single POC, and
   requests ATO lines.
-- Product flow: Draft → Review → Approved → Published. Publishing freezes a versioned snapshot; groups only ever see
-  released versions. Any saved edit returns the product to Draft and needs re-approval.
+- Product flow: Not started → (Draft = back in work after a cycle) → **Ready for approval** (status `review`, set by any
+  save) → Approved → Published. Publishing freezes a versioned snapshot; groups only ever see released versions. Any
+  saved edit needs re-approval. The CFACC approves on the product page or, per product, in the PUBLISH dialog.
 - **Products apply to a whole group**, never to individual flights.
 - **The CAOC only builds products.** It does not play in the campaign and never edits the host's `.miz`.
   Readiness, the mass brief and running the mission are the **host unit's alone** — the site only shows their dates.
 - Process order: proposal → planning conference (PCON checklist) → host draft .miz + ATO line requests → CI → AOD →
   JIPTL → TDPs → MAAP → Human lines committed → **ACO + theater map** (after commits, before the ATO is final; airspace
   from the conference) → ATO final → SPINS → **Comm Plan last** →
-  CFACC approvals → one **PUBLISH** on the rollup, **no later than T-72h** (products to all active groups + optional
-  DKS exports) → host builds .miz / runs the mission → host **debrief** → CAOC **cycles** to the next mission.
+  CFACC approvals → one **PUBLISH** on the Dashboard, **no later than T-72h** (approve what's ready, release to all
+  active groups, DKS exports, the pilot package zip to Discord) → host builds .miz / runs the mission → host **debrief**
+  → CAOC **cycles** to the next ATO (Dashboard).
+- **Every campaign gets the full standard product set** (`PACKAGE.wanted`): proposals don't pick products, and an old
+  `productsWanted` list is ignored. The **pilot package** (`PACKAGE.PILOT`: CI, AOD, ATO, SPINS + Addendum A + ROE, ACP,
+  ACO, OPTASKLINK, and TDPs only for INT targets) is one zip of printable HTML pages (`packageZip`), posted to every
+  group's Discord and downloadable from the Dashboard and Op Status. GRGs are not in it: they are the groups' own.
 - DKS exports are options of PUBLISH: **ACO + theater map → DKS Overlay** (drawn on the DKS theater map; never written
   into the .miz) and **Comm Plan → DKS Manage Agencies** (persistent theater frequencies for the whole campaign;
   normally only tankers and JTACs change — the rollup shows changes since the last export) and **SPINS Addendum A → DKS
-  kneeboards** (`PACKAGE.sendKneeboard`, released SPINS only; also a button on the SPINS page). No host ".miz sheet".
+  kneeboards** (`PACKAGE.sendKneeboard`, released SPINS only). No host ".miz sheet". PUBLISH also checks the SPINS
+  bullseye against the host's latest .miz (`bullseyeCheck`) and offers to update and release it.
 - Mission cycle assumes weekly missions: ~4 days from mission to the next PUBLISH (deadlines in `MILESTONES`).
 - **PRCC** (personnel recovery coordination cell, staff role) works each ejection DKS Debrief reports; the PRCC can request
   ATO lines like a JFACC (posted to Discord), and publishes the CSAR task force package to the groups flying the rescue.
-- PCON (planning conference) and MAAP are internal staff functions (`PACKAGE.INTERNAL`): approved, never released to groups, not in the PUBLISH Discord post, never shown on Op Status; they stay on the staff dashboard and the rollup (marked internal).
+- PCON (planning conference), MAAP and BDA are internal staff functions (`PACKAGE.INTERNAL`): approved, never released to groups, not in the pilot package, never shown on Op Status; they stay on the staff dashboard and the rollup (marked internal). Product requests from groups were retired (every group gets every product).
 - **Op Status is status-only** — no request/submission forms on it.
 
 ## Product decisions (keep unless the user says otherwise)
@@ -109,7 +117,7 @@ seed content does not reach a browser that already saved data.
   2026-10-22 revisions (RAZOR off 293.500 = ROULETTE, preset 5 385.400 typo fix, APOLLO, SNIPER, JTACs from the range JTAC
   sheet, assigned AR-230V/AR-231V frequencies) are applied by `revise_nttr` in build.py, not in the CAOC's spreadsheet. Every register entry keeps its source and confidence; unverified data is kept (it only blocks
   frequencies). The Comm Plan check uses the campaign theater's register.
-  "Publish to DKS Agencies" sends every channel with a frequency as a selectable default agency
+  The Manage Agencies export (PUBLISH) sends every channel with a frequency as a selectable default agency
   (name = callsign, else `<ROLE> <CHANNEL>`).
 - **SPINS** includes a Weapons Restrictions section. SPINS text is **directive** ("All flights will check in …"): no
   explanations, worked examples or training material. Check-in is MNPOPCA with the controlling authority. 1.2 defines
@@ -155,7 +163,8 @@ seed content does not reach a browser that already saved data.
   mean point, reference only, never a targeting aimpoint; no caps on boxes or list rows; a true-north compass on every
   graphic; page subject as the title, target as the subtitle. Imagery is built offline (`tools/target-render`, Blender
   + the DCS install); the JOG is the DCS F10 chart (`RasterCharts`).
-- **GRGs** (`grg.html`): for the kneeboard packages (pilots, JTACs, controllers), so no talk-on tool on the page. Only
+- **GRGs** (`grg.html`): the groups' own tool, made only when requested for an op they fly (not a CAOC product, not in
+  PUBLISH; sheets carry `owner`). For kneeboards (pilots, JTACs, controllers), so no talk-on tool on the page. Only
   the larger grid (keypads off by default); every building numbered in its cell, white number centred on it. Background
   is the DCS F10 ALT map from DCS Olympus's tile server (no public DCS SAT tiles exist); buildings are detected off those
   tiles, trees / roads / lettering excluded (bump `BLDG_V` when detection changes). Grid fixed on the page, map dragged

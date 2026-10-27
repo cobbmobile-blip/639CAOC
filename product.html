@@ -18,7 +18,6 @@
 <script src="js/ato.js"></script>
 <script src="js/miz.js"></script>
 <script src="js/tdl.js"></script>
-<script src="js/package.js"></script>
 
 <main class="wrap">
   <div class="panel-head no-print" style="margin-bottom:16px">
@@ -34,14 +33,11 @@
       <a class="btn hidden" id="mapBtn" href="#" title="Points, nav/spider points and overlay shapes for this campaign">Theater map →</a>
       <a class="btn hidden" id="nomBtn" href="#" title="Build the JIPTL from the REDFOR order of battle, AO (Area of Operations) and key-task priorities">Target nomination →</a>
       <span class="badge" id="status"></span>
-      <button class="btn" id="save">Save draft</button>
-      <button class="btn" id="review">Submit for review</button>
+      <button class="btn" id="save" title="Saved products are ready for the CFACC, who approves them here or in PUBLISH">Save</button>
       <button class="btn" id="approve">Approve</button>
-      <button class="btn primary" id="publish">Publish to groups…</button>
     </div>
   </div>
 
-  <div class="panel no-print hidden" id="reqBanner" style="margin-bottom:16px;border-color:var(--warn)"></div>
 
   <div class="builder">
     <section class="panel">
@@ -58,9 +54,6 @@
             <button class="btn sm" id="txt">Download .txt</button>
             <button class="btn sm" id="json">Download .json</button>
             <button class="btn sm" id="print">Print / PDF</button>
-            <button class="btn sm hidden" id="dks" disabled title="DKS integration coming soon — will push this matrix to the DKS comm page">Send to DKS</button>
-            <button class="btn sm hidden" id="dksAgencies" title="Preview the agencies that will populate DKS “Manage Agencies”">DKS Agencies preview…</button>
-            <button class="btn sm hidden" id="dksKneeboard" title="Send the released Addendum A (AET tables and RAMRODs) to DKS for every crew's kneeboard">Send to DKS kneeboard</button>
           </div>
         </div>
         <article class="doc" id="doc"></article>
@@ -77,7 +70,7 @@
   AOC.renderChrome();
 
   const qs = new URLSearchParams(location.search);
-  const pid = qs.get("p"), cid = qs.get("c") || Store.currentCampaignId(), reqId = qs.get("req");
+  const pid = qs.get("p"), cid = qs.get("c") || Store.currentCampaignId();
   const P = PRODUCTS[pid];
   if (!P) { location.replace("index.html"); throw new Error("unknown product"); }
   const campaign = Store.campaign(cid);
@@ -101,49 +94,8 @@
     const nb = document.getElementById("nomBtn");
     nb.href = `${P.page.href}?c=${encodeURIComponent(cid)}`; nb.textContent = `${P.page.label} →`; nb.classList.remove("hidden");
   }
-  // Products with a comm matrix need the full width, and get the (future) DKS hand-off
-  if (P.fields.some(f => f.type === "matrix")) {
-    document.querySelector(".builder").style.gridTemplateColumns = "minmax(0, 1fr)";
-    document.getElementById("dks").classList.remove("hidden");
-    document.getElementById("dksAgencies").classList.remove("hidden");
-  }
-
-  // DKS kneeboard (SPINS Addendum A): the released SPINS only, so crews carry the approved tables. The same export as the
-  // kneeboard tick box on PUBLISH (package.js); DKS has no receiving end yet, so it is queued in the DKS outbox
-  if (P.kneeboard && AOC.PACKAGE) {
-    const kb = document.getElementById("dksKneeboard");
-    const label = () => { const s = Store.campaign(cid).dks?.kneeboard; kb.title = s ? `Last sent v${s.v} (SPINS v${s.spins}) ${AOC.zulu(new Date(s.when))} by ${s.by}` : "Send the released Addendum A (AET tables and RAMRODs) to DKS for every crew's kneeboard"; };
-    kb.classList.remove("hidden"); label();
-    kb.onclick = () => {
-      const sh = Store.shared(cid, pid);
-      if (!sh) { toast("Publish the SPINS first: only the released version goes to the kneeboards"); return; }
-      const k = AOC.PACKAGE.sendKneeboard(cid); if (!k) { toast("The authentication tables did not load"); return; }
-      label(); toast(`Addendum A (SPINS v${k.spins}) sent to DKS kneeboards: ${k.pages.join(", ")}${dirty || Store.status(cid, pid) !== "published" ? " · your unpublished changes were not sent" : ""}`);
-    };
-  }
-  // DKS "Manage Agencies": every matrix channel with a frequency becomes a selectable default agency in DKS.
-  // The integration isn't built yet, so this shows exactly what would be sent.
-  document.getElementById("dksAgencies").onclick = () => {
-    const key = P.fields.find(f => f.type === "matrix").key;
-    const all = AOC.COMM.channels(data[key]);
-    // agencies without a callsign are named role + channel (e.g. "BOOM BLUE 1") so they stay distinct in DKS
-    const agencies = all.filter(c => c.freq).map(c => ({ name: c.callsign || `${c.role} ${c.id}`, role: c.role, channel: c.id, net: c.col.title, freq: c.freq }));
-    const skipped = all.filter(c => !c.freq);
-    const back = document.createElement("div");
-    back.className = "modal-back";
-    back.innerHTML = `<div class="panel modal" style="max-width:720px">
-      <h2>Publish to DKS Agencies</h2>
-      <p class="muted small">These ${agencies.length} agencies will populate DKS <b>Manage Agencies</b> as selectable defaults for every group planning OP ${esc(campaign.opName)}.</p>
-      <div class="table-scroll" style="max-height:50vh"><table><thead><tr><th>Agency</th><th>Role</th><th>Channel</th><th>Net</th><th>Freq</th></tr></thead>
-        <tbody>${agencies.map(a => `<tr><td><b>${esc(a.name)}</b></td><td>${esc(a.role)}</td><td class="mono">${esc(a.channel)}</td><td>${esc(a.net)}</td><td class="mono">${esc(a.freq)}</td></tr>`).join("")}</tbody></table></div>
-      ${skipped.length ? `<p class="small" style="color:var(--warn)">Skipped — no frequency: ${skipped.map(c => `${esc(c.id)} (${esc(c.role || c.callsign)})`).join(", ")}</p>` : ""}
-      ${dirty || Store.status(cid, pid) !== "published" ? `<p class="small" style="color:var(--warn)">Only the released, approved Comm Plan should go to DKS — publish this version first.</p>` : ""}
-      <div class="toolbar" style="justify-content:flex-end;margin-top:12px">
-        <button class="btn" data-x>Close</button>
-        <a class="btn primary" href="rollup.html?c=${encodeURIComponent(cid)}" title="DKS exports go out with PUBLISH on the CAOC rollup">Export with PUBLISH on the rollup →</a></div></div>`;
-    document.body.appendChild(back);
-    back.onclick = e => { if (e.target === back || e.target.closest("[data-x]")) back.remove(); };
-  };
+  // Products with a comm matrix need the full width (their DKS export goes out with PUBLISH on the Dashboard)
+  if (P.fields.some(f => f.type === "matrix")) document.querySelector(".builder").style.gridTemplateColumns = "minmax(0, 1fr)";
 
   // working copy of the product data
   let data = structuredClone(Store.content(cid, pid) || {});
@@ -165,13 +117,6 @@
   document.getElementById("msnList").innerHTML = atoMsns.map(m => `<option value="${esc(m.msn)}">${esc(m.callsign)} · ${esc(m.role)}</option>`).join("");
 
   // Request banner (when arriving via "Fulfil")
-  const req = reqId && Store.db.requests.find(r => r.id === reqId);
-  if (req) {
-    const b = document.getElementById("reqBanner");
-    b.classList.remove("hidden");
-    b.innerHTML = `<b>Fulfilling request</b> from ${esc(Store.group(req.group)?.name)}: <span class="muted">${esc(req.note)}</span> — publishing will mark it fulfilled and share with that group.`;
-  }
-
   // ---------- form building ----------
   const form = document.getElementById("form");
 
@@ -222,7 +167,7 @@
       if (f.iffPanel && AOC.IFF) html += iffPanel();
     });
     closeHalf();
-    if (P.page && !P.fields.length) html = `<p class="muted">This product is built on its own page. Use it to edit; come back here to submit for review, approve and publish.</p>
+    if (P.page && !P.fields.length) html = `<p class="muted">This product is built on its own page. Use it to edit; saving there makes it ready for the CFACC. PUBLISH on the Dashboard approves and releases it.</p>
       <a class="btn primary" href="${P.page.href}?c=${encodeURIComponent(cid)}">${esc(P.page.label)} →</a>`;
     if ((pid === "spins" || pid === "acp") && AOC.COMM.commIssues) html = `<div id="commCheck">${commCheckHtml()}</div>` + html;
     form.innerHTML = html;
@@ -235,7 +180,8 @@
       <div class="hint">Mode 3/A starts with the line's Mode 1 code (SEAD 30 → 3011–3017, 3021–3027 …): lead BBC1, last member BBC1 + n − 1.</div>
       <div><label class="check-row"><input type="checkbox" data-iffset="rotateMode1" ${s.rotateMode1 ? "checked" : ""}> Rotate Mode 1 sub-role digit each ATO day</label>
         <label class="check-row"><input type="checkbox" data-iffset="mode2" ${s.mode2 ? "checked" : ""}> Mode 2 per airframe (full-IFF modules only)</label></div>
-      <div class="toolbar"><button class="btn sm" data-iffact="fill" title="Lines with no codes, or a Mode 3/A that doesn't start with its Mode 1">Assign IFF codes</button><button class="btn sm ghost" data-iffact="all">Reassign all lines</button></div>
+      <div class="hint">Codes are assigned on every save: lines with none, or a Mode 3/A that no longer follows its Mode 1.</div>
+      <div class="toolbar"><button class="btn sm ghost" data-iffact="all">Reassign all lines</button></div>
       <div id="iffCheck">${iffCheckHtml()}</div></div>`;
   }
   // ATO lines whose target number is no longer on the JIPTL, and INT lines with no JIPTL target at all
@@ -474,19 +420,17 @@
   document.getElementById("docTabs").onclick = e => { const b = e.target.closest("[data-doc]"); if (b) { docTab = +b.dataset.doc; renderDoc(); doc.scrollTop = 0; } };
   function markDirty() { dirty = true; renderButtons(); }
 
-  // Workflow: staff build → submit for review → CFACC (or CFC) approves → CFACC/CFC publishes
+  // Workflow: staff build and save (ready) → CFACC (or CFC) approves, here or in PUBLISH → PUBLISH on the Dashboard releases it
   function renderButtons() {
-    const s = Store.status(cid, pid), canApprove = AOC.Auth.can("approve"), canPublish = AOC.Auth.can("publish");
+    const s = Store.status(cid, pid), canApprove = AOC.Auth.can("approve");
     const set = (id, enabled, title) => { const b = document.getElementById(id); b.disabled = !enabled; b.title = title || ""; };
-    set("review", dirty || ["none", "draft"].includes(s), s === "review" ? "Already waiting on CFACC approval" : "");
     set("approve", canApprove && (dirty || ["draft", "review"].includes(s)),
       !canApprove ? "Only the CFACC (or CFC) can approve deliverables" : s === "approved" ? "Already approved" : "");
-    set("publish", canPublish && s === "approved" && !dirty,
-      !canPublish ? "Only the CFACC (or CFC) can publish" : dirty ? "Save and approve your changes first" : s !== "approved" ? "Needs CFACC approval before publishing" : "");
     const a = Store.approval(cid, pid);
     document.getElementById("approvalNote").textContent = dirty ? "Unsaved changes — will need approval"
       : a ? `Approved by ${a.by} (${a.role || "CFACC"}) · ${AOC.zulu(new Date(a.when))}`
       : s === "review" ? "Awaiting CFACC approval" : "";
+    if (s === "approved" && !dirty) document.getElementById("approvalNote").textContent += " — goes out with the next PUBLISH (Dashboard)";
   }
   function renderStatus() {
     renderButtons();
@@ -499,9 +443,11 @@
   }
 
   function persist(status, msg) {
+    // the ATO assigns IFF codes itself on every save: lines with none, or a Mode 3/A that no longer follows its Mode 1
+    if (pid === "ato" && AOC.IFF) { const n = AOC.IFF.assign(cid, data.missions || [], { all: false }); if (n) { msg += `, IFF codes assigned to ${n} line${n === 1 ? "" : "s"}`; buildForm(); } }
     Store.setContent(cid, pid, structuredClone(data));
     // any saved edit becomes a draft again and needs fresh approval; units keep the last released version
-    Store.setStatus(cid, pid, status || "draft");
+    Store.setStatus(cid, pid, status || "review");
     Store.log(cid, `${P.code} ${msg}`);
     dirty = false;
     renderStatus(); renderDoc();
@@ -509,9 +455,8 @@
 
   document.getElementById("save").onclick = () => {
     if (!dirty && Store.status(cid, pid) !== "none") { toast("No changes to save"); return; }
-    persist(null, "saved"); toast("Draft saved");
+    persist(null, "saved, ready for CFACC approval"); toast("Saved — ready for CFACC approval");
   };
-  document.getElementById("review").onclick = () => { persist("review", "submitted for CFACC review"); toast("Submitted for CFACC review"); };
   document.getElementById("approve").onclick = () => {
     if (!AOC.Auth.can("approve")) return;
     persist("approved", `approved by ${user.callsign} (${user.role})`); toast("Approved");
@@ -520,30 +465,6 @@
     if (!confirm("Clear all fields in this product? (Saved copy is kept until you save again.)")) return;
     data = {}; P.fields.forEach(f => { if (f.type === "table" || f.type === "list") data[f.key] = []; });
     markDirty(); buildForm(); renderDoc();
-  };
-
-  // Publish modal: choose which participating groups receive the product
-  document.getElementById("publish").onclick = () => {
-    if (!AOC.Auth.can("publish") || Store.status(cid, pid) !== "approved" || dirty) return;
-    const back = document.createElement("div");
-    back.className = "modal-back";
-    back.innerHTML = `<div class="panel modal"><h2>Publish ${P.code}</h2>
-      <p class="muted small">Share this product with participating groups in OP ${esc(campaign.opName)}.</p>
-      ${campaign.groups.map(g => `<label class="check-row"><input type="checkbox" value="${g}" ${!req || req.group === g ? "checked" : ""}> ${esc(Store.group(g).name)}</label>`).join("")}
-      <div class="toolbar" style="justify-content:flex-end;margin-top:14px">
-        <button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>Publish</button></div></div>`;
-    document.body.appendChild(back);
-    back.querySelector("[data-x]").onclick = () => back.remove();
-    back.querySelector("[data-ok]").onclick = () => {
-      const ids = [...back.querySelectorAll("input:checked")].map(i => i.value);
-      const to = ids.map(id => Store.group(id).name);
-      if (!to.length) { toast("Select at least one group"); return; }
-      Store.publish(cid, pid, ids, data);
-      persist("published", `v${Store.shared(cid, pid).version} published to ${to.join(", ")}`);
-      if (req) { req.state = "fulfilled"; Store.save(); }
-      back.remove();
-      toast(`Published to ${to.length} group${to.length > 1 ? "s" : ""}`);
-    };
   };
 
   // Export

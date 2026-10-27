@@ -86,11 +86,7 @@
       { key: "comms", label: "Comms", type: "checks", options: ["SRS required", "LotATC GCI", "Discord voice for briefings"] }
     ]},
     { id: "support", title: "CAOC Support", desc: "What you want the CAOC to provide.", fields: [
-      { key: "products", label: "Products wanted", type: "checks",
-        options: ["Commander's Intent", "AOD", "ATO", "ACO", "SPINS", "JIPTL", "TDPs", "Comm Plan", "BDA / MISREP rollup"] },
-      { key: "leadTime", label: "Lead time needed before each event", type: "text", half: true },
-      { key: "dks", label: "Want DKS mission-planning support?", type: "select", half: true, options: ["Yes", "No", "Maybe"],
-        hint: "DKS integration is coming — we'll note your interest." },
+      { key: "leadTime", label: "Lead time needed before each event", type: "text", hint: "Every campaign gets the full CAOC package (CI, AOD, ATO, ACO, SPINS & ROE, Comm Plan, OPTASKLINK, TDPs) and the DKS exports" },
       { key: "build", label: "Who builds the .miz files?", type: "select", options: ["Sponsor group", "CAOC", "Shared"] },
       { key: "attachments", label: "Attachments / links", type: "textarea", hint: "Links to a draft .miz, maps, OOB spreadsheet. File upload comes later." }
     ]},

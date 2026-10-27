@@ -23,21 +23,21 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | Page | Who | What |
 |---|---|---|
 | `login.html` | CAOC staff | Staff sign-in |
-| `index.html` | CAOC staff | Campaign dashboard: products, deliverables tracker (CFACC), requests, groups. The Comm Plan, OPTASKLINK, JCEOI and IFF / SIF sit together as one **Comm / Datalink / IFF** group (built at the same sitting); the JCEOI is reached from there, not the top nav |
+| `index.html` | CAOC staff | Campaign dashboard: the one **PUBLISH** (see [PUBLISH and the pilot package](#publish-and-the-pilot-package)) and **Cycle to next ATO**, products, ATO line requests, groups. The Comm Plan, OPTASKLINK, JCEOI and IFF / SIF sit together as one **Comm / Datalink / IFF** group (built at the same sitting); the JCEOI is reached from there, not the top nav |
 | `product.html?p=optasklink` | CAOC staff | OPTASKLINK: built automatically from the ATO and the host mission file — nothing to fill in but notes |
-| `rollup.html` | CAOC staff (CFACC/CFC publish) | CAOC rollup: deadline timeline (campaign build / mission cycle), product readiness, host mission file, host debriefs, DKS export preview (Overlay, Agencies changes), the one **PUBLISH** button (products to the groups, DKS exports, and a Discord post of every non-DKS product to the host and every active group; **Discord post** previews it) and **Cycle to next mission** |
-| `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS & ROE, Comm Plan, GRG, BDA) |
+| `rollup.html` | CAOC staff | CAOC rollup: deadline timeline (campaign build / mission cycle), product readiness, host mission file, host debriefs, DKS export detail (Overlay, Agencies changes, kneeboards) and the **Discord post** preview of the last PUBLISH. PUBLISH itself is on the Dashboard |
+| `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS & ROE, Comm Plan, OPTASKLINK, BDA). **Save** makes a product ready for the CFACC, who approves it there or in PUBLISH |
 | `tdp.html` | CAOC staff | TDP book: one target folder per JIPTL target, drafted from the nomination data; **Export imagery jobs** for the render tool; **Open target folder** |
 | `folder.html?t=<target>` | CAOC staff | AFLG-style printable target folder (see [Target folders](#target-folders-and-imagery)) |
 | `maap.html` | CAOC staff | MAAP: checks at the top (errors first), packages of ATO lines against JIPTL targets with each package's **support** (tankers, AWACS / GCI, TAC C2, JTAC), coverage per target and per key task; Apply to ATO |
-| `grg.html` | CAOC staff | Gridded reference graphics for CAS and urban areas: DCS F10 ALT map, fixed grid, every DCS building numbered in its cell (see [GRGs](#grgs-gridded-reference-graphics)) |
+| `grg.html` | Groups (staff can see all) | A group's own gridded reference graphics, made when they want one for an op they fly: DCS F10 ALT map, fixed grid, every DCS building numbered in its cell (see [GRGs](#grgs-gridded-reference-graphics)) |
 | `prcc.html` | CAOC staff (PRCC) | vPRCC — personnel recovery: DKS ejection reports worked through report, locate & authenticate, support, recover, reintegrate, then the CSAR task force package (see [Personnel recovery](#personnel-recovery-vprcc)) |
 | `jceoi.html` | CAOC staff | JCEOI: standard Blue net plan (the Comm Plan matrix, clear in every theater), Nevada (NTTR) plan, IFF / SIF, clear-channel pool, frequency check, `.xlsx` export. The per-theater registers are used for every check but not shown |
 | `map.html` | CAOC staff | Theater map from the ACO: nav/spider/dest points, threats with DCS range rings, FLOT, FSCL, MRR, AR tracks, HVAA orbits, artillery ROZ |
 | `targeting.html` | CAOC staff | Target nomination (from the JIPTL): REDFOR order of battle → JIPTL scored by the Commander's Intent key tasks, ported from the JIPTL pipeline |
 | `campaign-review.html` | CAOC staff (CFC decides) | Campaign proposal review queue |
 | `unit-login.html` | Participating groups | Group sign-in |
-| `unit.html` | Groups (staff can observe) | Op Status: product board, distribution matrix, ATO lines, group pack download. A participating squadron can **Request a line** from the host (same questions as Create an ATO Line) and follow its approval; the host JFACC group sees its lines filling and the requests waiting for it |
+| `unit.html` | Groups (staff can observe) | Op Status: product board, distribution matrix, ATO lines, group pack and **pilot package (zip)** download. A participating squadron can **Request a line** from the host (same questions as Create an ATO Line) and follow its approval; the host JFACC group sees its lines filling and the requests waiting for it |
 | `isoprep.html` | Groups (staff can read) | ISOPREP / EPA: each pilot's ISOPREP (4 authentication statements, a 4-digit number, description) and an evasion plan per ATO line, read by the PRCC |
 | `mission-file.html` | Host unit (staff can read) | Host mission file intake: upload the draft `.miz` (and every new version); BLUE flights → ATO requests, REDFOR → target nomination; per-theater coordinate calibration; TACAN / ICLS scrub |
 | `debrief.html` | Host unit (campaign's JFACC group) | Post-mission debrief: lines flown, BDA, losses, progress — feeds the CAOC's next cycle |
@@ -53,7 +53,7 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 ## Roles
 
 - **CFC** — manages the CAOC, decides on campaign proposals, can assist the CFACC.
-- **CFACC** — makes sure every deliverable is built and approved; approves and publishes.
+- **CFACC** — makes sure every deliverable is built and approved; approves (on the product page or in PUBLISH) and publishes.
 - **Group JFACC** — elected by the sponsoring group; manages the campaign and is the CAOC's single POC.
 - **PRCC** — the personnel recovery coordination cell: works each ejection DKS reports and builds the CSAR task force.
 
@@ -76,7 +76,7 @@ Default deadlines (editable per campaign on the rollup), T-0 = first mission:
 | T-8 | ACO + theater map (after line commits, from the conference airspace) | CAOC |
 | T-7 / T-6 | ATO final / SPINS & ROE | CAOC |
 | T-5 | Comm Plan — built last | CAOC |
-| **T-72h** | CFACC approvals → **PUBLISH**, no later than 72 hours out: products to groups, optional DKS exports (ACO → DKS Overlay, Comm Plan → DKS Manage Agencies, SPINS Addendum A → DKS kneeboards) | CAOC |
+| **T-72h** | CFACC approvals → **PUBLISH** on the Dashboard, no later than 72 hours out: products to groups, DKS exports (ACO → DKS Overlay, Comm Plan → DKS Manage Agencies, SPINS Addendum A → DKS kneeboards), the pilot package zip to every group's Discord | CAOC |
 | T-24h → T-0 | Final `.miz`, readiness, mass brief, first mission | Host |
 | T+1 | Debrief | Host |
 
@@ -85,7 +85,26 @@ BDA + AOD T-6, JIPTL T-5.5, TDP T-5, MAAP T-4.5, commits T-4, ATO + tanker/JTAC 
 host `.miz` update T-24h.
 
 The ACO overlay is drawn in DKS on the theater map and is never written into the `.miz`. The Comm Plan agencies are
-persistent for the campaign; normally only tankers and JTACs change, and the rollup lists what changed since the last export. The **kneeboard** export sends SPINS Addendum A (AET tables and RAMRODs, one page per ATO) from the released SPINS; it is due again when the SPINS are re-released or the ATO cycles, and the SPINS page has its own **Send to DKS kneeboard** button. **Cycle to next mission** moves the ATO day on and returns the daily products to Draft.
+persistent for the campaign; normally only tankers and JTACs change, and the rollup lists what changed since the last export. The **kneeboard** export sends SPINS Addendum A (AET tables and RAMRODs, one page per ATO) from the released SPINS; it is due again when the SPINS are re-released or the ATO cycles. **Cycle to next ATO** (Dashboard) moves the ATO day on and returns the daily products to work.
+
+## PUBLISH and the pilot package
+
+Two people can run a campaign: products are built (most of it generated) and **saved**, which makes them *ready for
+approval*; the CFACC approves them on the product page or in PUBLISH. There is one release path, the **PUBLISH** button
+on the Dashboard (CFACC or CFC). Its dialog:
+
+1. **Approve** — every product saved and ready, one tick each (untick to hold one back), plus the SPINS bullseye if the
+   host's latest mission file moved the BLUE bullseye (the SPINS are updated and released).
+2. **Release** — every approved product to every active group's Op Status (versioned).
+3. **DKS** — Overlay (ACO + theater map), Manage Agencies (Comm Plan), Kneeboards (SPINS Addendum A); each pre-ticked when
+   it changed, including a product this PUBLISH approves.
+4. **Discord** — one post per group with the **pilot package**: one zip of printable pages (an index, then CI, AOD, ATO,
+   SPINS, Addendum A, ROE, Comm Plan, ACO, OPTASKLINK and the TDPs of the targets the ATO strikes with INT lines).
+   Internal products (Planning Conference, JIPTL, MAAP, BDA) never go; the JIPTL is on Op Status for line requests.
+
+The same zip downloads from the Dashboard and from each group's Op Status. There are no per-page publish or "Send to DKS"
+buttons; the PRCC's DKS buttons are the live rescue workflow and stay. A campaign proposal no longer picks products:
+every campaign gets the full set. IFF codes are assigned whenever the ATO is saved.
 
 ATOs are designated by letters, not day numbers: day 1 = **ATO AA**, day 2 = AB … day 26 = AZ, day 27 = BA (`AOC.atoId`). Every page, product header, the USMTF `MSGID` and the Discord / DKS payloads (`ato: "AH"` beside `ato_day`) use the letters; the day number stays underneath because mission numbers (8101, 8601 …) are built from it.
 
@@ -108,7 +127,7 @@ The JCEOI carries an IFF code plan (`tools/jceoi/data/iff.json`, checked by the 
   Mode 1 and the Mode 1 table; SPINS tells F-16C pilots to use the M1/M3 enable switch; Nevada adds the NTTR rules (tactical Mode 3 on range, never 1200).
 - **Checks** on the ATO (live) and on the Comm Plan: octal, Mode 1 second digit 0–3, reserved and non-discrete codes,
   last-member code and slot, Mode 3/A not starting with its Mode 1, reserved slots, duplicates within the ATO.
-  "Assign IFF codes" on the ATO fills lines with no codes and re-assigns any whose Mode 3/A doesn't match its Mode 1.
+  Saving the ATO fills lines with no codes and re-assigns any whose Mode 3/A doesn't match its Mode 1 (**Reassign all lines** redoes every line).
 - The JCEOI page has an **IFF / SIF** tab: a rollup of the selected campaign's codes by ATO line (human lines first,
   Mode 1 / Mode 3/A lead–last / Mode 2, a ✓ / ! / ✕ per line and the findings; codes are still assigned on the ATO),
   then the reserved register, the Mode 1 table with each code's Mode 3/A slots, and the code checker. The `.xlsx` has
@@ -263,7 +282,7 @@ Red Flag SPINS, with the ROE as its own document instead of a SPINS chapter.
   the EPA rule and SAFE areas. Every PR value is generated for the campaign unless the SPINS sets it.
 - **Addendum A — Authentication**: one kneeboard page per ATO from the current one, a week ahead, each with its AET table
   (rows A–M, columns N–Z, generated per campaign and ATO) and its RAMROD (a 10-letter word, no letter twice, for 0–9),
-  effective 0300Z. Goes to DKS kneeboards with PUBLISH or the SPINS page's **Send to DKS kneeboard** (released SPINS only).
+  effective 0300Z. Goes to DKS kneeboards with PUBLISH (released SPINS only).
 - The editor picks rather than types: TACON, ALR and WCS are dropdowns; SARNEG and the duress word are dropdowns (blank =
   the generated value, named in the hint); the daily table pre-fills each ATO's word, letter and number of the day and
   RAMROD with the generated values, each a dropdown. RAMRODs and code words come from the 639th codeword reference list
@@ -277,7 +296,7 @@ Red Flag SPINS, with the ROE as its own document instead of a SPINS chapter.
   on/off campaign measures (defaults from the standing data; the AWACS callsign comes from the ATO's AEW line), ID and
   commit criteria, weapons restrictions, restricted / no-strike targets, theater rules (Nevada: NTTR ranges) and remarks.
 - The ATO editor shows the missions as two grids, human lines then AI lines, with aircraft as "2xF-16C". IFF codes
-  are filled by "Assign IFF codes" and shown in the ATO document and on the IFF / SIF page, not in the grids.
+  are assigned when the ATO is saved and shown in the ATO document and on the IFF / SIF page, not in the grids.
 
 ## ATO line requests (Discord commit)
 
@@ -328,7 +347,9 @@ Persian Gulf, Syria, Afghanistan, Kola and Nevada. See `tools/target-render/READ
 
 ## GRGs (gridded reference graphics)
 
-`grg.html` builds the one-page GRGs that go in the kneeboard packages for pilots, JTACs and controllers. A sheet is a
+`grg.html` builds the one-page GRGs that go in the kneeboards of the pilots, JTACs and controllers flying an op. GRGs are
+**the groups' own**, not a CAOC product and not in PUBLISH: a group makes one in the unit portal (**GRGs**) when it wants
+one, and sees and saves only its own sheets (staff see every group's). A sheet is a
 lettered / numbered grid (A1 = north-west, rows counting south) with every building numbered in its cell, 1 upward,
 north-west to south-east, so a talk-on is "D5 building 3".
 
@@ -343,8 +364,7 @@ north-west to south-east, so a talk-on is "D5 building 3".
   core, sized to the page). The **mouse wheel** over the map zooms it (1:N on letter); the grid stays fixed on the page and
   the map is **dragged** under it. Moving the map, the scale or the cells renumbers the buildings and makes a new version
   on save.
-- **Out**: Print / PDF (letter landscape), the GRG product (sheet list for review and publish), GeoJSON for the DKS
-  Overlay.
+- **Out**: Print / PDF (letter landscape) and GeoJSON (grid, cells, numbered buildings) to load into DKS.
 
 ## Personnel recovery (vPRCC)
 

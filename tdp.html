@@ -181,10 +181,10 @@
   // saving the book makes the TDP product a draft again, so the CFACC approves what changed
   document.getElementById("saveBtn").onclick = () => {
     Store.setContent(cid, "tdp", structuredClone(book));
-    Store.setStatus(cid, "tdp", "draft");
+    Store.setStatus(cid, "tdp", "review");
     const fs = Object.values(book.folders);
     Store.log(cid, `TDP book saved (${fs.filter(f => f.status === "ready").length} ready / ${fs.length} folders)`);
-    dirty = false; const s = document.getElementById("state"); s.textContent = "Saved — submit for review on the TDP product"; s.style.color = "var(--ok)"; toast("TDP book saved");
+    dirty = false; const s = document.getElementById("state"); s.textContent = "Saved — ready for CFACC approval"; s.style.color = "var(--ok)"; toast("TDP book saved");
   };
   window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
   renderList(); renderEditor();
