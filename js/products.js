@@ -49,7 +49,7 @@
       "Spare channels per net; airfield / ATC frequencies stay out of the comm plan", "Datalink / IFF conventions"]],
     ["SPINS inputs", ["Weapons restrictions", "Code words and authentication", "CSAR plan and divert fields"]],
     ["Mission file and products", ["Host .miz due date and version (CAOC extracts BLUE flights and REDFOR from it)",
-      "Mods / scripts required", "Products wanted (default: all CAOC products)", "Publish date and how the host receives the package"]]
+      "Mods / scripts required", "Products wanted (from the proposal; the ATO is always produced)", "Publish date and how the host receives the package"]]
   ];
   P.pcon = {
     code: "PCON", name: "Planning Conference", owner: "CFACC / host JFACC", stage: 1,

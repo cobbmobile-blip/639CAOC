@@ -86,7 +86,10 @@
       { key: "comms", label: "Comms", type: "checks", options: ["SRS required", "LotATC GCI", "Discord voice for briefings"] }
     ]},
     { id: "support", title: "CAOC Support", desc: "What you want the CAOC to provide.", fields: [
-      { key: "leadTime", label: "Lead time needed before each event", type: "text", hint: "Every campaign gets the full CAOC package (CI, AOD, ATO, ACO, SPINS & ROE, Comm Plan, OPTASKLINK, TDPs) and the DKS exports" },
+      { key: "products", label: "Products wanted", type: "checks",
+        options: ["Commander's Intent", "AOD", "ACO", "SPINS & ROE", "JIPTL", "TDPs", "Comm Plan", "OPTASKLINK"],
+        hint: "The ATO is always produced: it is how groups get and commit their mission lines. Tick what else you want the CAOC to build." },
+      { key: "leadTime", label: "Lead time needed before each event", type: "text", half: true },
       { key: "build", label: "Who builds the .miz files?", type: "select", options: ["Sponsor group", "CAOC", "Shared"] },
       { key: "attachments", label: "Attachments / links", type: "textarea", hint: "Links to a draft .miz, maps, OOB spreadsheet. File upload comes later." }
     ]},

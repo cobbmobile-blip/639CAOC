@@ -164,9 +164,11 @@ When the CFACC or CFC presses **PUBLISH** on the Dashboard (with the Discord pos
 JFACC's group, flagged `host: true`) and every active participating group, using the same group registration it uses for
 ATO lines. No channel is set per campaign.
 
-The post carries **one attachment, the pilot package**: a zip of printable HTML pages, `00_INDEX.html` then one page
+The post goes out with every PUBLISH, whatever products the host asked for: the ATO is always produced, so a campaign
+that wants only the ATO still gets the post, with the ATO alone in the zip. The post carries **one attachment, the pilot
+package**: a zip of printable HTML pages, `00_INDEX.html` then one page
 per document in order: CI, AOD, ATO, SPINS, SPINS Addendum A, ROE, Comm Plan, ACO, OPTASKLINK, and the TDPs of the
-targets the released ATO strikes with INT lines. Internal staff products (Planning Conference, JIPTL, MAAP, BDA) are
+targets the released ATO strikes with INT lines, each only when the host asked for it. Internal staff products (Planning Conference, JIPTL, MAAP, BDA) are
 never in it. `change` is `new` (first release), `changed` (released in this PUBLISH) or `unchanged`. The bot builds the
 zip with the site's `AOC.PACKAGE.packageZip(campaign_id)` (or receives it from the backend) and attaches it to one
 message; the same zip downloads from the Dashboard and from Op Status.

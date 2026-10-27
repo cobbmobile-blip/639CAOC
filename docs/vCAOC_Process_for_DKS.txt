@@ -609,11 +609,15 @@ Requests from the 639 vCAOC lead, and what was built or decided:
     package zip to every group's Discord. No per-page publish or Send to DKS
     buttons. Save = ready for approval (no Submit for review). Cycle to the
     next ATO is on the Dashboard too. Product requests and the proposal's
-    "products wanted" / DKS questions were retired: every campaign gets the
-    full set. IFF codes are assigned on every ATO save.
+    DKS question were retired. IFF codes are assigned on every ATO save.
 37. GRGs moved to the groups: made in the unit portal when a group wants one,
     not a CAOC product. BDA is internal. PUBLISH checks the SPINS bullseye
     against the host's latest .miz BLUE bullseye.
+38. The proposal asks which products the host wants; the ATO is always
+    produced. Products not wanted aren't built, released, packaged or sent
+    to DKS (no Overlay without the ACO, no Agencies without the Comm Plan, no
+    kneeboard without the SPINS). The CFACC / CFC can change the list on the
+    Dashboard.
 
 ================================================================================
  END

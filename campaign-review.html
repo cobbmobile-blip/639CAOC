@@ -81,7 +81,11 @@
           <button class="btn primary" data-act="accepted">Accept &amp; create campaign</button></div>` : ""}`;
   }
 
-  // Products the sponsor asked for become the campaign's deliverables list for the CFACC
+  // Products the sponsor asked for become the campaign's product list (the ATO is always produced; TDPs bring the JIPTL).
+  // Older proposals used "SPINS" and "BDA / MISREP rollup"; BDA is internal now and always built
+  const WANTED = { "Commander's Intent": "ci", "AOD": "aod", "ACO": "aco", "SPINS & ROE": "spins", "SPINS": "spins", "JIPTL": "jiptl",
+    "TDPs": "tdp", "Comm Plan": "acp", "OPTASKLINK": "optasklink" };
+  const wantedIds = names => { const ids = new Set((names || []).map(n => WANTED[n]).filter(Boolean)); if (ids.has("tdp")) ids.add("jiptl"); return [...ids]; };
 
   // Accepting turns the proposal into a live campaign with a drafted CI
   function createCampaign(s) {
@@ -90,7 +94,7 @@
     while (d.campaigns.some(c => c.id === id)) id += "-2";
     d.campaigns.push({ id, opName: p.opName.toUpperCase(), theater: p.theater, phase: "Phase 0 — Planning", dday: p.start, atoDay: 0,
       atoPeriod: "TBD", nextEvent: p.start && p.sessionTime ? `${p.start}T${p.sessionTime.replace(/\D/g, "").padEnd(4, "0").replace(/(\d\d)(\d\d)/, "$1:$2")}:00Z` : undefined,
-      groups: [s.gid], status: { ci: "draft" }, proposal: s.id,
+      groups: [s.gid], status: { ci: "draft" }, proposal: s.id, productsWanted: wantedIds(p.products),
       jfacc: { callsign: p.leadCallsign, group: s.gid, discord: p.leadDiscord, deputy: p.backup } });
     d.content[id] = { ci: { commander: `${p.leadCallsign} (JFACC, ${Store.group(s.gid)?.name || "sponsor"})`, purpose: p.purpose, method: p.method, endstate: p.endstate,
       keytasks: (p.keytasks || []).filter(Boolean), constraints: p.constraints, restraints: p.restraints, risk: p.risk } };

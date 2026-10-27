@@ -103,8 +103,15 @@ on the Dashboard (CFACC or CFC). Its dialog:
    Internal products (Planning Conference, JIPTL, MAAP, BDA) never go; the JIPTL is on Op Status for line requests.
 
 The same zip downloads from the Dashboard and from each group's Op Status. There are no per-page publish or "Send to DKS"
-buttons; the PRCC's DKS buttons are the live rescue workflow and stay. A campaign proposal no longer picks products:
-every campaign gets the full set. IFF codes are assigned whenever the ATO is saved.
+buttons; the PRCC's DKS buttons are the live rescue workflow and stay. IFF codes are assigned whenever the ATO is saved.
+
+**Products wanted.** The campaign proposal asks which products the host wants (CI, AOD, ACO, SPINS & ROE, JIPTL, TDPs,
+Comm Plan, OPTASKLINK); TDPs bring the JIPTL with them. **The ATO is always produced**: it is how groups get and commit
+their mission lines, so the ATO line requests, commits and the Discord post work the same with nothing else ticked. A
+product the host didn't ask for shows as *Not requested* on the Dashboard, has no deadline on the Rollup, isn't released,
+isn't on Op Status and isn't in the pilot package; its DKS export is greyed out in PUBLISH. The CFACC or CFC can change
+the list on the Dashboard (**Products wanted → Change…**). Internal products (Planning Conference, MAAP, BDA) are always
+built. A campaign with no list (older ones) gets the full set.
 
 ATOs are designated by letters, not day numbers: day 1 = **ATO AA**, day 2 = AB … day 26 = AZ, day 27 = BA (`AOC.atoId`). Every page, product header, the USMTF `MSGID` and the Discord / DKS payloads (`ato: "AH"` beside `ato_day`) use the letters; the day number stays underneath because mission numbers (8101, 8601 …) are built from it.
 

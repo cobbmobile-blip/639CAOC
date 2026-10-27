@@ -18,8 +18,18 @@
   // agencies expected to change during a campaign
   const VOLATILE = /TANK|BOOM|DROGUE|MPRS|KC-|JTAC|FAC\(A\)/i;
 
-  // every campaign gets the full standard set (older campaigns may still carry a productsWanted list from the proposal; ignored)
-  const wanted = c => Object.keys(PRODUCTS).filter(id => !INTERNAL.has(id));
+  // the products the host asked for (campaign.productsWanted, from the proposal or the Dashboard). The ATO is always produced:
+  // it is how groups get and commit their mission lines. No list = the full set
+  const ALWAYS = new Set(["ato"]);
+  const OPTIONAL = Object.keys(PRODUCTS).filter(id => !INTERNAL.has(id) && !ALWAYS.has(id));
+  const wanted = c => Object.keys(PRODUCTS).filter(id => !INTERNAL.has(id) && (ALWAYS.has(id) || !c.productsWanted || c.productsWanted.includes(id)));
+  // the product list for a campaign; TDPs need the JIPTL they are built from
+  function setWanted(cid, ids) {
+    const c = Store.campaign(cid), set = new Set(ids.filter(id => OPTIONAL.includes(id)));
+    if (set.has("tdp")) set.add("jiptl");
+    c.productsWanted = OPTIONAL.filter(id => set.has(id)); Store.save();
+    Store.log(cid, `Products wanted: ATO${c.productsWanted.length ? ", " + c.productsWanted.map(id => PRODUCTS[id].code).join(", ") : " only"}`);
+  }
   const isDone = (cid, pid) => ["approved", "published"].includes(Store.status(cid, pid));
   const mode = c => (c.atoDay > 0 ? "cycle" : "build");
   // T-0: the first mission while building, the next mission once the campaign is running
@@ -29,7 +39,7 @@
 
   function milestones(cid, m) {
     const c = Store.campaign(cid), off = c.milestoneOffsets?.[m] || {}, base = t0(c, m), now = Date.now();
-    const lines = AOC.ATO ? AOC.ATO.lines(cid) : [];
+    const lines = AOC.ATO ? AOC.ATO.lines(cid) : [], want = wanted(c);
     const checks = {
       proposal: () => true,
       pcon: () => isDone(cid, "pcon") || ((Store.content(cid, "pcon")?.items || []).length > 0 && Store.content(cid, "pcon").items.every(i => i.done)),
@@ -39,7 +49,9 @@
       publish: () => !!c.packageRelease && (m === "build" || c.packageRelease.atoDay === c.atoDay),
       debrief: () => !!c.debriefs?.[m === "build" ? 1 : c.atoDay - 1]
     };
-    return MILESTONES[m].map(ms => {
+    // a product the host didn't ask for has no deadline
+    const skip = id => PRODUCTS[id] && !INTERNAL.has(id) && !want.includes(id);
+    return MILESTONES[m].filter(ms => !skip(ms.check) && !skip(ms.id)).map(ms => {
       const offset = off[ms.id] ?? ms.offset, due = new Date(base.getTime() + offset * DAY);
       const done = ms.check ? (checks[ms.check] || (() => isDone(cid, ms.check)))() : null;
       const left = (due - now) / DAY;
@@ -92,6 +104,7 @@
 
   // the BLUE bullseye of the host's current mission file, when it differs from the SPINS' (a .miz uploaded after the SPINS were built)
   function bullseyeCheck(cid) {
+    if (!wanted(Store.campaign(cid)).includes("spins")) return null;
     const b = window.AOC.MIZ?.bullseye(cid), PR = window.AOC.PR, sp = Store.content(cid, "spins"); if (!b || !PR || !sp) return null;
     const text = `${PR.ddm(b.lat, b.lon)} (${PR.mgrs(b.lat, b.lon)})`;
     return sp.bullseye === text ? null : { text, v: b.v, was: sp.bullseye || "" };
@@ -231,10 +244,11 @@
     const notReady = want.filter(pid => ["none", "draft"].includes(st(pid))), ex = dksExports(cid), canApprove = Auth.can("approve");
     const agChanged = ex.agencies.changes == null || ex.agencies.changes.length > 0, late = Date.now() > t0(c, mode(c)).getTime() - 3 * DAY;
     const codes = ids => ids.map(p => PRODUCTS[p].code).join(", "), last = l => l ? ` <span class="muted small">(last v${l.v})</span>` : "";
+    const why = pid => ` <span class="muted small">(${PRODUCTS[pid].code} not ${want.includes(pid) ? "approved" : "requested"})</span>`;
     // a DKS export is ready when its product is approved, or waits for the approval this PUBLISH gives
     const bull = bullseyeCheck(cid);
     const ok = (pid, ready) => ready || (canApprove && review.includes(pid)), rel0 = canApprove ? [...new Set([...approved, ...review, ...(bull ? ["spins"] : [])])] : approved;
-    const ovOk = ok("aco", ex.overlay.ready), agOk = ok("acp", ex.agencies.ready), kbOk = ok("spins", ex.kneeboard.ready);
+    const ovOk = want.includes("aco") && ok("aco", ex.overlay.ready), agOk = want.includes("acp") && ok("acp", ex.agencies.ready), kbOk = want.includes("spins") && ok("spins", ex.kneeboard.ready);
     const back = document.createElement("div"); back.className = "modal-back";
     back.innerHTML = `<div class="panel modal" style="max-width:640px"><h2>PUBLISH package v${(c.packageRelease?.version || 0) + 1} · ATO ${window.AOC.atoId(c.atoDay)}</h2>
       ${late ? `<p class="small" style="color:var(--warn)">Inside T-72h — the host has less than three days to build and brief.</p>` : ""}
@@ -245,12 +259,12 @@
       <label class="check-row"><input type="checkbox" id="oProd" ${approved.length || review.length ? "checked" : "disabled"}> Release to every active group (Op Status) — <span id="relList">${esc(codes(rel0)) || "none approved yet"}</span></label>
       ${notReady.length ? `<p class="small muted" style="margin:0 0 8px 26px">Not ready, stays back: ${esc(codes(notReady))}</p>` : ""}
       <div class="section-h" style="margin-top:12px">DKS</div>
-      <label class="check-row"><input type="checkbox" id="oOv" ${ovOk ? (ex.overlay.last && !review.includes("aco") && !approved.includes("aco") ? "" : "checked") : "disabled"}> Overlay — ACO + theater map${ovOk ? last(ex.overlay.last) : ` <span class="muted small">(ACO not approved)</span>`}</label>
-      <label class="check-row"><input type="checkbox" id="oAg" ${agOk ? (agChanged ? "checked" : "") : "disabled"}> Manage Agencies — Comm Plan <span class="muted small">${!agOk ? "(Comm Plan not approved)" : ex.agencies.changes == null ? "(first export)" : ex.agencies.changes.length ? `(${ex.agencies.changes.length} changed)` : "(no changes)"}</span></label>
-      <label class="check-row"><input type="checkbox" id="oKb" ${kbOk ? (ex.kneeboard.changed || bull || approved.includes("spins") || review.includes("spins") ? "checked" : "") : "disabled"}> Kneeboards — SPINS Addendum A (AET tables, RAMRODs)${kbOk ? last(ex.kneeboard.last) : ` <span class="muted small">(SPINS not approved)</span>`}</label>
+      <label class="check-row"><input type="checkbox" id="oOv" ${ovOk ? (ex.overlay.last && !review.includes("aco") && !approved.includes("aco") ? "" : "checked") : "disabled"}> Overlay — ACO + theater map${ovOk ? last(ex.overlay.last) : why("aco")}</label>
+      <label class="check-row"><input type="checkbox" id="oAg" ${agOk ? (agChanged ? "checked" : "") : "disabled"}> Manage Agencies — Comm Plan ${!agOk ? why("acp") : `<span class="muted small">${ex.agencies.changes == null ? "(first export)" : ex.agencies.changes.length ? `(${ex.agencies.changes.length} changed)` : "(no changes)"}</span>`}</label>
+      <label class="check-row"><input type="checkbox" id="oKb" ${kbOk ? (ex.kneeboard.changed || bull || approved.includes("spins") || review.includes("spins") ? "checked" : "") : "disabled"}> Kneeboards — SPINS Addendum A (AET tables, RAMRODs)${kbOk ? last(ex.kneeboard.last) : why("spins")}</label>
       <div class="section-h" style="margin-top:12px">Discord</div>
       <label class="check-row"><input type="checkbox" id="oDisc" checked> Post the pilot package (zip) to the host and every active group</label>
-      <p class="small muted" style="margin:0 0 0 26px">${esc(PILOT.map(p => PRODUCTS[p]?.code).filter(Boolean).join(", "))} as printable pages; TDPs only for INT targets. Internal products never go.</p>
+      <p class="small muted" style="margin:0 0 0 26px">${esc(PILOT.filter(p => want.includes(p)).map(p => PRODUCTS[p]?.code).filter(Boolean).join(", "))} as printable pages${want.includes("tdp") ? "; TDPs only for INT targets" : ""}. Internal products never go.</p>
       <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>PUBLISH</button></div></div>`;
     document.body.appendChild(back);
     const ck = id => !!back.querySelector("#" + id)?.checked;
@@ -265,6 +279,21 @@
       toast(`Package v${rel.version}: ${rel.products.length} products${rel.dks.length ? ", DKS " + rel.dks.join(", ") : ""}${rel.discord ? `, zip to ${rel.discord.recipients} groups` : ""}`);
       done?.(rel);
     };
+  }
+
+  // ---------- Products wanted (Dashboard): what the host asked for; the ATO is always produced ----------
+  function wantedDialog(cid, done) {
+    const { esc, toast } = window.AOC, c = Store.campaign(cid), want = wanted(c);
+    const back = document.createElement("div"); back.className = "modal-back";
+    back.innerHTML = `<div class="panel modal"><h2>Products wanted</h2>
+      <p class="small">The ATO is always produced and posted to the groups' Discord. Untick what the host doesn't want: it isn't tracked, released or sent.</p>
+      <label class="check-row"><input type="checkbox" checked disabled> ATO — Air Tasking Order</label>
+      ${OPTIONAL.map(id => `<label class="check-row"><input type="checkbox" data-w="${id}" ${want.includes(id) ? "checked" : ""}> ${esc(PRODUCTS[id].code)} — ${esc(PRODUCTS[id].name)}</label>`).join("")}
+      <p class="small muted">TDPs bring the JIPTL with them. Internal products (Planning Conference, MAAP, BDA) are the CAOC's own and always built.</p>
+      <div class="toolbar" style="justify-content:flex-end"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>Save</button></div></div>`;
+    document.body.appendChild(back);
+    back.querySelector("[data-x]").onclick = () => back.remove();
+    back.querySelector("[data-ok]").onclick = () => { setWanted(cid, [...back.querySelectorAll("[data-w]:checked")].map(x => x.dataset.w)); back.remove(); toast("Products wanted saved"); done?.(); };
   }
 
   // ---------- Cycle to the next ATO (Dashboard): after the host's debrief, the daily products go back to work ----------
@@ -283,5 +312,5 @@
       toast(`Now planning ATO ${id(Store.campaign(cid).atoDay)}`); done?.(); };
   }
 
-  window.AOC.PACKAGE = { INTERNAL, PILOT, DAILY, wanted, mode, t0, tlabel, milestones, dksExports, sendKneeboard, packageDocs, packageZip, downloadZip, discordPost, publish, publishDialog, bullseyeCheck, cycle, cycleDialog };
+  window.AOC.PACKAGE = { INTERNAL, PILOT, DAILY, ALWAYS, OPTIONAL, wanted, setWanted, wantedDialog, mode, t0, tlabel, milestones, dksExports, sendKneeboard, packageDocs, packageZip, downloadZip, discordPost, publish, publishDialog, bullseyeCheck, cycle, cycleDialog };
 })();

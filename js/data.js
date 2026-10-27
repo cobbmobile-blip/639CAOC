@@ -450,7 +450,7 @@ window.AOC_SEED = {
           {section: "SPINS inputs",item: "CSAR plan and divert fields",done: true,notes: ""},
           {section: "Mission file and products",item: "Host .miz due date and version (CAOC extracts BLUE flights and REDFOR from it)",done: true,notes: ""},
           {section: "Mission file and products",item: "Mods / scripts required",done: true,notes: ""},
-          {section: "Mission file and products",item: "Products wanted (default: all CAOC products)",done: true,notes: ""},
+          {section: "Mission file and products",item: "Products wanted (from the proposal; the ATO is always produced)",done: true,notes: ""},
           {section: "Mission file and products",item: "Publish date and how the host receives the package",done: true,notes: ""}
         ],
         actions: [{ action: "Send the draft .miz with REDFOR laid in", owner: "SABRE", due: "2026-10-02" },

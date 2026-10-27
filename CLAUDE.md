@@ -78,8 +78,11 @@ seed content does not reach a browser that already saved data.
   CFACC approvals → one **PUBLISH** on the Dashboard, **no later than T-72h** (approve what's ready, release to all
   active groups, DKS exports, the pilot package zip to Discord) → host builds .miz / runs the mission → host **debrief**
   → CAOC **cycles** to the next ATO (Dashboard).
-- **Every campaign gets the full standard product set** (`PACKAGE.wanted`): proposals don't pick products, and an old
-  `productsWanted` list is ignored. The **pilot package** (`PACKAGE.PILOT`: CI, AOD, ATO, SPINS + Addendum A + ROE, ACP,
+- **Products wanted** (`PACKAGE.wanted`, from `campaign.productsWanted`, set by the proposal or the Dashboard's
+  `PACKAGE.wantedDialog`): the host picks the products it wants. **The ATO is always produced** (`PACKAGE.ALWAYS`) so the
+  ATO line / Discord process works with nothing else picked; TDPs bring the JIPTL; internal products are always built; no
+  list = the full set. Unwanted products are marked Not requested, have no milestones, aren't released or packaged, and
+  their DKS exports are disabled. The **pilot package** (`PACKAGE.PILOT`: CI, AOD, ATO, SPINS + Addendum A + ROE, ACP,
   ACO, OPTASKLINK, and TDPs only for INT targets) is one zip of printable HTML pages (`packageZip`), posted to every
   group's Discord and downloadable from the Dashboard and Op Status. GRGs are not in it: they are the groups' own.
 - DKS exports are options of PUBLISH: **ACO + theater map → DKS Overlay** (drawn on the DKS theater map; never written
