@@ -116,7 +116,9 @@ seed content does not reach a browser that already saved data.
   **TACON** (default delegated to C2 = the ATO's AEW line; must resolve, else NOT DEFINED). 3.3 authentication: aircrew
   discretion, method briefed (sequential, RAMROD, AET table). **Addendum A** (doc `auth`) prints an AET table and RAMROD
   per ATO, a week ahead; `P.spins.kneeboard` builds the DKS kneeboard payload from it. Code words and RAMRODs come only
-  from the codeword reference list (`CODEWORDS`, `RAMRODS` in `js/pr.js`) — never invent words.
+  from the codeword reference list (`CODEWORDS`, `RAMRODS` in `js/pr.js`) — never invent words. The bullseye position
+  comes from the host .miz **BLUE** coalition bullseye (`MIZ.bullseye`; never RED's) and is code-worded with a beer
+  (`BULLSEYES`), never called "bullseye" on the radio.
 - **Mission sets**: INT = pre-planned interdiction, always a JIPTL target; XINT = on-call interdiction. CAS = fragged to a
   known movement to contact; XCAS = on-call. Pre-planned SCAR names an ACO area (usually a kill box); ad-hoc SCAR is a C2
   re-role, never on the ATO. `AOC.targetIssue(cid, target, rows, role)` flags INT / SCAR lines that break this. Never use

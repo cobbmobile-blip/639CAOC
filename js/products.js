@@ -361,11 +361,14 @@
     const cs = String(d.taconC2 || aew?.callsign || "").trim();
     return { by, who: cs ? `${cs.toUpperCase()}${!d.taconC2 && aew ? ` (${aew.type}, MSN ${aew.msn})` : ""}` : "", ok: !!cs };
   }
+  // the bullseye's code word: the SPINS' pick, else generated for the campaign (js/pr.js)
+  const bullseyeOf = (d, ctx) => window.AOC.PR?.spinsPR(ctx.campaign.id, d).bullseye || "";
   function spinsDoc(d, ctx) {
     const day = window.AOC_JCEOI?.tdl?.atoDayStartZ ?? 3, z = h => `${String(h).padStart(2, "0")}00Z`, zEnd = h => `${String((h + 23) % 24).padStart(2, "0")}59Z`;
     const iff = d.mode4 || d.iffProc || (d.iffOff || []).length || iffRules(ctx).length;
     return `${head("SPECIAL INSTRUCTIONS (SPINS)", ctx, esc(d.version))}
-      <h2>1. GENERAL INFORMATION</h2>${kv([["VALIDITY", d.period], ["TIME ZONE", "Zulu (Z) throughout"], ["ATO PERIOD", `${z(day)} to ${zEnd(day)} (ATO AA = day 1, AB = day 2 …)`], ["BULLSEYE", d.bullseye], ["DEFAULT ALR", alrOf(d).toUpperCase()]])}
+      <h2>1. GENERAL INFORMATION</h2>${kv([["VALIDITY", d.period], ["TIME ZONE", "Zulu (Z) throughout"], ["ATO PERIOD", `${z(day)} to ${zEnd(day)} (ATO AA = day 1, AB = day 2 …)`], ["BULLSEYE", bullseyeOf(d, ctx) ? `${bullseyeOf(d, ctx)}${d.bullseye ? ` — ${d.bullseye}` : ""}` : d.bullseye], ["DEFAULT ALR", alrOf(d).toUpperCase()]])}
+      ${bullseyeOf(d, ctx) ? `<p>The bullseye will be referred to as ${esc(bullseyeOf(d, ctx))} on all frequencies.</p>` : ""}
       ${ROE()?.alr ? `<h2>1.1 ACCEPTABLE LEVEL OF RISK (ALR)</h2><p>The default ALR applies to every ATO line unless the line states otherwise.</p>
         ${table([["l", "ALR"], ["t", "MEANING"]], ROE().alr.levels.map(x => ({ l: x.level === alrOf(d) ? `${x.level.toUpperCase()} (DEFAULT)` : x.level.toUpperCase(), t: x.text })))}` : ""}
       ${(() => { const t = taconOf(d, ctx);
@@ -375,7 +378,8 @@
       <h2>3. COMMUNICATION</h2><h2>3.1 CHECK-IN</h2>
       <p>All flights will check in with the controlling authority${taconOf(d, ctx).ok && taconOf(d, ctx).by === TACON[0] ? ` (${esc(taconOf(d, ctx).who.split(" ")[0])})` : ""} in MNPOPCA format: Mission number; Number and type of aircraft; Position from a known reference; Ordnance carried; Playtime; Capabilities; Abort code (when required for terminal control).</p>
       ${d.checkin ? `<p>${esc(d.checkin)}</p>` : ""}
-      <h2>3.2 CODE WORDS</h2><p>Code words will be used on clear frequencies.</p>${table([["type", "TYPE"], ["word", "CODE WORD"], ["meaning", "MEANING"]], d.codewords)}
+      <h2>3.2 CODE WORDS</h2><p>Code words will be used on clear frequencies.</p>${table([["type", "TYPE"], ["word", "CODE WORD"], ["meaning", "MEANING"]],
+        [...(bullseyeOf(d, ctx) ? [{ type: "Bullseye", word: bullseyeOf(d, ctx), meaning: `Bullseye${d.bullseye ? `: ${d.bullseye}` : ""}` }] : []), ...(d.codewords || [])])}
       ${authSection(d, ctx)}${para("3.4 CSAR", [d.csar, window.AOC.PR ? "PR frequencies, authentication and position reporting: section 5." : ""].filter(Boolean).join(" "))}
       ${iff ? `<h2>3.5 IFF / SIF</h2>${kv([["MODE 4", d.mode4]])}${d.iffProc ? `<p>${esc(d.iffProc)}</p>` : ""}
         ${iffRules(ctx).length ? `<p><b>${esc(ctx.campaign.theater.toUpperCase())}:</b> ${iffRules(ctx).map(esc).join(" ")}</p>` : ""}
@@ -483,7 +487,10 @@
       { key: "version", label: "Version", type: "text", half: true, hint: "e.g. v3" },
       { key: "period", label: "Effective period", type: "text", half: true },
       { type: "section", label: "SPINS — general & communication" },
-      { key: "bullseye", label: "Bullseye", type: "text", half: true },
+      { key: "bullseye", label: "Bullseye", type: "text", half: true,
+        hint: d => d.bullseyeSrc ? `From the BLUE bullseye in the ${d.bullseyeSrc}` : "Read from the BLUE bullseye of the host's mission file once it is in" },
+      { key: "bullseyeCode", label: "Bullseye code word", type: "select", half: true, options: () => window.AOC.PR?.LISTS.bullseye || [],
+        hint: (d, cid) => `Never "bullseye" on the radio; blank = generated (${window.AOC.PR?.spinsPR(cid, { ...d, bullseyeCode: "" }).bullseye})` },
       { key: "tacon", label: "Controlling authority (TACON)", type: "select", options: TACON, half: true, hint: "Who holds TACON of the day's missions; blank = delegated to C2" },
       { key: "taconC2", label: "C2 callsign (TACON delegated to C2)", type: "text", half: true, hint: "Blank = the ATO's AWACS line" },
       { key: "alr", label: "Default acceptable level of risk (ALR)", type: "select", options: ["Low", "Medium", "High", "Extreme"], half: true, hint: "Blank = Medium; printed on every ATO line" },

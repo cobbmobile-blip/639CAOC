@@ -163,6 +163,8 @@
     return out;
   }
 
+  // the BLUE coalition's bullseye (map x/y). RED's bullseye is never used: the SPINS are for BLUE aircrew
+  const blueBullseye = mission => { const b = mission?.coalition?.blue?.bullseye; return b && isFinite(+b.x) && isFinite(+b.y) ? { x: +b.x, y: +b.y } : null; };
   async function read(file) {
     if (!window.JSZip) throw new Error("the zip reader didn't load");
     const zip = await JSZip.loadAsync(file), entry = zip.file("mission");
@@ -176,7 +178,8 @@
       fix(mission);
     }
     return { theatre: mission.theatre || "", start: mission.start_time ?? null, date: mission.date ? `${mission.date.Year}-${String(mission.date.Month).padStart(2, "0")}-${String(mission.date.Day).padStart(2, "0")}` : "",
-      flights: ATO.mizFlights(mission, "blue"), red: coalitionUnits(mission, "red"), beacons: beaconsOf(mission), tdl: tdlOf(mission) };
+      flights: ATO.mizFlights(mission, "blue"), red: coalitionUnits(mission, "red"), beacons: beaconsOf(mission), tdl: tdlOf(mission),
+      bullseye: blueBullseye(mission) };
   }
 
   // mission start time (DCS start_time is theater local time, seconds after midnight) as a UTC Date
@@ -206,6 +209,12 @@
     Store.log(cid, `Host mission file v${rec.v} received: ${rec.name} (${rec.flights.length} BLUE flights, ${rec.red.length} RED units)`, rec.user);
     return rec;
   }
+  // the BLUE bullseye of the host's current mission file as lat/lon, or null (no file, a file stored before bullseyes were
+  // read, or a theater with no projection yet)
+  function bullseye(cid) {
+    const mf = current(cid), p = mf?.bullseye && projection(mf.theatre); if (!p) return null;
+    const [lat, lon] = xyToLatLon(p, mf.bullseye.x, mf.bullseye.y); return { lat, lon, v: mf.v, name: mf.name };
+  }
   // what changed against the previous version, by group name
   function diff(a, b) {
     if (!a) return null;
@@ -220,5 +229,5 @@
     d.projections[theatre] = { ...p, calibration: note, when: new Date().toISOString() }; Store.save();
   }
 
-  window.AOC.MIZ = { tdlOf, startUtc, UTC_OFFSET, BUILTIN, projection, xyToLatLon, fit, metres, read, redRows, files, current, submit, diff, saveProjection };
+  window.AOC.MIZ = { tdlOf, startUtc, UTC_OFFSET, BUILTIN, projection, xyToLatLon, fit, metres, read, redRows, files, current, bullseye, submit, diff, saveProjection };
 })();

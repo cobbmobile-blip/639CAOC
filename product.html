@@ -152,6 +152,9 @@
     if (pid === "ato" || pid === "aod") { if (f.key === "atoDay" && !data.atoDay) data.atoDay = String(campaign.atoDay || 1); }
     // SPINS starts its IFF section from the JCEOI IFF plan
     if (pid === "spins" && AOC.IFF) { if (f.key === "mode4" && !data.mode4) data.mode4 = AOC.IFF.data.mode4.default; if (f.key === "iffProc" && !data.iffProc) data.iffProc = AOC.IFF.data.mode4.procedures; }
+    // ... and takes the bullseye from the BLUE bullseye of the host's current mission file, whenever there is one
+    if (pid === "spins" && f.key === "bullseye" && AOC.MIZ && AOC.PR) { const b = AOC.MIZ.bullseye(cid);
+      if (b) { data.bullseye = `${AOC.PR.ddm(b.lat, b.lon)} (${AOC.PR.mgrs(b.lat, b.lon)})`; data.bullseyeSrc = `host mission file v${b.v}`; } }
   });
 
   // JIPTL target IDs feed TDP and ATO target fields

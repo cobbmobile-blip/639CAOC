@@ -248,7 +248,8 @@ The SPINS are **directive**: they state what aircrew will do, with no explanatio
 training sorties are for). The layout follows the Operation Mountain Sentinel and
 Red Flag SPINS, with the ROE as its own document instead of a SPINS chapter.
 
-- **SPINS** (the JFACC's procedures): 1 General information (validity, Zulu, ATO period 0300Z–0259Z, bullseye, and the
+- **SPINS** (the JFACC's procedures): 1 General information (validity, Zulu, ATO period 0300Z–0259Z, the bullseye — read from the **BLUE** coalition bullseye of
+  the host's current `.miz` (RED's is never used) and code-worded with a beer (picked per campaign, or chosen), and the
   acceptable level of risk: a standing Extreme / High / Medium / Low table with the campaign's default, which the ATO
   prints on every line as `AMPN/ALR:`), **1.2 Command and control** (who holds TACON of the day's missions: delegated to C2
   by default — the ATO's AWACS line or a C2 callsign set — or retained by the JFACC, or delegated to the CAOC SODO; printed
