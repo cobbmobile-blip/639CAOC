@@ -16,7 +16,7 @@
     "E-3A": "E-3A", "E-2C": "E-2C", "C-130": "C-130", "MQ-9 Reaper": "MQ-9"
   };
   const AIRFRAMES = [...new Set(Object.values(DCS_AIRFRAMES))].sort();
-  const ROLES = ["DCA", "OCA", "Escort", "SEAD", "DEAD", "Strike", "AI", "CAS", "SCAR", "ISR", "AR", "AEW", "CSAR", "RESCORT", "SARCAP", "Airlift"];
+  const ROLES = ["DCA", "OCA", "Escort", "SEAD", "DEAD", "Strike", "INT", "XINT", "CAS", "XCAS", "SCAR", "ISR", "AR", "AEW", "CSAR", "RESCORT", "SARCAP", "Airlift"];
   // DCS group task -> ATO mission type
   const TASK_TO_ROLE = { "CAP": "DCA", "Intercept": "DCA", "Fighter Sweep": "OCA", "Escort": "Escort", "SEAD": "SEAD", "CAS": "CAS",
     "Ground Attack": "Strike", "Runway Attack": "Strike", "Pinpoint Strike": "Strike", "Antiship Strike": "Strike",
@@ -60,7 +60,7 @@
     const c = Store.campaign(l.cid), req = Store.group(l.requestedBy);
     return {
       event: "ato_line.open",
-      line_id: l.id, campaign_id: l.cid, operation: c.opName, ato_day: c.atoDay, msn: l.msn,
+      line_id: l.id, campaign_id: l.cid, operation: c.opName, ato_day: c.atoDay, ato: window.AOC.atoId(c.atoDay), msn: l.msn,
       airframe: l.airframe, aircraft: l.num, mission: l.role, crew: l.crew, tot: l.tot || null, target: l.target || null,
       package: l.pkg || null, callsign: l.callsign || null, base: l.base || null, notes: l.notes || null,
       commit_by: l.commitBy || null, requested_by: { group_id: l.requestedBy, group: req?.name, jfacc: l.requestedByUser },
@@ -145,7 +145,7 @@
   const lineRequest = id => (Store.db.lineRequests || []).find(r => r.id === id);
   function requestPayload(r) {
     const c = Store.campaign(r.cid), host = c.jfacc?.group;
-    return { event: "ato_line.requested", request_id: r.id, campaign_id: r.cid, operation: c.opName, ato_day: c.atoDay,
+    return { event: "ato_line.requested", request_id: r.id, campaign_id: r.cid, operation: c.opName, ato_day: c.atoDay, ato: window.AOC.atoId(c.atoDay),
       requested_by: { group_id: r.gid, group: Store.group(r.gid)?.name, user: r.user }, ...Object.fromEntries(FIELDS.map(k => [k === "num" ? "aircraft" : k === "role" ? "mission" : k === "commitBy" ? "commit_by" : k, r.fields[k] || null])),
       recipients: [{ group_id: host, group: Store.group(host)?.name, host: true }],
       components: [{ type: "button", label: "Approve", style: "success", custom_id: `ato_req_approve:${r.id}` }, { type: "button", label: "Deny", style: "danger", custom_id: `ato_req_deny:${r.id}` }] };

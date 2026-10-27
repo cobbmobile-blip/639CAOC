@@ -104,8 +104,8 @@
   // its JIPTL targets), then any objectives the JFACC adds by hand
   const VERB = [[/destroy|sink/i, "Destroy"], [/neutrali[sz]e|suppress/i, "Neutralise"], [/disrupt/i, "Disrupt"], [/deny/i, "Deny"], [/interdict|isolate|turn back/i, "Interdict"],
     [/attrit|degrade/i, "Attrit"], [/protect|defend|maintain|establish/i, "Protect"], [/support|provide|cas/i, "Support"]];
-  const MSN_FOR = [[/SAM|AAA|Early warning/, "SEAD/DEAD"], [/Airfield|Aircraft/, "OCA"], [/Infrastructure|Logistics|Ammo/, "AI"], [/Naval|anti-ship/, "Maritime strike"],
-    [/C2/, "Strike"], [/Armor|Ground|Dismounts|Artillery|Surface-to-surface/, "AI"]];
+  const MSN_FOR = [[/SAM|AAA|Early warning/, "SEAD/DEAD"], [/Airfield|Aircraft/, "OCA"], [/Infrastructure|Logistics|Ammo/, "INT"], [/Naval|anti-ship/, "Maritime strike"],
+    [/C2/, "Strike"], [/Armor|Ground|Dismounts|Artillery|Surface-to-surface/, "INT"]];
   function aodObjectives(d, ctx) {
     const cid = ctx.campaign.id, rows = window.AOC.Store.content(cid, "jiptl")?.rows || [];
     const auto = window.AOC.keyTasks(cid).map(t => {
@@ -122,7 +122,7 @@
     desc: "Daily JFACC guidance: objectives, priorities and apportionment for an ATO period.",
     fields: [
       { type: "section", label: "Period" },
-      { key: "atoDay", label: "ATO day", type: "text", half: true },
+      { key: "atoDay", label: "ATO day number", type: "text", half: true, hint: d => `Printed as ATO ${window.AOC.atoId(d.atoDay)} (day 1 = AA, 2 = AB …)` },
       { key: "period", label: "Effective period", type: "text", half: true },
       { key: "guidance", label: "JFACC guidance", type: "textarea" },
       { type: "section", label: "Objectives & priorities" },
@@ -131,7 +131,7 @@
         { key: "effect", label: "Effect", type: "select", options: ["Destroy", "Neutralise", "Disrupt", "Deny", "Interdict", "Support", "Protect"] },
         { key: "tasks", label: "Tasks" }] },
       { key: "apportionment", label: "Apportionment (weight of effort)", type: "table", columns: [
-        { key: "mission", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD/DEAD", "AI", "CAS", "ISR", "AR", "CSAR", "Airlift"] },
+        { key: "mission", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD/DEAD", "INT", "CAS", "ISR", "AR", "CSAR", "Airlift"] },
         { key: "pct", label: "% of sorties", w: 110 }] },
       { type: "section", label: "Guidance" },
       { key: "targeting", label: "Targeting guidance", type: "textarea" },
@@ -139,7 +139,7 @@
     ],
     render: (d, ctx) => {
       const total = (d.apportionment || []).reduce((s, r) => s + (parseFloat(r.pct) || 0), 0);
-      return `${head("AIR OPERATIONS DIRECTIVE", ctx, `ATO DAY ${esc(d.atoDay)}`)}
+      return `${head("AIR OPERATIONS DIRECTIVE", ctx, `ATO ${window.AOC.atoId(d.atoDay)}`)}
       ${kv([["EFFECTIVE", d.period]])}
       ${para("1. JFACC GUIDANCE", d.guidance)}
       <h2>2. OBJECTIVES (PRIORITY ORDER)</h2>${table([["pri", "PRI"], ["objective", "OBJECTIVE"], ["effect", "EFFECT"], ["tasks", "TASKS"]], aodObjectives(d, ctx))}
@@ -167,7 +167,7 @@
     render: (d, ctx) => {
       const rows = (d.rows || []).map((r, i) => ({ ...r, task: r.task || r.obj, _r: i + 1 }));
       const kt = d.cycle?.keyTasks;
-      return `${head("JOINT INTEGRATED PRIORITIZED TARGET LIST", ctx, `ATO DAY ${esc(ctx.campaign.atoDay)}`)}
+      return `${head("JOINT INTEGRATED PRIORITIZED TARGET LIST", ctx, `ATO ${window.AOC.atoId(ctx.campaign.atoDay)}`)}
       ${d.cycle ? kv([["AO (AREA OF OPERATIONS)", d.cycle.bma || "Whole theater"], ["NOMINATED", d.cycle.generated ? window.AOC.zulu(new Date(d.cycle.generated)) : ""]]) : ""}
       ${(() => { const ks = window.AOC.keyTasks(ctx.campaign.id); if (!ks.length) return "";
         const covers = t => t.cats?.length ? t.cats.join(", ") : t.kind === "continuous" ? "Continuous (CAS/TST) — not ranked" : t.kind === "no targets" ? "No planned targets" : "";
@@ -226,8 +226,8 @@
   // ATO in USMTF message format (after the AIR TASKING ORDER guide and the 510th vFS ATO example), built from the
   // ATO lines plus what the site already holds: JIPTL targets, theater-map tanker tracks, the AEW line, OPTASKLINK STNs.
   // Sets: TASKUNIT per unit; AMSNDAT / MSNACFT per line (MSNACFT ends STN / Mode 1 / Mode 2 / Mode 3 as 1xx, 2xxxx, 3xxxx).
-  const NET_OF = { SEAD: "sead", DEAD: "sead", Strike: "strike", AI: "strike", DCA: "dca", OCA: "dca", Escort: "dca", CAS: "cas", SCAR: "scar", CSAR: "prcc", RESCORT: "rescort", SARCAP: "dca" };
-  const LEAD_ORDER = ["Strike", "AI", "DEAD", "SEAD", "CAS", "SCAR"];
+  const NET_OF = { SEAD: "sead", DEAD: "sead", Strike: "strike", INT: "strike", XINT: "strike", DCA: "dca", OCA: "dca", Escort: "dca", CAS: "cas", XCAS: "cas", SCAR: "scar", CSAR: "prcc", RESCORT: "rescort", SARCAP: "dca" };
+  const LEAD_ORDER = ["Strike", "INT", "DEAD", "SEAD", "CAS", "SCAR"];
   function atoMessage(d, ctx) {
     const S = window.AOC.Store, cid = ctx.campaign.id, rows = d.missions || [];
     const up = v => String(v ?? "").toUpperCase().trim(), dash = v => up(v) && up(v) !== "—" ? up(v) : "-";
@@ -244,10 +244,10 @@
     const desig = c => c ? `${up(c.id)} ${dash(c.callsign)}`.replace(/ -$/, "") : "-", checkIn = findChannel(mx, "checkin");
     const times = t => { const [a, b] = String(t || "").split(/[–-]/).map(x => x.trim()); return [dash(a && (/Z$/i.test(a) ? a : `${a}Z`)), dash(b)]; };
     const byCs = c => rows.find(x => up(x.callsign) === up(c));
-    // package commander: the first striker in the package (strike, AI, DEAD, SEAD, CAS), else the lowest mission number
+    // package commander: the first striker in the package (strike, INT, DEAD, SEAD, CAS), else the lowest mission number
     const pkgLead = p => rows.filter(x => x.pkg === p).sort((x, y) => (LEAD_ORDER.indexOf(x.role) + 1 || 99) - (LEAD_ORDER.indexOf(y.role) + 1 || 99) || String(x.msn).localeCompare(String(y.msn)))[0];
     const [from, to] = String(d.period || "").split(/\s*[–-]\s*(?=\d)/);
-    const out = [`OPER/OPERATION ${up(ctx.campaign.opName)}//`, `MSGID/ATO/639TH VCAOC/DAY ${dash(d.atoDay)}//`, "AMPN/ALL TIMES ARE Z//",
+    const out = [`OPER/OPERATION ${up(ctx.campaign.opName)}//`, `MSGID/ATO/639TH VCAOC/${window.AOC.atoId(d.atoDay)}//`, "AMPN/ALL TIMES ARE Z//",
       to ? `TIMEFRAM/${up(from)}/TO:${up(to)}//` : `TIMEFRAM/${dash(d.period)}//`];
     [...new Set(rows.map(unit))].forEach(u => {
       out.push("", `TASKUNIT/${u}//`);
@@ -288,25 +288,29 @@
     const A = window.AOC, byKt = {};
     rows.forEach(r => { const t = r.target && A.keyTaskOf(ctx.campaign.id, r.target); if (t) (byKt[t.n] = byKt[t.n] || { t, n: 0 }).n++; });
     const kts = Object.values(byKt).sort((a, b) => a.t.n - b.t.n);
-    return `<h2>SUMMARY</h2><p>ATO day ${esc(d.atoDay)}, ${esc(d.period)}: ${rows.length} missions, ${n} aircraft${pkgs.length ? `, packages ${pkgs.map(esc).join(", ")}` : ""}.</p>
+    return `<h2>SUMMARY</h2><p>ATO ${window.AOC.atoId(d.atoDay)}, ${esc(d.period)}: ${rows.length} missions, ${n} aircraft${pkgs.length ? `, packages ${pkgs.map(esc).join(", ")}` : ""}.</p>
       ${kts.length ? `<p>Key tasks served: ${kts.map(k => `${esc(A.keyTaskLabel(k.t))} (${k.n} line${k.n > 1 ? "s" : ""})`).join("; ")}.</p>` : ""}
       <h2>HUMAN (${h.length})</h2>${table(cols, h)}<h2>AI (${ai.length})</h2>${table(cols, ai)}`;
   }
 
   // human line: its own crew, else flown by a group (unless the group is an AI support cell); open lines are human
   const atoHuman = (r, group) => r.crew ? r.crew === "Human" : !r.group || !/\(AI\)/.test(group(r.group)?.airframes || "");
+  // Mission sets: INT is pre-planned interdiction, always against a JIPTL target; XINT is on-call interdiction for whatever comes
+  // up on station. CAS is fragged to a known movement to contact whose ground forces asked for it; XCAS is on-call, holding in an
+  // orbit until someone needs it. So INT and CAS name a JIPTL target / supported AO, XINT and XCAS an orbit or kill box.
+  // SCAR on the ATO is pre-planned against an ACO area, usually a kill box; ad-hoc SCAR is a re-role by C2 en route.
   const ATO_COLS = [
     { key: "msn", label: "Msn #", w: 70 }, { key: "pkg", label: "Pkg", w: 50 },
     { key: "group", label: "Group", type: "groups" }, { key: "callsign", label: "Callsign" },
     { key: "type", label: "Acft", type: "acft", w: 110 },
-    { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD", "DEAD", "AI", "CAS", "SCAR", "Escort", "Strike", "ISR", "AR", "AEW", "CSAR", "RESCORT", "SARCAP", "Airlift"] },
+    { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD", "DEAD", "INT", "XINT", "CAS", "XCAS", "SCAR", "Escort", "Strike", "ISR", "AR", "AEW", "CSAR", "RESCORT", "SARCAP", "Airlift"] },
     { key: "tot", label: "TOT / On-sta", w: 90 }, { key: "target", label: "Target / Area", type: "jiptl" }];
   P.ato = {
     code: "ATO", name: "Air Tasking Order", owner: "Combat Plans", stage: 5,
     desc: "Mission-by-mission tasking for each participating group for one ATO day.",
     fields: [
       { type: "section", label: "Period" },
-      { key: "atoDay", label: "ATO day", type: "text", half: true },
+      { key: "atoDay", label: "ATO day number", type: "text", half: true, hint: d => `Printed as ATO ${window.AOC.atoId(d.atoDay)} (day 1 = AA, 2 = AB …)` },
       { key: "period", label: "Effective period", type: "text", half: true },
       // one list of missions, edited as two grids: human lines, then AI lines. Crew comes from the grid a line was added in
       // (newRow); IFF codes are set by "Assign IFF codes" and shown on the ATO and the IFF / SIF page
@@ -314,7 +318,7 @@
       { key: "missions", label: "Human lines", type: "table", columns: ATO_COLS, show: (r, group) => atoHuman(r, group), newRow: { crew: "Human" } },
       { key: "missions", label: "AI lines", type: "table", columns: ATO_COLS, show: (r, group) => !atoHuman(r, group), newRow: { crew: "AI" }, iffPanel: true }
     ],
-    render: (d, ctx) => `${head("AIR TASKING ORDER", ctx, `ATO DAY ${esc(d.atoDay)}`)}
+    render: (d, ctx) => `${head("AIR TASKING ORDER", ctx, `ATO ${window.AOC.atoId(d.atoDay)}`)}
       <pre class="msg">${esc(atoMessage(d, ctx))}</pre>
       ${atoSummary(d, ctx)}${sig(ctx)}`
   };
@@ -330,7 +334,7 @@
         { key: "geo", label: "Geometry" }, { key: "alt", label: "Altitudes" },
         { key: "time", label: "Effective" }, { key: "ctrl", label: "Controlling agency" }] }
     ],
-    render: (d, ctx) => `${head("AIRSPACE CONTROL ORDER", ctx, `ATO DAY ${esc(ctx.campaign.atoDay)}`)}
+    render: (d, ctx) => `${head("AIRSPACE CONTROL ORDER", ctx, `ATO ${window.AOC.atoId(ctx.campaign.atoDay)}`)}
       ${kv([["EFFECTIVE", d.period]])}
       <h2>AIRSPACE COORDINATION MEASURES</h2>
       ${table([["name", "NAME"], ["type", "TYPE"], ["geo", "GEOMETRY"], ["alt", "ALTITUDE"], ["time", "EFFECTIVE"], ["ctrl", "CONTROL"]], d.measures)}
@@ -348,17 +352,31 @@
   const cdeFill = (d, t) => { const def = ROE()?.cde?.defaults || {};
     return t.replace("{cde4}", d.cde4Auth || def.cde4).replace("{cde5}", d.cde5Auth || def.cde5).replace("{auth}", d.cdeAuth || def.auth); };
   const roeAwacs = ctx => (window.AOC.Store.content(ctx.campaign.id, "ato")?.missions || []).find(m => m.role === "AEW")?.callsign || "the AWACS";
+  // TACON of the day's ATO missions: always defined. Blank = delegated to C2 (the DCS norm), C2 = the callsign set, else the
+  // ATO's AWACS. Delegated to C2 with no C2 on the ATO leaves it undefined, and the SPINS say so.
+  const TACON = ["Delegated to C2", "Retained by the JFACC", "Delegated to the CAOC (SODO)"];
+  function taconOf(d, ctx) {
+    const by = d.tacon || TACON[0], aew = (window.AOC.Store.content(ctx.campaign.id, "ato")?.missions || []).find(m => m.role === "AEW");
+    if (by !== TACON[0]) return { by, who: by === TACON[1] ? "JFACC" : "CAOC SODO", ok: true };
+    const cs = String(d.taconC2 || aew?.callsign || "").trim();
+    return { by, who: cs ? `${cs.toUpperCase()}${!d.taconC2 && aew ? ` (${aew.type}, MSN ${aew.msn})` : ""}` : "", ok: !!cs };
+  }
   function spinsDoc(d, ctx) {
     const day = window.AOC_JCEOI?.tdl?.atoDayStartZ ?? 3, z = h => `${String(h).padStart(2, "0")}00Z`, zEnd = h => `${String((h + 23) % 24).padStart(2, "0")}59Z`;
     const iff = d.mode4 || d.iffProc || (d.iffOff || []).length || iffRules(ctx).length;
     return `${head("SPECIAL INSTRUCTIONS (SPINS)", ctx, esc(d.version))}
-      <h2>1. GENERAL INFORMATION</h2>${kv([["VALIDITY", d.period], ["TIME ZONE", "Zulu (Z) throughout"], ["ATO DAY", `${z(day)} to ${zEnd(day)}`], ["BULLSEYE", d.bullseye], ["DEFAULT ALR", alrOf(d).toUpperCase()]])}
-      ${ROE()?.alr ? `<h2>1.1 ACCEPTABLE LEVEL OF RISK (ALR)</h2><p>Applies to every ATO line; the ATO prints it with each mission.</p>
+      <h2>1. GENERAL INFORMATION</h2>${kv([["VALIDITY", d.period], ["TIME ZONE", "Zulu (Z) throughout"], ["ATO PERIOD", `${z(day)} to ${zEnd(day)} (ATO AA = day 1, AB = day 2 …)`], ["BULLSEYE", d.bullseye], ["DEFAULT ALR", alrOf(d).toUpperCase()]])}
+      ${ROE()?.alr ? `<h2>1.1 ACCEPTABLE LEVEL OF RISK (ALR)</h2><p>The default ALR applies to every ATO line unless the line states otherwise.</p>
         ${table([["l", "ALR"], ["t", "MEANING"]], ROE().alr.levels.map(x => ({ l: x.level === alrOf(d) ? `${x.level.toUpperCase()} (DEFAULT)` : x.level.toUpperCase(), t: x.text })))}` : ""}
+      ${(() => { const t = taconOf(d, ctx);
+        return `<h2>1.2 COMMAND AND CONTROL</h2>${kv([["TACON", t.ok ? `${t.by === TACON[0] ? `JFACC, delegated to C2: ${t.who}` : t.by === TACON[1] ? "JFACC (retained)" : "JFACC, delegated to the CAOC SODO"} — all ATO ${window.AOC.atoId(ctx.campaign.atoDay)} missions` : "NOT DEFINED — delegated to C2, but the ATO has no AWACS / C2 line and no C2 callsign is set"]])}
+          <p>All ATO missions will check in with the controlling authority and take re-tasking, re-roles, commit and abort direction from it.</p>`; })()}
       <h2>2. RULES OF ENGAGEMENT</h2><p>Per the OP ${esc(ctx.campaign.opName)} ROE${d.version ? ` ${esc(d.version)}` : ""}, published with these SPINS. Default weapons control status: ${esc((d.wcs || "Weapons Tight").toUpperCase())}.</p>
-      <h2>3. COMMUNICATION</h2>${para("3.1 CHECK-IN & COMM PROCEDURES", d.checkin)}
-      <h2>3.2 CODE WORDS</h2>${table([["word", "CODE WORD"], ["meaning", "MEANING / ACTION"]], d.codewords)}
-      ${para("3.3 AUTHENTICATION", d.auth)}${para("3.4 CSAR", [d.csar, window.AOC.PR ? "PR frequencies, authentication and position reporting: section 5." : ""].filter(Boolean).join(" "))}
+      <h2>3. COMMUNICATION</h2><h2>3.1 CHECK-IN</h2>
+      <p>All flights will check in with the controlling authority${taconOf(d, ctx).ok && taconOf(d, ctx).by === TACON[0] ? ` (${esc(taconOf(d, ctx).who.split(" ")[0])})` : ""} in MNPOPCA format: Mission number; Number and type of aircraft; Position from a known reference; Ordnance carried; Playtime; Capabilities; Abort code (when required for terminal control).</p>
+      ${d.checkin ? `<p>${esc(d.checkin)}</p>` : ""}
+      <h2>3.2 CODE WORDS</h2><p>Code words will be used on clear frequencies.</p>${table([["type", "TYPE"], ["word", "CODE WORD"], ["meaning", "MEANING"]], d.codewords)}
+      ${authSection(d, ctx)}${para("3.4 CSAR", [d.csar, window.AOC.PR ? "PR frequencies, authentication and position reporting: section 5." : ""].filter(Boolean).join(" "))}
       ${iff ? `<h2>3.5 IFF / SIF</h2>${kv([["MODE 4", d.mode4]])}${d.iffProc ? `<p>${esc(d.iffProc)}</p>` : ""}
         ${iffRules(ctx).length ? `<p><b>${esc(ctx.campaign.theater.toUpperCase())}:</b> ${iffRules(ctx).map(esc).join(" ")}</p>` : ""}
         ${(d.iffOff || []).length ? table([["area", "IFF-OFF AREA"], ["alt", "ALTITUDES"], ["time", "TIMES"], ["notes", "NOTES"]], d.iffOff) : ""}` : ""}
@@ -368,25 +386,60 @@
       <h2>4.3 DIVERT AIRFIELDS</h2>${table([["field", "AIRFIELD"], ["tacan", "TACAN"], ["freq", "TWR"], ["rwy", "RWY"], ["notes", "NOTES"]], d.diverts)}
       ${para("4.4 EMERGENCY / LOST COMMS", d.emergency)}${prSection(d, ctx)}${sig(ctx)}`;
   }
+  // SPINS 3.3: directive only (the SPINS are not a training document). The AET tables and RAMRODs are generated for the
+  // campaign, one per ATO, and printed in Addendum A; the RAMROD can be picked per ATO in the editor.
+  const atoStartZ = () => `${String(window.AOC_JCEOI?.tdl?.atoDayStartZ ?? 3).padStart(2, "0")}00Z`;
+  function authSection(d, ctx) {
+    const PR = window.AOC.PR, id = window.AOC.atoId; if (!PR) return para("3.3 AUTHENTICATION", d.auth);
+    const pr = PR.spinsPR(ctx.campaign.id, d), day = +ctx.campaign.atoDay || 1;
+    return `<h2>3.3 AUTHENTICATION</h2>
+      <p>Authentication procedures will be at the discretion of the aircrew. The authentication method (sequential, RAMROD or AET table) will be briefed. AET tables and RAMRODs are in SPINS Addendum A, effective ${atoStartZ()} for each ATO. RAMROD is not required on secure frequencies.</p>
+      ${table([["ato", "ATO"], ["ramrod", "RAMROD"], ["eff", "EFFECTIVE"]], pr.days.slice(day - 1).map(r => ({ ato: id(r.day), ramrod: r.ramrod, eff: atoStartZ() })))}
+      ${d.auth ? `<p>${esc(d.auth)}</p>` : ""}`;
+  }
+  // SPINS Addendum A: the AET table and RAMROD for each ATO from the current one, a week ahead, one kneeboard page each
+  function authDoc(d, ctx) {
+    const PR = window.AOC.PR, id = window.AOC.atoId;
+    if (!PR) return `${head("SPINS ADDENDUM A — AUTHENTICATION", ctx, esc(d.version))}<p>The authentication tables did not load.</p>`;
+    const cid = ctx.campaign.id, day = +ctx.campaign.atoDay || 1, days = PR.spinsPR(cid, d).days.slice(day - 1);
+    return `${head("SPINS ADDENDUM A — AUTHENTICATION", ctx, esc(d.version))}
+      <p>Effective ${atoStartZ()} for the ATO shown. Procedures: SPINS 3.3. Superseded pages will be destroyed.</p>
+      ${days.map((r, k) => { const M = PR.authMatrix(cid, r.day), ctr = t => t.replace(/<(t[hd])>/g, '<$1 style="text-align:center">');
+        return `${k ? `<div class="pagebreak"></div>` : ""}<h2>ATO ${id(r.day)} — EFFECTIVE ${atoStartZ()}</h2>
+          <p><b>AET TABLE</b></p>
+          ${ctr(table([["r", ""], ...[...PR.AUTH_COLS].map(c => [c, c])], [...PR.AUTH_ROWS].map((rw, i) => ({ r: rw, ...Object.fromEntries([...PR.AUTH_COLS].map((c, j) => [c, M[i][j]])) }))))}
+          <p><b>RAMROD ${esc(r.ramrod)}</b></p>
+          ${ctr(table([..."0123456789"].map(n => [n, n]), [Object.fromEntries([...r.ramrod].map((ch, i) => [String(i), ch]))]))}`; }).join("")}
+      ${sig(ctx)}`;
+  }
+  // DKS kneeboard: Addendum A as data (one page per ATO: its AET table and RAMROD) plus the rendered page, for DKS to put in
+  // every crew's kneeboard. The payload format is still to be agreed with the DKS developer
+  function authKneeboard(d, ctx) {
+    const PR = window.AOC.PR, id = window.AOC.atoId; if (!PR) return null;
+    const cid = ctx.campaign.id, day = +ctx.campaign.atoDay || 1;
+    return { title: "SPINS ADDENDUM A — AUTHENTICATION", spins_version: d.version || "", effective: atoStartZ(),
+      pages: PR.spinsPR(cid, d).days.slice(day - 1).map(r => ({ ato: id(r.day), ato_day: +r.day, effective: atoStartZ(), ramrod: r.ramrod,
+        aet: { rows: PR.AUTH_ROWS, cols: PR.AUTH_COLS, cells: PR.authMatrix(cid, r.day).map(x => x.join("")) } })),
+      html: authDoc(d, ctx) };
+  }
   // SPINS 5: what an isolated crew member needs to authenticate and report a position. Every value is generated for the
   // campaign (pr.js) unless the SPINS sets it, so the PRCC, the rescue force and the crews all read the same numbers.
   function prSection(d, ctx) {
     const PR = window.AOC.PR; if (!PR) return "";
     const pr = PR.spinsPR(ctx.campaign.id, d), sd = pr.sardot;
     const key = [...pr.sarneg].map((ch, i) => `${i}=${ch}`).join("  ");
-    const ex = sd ? PR.mgrs(sd.lat, sd.lon).split(" ") : null;
     return `<h2>5. PERSONNEL RECOVERY</h2>
-      <p>Isolated? Survive, evade, and make contact: authenticate with the word, letter or number of the day and your ISOPREP; report your position in SARNEG or from the SARDOT; follow your EPA. The PRCC holds every crew member's ISOPREP and EPA.</p>
+      <p>Isolated personnel will authenticate with the word, letter or number of the day and their ISOPREP, report position by SARDOT or SARNEG, and follow their EPA.</p>
       ${kv([["SARDOT", sd ? `${esc(sd.name)} — ${PR.ddm(sd.lat, sd.lon)} (${PR.mgrs(sd.lat, sd.lon)})` : "Not set — add a SARDOT point on the theater map"],
-        ["SARNEG", `${pr.sarneg}  (${key})`], ["DURESS WORD", `${pr.duress} — said in any transmission, it means you are under hostile control`],
-        ["ISOPREP", "4 personal statements and a 4-digit number, filed by your group on the unit portal (ISOPREP / EPA). The rescue force asks; never give a whole answer unprompted."]])}
-      <h2>5.1 WORD, LETTER AND NUMBER OF THE DAY</h2><p>Change with the ATO day. Rescue forces challenge with them; a survivor answers only what is asked.</p>
-      ${table([["day", "ATO DAY"], ["wod", "WORD"], ["lod", "LETTER"], ["nod", "NUMBER"]], pr.days)}
+        ["SARNEG", `${pr.sarneg}  (${key})`], ["DURESS WORD", pr.duress],
+        ["ISOPREP", "Filed on the unit portal (ISOPREP / EPA) before take-off"]])}
+      <h2>5.1 WORD, LETTER AND NUMBER OF THE DAY</h2><p>Effective ${atoStartZ()} for each ATO.</p>
+      ${table([["ato", "ATO"], ["wod", "WORD"], ["lod", "LETTER"], ["nod", "NUMBER"]], pr.days.map(r => ({ ...r, ato: window.AOC.atoId(r.day) })))}
       <h2>5.2 REPORTING YOUR POSITION</h2>
-      <p>From the SARDOT: bearing in degrees true and range in NM ("SARDOT 245 true for 12"). In MGRS: send the grid zone and square in clear and replace every digit with its SARNEG letter${ex ? ` — e.g. ${ex[0]} ${ex[1]} ${ex[2].slice(0, 4)} ${ex[3].slice(0, 4)} is sent as ${ex[0]} ${ex[1]} ${PR.sarnegEncode(ex[2].slice(0, 4), pr.sarneg)} ${PR.sarnegEncode(ex[3].slice(0, 4), pr.sarneg)}` : ""}.</p>
+      <p>Report position as SARDOT bearing (degrees true) and range (NM), or as MGRS with the digits SARNEG-encoded.</p>
       <h2>5.3 PR FREQUENCIES AND CONTACT</h2>${kv([["INITIAL", pr.guard], ["PR PRIMARY", pr.primary], ["PR ALTERNATE", pr.alternate || "—"], ["PRCC", pr.prcc || "—"]])}<p>${esc(pr.contact)}</p>
       <h2>5.4 SIGNALS</h2><p>${esc(pr.signals)}</p>
-      <h2>5.5 EVASION PLAN OF ACTION (EPA)</h2><p>Each crew files an EPA for its mission on the unit portal before take-off. With none filed, the standard EPA applies: ${esc(Object.values(PR.standardEpa(pr)).filter(v => typeof v === "string").slice(0, 3).join(" "))}</p>
+      <h2>5.5 EVASION PLAN OF ACTION (EPA)</h2><p>Each crew will file an EPA on the unit portal before take-off. If none is filed, the standard EPA applies: ${esc(Object.values(PR.standardEpa(pr)).filter(v => typeof v === "string").slice(0, 3).join(" "))}</p>
       ${pr.safe.length ? `${table([["name", "SAFE AREA / DAR"], ["loc", "LOCATION"], ["notes", "NOTES"]], pr.safe)}` : ""}
       ${pr.code ? para("5.6 PR CODE WORDS", pr.code) : ""}`;
   }
@@ -422,18 +475,24 @@
   P.spins = {
     code: "SPINS", name: "SPINS & ROE", owner: "Combat Plans", stage: 5,
     desc: "Special instructions (procedures) and the rules of engagement: two documents, one approval.",
-    docs: [{ id: "spins", label: "SPINS", code: "SPINS", render: spinsDoc }, { id: "roe", label: "ROE", code: "ROE", render: roeDoc }],
+    docs: [{ id: "spins", label: "SPINS", code: "SPINS", render: spinsDoc }, { id: "auth", label: "Addendum A — Authentication", code: "SPINS-ADD-A", render: authDoc },
+      { id: "roe", label: "ROE", code: "ROE", render: roeDoc }],
+    kneeboard: authKneeboard,
     fields: [
       { type: "section", label: "Both documents" },
       { key: "version", label: "Version", type: "text", half: true, hint: "e.g. v3" },
       { key: "period", label: "Effective period", type: "text", half: true },
       { type: "section", label: "SPINS — general & communication" },
       { key: "bullseye", label: "Bullseye", type: "text", half: true },
+      { key: "tacon", label: "Controlling authority (TACON)", type: "select", options: TACON, half: true, hint: "Who holds TACON of the day's missions; blank = delegated to C2" },
+      { key: "taconC2", label: "C2 callsign (TACON delegated to C2)", type: "text", half: true, hint: "Blank = the ATO's AWACS line" },
       { key: "alr", label: "Default acceptable level of risk (ALR)", type: "select", options: ["Low", "Medium", "High", "Extreme"], half: true, hint: "Blank = Medium; printed on every ATO line" },
-      { key: "checkin", label: "Check-in & comm procedures", type: "textarea", hint: "Refer to channels by Comm Plan matrix ID, e.g. YELLOW 1" },
+      { key: "checkin", label: "Check-in & comm procedures", type: "textarea", hint: "MNPOPCA check-in is printed; add the check-in net and anything else. Refer to channels by Comm Plan matrix ID, e.g. YELLOW 1" },
       { key: "codewords", label: "Code words", type: "table", columns: [
-        { key: "word", label: "Code word", w: 160 }, { key: "meaning", label: "Meaning / action" }] },
-      { key: "auth", label: "Authentication procedures", type: "textarea" },
+        { key: "type", label: "Type", type: "select", options: () => Object.keys(window.AOC.PR?.LISTS.codewords || {}), w: 100 },
+        { key: "word", label: "Code word", type: "select", w: 170, options: (d, cid, row) => { const L = window.AOC.PR?.LISTS.codewords || {}; return L[row?.type] || Object.values(L).flat(); } },
+        { key: "meaning", label: "Meaning / action" }], hint: "Words from the codeword reference list: Action (heroes), GEOREF (rock bands), OPFOR (cars)" },
+      { key: "auth", label: "Authentication remarks", type: "textarea", hint: "SPINS 3.3 and the AET tables / RAMRODs (Addendum A) are generated; add any further direction here" },
       { key: "csar", label: "CSAR procedures", type: "textarea" },
       { key: "mode4", label: "Mode 4", type: "text", hint: "Default from the JCEOI IFF plan: code A until 0000Z, then code B" },
       { key: "iffProc", label: "IFF procedures", type: "textarea", hint: "Mode 1 / Mode 3 codes are on each ATO line" },
@@ -449,8 +508,18 @@
         { key: "rwy", label: "Runway", w: 80 }, { key: "notes", label: "Notes" }] },
       { key: "emergency", label: "Emergency / lost comms", type: "textarea" },
       { type: "section", label: "SPINS — personnel recovery (blank = generated for the campaign)" },
-      { key: "sarneg", label: "SARNEG", type: "text", half: true, hint: "10 letters, none repeated; blank = generated" },
-      { key: "duress", label: "Duress word", type: "text", half: true, hint: "Blank = generated" },
+      { key: "sarneg", label: "SARNEG", type: "select", half: true, options: () => window.AOC.PR?.LISTS.sarneg || [],
+        hint: (d, cid) => `10 letters, none repeated; blank = generated (${window.AOC.PR?.spinsPR(cid, {}).sarneg})` },
+      { key: "duress", label: "Duress word", type: "select", half: true, options: () => window.AOC.PR?.LISTS.duress || [],
+        hint: (d, cid) => `Blank = generated (${window.AOC.PR?.spinsPR(cid, {}).duress})` },
+      // one row per ATO day, filled with the generated words; pick another from the list to change a day
+      { key: "prDays", label: "Daily authentication: word, letter and number of the day, RAMROD", type: "table", prefill: (d, cid) => window.AOC.PR?.spinsPR(cid, d).days, columns: [
+        { key: "day", label: "Day", w: 60 }, { key: "ato", label: "ATO", w: 60 },
+        { key: "wod", label: "Word of the day", type: "select", options: () => window.AOC.PR?.LISTS.wod || [] },
+        { key: "lod", label: "Letter of the day", type: "select", options: () => window.AOC.PR?.LISTS.lod || [], w: 130 },
+        { key: "nod", label: "Number of the day", type: "select", options: () => window.AOC.PR?.LISTS.nod || [], w: 130 },
+        { key: "ramrod", label: "RAMROD", type: "select", options: () => window.AOC.PR?.LISTS.ramrod || [] }],
+        hint: "Rescue forces challenge with the word / letter / number; the RAMROD encodes numbers in the clear. All change with each ATO" },
       { key: "sardotName", label: "SARDOT name", type: "text", half: true, hint: "Blank = the theater map's SARDOT point, else the AO centre" },
       { key: "sardotLat", label: "SARDOT lat / lon (decimal)", type: "text", half: true },
       { key: "prPrimary", label: "PR primary", type: "text", half: true, hint: "Blank = Comm Plan SAR-A / RESCORT" },
@@ -476,7 +545,7 @@
       { key: "restricted", label: "Restricted / no-strike targets", type: "table", columns: [{ key: "target", label: "Target / area" }, { key: "restriction", label: "Restriction" }] },
       { key: "roe", label: "ROE remarks", type: "textarea", hint: "Anything the standing ROE and measures do not cover" }
     ],
-    render: (d, ctx) => `${spinsDoc(d, ctx)}<div class="pagebreak"></div>${roeDoc(d, ctx)}`
+    render: (d, ctx) => `${spinsDoc(d, ctx)}<div class="pagebreak"></div>${authDoc(d, ctx)}<div class="pagebreak"></div>${roeDoc(d, ctx)}`
   };
 
   // theater IFF rules (e.g. NTTR) from the JCEOI IFF plan, when the page has it
@@ -622,7 +691,7 @@
     desc: "Mission reports from groups rolled up into target assessments for the next cycle.",
     fields: [
       { type: "section", label: "Period" },
-      { key: "atoDay", label: "ATO day assessed", type: "text", half: true },
+      { key: "atoDay", label: "ATO day number assessed", type: "text", half: true, hint: d => `Printed as ATO ${window.AOC.atoId(d.atoDay)}` },
       { key: "period", label: "Reporting period", type: "text", half: true },
       { type: "section", label: "Mission reports (MISREPs)" },
       { key: "misreps", label: "MISREPs received", type: "table", columns: [
@@ -644,7 +713,7 @@
       const m = d.misreps || [], b = d.bda || [];
       const hits = m.filter(r => (r.result || "").startsWith("Hit")).length;
       const reattack = b.filter(r => r.reattack === "Yes").map(r => r.target).filter(Boolean);
-      return `${head("BDA / MISREP ROLLUP", ctx, `ATO DAY ${esc(d.atoDay)}`)}
+      return `${head("BDA / MISREP ROLLUP", ctx, `ATO ${window.AOC.atoId(d.atoDay)}`)}
       ${kv([["PERIOD", d.period], ["MISREPS RECEIVED", String(m.length)], ["MISSIONS WITH HITS", `${hits} of ${m.length}`], ["RE-ATTACK", reattack.join(", ") || "None"]])}
       <h2>1. MISSION REPORTS</h2>${table([["msn", "MSN"], ["callsign", "CALLSIGN"], ["target", "TGT"], ["tot", "TOT"], ["ord", "ORDNANCE"], ["result", "RESULT"], ["remarks", "REMARKS"]], m)}
       <h2>2. TARGET ASSESSMENT</h2>${table([["target", "TGT"], ["phase", "PHASE"], ["status", "STATUS"], ["source", "SOURCE"], ["reattack", "RE-ATK"]], b)}
@@ -663,7 +732,7 @@
     render: (d, ctx) => {
       // line labels are stored with the MAAP when it's saved, so the released document reads on its own
       const pk = d.packages || [], L = msn => (d.lineLabels || {})[msn] || msn;
-      return `${head("MASTER AIR ATTACK PLAN", ctx, `ATO DAY ${esc(ctx.campaign.atoDay)}`)}
+      return `${head("MASTER AIR ATTACK PLAN", ctx, `ATO ${window.AOC.atoId(ctx.campaign.atoDay)}`)}
       ${kv([["PACKAGES", String(pk.length)], ["JIPTL TARGETS COVERED", d.coverage || ""]])}
       ${pk.map(p => `<h2>PACKAGE ${esc(p.name)} — TOT ${esc(p.tot || "TBD")}${p.push ? ` · PUSH ${esc(p.push)}` : ""}</h2>
         ${kv([["TARGETS", (p.targets || []).join(", ")], ["KEY TASKS", [...new Set((p.targets || []).map(t => window.AOC.keyTaskLabel(window.AOC.keyTaskOf(ctx.campaign.id, t))).filter(Boolean))].join("; ")],
@@ -780,10 +849,21 @@
     ...COMMS.pages.map(pg => [pg.code, pg.code, pg.href])].map(([k, l, h]) => k === here ? `<b>${esc(l)}</b>` : `<a href="${h}">${esc(l)}</a>`).join(" · ")}</div>`;
 
   // a target field that looks like a JIPTL number (T10001, or an older IT-0012) but is not on the campaign's current JIPTL:
-  // renumbered by a new target nomination, or removed. Areas (CAP KNIFE, AO HAMMER, Pkg B) are never flagged.
+  // renumbered by a new target nomination, or removed. Areas (CAP KNIFE, AO HAMMER, Pkg B) are never flagged, except on an INT
+  // line (with its role given): INT is pre-planned interdiction, always against a JIPTL target; on-call interdiction is XINT.
+  // A SCAR line on the ATO is pre-planned, so it names its ACO area (usually a kill box); ad-hoc SCAR is re-rolled en route by
+  // C2 and never on the ATO.
   const TARGET_NO = /^(T\d{4,}|IT-\d{3,})$/i;
-  function targetIssue(cid, target, rows) {
-    const t = String(target || "").trim(); if (!TARGET_NO.test(t)) return null;
+  function targetIssue(cid, target, rows, role) {
+    const t = String(target || "").trim(), int = role === "INT";
+    if (role === "SCAR") {
+      if (!t || t === "—") return "SCAR needs its ACO area, usually a kill box (ad-hoc SCAR is re-rolled by C2, not on the ATO)";
+      const S = window.AOC.Store, up = v => String(v || "").trim().toUpperCase();
+      const areas = [...(S.content(cid, "aco")?.measures || S.shared(cid, "aco")?.data?.measures || []), ...(S.content(cid, "map")?.shapes || [])].map(a => up(a.name));
+      return areas.includes(up(t)) ? null : `SCAR is flown in an ACO area (usually a kill box); ${t} is not on the ACO`;
+    }
+    if (int && (!t || t === "—")) return "INT needs a JIPTL target (on-call interdiction is XINT)";
+    if (!TARGET_NO.test(t)) return int ? `INT is against a JIPTL target, not ${t} (on-call interdiction is XINT)` : null;
     const S = window.AOC.Store, list = rows || S.content(cid, "jiptl")?.rows || S.shared(cid, "jiptl")?.data?.rows || [];
     return list.some(r => String(r.id).toUpperCase() === t.toUpperCase()) ? null : `${t} is not on the JIPTL (renumbered or removed?)`;
   }

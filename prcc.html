@@ -135,7 +135,7 @@
         ["From the SARDOT", `${esc(c.prAt.sardot?.name || "SARDOT")} ${sardotBR(c.prAt, c.p.lat, c.p.lon)}`]])}
       <div class="toolbar noprint" style="margin-bottom:14px"><input id="newPos" placeholder="New position: lat, lon (decimal)" style="max-width:260px"><input id="newSrc" placeholder="Source, e.g. Sandy 1 eyes-on" style="max-width:240px">
         <button class="btn sm" data-pos>Update position</button></div>
-      <h3>Authenticate (SPINS ${esc(c.at?.label || "current")}, ATO day ${esc(c.today.day)})</h3>
+      <h3>Authenticate (SPINS ${esc(c.at?.label || "current")}, ATO ${esc(AOC.atoId(c.today.day))})</h3>
       ${kvg([["Word of the day", `<span class="big">${esc(c.today.wod)}</span>`], ["Letter of the day", `<span class="big">${esc(c.today.lod)}</span>`], ["Number of the day", `<span class="big">${esc(c.today.nod)}</span>`],
         ["Duress word", `<span class="big">${esc(c.prAt.duress)}</span> <span class="muted small">— heard in any call: survivor under hostile control</span>`]])}
       ${c.iso ? `<h3>ISOPREP — ${esc(c.iso.name)} <span class="muted small">(click an answer to show it)</span></h3>
@@ -218,7 +218,7 @@
       <h2>2. LOCATION</h2>${T([["k", "FORMAT"], ["v", "POSITION"]], [{ k: "Lat / long", v: PR.ddm(c.p.lat, c.p.lon) }, { k: "MGRS", v: PR.mgrs(c.p.lat, c.p.lon) },
         { k: "SARNEG (as the survivor sends it)", v: enc }, { k: `From ${c.prAt.sardot?.name || "SARDOT"}`, v: sardotBR(c.prAt, c.p.lat, c.p.lon) }, { k: "Source", v: c.p.source }])}
       <h2>3. AUTHENTICATION (SPINS ${esc(c.at?.label || "current")} — the release the survivor flew with)</h2>
-      ${T([["k", "ITEM"], ["v", "VALUE"]], [{ k: `Word / letter / number of the day (ATO day ${c.today.day})`, v: `${c.today.wod} / ${c.today.lod} / ${c.today.nod}` },
+      ${T([["k", "ITEM"], ["v", "VALUE"]], [{ k: `Word / letter / number of the day (ATO ${AOC.atoId(c.today.day)})`, v: `${c.today.wod} / ${c.today.lod} / ${c.today.nod}` },
         { k: "SARNEG", v: c.prAt.sarneg }, { k: "Duress word", v: c.prAt.duress }, { k: "Survivor's personal number", v: c.iso?.number || "no ISOPREP" }])}
       ${c.iso ? `<p><b>ISOPREP — ${esc(c.iso.name)}</b> · ${esc([c.iso.height, c.iso.weight, `eyes ${c.iso.eyes}`, `hair ${c.iso.hair}`, c.iso.marks].filter(Boolean).join(", "))}</p>${T([["q", "STATEMENT"], ["a", "ANSWER"]], c.iso.statements || [])}` : "<p>No ISOPREP on file — use the word, letter and number of the day.</p>"}
       <h2>4. THREATS</h2>${T([["name", "THREAT"], ["_d", "FROM SURVIVOR", t => `${String(Math.round(t.brg)).padStart(3, "0")}° / ${t.nm.toFixed(1)} NM`], ["_c", "COVERS SURVIVOR", t => t.covers ? "YES" : "no"]], th)}

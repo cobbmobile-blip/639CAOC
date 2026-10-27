@@ -120,11 +120,12 @@ are on the CAOC rollup page (rollup.html) and are editable per campaign.
      airfield/ATC frequencies stay out.
  11. CFACC approvals, then ONE PUBLISH on the CAOC rollup, NO LATER THAN
      T-72h: every approved product -> every active campaign group
-     (versioned), plus two optional DKS exports (section 4.6):
+     (versioned), plus three optional DKS exports (section 4.6):
        - ACO + theater map -> DKS OVERLAY (drawn on the DKS theater map for
          that mission; it does NOT go into the .miz)
        - Comm Plan -> DKS MANAGE AGENCIES (persistent theater frequencies for
          the whole campaign; normally only tankers and JTACs change)
+       - SPINS Addendum A (AET tables, RAMRODs) -> DKS KNEEBOARDS
  12. HOST ONLY: builds the final .miz (T-24h), readiness, mass brief, first
      mission (T-0).
  13. HOST debrief (T+1) on debrief.html: per ATO line flown/result/remarks,
@@ -323,11 +324,15 @@ A "Send to DKS" button (placeholder) is meant to hand that pack to DKS.
 
 4.6 CAMPAIGN PACKAGE PUBLISH -> DKS
 -----------------------------------
-PUBLISH (rollup.html, due NLT T-72h) has three ticks: release products,
-export Overlay, export Agencies. Overlay is pre-ticked on its first export;
-Agencies is pre-ticked only when the Comm Plan changed since the last export
-(the rollup lists added / changed / removed channels; tanker and JTAC
-channels are marked "may change"). Each export is versioned per campaign.
+PUBLISH (rollup.html, due NLT T-72h) has four ticks: release products,
+export Overlay, export Agencies, export Kneeboard. Overlay is pre-ticked on
+its first export; Agencies is pre-ticked only when the Comm Plan changed
+since the last export (the rollup lists added / changed / removed channels;
+tanker and JTAC channels are marked "may change"); Kneeboard is pre-ticked
+when the SPINS were re-released or the ATO cycled since the last send. The
+SPINS page also has a "Send to DKS kneeboard" button (same export). Each
+export is versioned per campaign. ATOs are designated by letters (day 1 =
+AA, day 8 = AH); events carry ato_day (number) and ato (letters).
 Events queued (prototype: db.dksOutbox; formats to be agreed):
   overlay.update     { campaign_id, operation, ato_day, overlay_version,
                        measures: [ACO measures], points: [...],
@@ -336,6 +341,16 @@ Events queued (prototype: db.dksOutbox; formats to be agreed):
   agencies.update    { agencies_version, agencies: [{ name, role, channel,
                        net, freq }], changes: [{ kind, channel, ... }] | null }
                                          -> DKS Manage Agencies
+  kneeboard.update   { kneeboard_version, ato, section: "SPINS Addendum A",
+                       title, spins_version, effective: "0300Z",
+                       pages: [{ ato, ato_day, effective, ramrod,
+                                 aet: { rows: "ABCDEFGHIJKLM",
+                                        cols: "NOPQRSTUVWXYZ",
+                                        cells: ["XHTS...", ...] } }],
+                       html }            -> every crew's DKS kneeboard
+                       (one page per ATO from the current one, a week
+                       ahead; released SPINS only; html = the rendered
+                       addendum, if DKS would rather show it as is)
   package.published  { package, products: [{ pid, v }] }
 
 4.7 ATO LINE TARGET -> DKS "ASSIGN TARGET"   ** REQUIRED **
@@ -493,6 +508,9 @@ New root:
      the seat / parachute position and the player name, and can DKS load a
      pr.csar_route as spider points? Should position / status follow-ups
      come from DKS?
+ 11. Kneeboards (section 4.6, kneeboard.update): which DKS kneeboard section
+     should SPINS Addendum A go to, and does DKS want the page data (AET
+     table cells, RAMROD) or the rendered page (html)?
 
 --------------------------------------------------------------------------------
 9. CONVERSATION LOG (CONDENSED, IN ORDER)
@@ -568,6 +586,18 @@ Requests from the 639 vCAOC lead, and what was built or decided:
     (MH-60L) as the CSAR helicopter unit; AMC and OSC named.
 30. Comm hierarchy enforced (SPINS -> JCEOI -> Comm Plan -> special plans),
     the demo Comm Plan rebased on the JCEOI standard net plan.
+31. Mission sets: INT (pre-planned, always a JIPTL target) / XINT (on-call);
+    CAS (fragged) / XCAS (on-call); pre-planned SCAR names an ACO area. The
+    site flags INT and SCAR lines that break this. "AI" is not a mission set.
+32. ATOs are designated AA, AB, AC ... (day 1 = AA), not "Day 1, Day 2".
+33. SPINS: TACON / controlling authority (default delegated to C2), MNPOPCA
+    check-in, authentication at aircrew discretion (sequential, RAMROD or AET
+    table, briefed), code words from the 639th codeword reference list. The
+    SPINS are directive, not a training document.
+34. SPINS Addendum A: an AET table and a RAMROD per ATO -> DKS kneeboards,
+    from PUBLISH or the SPINS page (kneeboard.update, section 4.6).
+35. The AOC Support Cell group was removed; its tanker and AWACS lines are
+    AI lines.
 
 ================================================================================
  END

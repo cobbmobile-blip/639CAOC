@@ -76,7 +76,7 @@ Default deadlines (editable per campaign on the rollup), T-0 = first mission:
 | T-8 | ACO + theater map (after line commits, from the conference airspace) | CAOC |
 | T-7 / T-6 | ATO final / SPINS & ROE | CAOC |
 | T-5 | Comm Plan — built last | CAOC |
-| **T-72h** | CFACC approvals → **PUBLISH**, no later than 72 hours out: products to groups, optional DKS exports (ACO → DKS Overlay, Comm Plan → DKS Manage Agencies) | CAOC |
+| **T-72h** | CFACC approvals → **PUBLISH**, no later than 72 hours out: products to groups, optional DKS exports (ACO → DKS Overlay, Comm Plan → DKS Manage Agencies, SPINS Addendum A → DKS kneeboards) | CAOC |
 | T-24h → T-0 | Final `.miz`, readiness, mass brief, first mission | Host |
 | T+1 | Debrief | Host |
 
@@ -85,7 +85,9 @@ BDA + AOD T-6, JIPTL T-5.5, TDP T-5, MAAP T-4.5, commits T-4, ATO + tanker/JTAC 
 host `.miz` update T-24h.
 
 The ACO overlay is drawn in DKS on the theater map and is never written into the `.miz`. The Comm Plan agencies are
-persistent for the campaign; normally only tankers and JTACs change, and the rollup lists what changed since the last export. **Cycle to next mission** moves the ATO day on and returns the daily products to Draft.
+persistent for the campaign; normally only tankers and JTACs change, and the rollup lists what changed since the last export. The **kneeboard** export sends SPINS Addendum A (AET tables and RAMRODs, one page per ATO) from the released SPINS; it is due again when the SPINS are re-released or the ATO cycles, and the SPINS page has its own **Send to DKS kneeboard** button. **Cycle to next mission** moves the ATO day on and returns the daily products to Draft.
+
+ATOs are designated by letters, not day numbers: day 1 = **ATO AA**, day 2 = AB … day 26 = AZ, day 27 = BA (`AOC.atoId`). Every page, product header, the USMTF `MSGID` and the Discord / DKS payloads (`ato: "AH"` beside `ato_day`) use the letters; the day number stays underneath because mission numbers (8101, 8601 …) are built from it.
 
 ## IFF / SIF plan
 
@@ -187,7 +189,9 @@ channels excepted — they are kept and reported).
 
 JIPTL target numbers are `T10001`, `T10002` … in rank order (the demo seed uses the same scheme). A new nomination
 renumbers the list, so the ATO editor, the MAAP, Create an ATO line and Request a line flag any target number that is
-no longer on the current JIPTL ("renumbered or removed?"). Areas such as CAP KNIFE or AO HAMMER are never flagged.
+no longer on the current JIPTL ("renumbered or removed?"). Areas such as CAP KNIFE or AO HAMMER are never flagged, except on
+an **INT** line (pre-planned interdiction always has a JIPTL target; on-call is XINT) and a **SCAR** line (pre-planned SCAR
+names its ACO area, usually a kill box; ad-hoc SCAR is a re-role by C2 and never on the ATO).
 
 Browser port of `OLD/tools/jiptl_pipeline/jiptl_generate.py`:
 
@@ -230,23 +234,39 @@ lines plus what the site already holds, so staff type nothing extra:
   `AMSNLOC` for areas (altitudes from the theater-map shape), `REFTSK` (tanker track frequency and TACAN), `ASACSDAT`
   for the AWACS, `ASUPTFOR` / `ASUPTBY` linking receivers and tankers.
 - `AMPN` carries the ALR, the target's CDE level and its **KEY TASK** number; the summary lists the key tasks the ATO serves.
+- Mission sets: **INT** (pre-planned interdiction against a JIPTL target) and **XINT** (on-call interdiction); **CAS**
+  (fragged to a known movement to contact) and **XCAS** (on-call, holding until needed); **SCAR** against an ACO area. There
+  is no "AI" mission set: AI means AI-crewed lines. Saved ATOs, ATO lines and AODs renamed AI → INT on load.
 - Mission types include **RESCORT** (Sandy) and **SARCAP** for the rescue force.
 - General instructions are not part of the ATO; they belong in the SPINS.
 
 ## SPINS & ROE
 
-One product, one approval, two documents. The preview has SPINS and ROE tabs; copy, download and print take the tab on
-screen; released copies carry both, with a page break between. The layout follows the Operation Mountain Sentinel and
+One product, one approval, three documents: the SPINS, **Addendum A — Authentication** and the ROE. The preview has a tab
+for each; copy, download and print take the tab on screen; released copies carry all three, with page breaks between.
+The SPINS are **directive**: they state what aircrew will do, with no explanations or worked examples (that is what
+training sorties are for). The layout follows the Operation Mountain Sentinel and
 Red Flag SPINS, with the ROE as its own document instead of a SPINS chapter.
 
-- **SPINS** (the JFACC's procedures): 1 General information (validity, Zulu, ATO day 0300Z–0259Z, bullseye, and the
+- **SPINS** (the JFACC's procedures): 1 General information (validity, Zulu, ATO period 0300Z–0259Z, bullseye, and the
   acceptable level of risk: a standing Extreme / High / Medium / Low table with the campaign's default, which the ATO
-  prints on every line as `AMPN/ALR:`), 2 ROE (a
-  pointer to the ROE and its default WCS), 3 Communication (check-in, code words, authentication, CSAR — pointing to section 5 — and IFF / SIF),
+  prints on every line as `AMPN/ALR:`), **1.2 Command and control** (who holds TACON of the day's missions: delegated to C2
+  by default — the ATO's AWACS line or a C2 callsign set — or retained by the JFACC, or delegated to the CAOC SODO; printed
+  NOT DEFINED if it cannot be resolved), 2 ROE (a
+  pointer to the ROE and its default WCS), 3 Communication (**MNPOPCA check-in** with the controlling authority; code words
+  typed Action / GEOREF / OPFOR, picked from the codeword reference list; **3.3 authentication** at aircrew discretion, the
+  method — sequential, RAMROD or AET table — briefed, with the RAMROD of each ATO; CSAR — pointing to section 5 — and IFF / SIF),
   4 Airspace & safety (air refuelling, carriers, diverts, emergency / lost comms), **5 Personnel recovery**: SARDOT,
   SARNEG (with its digit key), duress word, ISOPREP, the word / letter / number of the day per ATO day, position
   reporting (SARNEG-encoded MGRS or bearing true / range from the SARDOT), PR frequencies and contact schedule, signals,
   the EPA rule and SAFE areas. Every PR value is generated for the campaign unless the SPINS sets it.
+- **Addendum A — Authentication**: one kneeboard page per ATO from the current one, a week ahead, each with its AET table
+  (rows A–M, columns N–Z, generated per campaign and ATO) and its RAMROD (a 10-letter word, no letter twice, for 0–9),
+  effective 0300Z. Goes to DKS kneeboards with PUBLISH or the SPINS page's **Send to DKS kneeboard** (released SPINS only).
+- The editor picks rather than types: TACON, ALR and WCS are dropdowns; SARNEG and the duress word are dropdowns (blank =
+  the generated value, named in the hint); the daily table pre-fills each ATO's word, letter and number of the day and
+  RAMROD with the generated values, each a dropdown. RAMRODs and code words come from the 639th codeword reference list
+  (Action = heroes, GEOREF = rock bands, OPFOR = cars, RAMROD = 10-letter words) in `js/pr.js`.
 - **ROE**: built from the vCAOC standing ROE (`tools/jceoi/data/roe.json`: law of armed conflict, self-defense,
   precedence; surface ROE — PID, protected structures, planned / dynamic / time-sensitive / troops-in-contact
   authority, and the collateral damage estimate: five CDE levels with who clears each (the campaign sets the CDE 4 and
@@ -380,7 +400,8 @@ theater-map tracks and orbits off the plan, tankers without a frequency.
 - `docs/vCAOC_Process_for_DKS.txt` — the process brief for the DKS developer
 - `css/styles.css` — three visual styles (Ops Floor, Night Vision, Staff Paper). Pages stack their panels full width.
 
-DKS (Digital Kneeboard Simulator) export buttons are placeholders until that integration is built.
+DKS (Digital Kneeboard Simulator) exports are queued in the prototype's DKS outbox (`db.dksOutbox`) until that integration
+is built; the formats are in `docs/vCAOC_Process_for_DKS.txt` section 4.6.
 
 ## Moved files
 

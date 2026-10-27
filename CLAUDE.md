@@ -77,7 +77,8 @@ seed content does not reach a browser that already saved data.
   DKS exports) → host builds .miz / runs the mission → host **debrief** → CAOC **cycles** to the next mission.
 - DKS exports are options of PUBLISH: **ACO + theater map → DKS Overlay** (drawn on the DKS theater map; never written
   into the .miz) and **Comm Plan → DKS Manage Agencies** (persistent theater frequencies for the whole campaign;
-  normally only tankers and JTACs change — the rollup shows changes since the last export). No host ".miz sheet".
+  normally only tankers and JTACs change — the rollup shows changes since the last export) and **SPINS Addendum A → DKS
+  kneeboards** (`PACKAGE.sendKneeboard`, released SPINS only; also a button on the SPINS page). No host ".miz sheet".
 - Mission cycle assumes weekly missions: ~4 days from mission to the next PUBLISH (deadlines in `MILESTONES`).
 - **PRCC** (personnel recovery coordination cell, staff role) works each ejection DKS Debrief reports; the PRCC can request
   ATO lines like a JFACC (posted to Discord), and publishes the CSAR task force package to the groups flying the rescue.
@@ -110,7 +111,23 @@ seed content does not reach a browser that already saved data.
   frequencies). The Comm Plan check uses the campaign theater's register.
   "Publish to DKS Agencies" sends every channel with a frequency as a selectable default agency
   (name = callsign, else `<ROLE> <CHANNEL>`).
-- **SPINS** includes a Weapons Restrictions section.
+- **SPINS** includes a Weapons Restrictions section. SPINS text is **directive** ("All flights will check in …"): no
+  explanations, worked examples or training material. Check-in is MNPOPCA with the controlling authority. 1.2 defines
+  **TACON** (default delegated to C2 = the ATO's AEW line; must resolve, else NOT DEFINED). 3.3 authentication: aircrew
+  discretion, method briefed (sequential, RAMROD, AET table). **Addendum A** (doc `auth`) prints an AET table and RAMROD
+  per ATO, a week ahead; `P.spins.kneeboard` builds the DKS kneeboard payload from it. Code words and RAMRODs come only
+  from the codeword reference list (`CODEWORDS`, `RAMRODS` in `js/pr.js`) — never invent words.
+- **Mission sets**: INT = pre-planned interdiction, always a JIPTL target; XINT = on-call interdiction. CAS = fragged to a
+  known movement to contact; XCAS = on-call. Pre-planned SCAR names an ACO area (usually a kill box); ad-hoc SCAR is a C2
+  re-role, never on the ATO. `AOC.targetIssue(cid, target, rows, role)` flags INT / SCAR lines that break this. Never use
+  "AI" for interdiction (AI = AI-crewed lines).
+- **ATO designators**: ATOs are AA, AB, AC … (day 1 = AA, `AOC.atoId(n)`), never "ATO Day 8" in anything shown. The
+  numeric `atoDay` stays internal (mission numbers 8xxx). Payloads carry both `ato_day` and `ato`.
+- **Seed changes reach saved browsers** through `mergeNewSeed` in `js/app.js`: `retiredGroups` (dropped groups; their ATO
+  lines become AI lines — the AOC Support Cell is retired this way), `renamedMissions` ({AI: "INT"}) and `supersededText`
+  (example text the seed rewrote, replaced only where a saved product still holds it word for word).
+- **product.html fields**: top-level `select` fields render as dropdowns; `options` and `hint` may be functions
+  `(data, cid, row)`; a table field with `prefill(data, cid)` is filled with generated rows when the editor opens.
 - **Theater map** point types: Nav point, Spider point, Dest point, Threat (DCS system + editable range ring).
   **Waypoints, IPs, targets and bullseye are done in DKS — do not add them back.**
   Shapes: FLOT, FSCL, MRR, tanker track, HVAA orbit, artillery ROZ (floor + MAXORD), plain box/circle/polygon/line.

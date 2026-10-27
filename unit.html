@@ -30,7 +30,8 @@
   .cell.na { color: var(--muted); }
   .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 10px; }
 
-  .lines { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .lines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 760px) { .lines { grid-template-columns: minmax(0, 1fr); } }
   .gcard { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
   .gcard.me { border-color: var(--accent); }
   .gcard.open { border-style: dashed; border-color: var(--warn); }
@@ -204,7 +205,7 @@
     document.getElementById("opName").textContent = "OP " + c.opName;
     document.getElementById("meta").innerHTML = `<span>JFACC <b>${c.jfacc ? `${esc(c.jfacc.callsign)} · ${esc(Store.group(c.jfacc.group)?.name || "")}` : "Not named"}</b></span>
       <span>Theater <b>${esc(c.theater)}</b></span><span>Phase <b>${esc(c.phase)}</b></span>
-      <span>ATO Day <b>${c.atoDay || "—"}</b> <b>${esc(c.atoPeriod)}</b></span><span>Next event <b>${until(c.nextEvent)}</b></span>`;
+      <span>ATO <b>${AOC.atoId(c.atoDay)}</b> <b>${esc(c.atoPeriod)}</b></span><span>Next event <b>${until(c.nextEvent)}</b></span>`;
     document.getElementById("kpis").innerHTML = [
       [groups.length, `Groups · ${groups.reduce((s, g) => s + (g.members || 0), 0)} pilots`],
       [`${claimed.length} / ${claimed.length + open}`, `Human ATO lines filled${open ? ` · ${open} open` : ""}`],
@@ -222,7 +223,7 @@
     if (!rel && !host) { el.classList.add("hidden"); return; }
     el.classList.remove("hidden");
     let html = `<div class="panel-head"><div><h2>Campaign package ${rel ? `v${rel.version}` : ""}</h2><div class="muted small">${rel
-      ? `Published ${esc(zulu(new Date(rel.when)))} by ${esc(rel.by)} for ATO day ${esc(rel.atoDay)}: ${rel.current.filter(p => !staffOnly(p.pid)).map(p => `${esc(PRODUCTS[p.pid]?.code)} v${p.v}`).join(", ")}`
+      ? `Published ${esc(zulu(new Date(rel.when)))} by ${esc(rel.by)} for ATO ${AOC.atoId(rel.atoDay)}: ${rel.current.filter(p => !staffOnly(p.pid)).map(p => `${esc(PRODUCTS[p.pid]?.code)} v${p.v}`).join(", ")}`
         + (c.dks?.overlay || c.dks?.agencies ? `<br>In DKS: ${[c.dks.overlay && `ACO Overlay v${c.dks.overlay.v}`, c.dks.agencies && `Manage Agencies v${c.dks.agencies.v} (${c.dks.agencies.list.length} agencies)`].filter(Boolean).join(" · ")}` : "")
       : "The CAOC has not published the package yet."}</div></div>
       ${host ? `<div class="toolbar"><a class="btn sm" href="mission-file.html?c=${encodeURIComponent(cid)}">Mission file${c.missionFiles?.length ? ` v${c.missionFiles.length}` : ""}</a><a class="btn sm primary" href="debrief.html?c=${encodeURIComponent(cid)}">Enter mission debrief</a></div>` : ""}</div>`;
@@ -331,7 +332,7 @@
 
   function renderLines() {
     const lines = atoLines(), ato = camp().shared?.ato;
-    document.getElementById("linesTitle").textContent = ato ? `ATO Day ${ato.data.atoDay} lines by group` : "ATO lines by group";
+    document.getElementById("linesTitle").textContent = ato ? `ATO ${AOC.atoId(ato.data.atoDay)} lines by group` : "ATO lines by group";
     document.getElementById("linesSub").textContent = ato ? `From ATO v${ato.version} · products go to the whole group, lines show who flies what` : "";
     if (!lines.length) { document.getElementById("lines").innerHTML = `<p class="muted">No ATO released for this campaign yet.</p>`; return; }
     const lineHtml = m => `<div class="line"><span class="m">${esc(m.msn)}</span>
@@ -378,9 +379,9 @@
         <div><div class="section-h" style="margin-top:0">Your requests</div>${mine.length ? `<ul class="list small">${mine.map(r => `<li><div class="grow"><b>${esc(r.fields.num)}× ${esc(r.fields.airframe)}</b> · ${esc(r.fields.role)}${r.fields.tot ? ` · ${esc(r.fields.tot)}` : ""}
           <div>${state(r)}</div><div class="muted">${zulu(new Date(r.at))}</div></div></li>`).join("")}</ul>` : `<p class="muted small">None yet.</p>`}</div></div>`;
     const f = document.getElementById("askForm");
-    const rc = () => { const ti = AOC.targetIssue(cid, f.target.value);
+    const rc = () => { const ti = AOC.targetIssue(cid, f.target.value, null, f.role.value);
       document.getElementById("askFormRcpt").innerHTML = (ti ? `<span style="color:var(--warn)">! ${esc(ti)}</span><br>` : "") + `Sent to ${esc(Store.group(host)?.name || "the host")} for approval.`; };
-    f.target.addEventListener("input", rc); rc();
+    f.target.addEventListener("input", rc); f.addEventListener("change", rc); rc();
     f.onsubmit = e => { e.preventDefault();
       AOC.ATO.askLine(cid, Object.fromEntries(new FormData(f)), { gid: me.id, user: me.contact });
       toast(`Request sent to ${Store.group(host)?.name || "the host"}`); renderAsk(); };

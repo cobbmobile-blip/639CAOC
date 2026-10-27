@@ -53,6 +53,34 @@
       const g = d.groups.find(x => x.id === sg.id);
       if (g && !g.login) { g.login = sg.login; g.code = sg.code; }
     });
+    // groups dropped from the seed: off the register and campaigns, their ATO lines flown by AI
+    (seed.retiredGroups || []).forEach(gid => {
+      d.groups = d.groups.filter(g => g.id !== gid);
+      d.receipts = (d.receipts || []).filter(r => r.gid !== gid);
+      d.campaigns.forEach(c => {
+        c.groups = (c.groups || []).filter(x => x !== gid);
+        const atos = [d.content[c.id]?.ato, c.shared?.ato?.data, ...(c.shared?.ato?.history || []).map(h => h.data)];
+        atos.forEach(a => (a?.missions || []).forEach(m => { if (m.group === gid) { m.group = ""; m.crew = "AI"; } }));
+        Object.values(c.shared || {}).forEach(r => { if (Array.isArray(r.groups)) r.groups = r.groups.filter(x => x !== gid); });
+      });
+    });
+    // example text the seed has rewritten, where a saved product (or its released copies) still holds it word for word
+    (seed.supersededText || []).forEach(({ pid, key, old }) => d.campaigns.forEach(c => {
+      const now = seed.content[c.id]?.[pid]?.[key] ?? "";
+      [d.content[c.id]?.[pid], c.shared?.[pid]?.data].forEach(x => { if (x && JSON.stringify(x[key]) === JSON.stringify(old)) x[key] = structuredClone(now); });
+    }));
+    // mission sets renamed: ATO lines, ATO missions and AOD apportionment / tasks, in the working copy and every released version
+    Object.entries(seed.renamedMissions || {}).forEach(([from, to]) => {
+      const word = new RegExp(`\\b${from}\\b`, "g");
+      (d.atoLines || []).forEach(l => { if (l.role === from) l.role = to; });
+      d.campaigns.forEach(c => ["ato", "aod"].forEach(pid => {
+        [d.content[c.id]?.[pid], c.shared?.[pid]?.data, ...(c.shared?.[pid]?.history || []).map(h => h.data)].forEach(x => {
+          (x?.missions || []).forEach(m => { if (m.role === from) m.role = to; });
+          (x?.apportionment || []).forEach(a => { if (a.mission === from) a.mission = to; });
+          (x?.objectives || []).forEach(o => { if (o.tasks) o.tasks = o.tasks.replace(word, to); });
+        });
+      }));
+    });
   }
   // Seeded "published" products get a shared snapshot so the unit portal has something to show
   function ensureShared(d) {
@@ -233,6 +261,9 @@
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 2400);
   }
+  // ATOs are designated by letters, not day numbers: day 1 = ATO AA, day 2 = AB … day 26 = AZ, day 27 = BA. The day number
+  // stays underneath (mission numbers 8xxx are built from it)
+  const atoId = n => { n = parseInt(n); if (!(n >= 1)) return "—"; n--; return String.fromCharCode(65 + Math.floor(n / 26) % 26, 65 + n % 26); };
   function zulu(d = new Date()) {
     const p = n => String(n).padStart(2, "0");
     const mon = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][d.getUTCMonth()];
@@ -306,5 +337,5 @@
   }
   const keyTaskLabel = t => t ? `KT ${t.n}${t.name ? ` — ${t.name}` : ""}` : "";
 
-  window.AOC = { Store, Auth, UnitAuth, esc, toast, zulu, renderChrome, download, htmlToText, STATUS_LABEL, LOGO, keyTasks, keyTaskOf, keyTaskLabel };
+  window.AOC = { Store, Auth, UnitAuth, esc, toast, zulu, atoId, renderChrome, download, htmlToText, STATUS_LABEL, LOGO, keyTasks, keyTaskOf, keyTaskLabel };
 })();

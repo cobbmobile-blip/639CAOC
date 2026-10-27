@@ -38,7 +38,7 @@
   const c = Store.campaign(cid);
   const isHost = me && c.jfacc?.group === me.id, readOnly = !isHost;
   const day = String(c.atoDay);
-  document.getElementById("title").textContent = `Mission debrief · OP ${c.opName} · ATO day ${day}`;
+  document.getElementById("title").textContent = `Mission debrief · OP ${c.opName} · ATO ${AOC.atoId(day)}`;
 
   const missions = c.shared?.ato?.data?.missions || [];
   const jiptl = (c.shared?.jiptl?.data || Store.content(cid, "jiptl"))?.rows || [];
@@ -107,7 +107,7 @@
       bda: d.bda.filter(r => r.status).map(r => ({ target: r.target, phase: "Phase 1 — Physical", status: r.status, source: "Host debrief", reattack: r.reattack })),
       threats: d.redLosses || bda.threats || "" });
     Store.setStatus(cid, "bda", "draft");
-    Store.log(cid, `Mission debrief for ATO day ${day} received from ${me.name}`, c.jfacc?.callsign || me.contact);
+    Store.log(cid, `Mission debrief for ATO ${AOC.atoId(day)} received from ${me.name}`, c.jfacc?.callsign || me.contact);
     const s = document.getElementById("state"); s.textContent = "Sent to the CAOC"; s.style.color = "var(--ok)"; toast("Debrief sent to the CAOC");
   };
   render();

@@ -176,7 +176,7 @@
     document.getElementById("meta").innerHTML = `
       <span>JFACC <b>${c.jfacc ? `${esc(c.jfacc.callsign)} (${esc(Store.group(c.jfacc.group)?.name || "")})` : "Not named"}</b></span>
       <span>Theater <b>${esc(c.theater)}</b></span><span>Phase <b>${esc(c.phase)}</b></span>
-      <span>D-Day <b>${esc(c.dday)}</b></span><span>ATO Day <b>${c.atoDay || "—"}</b></span><span>ATO period <b>${esc(c.atoPeriod)}</b></span>`;
+      <span>D-Day <b>${esc(c.dday)}</b></span><span>ATO <b>${AOC.atoId(c.atoDay)}</b></span><span>ATO period <b>${esc(c.atoPeriod)}</b></span>`;
 
     const statuses = Object.keys(PRODUCTS).map(id => Store.status(cid, id));
     const ato = Store.content(cid, "ato"), jiptl = Store.content(cid, "jiptl");

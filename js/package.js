@@ -3,6 +3,7 @@
 // PUBLISH releases the approved products to the groups and, as options, exports to DKS:
 //   - ACO + theater map -> DKS Overlay (drawn on the DKS theater map; never written into the .miz)
 //   - Comm Plan -> DKS Manage Agencies (persistent theater frequencies; normally only tankers and JTACs change)
+//   - SPINS Addendum A (AET tables, RAMRODs) -> DKS kneeboards, from the released SPINS (also sent from the SPINS page)
 // and posts every released product that is not a DKS export to Discord: the host unit and every active group get one post
 // with the products attached as text files (docs/ATO_Discord_Integration.md, package.posted).
 (function () {
@@ -60,8 +61,31 @@
     return {
       overlay: { measures: aco?.measures || [], points: map.points || [], shapes: map.shapes || [],
         ready: isDone(cid, "aco"), last: c.dks?.overlay || null },
-      agencies: { list: agencies, changes, ready: isDone(cid, "acp"), last: c.dks?.agencies || null }
+      agencies: { list: agencies, changes, ready: isDone(cid, "acp"), last: c.dks?.agencies || null },
+      kneeboard: kneeboardState(cid)
     };
+  }
+
+  // DKS kneeboard: SPINS Addendum A from the released SPINS, one page per ATO from the current one. Re-send when the SPINS
+  // are re-released or the ATO cycles (the pages start at the current ATO). Payload format still to be agreed with DKS
+  function kneeboardState(cid) {
+    const c = Store.campaign(cid), sh = Store.shared(cid, "spins"), last = c.dks?.kneeboard || null;
+    return { ready: !!sh || Store.status(cid, "spins") === "approved", spins: sh?.version || null, last,
+      changed: !last || last.spins !== sh?.version || last.atoDay !== c.atoDay };
+  }
+  function sendKneeboard(cid, extra = {}) {
+    const c = Store.campaign(cid), sh = Store.shared(cid, "spins"), P = PRODUCTS.spins;
+    const payload = sh && P.kneeboard?.(sh.data, { campaign: c, user: Auth.user(), group: id => Store.group(id) });
+    if (!payload) return null;
+    const d = Store.db, when = extra.when || new Date().toISOString(), by = Auth.user()?.callsign;
+    c.dks = c.dks || {}; c.dks.kneeboard = { v: (c.dks.kneeboard?.v || 0) + 1, when, by, spins: sh.version, atoDay: c.atoDay };
+    d.dksOutbox = d.dksOutbox || [];
+    d.dksOutbox.unshift({ when, event: "kneeboard.update", campaign_id: cid, operation: c.opName, ato_day: c.atoDay, ato: window.AOC.atoId(c.atoDay),
+      ...(extra.package ? { package: extra.package } : {}), kneeboard_version: c.dks.kneeboard.v, section: "SPINS Addendum A", ...payload });
+    d.dksOutbox = d.dksOutbox.slice(0, 50);
+    Store.save();
+    Store.log(cid, `SPINS Addendum A (SPINS v${sh.version}, ${payload.pages.length} ATOs) sent to DKS kneeboards, v${c.dks.kneeboard.v}`);
+    return { ...c.dks.kneeboard, pages: payload.pages.map(p => p.ato) };
   }
 
   // One PUBLISH: approved products to every active campaign group, plus the DKS exports that were ticked
@@ -77,7 +101,7 @@
       current: wanted(c).filter(pid => Store.shared(cid, pid)).map(pid => ({ pid, v: Store.shared(cid, pid).version })), dks: [] };
     // DKS exports (payload formats still to be agreed with the DKS developer; the prototype records them)
     const d = Store.db; d.dksOutbox = d.dksOutbox || []; c.dks = c.dks || {};
-    const ev = (event, payload) => d.dksOutbox.unshift({ when, event, campaign_id: cid, operation: c.opName, ato_day: c.atoDay, package: c.packageRelease.version, ...payload });
+    const ev = (event, payload) => d.dksOutbox.unshift({ when, event, campaign_id: cid, operation: c.opName, ato_day: c.atoDay, ato: window.AOC.atoId(c.atoDay), package: c.packageRelease.version, ...payload });
     if (opts.overlay) {
       c.dks.overlay = { v: (c.dks.overlay?.v || 0) + 1, when, by };
       ev("overlay.update", { overlay_version: c.dks.overlay.v, measures: ex.overlay.measures, points: ex.overlay.points, shapes: ex.overlay.shapes });
@@ -88,6 +112,8 @@
       ev("agencies.update", { agencies_version: c.dks.agencies.v, agencies: ex.agencies.list.map(({ volatile, ...a }) => a), changes: ex.agencies.changes });
       c.packageRelease.dks.push(`Agencies v${c.dks.agencies.v}`);
     }
+    // after the release, so newly approved SPINS go to the kneeboards in the same PUBLISH
+    if (opts.kneeboard) { const k = sendKneeboard(cid, { when, package: c.packageRelease.version }); if (k) c.packageRelease.dks.push(`Kneeboard v${k.v}`); }
     if (released.length) ev("package.published", { products: c.packageRelease.current });
     d.dksOutbox = d.dksOutbox.slice(0, 50);
     // Discord: the prototype records the post without the file contents (they are rebuilt from the released versions)
@@ -123,11 +149,11 @@
       return { product: pid, code: PRODUCTS[pid].docs ? PRODUCTS[pid].name : PRODUCTS[pid].code, name: PRODUCTS[pid].name, version: s.version,
         change: fresh.has(pid) ? (s.version === 1 ? "new" : "changed") : "unchanged", files: productFiles(cid, pid) };
     });
-    const files = products.flatMap(p => p.files), title = `OP ${c.opName} — PUBLISH v${rel?.version ?? "—"} · ATO day ${c.atoDay}`;
+    const files = products.flatMap(p => p.files), title = `OP ${c.opName} — PUBLISH v${rel?.version ?? "—"} · ATO ${window.AOC.atoId(c.atoDay)}`;
     const tag = { new: "NEW", changed: "CHANGED", unchanged: "" };
     const content = [`**${title}**`, ...products.map(p => `• ${p.code} v${p.version}${tag[p.change] ? ` — **${tag[p.change]}**` : ""}`),
       rel?.dks?.length ? `In DKS: ${rel.dks.join(", ")}` : "", "Full set on Op Status. Files attached."].filter(Boolean).join("\n");
-    return { event: "package.posted", campaign_id: cid, operation: c.opName, ato_day: c.atoDay, package: rel?.version ?? null,
+    return { event: "package.posted", campaign_id: cid, operation: c.opName, ato_day: c.atoDay, ato: window.AOC.atoId(c.atoDay), package: rel?.version ?? null,
       published_at: rel?.when ?? null, published_by: rel?.by ?? null, title, content,
       recipients: ids.map(g => ({ group_id: g, group: Store.group(g)?.name || g, host: g === host })),
       products: products.map(({ files: f, ...p }) => ({ ...p, files: f.map(x => x.filename) })),
@@ -142,8 +168,8 @@
     if (nextWhen) c.nextEvent = nextWhen;
     DAILY.forEach(pid => { if (Store.content(cid, pid) != null) Store.setStatus(cid, pid, "draft"); });
     Store.save();
-    Store.log(cid, `Cycled from ATO day ${from} to ATO day ${c.atoDay}; daily products back to draft`);
+    Store.log(cid, `Cycled from ATO ${window.AOC.atoId(from)} to ATO ${window.AOC.atoId(c.atoDay)}; daily products back to draft`);
   }
 
-  window.AOC.PACKAGE = { INTERNAL, DAILY, DKS_ONLY, wanted, mode, t0, tlabel, milestones, dksExports, discordPost, publish, cycle };
+  window.AOC.PACKAGE = { INTERNAL, DAILY, DKS_ONLY, wanted, mode, t0, tlabel, milestones, dksExports, sendKneeboard, discordPost, publish, cycle };
 })();

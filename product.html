@@ -18,6 +18,7 @@
 <script src="js/ato.js"></script>
 <script src="js/miz.js"></script>
 <script src="js/tdl.js"></script>
+<script src="js/package.js"></script>
 
 <main class="wrap">
   <div class="panel-head no-print" style="margin-bottom:16px">
@@ -59,6 +60,7 @@
             <button class="btn sm" id="print">Print / PDF</button>
             <button class="btn sm hidden" id="dks" disabled title="DKS integration coming soon — will push this matrix to the DKS comm page">Send to DKS</button>
             <button class="btn sm hidden" id="dksAgencies" title="Preview the agencies that will populate DKS “Manage Agencies”">DKS Agencies preview…</button>
+            <button class="btn sm hidden" id="dksKneeboard" title="Send the released Addendum A (AET tables and RAMRODs) to DKS for every crew's kneeboard">Send to DKS kneeboard</button>
           </div>
         </div>
         <article class="doc" id="doc"></article>
@@ -106,6 +108,19 @@
     document.getElementById("dksAgencies").classList.remove("hidden");
   }
 
+  // DKS kneeboard (SPINS Addendum A): the released SPINS only, so crews carry the approved tables. The same export as the
+  // kneeboard tick box on PUBLISH (package.js); DKS has no receiving end yet, so it is queued in the DKS outbox
+  if (P.kneeboard && AOC.PACKAGE) {
+    const kb = document.getElementById("dksKneeboard");
+    const label = () => { const s = Store.campaign(cid).dks?.kneeboard; kb.title = s ? `Last sent v${s.v} (SPINS v${s.spins}) ${AOC.zulu(new Date(s.when))} by ${s.by}` : "Send the released Addendum A (AET tables and RAMRODs) to DKS for every crew's kneeboard"; };
+    kb.classList.remove("hidden"); label();
+    kb.onclick = () => {
+      const sh = Store.shared(cid, pid);
+      if (!sh) { toast("Publish the SPINS first: only the released version goes to the kneeboards"); return; }
+      const k = AOC.PACKAGE.sendKneeboard(cid); if (!k) { toast("The authentication tables did not load"); return; }
+      label(); toast(`Addendum A (SPINS v${k.spins}) sent to DKS kneeboards: ${k.pages.join(", ")}${dirty || Store.status(cid, pid) !== "published" ? " · your unpublished changes were not sent" : ""}`);
+    };
+  }
   // DKS "Manage Agencies": every matrix channel with a frequency becomes a selectable default agency in DKS.
   // The integration isn't built yet, so this shows exactly what would be sent.
   document.getElementById("dksAgencies").onclick = () => {
@@ -157,11 +172,16 @@
   // ---------- form building ----------
   const form = document.getElementById("form");
 
+  // a select's options (a list, or a function for lists loaded by later scripts); a saved value off the list stays selectable
+  function optionsHtml(f, val, row) {
+    const os = typeof f.options === "function" ? f.options(data, cid, row) : f.options, v = String(val ?? "");
+    return `<option></option>${[...(v && !os.includes(v) ? [v] : []), ...os].map(o => `<option ${o === v ? "selected" : ""}>${esc(o)}</option>`).join("")}`;
+  }
   function cellInput(col, val, path, row) {
     // "2xF-16C": one cell for the row's num and type
     if (col.type === "acft") return `<input data-acft="${path.replace(/\.[^.]+$/, "")}" value="${esc(row.num || row.type ? `${row.num || ""}x${row.type || ""}` : "")}" placeholder="2xF-16C">`;
     const a = `data-path="${path}"`;
-    if (col.type === "select") return `<select ${a}><option></option>${col.options.map(o => `<option ${o === val ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>`;
+    if (col.type === "select") return `<select ${a}>${optionsHtml(col, val, row)}</select>`;
     if (col.type === "groups") return `<select ${a}><option></option>${campaign.groups.map(g => `<option value="${g}" ${g === val ? "selected" : ""}>${esc(Store.group(g).name)}</option>`).join("")}</select>`;
     if (col.type === "jiptl") return `<input ${a} list="jiptlList" value="${esc(val)}">`;
     if (col.type === "msn") return `<input ${a} list="msnList" value="${esc(val)}">`;
@@ -175,8 +195,9 @@
       if (f.type === "section") { closeHalf(); html += `<div class="section-h">${esc(f.label)}</div>`; if (pid === "optasklink" && AOC.TDL) html += tdlPanel(); return; }
       if (f.half && !halfOpen) { html += `<div class="row2">`; halfOpen = true; }
       else if (!f.half) closeHalf();
-      const v = data[f.key] ?? "";
-      const hint = f.hint ? `<div class="hint">${esc(f.hint)}</div>` : "";
+      if (f.prefill && f.type === "table") { const p = f.prefill(data, cid); if (p && (data[f.key] || []).length < p.length) data[f.key] = p; }
+      const v = data[f.key] ?? "", h = typeof f.hint === "function" ? f.hint(data, cid) : f.hint;
+      const hint = h ? `<div class="hint">${esc(h)}</div>` : "";
       if (f.type === "textarea") html += `<div class="field"><label>${esc(f.label)}</label><textarea data-path="${f.key}">${esc(v)}</textarea>${hint}</div>`;
       else if (f.type === "list") html += `<div class="field list-edit"><label>${esc(f.label)}</label>
         ${v.map((item, i) => `<div class="item"><input data-path="${f.key}.${i}" value="${esc(item)}"><button class="btn sm ghost" data-del="${f.key}.${i}" title="Remove">✕</button></div>`).join("")}
@@ -191,7 +212,8 @@
       else if (f.type === "matrix") html += matrixEditor(f);
       else if (f.type === "measures") html += measuresEditor(f);
       else if (f.type === "checklist") html += checklistEditor(f);
-      else if (f.type === "jiptl") html += `<div class="field"><label>${esc(f.label)}</label><input data-path="${f.key}" list="jiptlList" value="${esc(v)}">${hint}</div>`;
+      else if (f.type === "select") html += `<div class="field"><label>${esc(f.label)}</label><select data-path="${f.key}">${optionsHtml(f, v)}</select>${hint}</div>`;
+      else if (f.type === "jiptl") html +=`<div class="field"><label>${esc(f.label)}</label><input data-path="${f.key}" list="jiptlList" value="${esc(v)}">${hint}</div>`;
       else html += `<div class="field"><label>${esc(f.label)}</label><input data-path="${f.key}" value="${esc(v)}">${hint}</div>`;
       if (f.iffPanel) html += `<div id="tgtCheck">${tgtCheckHtml()}</div>`;
       if (f.iffPanel && AOC.IFF) html += iffPanel();
@@ -213,9 +235,9 @@
       <div class="toolbar"><button class="btn sm" data-iffact="fill" title="Lines with no codes, or a Mode 3/A that doesn't start with its Mode 1">Assign IFF codes</button><button class="btn sm ghost" data-iffact="all">Reassign all lines</button></div>
       <div id="iffCheck">${iffCheckHtml()}</div></div>`;
   }
-  // ATO lines whose target number is no longer on the JIPTL
+  // ATO lines whose target number is no longer on the JIPTL, and INT lines with no JIPTL target at all
   function tgtCheckHtml() {
-    const bad = (data.missions || []).map(m => [m, AOC.targetIssue(cid, m.target)]).filter(([, t]) => t);
+    const bad = (data.missions || []).map(m => [m, AOC.targetIssue(cid, m.target, null, m.role)]).filter(([, t]) => t);
     return bad.length ? `<div class="field"><label>Targets</label><ul class="small" style="list-style:none;padding-left:0;margin:0">${bad.map(([m, t]) =>
       `<li style="color:var(--warn)">! <span class="mono">${esc(m.msn)}</span> ${esc(t)}</li>`).join("")}</ul></div>` : "";
   }
@@ -398,6 +420,7 @@
     if (e.target.type === "checkbox" && /\.done$/.test(path)) { buildForm(); } // refresh the "n / m covered" count
     markDirty();
     if (/\.columns\.\d+\.color$/.test(path)) buildForm(); // recolour the column
+    if (/^codewords\.\d+\.type$/.test(path)) buildForm(); // the code word list follows the type
     if (pid === "ato" && /^missions\./.test(path) && document.getElementById("iffCheck")) document.getElementById("iffCheck").innerHTML = iffCheckHtml();
     if (pid === "ato" && /^missions\./.test(path) && document.getElementById("tgtCheck")) document.getElementById("tgtCheck").innerHTML = tgtCheckHtml();
     if (pid === "optasklink" && document.getElementById("tdlCheck")) document.getElementById("tdlCheck").innerHTML = tdlCheckHtml();

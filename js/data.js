@@ -36,7 +36,6 @@ window.AOC_SEED = {
     { id: "g3", name: "Strike Eagle Det", airframes: "F-15E", contact: "Dude", members: 9, tz: "UK", status: "active", login: "eagle", code: "unit-demo" },
     { id: "g4", name: "Warthog Close Air", airframes: "A-10C II", contact: "Hawg", members: 12, tz: "US Central", status: "active", login: "hawg", code: "unit-demo" },
     { id: "g5", name: "Rotary Wing Det", airframes: "AH-64D, UH-1H", contact: "Gunfighter", members: 7, tz: "Germany", status: "pending", login: "rotary", code: "unit-demo" },
-    { id: "g6", name: "AOC Support Cell", airframes: "KC-135, E-3 (AI)", contact: "Texaco", members: 4, tz: "Mixed", status: "active", login: "support", code: "unit-demo" },
     { id: "g7", name: "Black Knights vFS", airframes: "F-16C", contact: "Lancer", members: 14, tz: "Netherlands", status: "active", login: "knights", code: "unit-demo" },
     { id: "g8", name: "Tomcat Heritage Sqn", airframes: "F-14B", contact: "Rogue", members: 11, tz: "US East", status: "active", login: "tomcat", code: "unit-demo" },
     { id: "g9", name: "Ridgerunner Det", airframes: "F-15E", contact: "Runner", members: 6, tz: "US Central", status: "active", login: "ridge", code: "unit-demo" },
@@ -65,7 +64,7 @@ window.AOC_SEED = {
         misreps: [{ msn: "7101", callsign: "VIPER 1", target: "T10002", flown: "Yes", result: "Hit — damaged", remarks: "" }, { msn: "7102", callsign: "DUDE 1", target: "T10003", flown: "Yes", result: "Hit — destroyed", remarks: "" },
           { msn: "7103", callsign: "SPRINGFIELD 3", target: "T10005", flown: "No — aborted", result: "", remarks: "Weather" }],
         bda: [{ target: "T10002", status: "Moderate damage", reattack: "Yes", notes: "" }, { target: "T10003", status: "Destroyed", reattack: "No", notes: "TGP video" }], losses: [] } },
-      groups: ["g1", "g2", "g3", "g4", "g6", "g7", "g8", "g10", "g11", "g12", "g13", "g9", "g14"], // g9 joined by committing to line 8601; g14 the CSAR helos
+      groups: ["g1", "g2", "g3", "g4", "g7", "g8", "g10", "g11", "g12", "g13", "g9", "g14"], // g9 joined by committing to line 8601; g14 the CSAR helos
       status: { pcon: "approved", ci: "published", aod: "published", jiptl: "approved", tdp: "draft", maap: "approved", ato: "published", aco: "review", spins: "published", acp: "published", grg: "draft", bda: "draft" },
       // seed release history (version + time) for products already published
       releases: {
@@ -86,7 +85,7 @@ window.AOC_SEED = {
       atoPeriod: "0400Z–0359Z",
       nextEvent: "2026-11-02T19:00:00Z",
       jfacc: { callsign: "DUDE", group: "g3", discord: "dude#3015" },
-      groups: ["g1", "g3", "g5", "g6", "g9", "g10", "g12"],
+      groups: ["g1", "g3", "g5", "g9", "g10", "g12"],
       status: { ci: "draft" }
     },
     {
@@ -97,7 +96,7 @@ window.AOC_SEED = {
       dday: "2026-12-07",
       atoDay: 0,
       atoPeriod: "0800Z–0759Z",
-      groups: ["g2", "g6", "g8", "g13"],
+      groups: ["g2", "g8", "g13"],
       status: {}
     }
   ],
@@ -122,15 +121,31 @@ window.AOC_SEED = {
       status: "ai", postedAt: "", committedBy: "", committedAt: "", committedByUser: "" }
   ],
 
+  // groups dropped from the seed: saved browsers remove them too and their ATO lines become AI lines
+  retiredGroups: ["g6"],
+  // mission sets renamed: saved ATOs, ATO lines and AODs follow (AI was air interdiction, now INT, so it is not read as AI crew)
+  renamedMissions: { AI: "INT" },
+  // example text the seed has since rewritten: a saved product still holding the old text takes the new (edited text is kept)
+  supersededText: [
+    { pid: "spins", key: "checkin", old: "Check in on YELLOW 1 (HOWDY) when airborne: callsign, mission number, number and type, playtime. Refer to channels by Comm Plan matrix ID on the net, e.g. “push BLUE 1”." },
+    { pid: "spins", key: "auth", old: "Challenge/reply from the daily authentication table posted in #aoc-spins. Change at 0600Z." },
+    { pid: "spins", key: "codewords", old: [
+        { word: "BLUE MOON", meaning: "Abort all strikes, RTB" },
+        { word: "RAIN DANCE", meaning: "SAM re-occupation detected — SEAD respond" },
+        { word: "SANDY", meaning: "CSAR in progress — clear the area on Strike Common" },
+        { word: "BIG TOP", meaning: "HVAA threatened — DCA commit" }
+      ] }
+  ],
+
   // Which version of each released product each group has pulled from the portal
   receipts: [
-    ...["g1", "g2", "g3", "g4", "g6", "g7", "g8", "g10", "g12", "g13"].map(g => ({ cid: "iron-trident", gid: g, pid: "ci", v: 1 })),
+    ...["g1", "g2", "g3", "g4", "g7", "g8", "g10", "g12", "g13"].map(g => ({ cid: "iron-trident", gid: g, pid: "ci", v: 1 })),
     ...["g1", "g2", "g3", "g4", "g7", "g8", "g13"].map(g => ({ cid: "iron-trident", gid: g, pid: "spins", v: 3 })),
     ...["g10", "g12"].map(g => ({ cid: "iron-trident", gid: g, pid: "spins", v: 2 })),
     ...["g1", "g3", "g4", "g7", "g13"].map(g => ({ cid: "iron-trident", gid: g, pid: "aod", v: 1 })),
-    ...["g1", "g3", "g6", "g7"].map(g => ({ cid: "iron-trident", gid: g, pid: "ato", v: 2 })),
+    ...["g1", "g3", "g7"].map(g => ({ cid: "iron-trident", gid: g, pid: "ato", v: 2 })),
     ...["g2", "g4", "g8", "g10", "g13"].map(g => ({ cid: "iron-trident", gid: g, pid: "ato", v: 1 })),
-    ...["g1", "g6"].map(g => ({ cid: "iron-trident", gid: g, pid: "acp", v: 1 }))
+    ...["g1"].map(g => ({ cid: "iron-trident", gid: g, pid: "acp", v: 1 }))
   ],
 
   // Campaign proposals submitted by a sponsoring group for CAOC review
@@ -323,7 +338,7 @@ window.AOC_SEED = {
 
   // Product requests from participating groups ("on user request")
   requests: [
-    { id: "r1", campaign: "iron-trident", group: "g1", product: "ato", note: "ATO Day 9 for Thursday 2000Z event", when: "2026-10-19T14:10Z", state: "open" },
+    { id: "r1", campaign: "iron-trident", group: "g1", product: "ato", note: "ATO AI for Thursday 2000Z event", when: "2026-10-19T14:10Z", state: "open" },
     { id: "r2", campaign: "iron-trident", group: "g4", product: "tdp", note: "TDP for JIPTL #4 (Bridge LIMA)", when: "2026-10-19T09:42Z", state: "open" },
     { id: "r3", campaign: "iron-trident", group: "g2", product: "aco", note: "Updated ACO — need CAP KNIFE altitudes", when: "2026-10-18T21:05Z", state: "open" },
     { id: "r5", campaign: "iron-trident", group: "g11", product: "ato", note: "Volunteer for open line 8203 (DCA, CAP KNIFE 1400–1800Z) with 2× M-2000C", when: "2026-10-19T20:15Z", state: "open" },
@@ -355,12 +370,12 @@ window.AOC_SEED = {
         guidance: "Weight of effort shifts from OCA/SEAD to air interdiction. Maintain DCA posture. Prioritise destruction of Red bridging and fuel along MSR TAMPA.",
         objectives: [
           { pri: "1", objective: "Suppress remaining Red SAM coverage in the western sector", effect: "Neutralise", tasks: "SEAD, DEAD" },
-          { pri: "2", objective: "Isolate Red forces west of Kutaisi", effect: "Interdict", tasks: "AI, armed recce" },
+          { pri: "2", objective: "Isolate Red forces west of Kutaisi", effect: "Interdict", tasks: "INT, XINT" },
           { pri: "3", objective: "Support TF BLUE advance to Senaki", effect: "Support", tasks: "CAS, XCAS" }
         ],
         apportionment: [
           { mission: "DCA", pct: "15" }, { mission: "OCA", pct: "10" }, { mission: "SEAD/DEAD", pct: "25" },
-          { mission: "AI", pct: "30" }, { mission: "CAS", pct: "15" }, { mission: "ISR", pct: "5" }
+          { mission: "INT", pct: "30" }, { mission: "CAS", pct: "15" }, { mission: "ISR", pct: "5" }
         ],
         targeting: "Strike only targets on the approved JIPTL. Dynamic targets require JFACC or delegated SODO approval.",
         notes: "SPINS v3 in effect. Code words: BLUE MOON = abort all strikes, RAIN DANCE = SAM re-occupation detected."
@@ -470,13 +485,13 @@ window.AOC_SEED = {
         // Lines with an empty group are open for volunteers
         missions: [
           { msn: "8101", pkg: "A", group: "g1", callsign: "VIPER 1", type: "F-16C", num: "4", role: "SEAD", tot: "0715Z", target: "T10001", tanker: "TEXACO 1" },
-          { msn: "8102", pkg: "A", group: "g3", callsign: "DUDE 1", type: "F-15E", num: "2", role: "AI", tot: "0720Z", target: "T10004", tanker: "TEXACO 1" },
+          { msn: "8102", pkg: "A", group: "g3", callsign: "DUDE 1", type: "F-15E", num: "2", role: "INT", tot: "0720Z", target: "T10004", tanker: "TEXACO 1" },
           { msn: "8103", pkg: "A", group: "g2", callsign: "SPRINGFIELD 1", type: "F/A-18C", num: "4", role: "Escort", tot: "0710Z", target: "Pkg A", tanker: "ARCO 1" },
           { msn: "8104", pkg: "A", group: "g7", callsign: "KNIGHT 1", type: "F-16C", num: "4", role: "DEAD", tot: "0718Z", target: "T10002", tanker: "TEXACO 2" },
           { msn: "8105", pkg: "A", group: "g13", callsign: "EAGLE 1", type: "F-15C", num: "4", role: "OCA", tot: "0705Z", target: "Pkg A sweep", tanker: "TEXACO 2" },
           { msn: "8111", pkg: "B", group: "g11", callsign: "MISTRAL 1", type: "M-2000C", num: "2", role: "Escort", tot: "1055Z", target: "Pkg B", tanker: "—" },
-          { msn: "8112", pkg: "B", group: "g10", callsign: "BEAST 1", type: "AV-8B", num: "2", role: "AI", tot: "1100Z", target: "T10005", tanker: "ARCO 1" },
-          { msn: "8113", pkg: "B", group: "g3", callsign: "DUDE 3", type: "F-15E", num: "2", role: "AI", tot: "1102Z", target: "T10005", tanker: "TEXACO 1" },
+          { msn: "8112", pkg: "B", group: "g10", callsign: "BEAST 1", type: "AV-8B", num: "2", role: "INT", tot: "1100Z", target: "T10005", tanker: "ARCO 1" },
+          { msn: "8113", pkg: "B", group: "g3", callsign: "DUDE 3", type: "F-15E", num: "2", role: "INT", tot: "1102Z", target: "T10005", tanker: "TEXACO 1" },
           { msn: "8114", pkg: "B", group: "g1", callsign: "VIPER 5", type: "F-16C", num: "2", role: "SEAD", tot: "1058Z", target: "Pkg B", tanker: "TEXACO 1" },
           { msn: "8115", pkg: "B", group: "", callsign: "TBD", type: "F-16C", num: "2", crew: "Human", role: "SEAD", tot: "1058Z", target: "Pkg B", tanker: "TEXACO 1", lineId: "L8115" },
           { msn: "8201", pkg: "—", group: "g8", callsign: "ROGUE 1", type: "F-14B", num: "2", role: "DCA", tot: "0600–1000Z", target: "CAP KNIFE", tanker: "ARCO 1" },
@@ -487,9 +502,9 @@ window.AOC_SEED = {
           { msn: "8303", pkg: "—", group: "g12", callsign: "THUNDER 1", type: "AH-64D", num: "2", role: "CAS", tot: "0830Z", target: "AO HAMMER", tanker: "—" },
           { msn: "8304", pkg: "—", group: "g10", callsign: "BEAST 3", type: "AV-8B", num: "2", role: "CAS", tot: "1200Z", target: "AO HAMMER", tanker: "—" },
           { msn: "8305", pkg: "—", group: "", callsign: "TBD", type: "A-10C II", num: "2", crew: "Human", role: "CAS", tot: "1400Z", target: "AO HAMMER", tanker: "—", lineId: "L8305" },
-          { msn: "8401", pkg: "—", group: "g6", callsign: "TEXACO 1", type: "KC-135", num: "1", role: "AR", tot: "0630Z", target: "AR TRACK ALPHA", tanker: "—" },
-          { msn: "8402", pkg: "—", group: "g6", callsign: "ARCO 1", type: "KC-135 MPRS", num: "1", role: "AR", tot: "0630Z", target: "AR TRACK BRAVO", tanker: "—" },
-          { msn: "8403", pkg: "—", group: "g6", callsign: "DARKSTAR", type: "E-3A", num: "1", role: "AEW", tot: "0600Z", target: "Orbit WEST", tanker: "—" },
+          { msn: "8401", pkg: "—", group: "", callsign: "TEXACO 1", type: "KC-135", num: "1", crew: "AI", role: "AR", tot: "0630Z", target: "AR TRACK ALPHA", tanker: "—" },
+          { msn: "8402", pkg: "—", group: "", callsign: "ARCO 1", type: "KC-135 MPRS", num: "1", crew: "AI", role: "AR", tot: "0630Z", target: "AR TRACK BRAVO", tanker: "—" },
+          { msn: "8403", pkg: "—", group: "", callsign: "DARKSTAR", type: "E-3A", num: "1", crew: "AI", role: "AEW", tot: "0600Z", target: "Orbit WEST", tanker: "—" },
           // requested by the JFACC from the sponsor .miz: a committed F-15E 4-ship and an AI tanker
           { msn: "8601", pkg: "A", group: "g9", callsign: "RUNNER 1", type: "F-15E", num: "4", crew: "Human", role: "Strike", tot: "0722Z", target: "T10005", tanker: "TEXACO 1", lineId: "L8601" },
           { msn: "8602", pkg: "—", group: "", callsign: "SHELL 1", type: "KC-135 MPRS", num: "1", crew: "AI", role: "AR", tot: "0630Z", target: "AR TRACK ALPHA", tanker: "—", lineId: "L8602" }
@@ -512,10 +527,14 @@ window.AOC_SEED = {
         roe: "Hostile act or hostile intent required for engagement outside declared hostile forces. All Red military aircraft north of the FSCL are declared hostile. Self-defence is always authorised.",
         idCriteria: "Weapons Tight: two of — AWACS declaration HOSTILE, NCTR/visual ID, point of origin from Red airfield. Commit criteria for DCA: Red fighters within 40 NM of CAP KNIFE or heading toward HVAA.",
         codewords: [
-          { word: "BLUE MOON", meaning: "Abort all strikes, RTB" },
-          { word: "RAIN DANCE", meaning: "SAM re-occupation detected — SEAD respond" },
-          { word: "SANDY", meaning: "CSAR in progress — clear the area on Strike Common" },
-          { word: "BIG TOP", meaning: "HVAA threatened — DCA commit" }
+          { type: "Action", word: "TERMINATOR", meaning: "Abort all strikes, RTB" },
+          { type: "Action", word: "PREDATOR", meaning: "SAM re-occupation detected — SEAD respond" },
+          { type: "Action", word: "ROBOCOP", meaning: "CSAR in progress — clear the area on Strike Common" },
+          { type: "Action", word: "BATMAN", meaning: "HVAA threatened — DCA commit" },
+          { type: "GEOREF", word: "AEROSMITH", meaning: "Package A push point" },
+          { type: "GEOREF", word: "METALLICA", meaning: "Package B push point" },
+          { type: "OPFOR", word: "MUSTANG", meaning: "SA-6" },
+          { type: "OPFOR", word: "CORVETTE", meaning: "SA-11" }
         ],
         weapons: [
           { weapon: "Cluster munitions (CBU-87/97, Mk-20)", status: "Prohibited", applies: "All", conditions: "Within 2 km of populated areas" },
@@ -526,8 +545,8 @@ window.AOC_SEED = {
           { weapon: "Laser-guided bombs", status: "Authorised", applies: "All", conditions: "Laser codes 1688 (strike), 1511 (CAS) — deconflict on the package frequency" }
         ],
         weaponsNotes: "Jettison area: over water west of Kobuleti, 20 NM offshore. Hung ordnance recovers to Kobuleti only, straight-in approach.",
-        auth: "Challenge/reply from the daily authentication table posted in #aoc-spins. Change at 0600Z.",
-        checkin: "Check in on YELLOW 1 (HOWDY) when airborne: callsign, mission number, number and type, playtime. Refer to channels by Comm Plan matrix ID on the net, e.g. “push BLUE 1”.",
+        auth: "",
+        checkin: "Check in on YELLOW 1 (HOWDY) when airborne. Channels will be referred to by Comm Plan matrix ID.",
         tanker: "Check in with tanker 10 NM from track on boom/drogue freq. Max 2 flights on the boom at once; others hold 1,000 ft above at the anchor.",
         csar: "Downed aircrew: initial call on Guard, then the PR primary (GREEN 3). SANDY lead is the on-scene commander. 55th RQS (MH-60L) on 15-min alert at Senaki once the area is secure.",
         diverts: [
@@ -645,7 +664,7 @@ window.AOC_SEED = {
           { target: "T10005", phase: "Phase 1 — Physical", status: "No damage", source: "Not attacked", reattack: "Yes" }
         ],
         threats: "New SA-15 reported 3 NM west of Samtredia (VIPER 3 RWR, 0718Z).",
-        recommendations: "Re-attack T10002 with DEAD on ATO Day 8. Add the Samtredia SA-15 to the JIPTL as an emerging target. Re-task T10005 with an all-weather weapon (GBU-31)."
+        recommendations: "Re-attack T10002 with DEAD on ATO AH. Add the Samtredia SA-15 to the JIPTL as an emerging target. Re-task T10005 with an all-weather weapon (GBU-31)."
       }
     }
   }

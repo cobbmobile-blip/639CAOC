@@ -40,6 +40,19 @@
     "NECTAR", "ORCHID", "PEPPER", "QUARTZ", "RIVET", "SADDLE", "TIMBER", "UMBRA", "VELVET", "WALNUT", "YARROW", "ZEPHYR"];
   const LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ";            // no I or O (read as 1 / 0)
   const DURESS = ["CORNFLOWER", "TEACUP", "HONEYBEE", "SNOWDROP", "PINWHEEL", "MOLASSES"];
+  // the 639th codeword reference list (Comms/Codeword Reference List.png): code words for actions (heroes), geographic
+  // references (rock bands) and OPFOR (cars), and RAMRODs: 10-letter words, no letter twice, letters standing for 0-9.
+  // One RAMROD per ATO, never the campaign's SARNEG
+  const CODEWORDS = {
+    Action: ["BATMAN", "SUPERMAN", "IRON MAN", "THOR", "WOLVERINE", "RAMBO", "TERMINATOR", "MAD MAX", "MORPHEUS", "DUTCH", "PREDATOR", "ROBOCOP", "DAREDEVIL", "DEADPOOL", "SPIDER-MAN", "BLACK PANTHER", "DOCTOR STRANGE", "AQUAMAN", "WICK", "BOND", "HUNT", "BOURNE", "RIPLEY", "REACHER", "SKYWALKER", "HAN SOLO", "KENOBI", "PLISSKEN", "DECKARD", "DREDD", "MCCLANE", "PAYNE", "WILLIS", "STALLONE", "GIBSON", "NEESON", "PITT", "EASTWOOD", "STATHAM", "TRAVOLTA", "CONNERY", "JACKMAN", "CLOONEY", "CROWE", "SWAYZE", "LABEOUF", "HARDY"],
+    GEOREF: ["MERCURY", "AEROSMITH", "BON JOVI", "LEPPARD", "HAGAR", "METALLICA", "PLANT", "POISON", "HALEN", "JOURNEY", "FOREIGNER", "OSBOURNE", "QUEEN", "DALTREY", "JAGGER", "NIRVANA", "SIMMONS", "PERRY", "GRAMM", "BONO", "STING", "COBAIN", "VEDDER", "CORNELL", "HETFIELD", "RUSH", "GEDDY", "KISS", "STANLEY", "FREY", "COLLINS", "WATERS", "PURPLE", "PEPPERS", "PINK", "FLOYD", "PRIEST", "DURAN", "TEARS", "FEARS", "CURE", "MAIDEN", "SABBATH", "OZZY", "DEPECHE", "LINKIN", "ZOMBIE"],
+    OPFOR: ["MUSTANG", "CAMARO", "CORVETTE", "CHARGER", "TAURUS", "FIREBIRD", "COROLLA", "IMPALA", "CIVIC", "ACCORD", "SUPRA", "SKYLINE", "ALTIMA", "MIATA", "PRELUDE", "OUTBACK", "IMPREZA", "SILVIA", "ECLIPSE", "INTEGRA", "MAXIMA", "LANCER", "GOLF", "BEETLE", "POLO", "FOCUS", "FUSION", "SENTRA", "CELICA", "CAMRY", "CARRERA", "SILVERADO", "FORESTER", "TUNDRA", "TACOMA", "DEFENDER", "WRANGLER", "CHEROKEE", "PASSAT", "TAHOE", "SUBURBAN", "HIGHLANDER", "HURACAN", "AVENTADOR", "CAYMAN", "PANAMERA"] };
+  const RAMRODS = ["ABDUCTIONS", "ALGORITHMS", "ARTICHOKES", "BACKGROUND", "BANKRUPTCY", "BLACKSMITH", "BLUEPRINTS", "BOUNDARIES", "CHARMINGLY", "COMPATIBLE", "COMPLAINTS", "COMPLEXITY", "CORNFLAKES", "DECORATING", "DISCOURAGE", "DOWNSTREAM", "EXHAUSTION", "FLOURISHED", "FORMIDABLE", "GRACIOUSLY", "HANDSOMELY", "HOSPITABLE", "HYSTERICAL", "IMPERSONAL", "INCUBATORS", "JOURNALIST", "LUMBERJACK", "MAYFLOWERS", "MISFORTUNE", "NEIGHBORLY", "NIGHTMARES", "OVERNIGHTS", "PAINTBRUSH", "PLAYGROUND", "PLAYWRIGHT", "PRODUCTIVE", "PROFITABLE", "QUIZMASTER", "REGULATION", "REPUBLICAN", "SHOPLIFTER", "SMOTHERING", "SUBJECTING", "SYMPATHIZE", "TAMBOURINE", "UPHOLSTERY", "VANQUISHED"].filter(w => w.length === 10 && new Set(w).size === 10);
+  // the authentication matrix: rows A-M, columns N-Z (no letter is both, so a challenge reads either way), a letter in every
+  // cell. "Authenticate November, Bravo" is answered with the letter where column N meets row B. One per ATO, generated
+  const AUTH_ROWS = "ABCDEFGHIJKLM", AUTH_COLS = "NOPQRSTUVWXYZ";
+  const rng = seed => () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const authMatrix = (cid, day) => { const r = rng(hash(`${cid}:auth:${day}`)); return [...AUTH_ROWS].map(() => [...AUTH_COLS].map(() => String.fromCharCode(65 + Math.floor(r() * 26)))); };
   const comm = cid => { const m = Store.content(cid, "acp")?.matrix;
     return (m?.columns || []).flatMap(c => (c.cells || []).slice(0, m.rows).map((cell, i) => ({ id: `${c.color} ${i + 1}`, net: c.title, ...cell }))).filter(ch => ch.role || ch.callsign || ch.freq); };
   // a Comm Plan channel by purpose (products.js), e.g. chan(cid, "sar")
@@ -54,14 +67,17 @@
     const sardot = isFinite(sLat) && isFinite(sLon) && s.sardotLat ? { name: s.sardotName || "SARDOT", lat: sLat, lon: sLon }
       : named ? { name: named.name, lat: named.lat, lon: named.lng }
       : area?.lat ? { name: "SARDOT", lat: Math.round(+area.lat * 60) / 60, lon: Math.round(+area.lon * 60) / 60 } : null;
-    const days = Array.from({ length: Math.max(7, (+c.atoDay || 1) + 3) }, (_, i) => ({ day: String(i + 1),
-      wod: WODS[(h + i * 7) % WODS.length], lod: LETTERS[(h + i * 5) % LETTERS.length], nod: String((h + i * 3) % 10) }));
+    // a week ahead of the current ATO, so the SPINS addendum carries the tables crews will need next
+    const sarneg = up(s.sarneg) || SARNEGS[h % SARNEGS.length], rams = RAMRODS.filter(w => w !== sarneg);
+    const days = Array.from({ length: Math.max(7, (+c.atoDay || 1) + 6) }, (_, i) => ({ day: String(i + 1),
+      wod: WODS[(h + i * 7) % WODS.length], lod: LETTERS[(h + i * 5) % LETTERS.length], nod: String((h + i * 3) % 10), ramrod: rams[(h + i * 11) % rams.length] }));
     // SPINS first; then the Comm Plan's SAR / SAR-B / PRCC nets; the JCEOI all-services SAR common (282.800) as the last alternate
     const prim = chan(cid, "sar") || chan(cid, "rescort"), alt = chan(cid, "sarAlt"), prcc = chan(cid, "prcc");
     const sarCommon = prim && Math.abs(+prim.freq - 282.8) < 1e-6 ? "" : "282.800 (all-services SAR common)";
     return {
-      sarneg: up(s.sarneg) || SARNEGS[h % SARNEGS.length], sardot, duress: up(s.duress) || DURESS[h % DURESS.length],
-      days: s.prDays?.length ? s.prDays : days,
+      sarneg, sardot, duress: up(s.duress) || DURESS[h % DURESS.length],
+      // each day's word / letter / number: the SPINS' choice where it makes one, else the generated value
+      days: days.map((g, i) => { const o = (s.prDays || [])[i] || {}; return { day: g.day, ato: window.AOC.atoId(g.day), wod: up(o.wod) || g.wod, lod: up(o.lod) || g.lod, nod: String(o.nod ?? "").trim() || g.nod, ramrod: up(o.ramrod) || g.ramrod }; }),
       guard: "243.000 UHF / 121.500 VHF",
       primary: s.prPrimary || chanTxt(prim) || "282.800 (all-services SAR common)", alternate: s.prAlternate || chanTxt(alt) || sarCommon, prcc: chanTxt(prcc),
       contact: s.prContact || "Initial call on Guard when safe, then monitor the PR primary. After that listen for 5 minutes on the hour and half hour (H+00, H+30); transmit only when you hear or see friendly aircraft.",
@@ -255,7 +271,9 @@
       points: inc.route.map((p, i) => ({ seq: i + 1, name: p.name, lat: +p.lat.toFixed(5), lon: +p.lon.toFixed(5), dks_section: "Spider points", role: p.role || "" })) };
   }
 
-  window.AOC.PR = { STEPS, osc, amc, amcOptions, setAmc, spinsPR, sarnegEncode, spinsAt, dayOf, isopreps, isoprepFor, saveIsoprep, epas, epaFor, saveEpa, standardEpa,
+  // what the SPINS editor offers for each authentication item
+  const LISTS = { sarneg: SARNEGS, wod: WODS, lod: [...LETTERS], nod: [..."0123456789"], duress: DURESS, ramrod: RAMRODS, codewords: CODEWORDS };
+  window.AOC.PR = { LISTS, AUTH_ROWS, AUTH_COLS, authMatrix, STEPS, osc, amc, amcOptions, setAmc, spinsPR, sarnegEncode, spinsAt, dayOf, isopreps, isoprepFor, saveIsoprep, epas, epaFor, saveEpa, standardEpa,
     incidents, incident, intake, setStep, log, threats, commPlan, FORCES, forceNeeds, assignLine, requestLine, forceState, routePoints, routePayload,
     nm, brg, ddm, mgrs, chan };
 })();

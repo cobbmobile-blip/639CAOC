@@ -80,7 +80,7 @@
     }
     const c = camp();
     document.getElementById("title").textContent = `ATO lines · OP ${c.opName}`;
-    document.getElementById("meta").innerHTML = `<span>JFACC <b>${esc(c.jfacc.callsign)}</b></span><span>ATO Day <b>${c.atoDay || "—"}</b></span><span>Theater <b>${esc(c.theater)}</b></span>`;
+    document.getElementById("meta").innerHTML = `<span>JFACC <b>${esc(c.jfacc.callsign)}</b></span><span>ATO <b>${AOC.atoId(c.atoDay)}</b></span><span>Theater <b>${esc(c.theater)}</b></span>`;
     document.getElementById("targets").innerHTML = (Store.content(cid, "jiptl")?.rows || []).map(r => `<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("");
     body.innerHTML = `<div class="alay">
       <div class="grid" style="align-content:start">
@@ -106,7 +106,7 @@
       </section>
     </div>`;
     const f = document.getElementById("reqForm");
-    const upd = () => { const ti = AOC.targetIssue(cid, f.target.value);
+    const upd = () => { const ti = AOC.targetIssue(cid, f.target.value, null, f.role.value);
       document.getElementById("reqFormRcpt").innerHTML = (ti ? `<span style="color:var(--warn)">! ${esc(ti)}</span><br>` : "") + (f.crew.value === "AI" ? "AI line — goes straight onto the ATO; your group builds it in the .miz. Nothing is posted."
       : `Saved as a draft: check it in Your ATO lines, then <b>Post to Discord</b>. ${recipientsText(f.airframe.value)}`); };
     f.addEventListener("change", upd); f.target.addEventListener("input", upd); upd();
@@ -185,7 +185,7 @@
       ${ls.map(l => { const g = Store.group(l.committedBy);
         return `<tr><td class="mono">${esc(l.msn)}</td>
         <td><b>${l.num}× ${esc(l.airframe)}</b> · ${esc(l.role)}<div class="muted small">${[...new Set([l.callsign, l.target, l.pkg && `Pkg ${l.pkg}`].filter(Boolean))].map(esc).join(" · ")}</div>
-          ${AOC.targetIssue(cid, l.target) ? `<div class="small" style="color:var(--warn)">! ${esc(AOC.targetIssue(cid, l.target))}</div>` : ""}</td>
+          ${AOC.targetIssue(cid, l.target, null, l.role) ? `<div class="small" style="color:var(--warn)">! ${esc(AOC.targetIssue(cid, l.target, null, l.role))}</div>` : ""}</td>
         <td><span class="crew ${l.crew}">${l.crew}</span></td>
         <td><span class="st ${l.status}">${ATO.STATUS[l.status][0]}</span>
           <div class="muted small">${l.status === "committed" ? `<b style="color:var(--ok)">${esc(g?.name)}</b> · ${esc(l.committedByUser)} · ${zulu(new Date(l.committedAt))}`
@@ -229,7 +229,7 @@
     back.innerHTML = `<div class="panel modal" style="max-width:640px;max-height:calc(100vh - 32px);overflow:auto">
       <div class="panel-head"><h2>Discord post · line ${esc(l.msn)}</h2><button class="btn sm" data-x>Close</button></div>
       <p class="muted small" style="margin-top:0">Preview of what the existing CAOC bot posts to each registered ${esc(l.airframe)} group. The live post goes out through that integration.</p>
-      <div class="dpost"><span class="who">CAOC Tasking<small>BOT · ATO Day ${c.atoDay}</small></span>
+      <div class="dpost"><span class="who">CAOC Tasking<small>BOT · ATO ${AOC.atoId(c.atoDay)}</small></span>
         <div class="emb"><h4>ATO LINE ${esc(l.msn)} — ${l.num}× ${esc(l.airframe)} · ${esc(l.role)}</h4>
           <div class="grid">
             <div><b>Operation</b>OP ${esc(c.opName)}</div><div><b>TOT</b>${esc(l.tot || "TBD")}</div><div><b>Target / area</b>${esc(l.target || "TBD")}</div>
