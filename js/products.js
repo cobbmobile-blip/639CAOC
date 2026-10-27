@@ -32,7 +32,7 @@
   // Its decisions drive everything after it — the ACO is built straight from the airspace section.
   const PCON_ITEMS = [
     ["Campaign basics", ["Operation name, theater/map and era confirmed", "First mission date (T-0), start time (Z) and event cadence",
-      "Number of events / ATO days and campaign end condition", "Planning timeline and deadlines agreed (see CAOC rollup)"]],
+      "Number of events / ATO days and campaign end condition", "Planning timeline and deadlines agreed (see the Dashboard's deadline timeline)"]],
     ["People and channels", ["Group JFACC and deputy confirmed as the CAOC's points of contact", "CAOC leads named for each product (CFACC owns approval)",
       "REDFOR commander (own / other group / CAOC-appointed / none)", "Discord channels for planning, ATO line posts and debrief"]],
     ["Intent and objectives", ["Commander's Intent draft reviewed (purpose, method, end state)", "Key tasks and their priority / weights for targeting",
@@ -788,7 +788,7 @@
   // PUBLISH is due no later than T-72h, leaving the host three days to build the .miz and brief.
   // The mission cycle assumes weekly missions: about 4 days from one mission to the next PUBLISH.
   // owner CAOC = staff builds it; HOST = host unit / its JFACC only (the CAOC tracks the date, never does the work).
-  // check: a product id (done once approved or published) or a special key handled by the rollup page.
+  // check: a product id (done once approved or published) or a special key handled by PACKAGE.milestones (shown on the Dashboard).
   const MILESTONES = {
     build: [
       { id: "proposal", label: "Campaign proposal approved by the CFC", owner: "CAOC", offset: -42, check: "proposal" },

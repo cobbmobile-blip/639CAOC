@@ -27,8 +27,7 @@ thunder, keepers, ridge, support, rqs55 (55th RQS, MH-60L CSAR helicopters) — 
 
 | Page | Purpose |
 |---|---|
-| `login.html`, `index.html` | Staff sign-in; campaign dashboard: the one **PUBLISH** (`PACKAGE.publishDialog`) and **Cycle to next ATO** (`PACKAGE.cycleDialog`), products, ATO line requests, groups. `AOC.COMMS` (products.js) groups the Comm Plan, OPTASKLINK, JCEOI and IFF / SIF as "Comm / Datalink / IFF": one dashboard group and a link strip on each of those pages; no JCEOI in the top nav |
-| `rollup.html` | CAOC rollup: deadline timeline, readiness, DKS export detail, Discord post preview (PUBLISH and Cycle are on the Dashboard) |
+| `login.html`, `index.html` | Staff sign-in; campaign dashboard: the one **PUBLISH** (`PACKAGE.publishDialog`) and **Cycle to next ATO** (`PACKAGE.cycleDialog`), products wanted, Discord post preview, deadline timeline (`PACKAGE.milestones`), products, ATO line requests, host mission file, debriefs, DKS export detail, groups, activity. The old rollup page was merged into it; there is no `rollup.html`. `AOC.COMMS` (products.js) groups the Comm Plan, OPTASKLINK, JCEOI and IFF / SIF as "Comm / Datalink / IFF": one dashboard group and a link strip on each of those pages; no JCEOI in the top nav |
 | `product.html?p=<id>` | Product builder + live document preview: `pcon ci aod jiptl tdp maap ato aco spins acp bda optasklink` (`tdp`, `maap` are built on their own pages). Save = ready for approval |
 | `tdp.html`, `maap.html` | TDP book (folder per JIPTL target; Export imagery jobs; Open target folder); MAAP (checks at the top, packages with support lines, Apply to ATO) |
 | `folder.html?t=<target>` | AFLG-style printable target folder, markup drawn from `img/targets/<cid>/<t>/meta.json` (imagery from `tools/target-render`) |
@@ -87,13 +86,13 @@ seed content does not reach a browser that already saved data.
   group's Discord and downloadable from the Dashboard and Op Status. GRGs are not in it: they are the groups' own.
 - DKS exports are options of PUBLISH: **ACO + theater map → DKS Overlay** (drawn on the DKS theater map; never written
   into the .miz) and **Comm Plan → DKS Manage Agencies** (persistent theater frequencies for the whole campaign;
-  normally only tankers and JTACs change — the rollup shows changes since the last export) and **SPINS Addendum A → DKS
+  normally only tankers and JTACs change — the Dashboard shows changes since the last export) and **SPINS Addendum A → DKS
   kneeboards** (`PACKAGE.sendKneeboard`, released SPINS only). No host ".miz sheet". PUBLISH also checks the SPINS
   bullseye against the host's latest .miz (`bullseyeCheck`) and offers to update and release it.
 - Mission cycle assumes weekly missions: ~4 days from mission to the next PUBLISH (deadlines in `MILESTONES`).
 - **PRCC** (personnel recovery coordination cell, staff role) works each ejection DKS Debrief reports; the PRCC can request
   ATO lines like a JFACC (posted to Discord), and publishes the CSAR task force package to the groups flying the rescue.
-- PCON (planning conference), MAAP and BDA are internal staff functions (`PACKAGE.INTERNAL`): approved, never released to groups, not in the pilot package, never shown on Op Status; they stay on the staff dashboard and the rollup (marked internal). Product requests from groups were retired (every group gets every product).
+- PCON (planning conference), MAAP and BDA are internal staff functions (`PACKAGE.INTERNAL`): approved, never released to groups, not in the pilot package, never shown on Op Status; they stay on the staff Dashboard (marked internal). Product requests from groups were retired (every group gets every product).
 - **Op Status is status-only** — no request/submission forms on it.
 
 ## Product decisions (keep unless the user says otherwise)

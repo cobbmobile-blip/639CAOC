@@ -68,7 +68,7 @@
   if (!camps.some(c => c.id === cid)) cid = staff ? Store.currentCampaignId() : camps[0]?.id;
   const sel = document.getElementById("camp");
   sel.innerHTML = camps.map(c => `<option value="${esc(c.id)}">OP ${esc(c.opName)}</option>`).join("");
-  if (staff) document.getElementById("back").href = "rollup.html";
+  if (staff) { const b = document.getElementById("back"); b.href = "index.html"; b.textContent = "← Dashboard"; }
   let pending = null, calib = null;
   const camp = () => Store.campaign(cid);
   const isHost = () => me && camp().jfacc?.group === me.id;

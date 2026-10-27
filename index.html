@@ -5,6 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Virtual AOC — Campaign Dashboard</title>
 <link rel="stylesheet" href="css/styles.css">
+<style>
+  /* Discord post preview (generic look; the real post comes from the existing bot) */
+  .dpost { background: #313338; color: #dbdee1; border-radius: 8px; padding: 14px; font: 14px/1.45 "Segoe UI", system-ui, sans-serif; }
+  .dpost .who { font-weight: 600; color: #fff; } .dpost .who small { color: #949ba4; font-weight: 400; margin-left: 6px; }
+  .dpost .body { white-space: pre-wrap; margin-top: 6px; } .dpost .body b { color: #fff; }
+  .dpost .att { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .dpost .att a { background: #2b2d31; border: 1px solid #1e1f22; border-radius: 6px; padding: 6px 10px; color: #00a8fc; font-size: 13px; text-decoration: none; }
+  .tl td, .tl th, .rt td, .rt th { font-size: 12px; padding: 5px 6px; vertical-align: top; }
+  .own { font: 600 10px var(--mono); letter-spacing: .05em; padding: 1px 6px; border: 1px solid var(--line); border-radius: 999px; }
+  .own.HOST, .own.GROUPS { color: var(--info); border-color: var(--info); }
+  .ms { font: 600 11px var(--mono); text-transform: uppercase; }
+  .ms.done { color: var(--ok); } .ms.overdue { color: var(--danger, #e5484d); } .ms.soon { color: var(--warn); } .ms.upcoming, .ms.host, .ms.past { color: var(--muted); }
+  .tl input { width: 64px; padding: 2px 4px; font-size: 12px; }
+  .tlbar { position: relative; height: 34px; border-top: 1px solid var(--line); margin: 18px 0 6px; }
+  .tlbar .tick { position: absolute; top: -6px; width: 2px; height: 12px; background: var(--muted); }
+  .tlbar .tick.CAOC { background: var(--accent); } .tlbar .tick.HOST, .tlbar .tick.GROUPS { background: var(--info); }
+  .tlbar .now { position: absolute; top: -14px; width: 2px; height: 28px; background: var(--warn); }
+  .tlbar .lbl { position: absolute; top: 10px; font: 10px var(--mono); color: var(--muted); transform: translateX(-50%); white-space: nowrap; }
+  /* every panel full width, stacked */
+  .dash { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .dash > * { min-width: 0; }
+</style>
 </head>
 <body>
 <script src="js/data.js"></script>
@@ -18,6 +40,7 @@
 <script src="js/jceoi.js"></script>
 <script src="js/iff.js"></script>
 <script src="js/miz.js"></script>
+<script src="js/tacan.js"></script>
 <script src="js/tdl.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
@@ -36,9 +59,16 @@
 
   <section class="kpis" id="kpis"></section>
 
-  <section class="panel" id="publishPanel" style="margin-bottom:16px"></section>
-
-  <div class="grid cols-dash">
+  <div class="dash">
+    <section class="panel" id="publishPanel" style="border:1px solid var(--accent)"></section>
+    <section class="panel">
+      <div class="panel-head"><div><h2>Deadline timeline</h2><div class="muted small" id="t0"></div></div>
+        <div class="toolbar"><div class="seg" id="modeSeg"><button data-m="build">Campaign build</button><button data-m="cycle">Mission cycle</button></div>
+          <button class="btn sm" id="editBtn">Edit deadlines</button></div></div>
+      <div id="bar"></div>
+      <div class="table-scroll"><table class="tl"><thead><tr><th>T</th><th>Due</th><th>Deliverable</th><th>Owner</th><th>Status</th></tr></thead><tbody id="tl"></tbody></table></div>
+      <p class="muted small">HOST items are the host unit's alone (readiness, mass brief, running the mission, the .miz). The CAOC only shows their dates.</p>
+    </section>
     <section class="panel">
       <div class="panel-head">
         <h2>Products</h2>
@@ -50,23 +80,27 @@
       </div>
       <div id="products"></div>
     </section>
-
-    <aside class="grid" style="align-content:start">
-      <section class="panel" id="atoLines"></section>
-      <section class="panel">
-        <div class="panel-head"><h2>Participating groups</h2><a class="small" href="unit.html">Op Status →</a></div>
-        <ul class="list" id="groups"></ul>
-      </section>
-      <section class="panel">
-        <div class="panel-head"><h2>Recent activity</h2></div>
-        <ul class="list small" id="activity"></ul>
-      </section>
-    </aside>
+    <section class="panel" id="atoLines"></section>
+    <section class="panel"><div class="panel-head"><h2>Host mission file</h2><a class="small" id="mfLink" href="mission-file.html">Open →</a></div><div id="mfile"></div></section>
+    <section class="panel"><div class="panel-head"><h2>Debriefs from the host</h2></div><div id="debriefs"></div></section>
+    <section class="panel">
+      <div class="panel-head"><div><h2>DKS exports</h2><div class="muted small">Sent as options of PUBLISH. The Overlay is drawn on the DKS theater map; it is not written into the host's .miz.
+        Agencies are the campaign's persistent theater frequencies — normally only tankers and JTACs change.</div></div></div>
+      <div id="dks"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Participating groups</h2><a class="small" href="unit.html">Op Status →</a></div>
+      <ul class="list" id="groups"></ul>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Recent activity</h2></div>
+      <ul class="list small" id="activity"></ul>
+    </section>
   </div>
 </main>
 
 <script>
-  const { Store, esc, PRODUCTS, FUTURE, STAGES, STATUS_LABEL, COMMS } = AOC;
+  const { Store, Auth, esc, toast, zulu, PRODUCTS, FUTURE, STAGES, STATUS_LABEL, COMMS } = AOC;
   AOC.renderChrome();
 
   let cid = Store.currentCampaignId();
@@ -75,7 +109,7 @@
   const sel = document.getElementById("campaign");
   sel.innerHTML = Store.db.campaigns.map(c => `<option value="${c.id}">OP ${esc(c.opName)} — ${esc(c.theater)}</option>`).join("");
   sel.value = cid;
-  sel.onchange = () => { cid = sel.value; Store.setCurrentCampaign(cid); render(); };
+  sel.onchange = () => { cid = sel.value; Store.setCurrentCampaign(cid); tlMode = null; render(); };
 
   document.querySelectorAll("[data-layout]").forEach(b => b.onclick = () => {
     layout = b.dataset.layout;
@@ -123,17 +157,18 @@
         <p class="muted small">Daily cycle: guidance flows left to right; assessment feeds the next day's strategy.</p>`;
     } else {
       const c = Store.campaign(cid);
-      const row = id => { const p = PRODUCTS[id], s = Store.status(cid, id), u = c.updated?.[id], off = skipped(id);
-        return `<tr${off ? ' class="muted"' : ""}><td class="mono">${p.code}</td><td>${esc(p.name)}</td><td class="muted">${esc(p.owner)}</td>
+      const row = id => { const p = PRODUCTS[id], s = Store.status(cid, id), u = c.updated?.[id], off = skipped(id), a = Store.approval(cid, id), sh = Store.shared(cid, id);
+        return `<tr${off ? ' class="muted"' : ""}><td class="mono">${p.code}</td><td>${esc(p.name)}${AOC.PACKAGE.INTERNAL.has(id) ? ' <span class="muted small">(internal)</span>' : ""}</td><td class="muted">${esc(p.owner)}</td>
           <td>${off ? `<span class="badge none">Not requested</span>` : `<span class="badge ${s}">${STATUS_LABEL[s]}</span>`}</td><td class="muted">${u ? AOC.zulu(new Date(u)) : "—"}</td>
+          <td class="small">${a ? `${esc(a.by)} ${esc(a.role)}` : "—"}</td><td class="small">${sh ? `v${sh.version} · ${esc(AOC.zulu(new Date(sh.when)))}` : "—"}</td>
           <td><a class="btn sm" href="${link(id)}">${s === "none" ? "Build" : "Open"}</a></td></tr>`; };
-      el.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Code</th><th>Product</th><th>Owner</th><th>Status</th><th>Updated</th><th></th></tr></thead><tbody>
+      el.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Code</th><th>Product</th><th>Owner</th><th>Status</th><th>Updated</th><th>Approved</th><th>Released</th><th></th></tr></thead><tbody>
         ${solo.map(row).join("")}
-        <tr class="pgroup-row"><td colspan="6">${esc(COMMS.name)}</td></tr>
+        <tr class="pgroup-row"><td colspan="8">${esc(COMMS.name)}</td></tr>
         ${COMMS.products.filter(id => PRODUCTS[id]).map(row).join("")}
-        ${COMMS.pages.map(pg => `<tr><td class="mono">${esc(pg.code)}</td><td>${esc(pg.name)}</td><td class="muted">CAOC</td><td><span class="badge none">Reference</span></td><td class="muted">—</td>
+        ${COMMS.pages.map(pg => `<tr><td class="mono">${esc(pg.code)}</td><td>${esc(pg.name)}</td><td class="muted">CAOC</td><td><span class="badge none">Reference</span></td><td class="muted">—</td><td></td><td></td>
           <td><a class="btn sm" href="${pg.href}">Open</a></td></tr>`).join("")}
-        ${FUTURE.map(f => `<tr class="muted"><td class="mono">${f.code}</td><td>${esc(f.name)}</td><td>—</td><td><span class="badge none">Planned</span></td><td></td><td></td></tr>`).join("")}
+        ${FUTURE.map(f => `<tr class="muted"><td class="mono">${f.code}</td><td>${esc(f.name)}</td><td>—</td><td><span class="badge none">Planned</span></td><td></td><td></td><td></td><td></td></tr>`).join("")}
         </tbody></table></div>`;
     }
   }
@@ -163,24 +198,109 @@
     document.getElementById("publishPanel").innerHTML = `<div class="panel-head"><div><h2>PUBLISH</h2>
         <div class="muted small">${rel ? `Last: package v${rel.version}, ATO ${esc(AOC.atoId(rel.atoDay))}, ${esc(AOC.zulu(new Date(rel.when)))} by ${esc(rel.by || "")}` : "Nothing published yet"} · DKS ${esc(dks)}</div></div>
         <div class="toolbar">${rel ? `<button class="btn" id="zipBtn" title="The pilot package as posted to Discord, rebuilt from the released versions">Download pilot package (zip)</button>` : ""}
-          <a class="btn ghost" href="rollup.html?c=${encodeURIComponent(cid)}">Deadlines, DKS detail, Discord post →</a>
+          ${rel ? `<button class="btn ghost" id="discBtn" title="What the last PUBLISH posted to Discord">Discord post</button>` : ""}
           ${c.atoDay > 0 ? `<button class="btn" id="cycleBtn" ${can ? "" : "disabled"} title="After the host's debrief: the daily products go back to work for the next ATO">Cycle to ATO ${esc(AOC.atoId(+c.atoDay + 1))}…</button>` : ""}
           <button class="btn primary" id="pubBtn" ${can ? "" : "disabled title=\"CFACC or CFC only\""}>PUBLISH${changed.length ? ` (${changed.length})` : ""}…</button></div></div>
-      <p class="small" style="margin:0 0 8px">One button: approves what's waiting (CFACC), releases every approved product to the groups' Op Status, sends the DKS exports (Overlay, Manage Agencies, kneeboards) and posts the pilot package zip to every group's Discord.</p>
+      <p class="small" style="margin:0 0 8px">One button: approves what's waiting (CFACC), releases every approved product to the groups' Op Status, sends the DKS exports (Overlay, Manage Agencies, kneeboards) and posts the pilot package zip to every group's Discord. Goes to ${c.groups.filter(g => Store.group(g)?.status === "active").length} active groups.</p>
       <p class="small" style="margin:0 0 8px">Products wanted: <b>${esc(want.map(id => PRODUCTS[id].code).join(", "))}</b>${want.length === 1 ? " (the ATO only: it still posts to Discord)" : ""}
         ${can ? `<button class="btn sm ghost" id="wantBtn" title="What the host asked for; the ATO is always produced">Change…</button>` : ""}</p>
       <ul class="list">${chip(by("approved"), "Approved — goes out with the next PUBLISH", "ok")}${chip(by("review"), "Saved and ready — the CFACC approves them in PUBLISH", "warn")}${chip(by("draft"), "Back in work for this ATO — open and save to make ready", "off")}${chip(by("none"), "Not started", "off")}${chip(by("published"), "Released and current", "ok")}</ul>
       ${(() => { const b = PK.bullseyeCheck(cid); return b ? `<p class="small" style="color:var(--warn);margin:8px 0 0">Host mission file v${b.v} moved the BLUE bullseye; PUBLISH will update the SPINS.</p>` : ""; })()}`;
     document.getElementById("pubBtn").onclick = () => PK.publishDialog(cid, () => render());
     document.getElementById("cycleBtn")?.addEventListener("click", () => PK.cycleDialog(cid, () => render()));
-    document.getElementById("wantBtn")?.addEventListener("click", () => PK.wantedDialog(cid, () => { render(); renderProducts(); }));
+    document.getElementById("wantBtn")?.addEventListener("click", () => PK.wantedDialog(cid, () => render()));
+    document.getElementById("discBtn")?.addEventListener("click", discordDialog);
     document.getElementById("zipBtn")?.addEventListener("click", async e => { e.target.disabled = true;
       try { const z = await PK.downloadZip(cid); AOC.toast(`${z.filename}: ${z.docs.length} documents`); } catch (err) { AOC.toast(err.message); } e.target.disabled = false; });
   }
 
+  // ---------- deadline timeline (campaign build / mission cycle) ----------
+  let tlMode = null, editing = false;
+  const fmt = d => isNaN(d) ? "—" : `${String(d.getUTCDate()).padStart(2, "0")}${String(d.getUTCHours()).padStart(2, "0")}${String(d.getUTCMinutes()).padStart(2, "0")}Z ${d.toLocaleString("en-US", { month: "short", timeZone: "UTC" }).toUpperCase()}`;
+  const STATE = { done: "Done", overdue: "Overdue", soon: "Due soon", upcoming: "Upcoming", host: "Host", past: "Past" };
+  function renderTimeline() {
+    const PK = AOC.PACKAGE, c = Store.campaign(cid), m = tlMode = tlMode || PK.mode(c), tlabel = PK.tlabel;
+    document.querySelectorAll("#modeSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.m === m)));
+    const base = PK.t0(c, m);
+    document.getElementById("t0").textContent = m === "build" ? `T-0 = first mission ${fmt(base)} (D-day ${c.dday})` : `T-0 = next mission, ATO ${AOC.atoId(c.atoDay)}: ${fmt(base)}`;
+    const ms = PK.milestones(cid, m), lo = Math.min(...ms.map(x => x.offset)), hi = Math.max(0, ...ms.map(x => x.offset)), span = hi - lo || 1;
+    const nowOff = (Date.now() - base) / 864e5, pos = o => `${((o - lo) / span) * 100}%`;
+    document.getElementById("bar").innerHTML = `<div class="tlbar">${ms.map(x => `<span class="tick ${x.owner}" style="left:${pos(x.offset)}" title="${esc(tlabel(x.offset))} ${esc(x.label)}"></span>`).join("")}
+      ${nowOff >= lo && nowOff <= hi ? `<span class="now" style="left:${pos(nowOff)}" title="Now"></span>` : ""}
+      ${[...new Set([lo, Math.round((lo + hi) / 2), hi])].map(o => `<span class="lbl" style="left:${pos(o)}">${tlabel(o)}</span>`).join("")}</div>`;
+    document.getElementById("tl").innerHTML = ms.map(x => `<tr><td class="mono">${editing ? `<input type="number" step="0.5" data-off="${esc(x.id)}" value="${x.offset}">` : esc(tlabel(x.offset))}</td>
+      <td class="mono">${esc(fmt(x.due))}</td><td>${esc(x.label)}</td><td><span class="own ${x.owner}">${x.owner}</span></td><td class="ms ${x.state}">${STATE[x.state]}</td></tr>`).join("");
+    document.getElementById("editBtn").textContent = editing ? "Done editing" : "Edit deadlines";
+  }
+  document.getElementById("modeSeg").onclick = e => { const b = e.target.closest("[data-m]"); if (b) { tlMode = b.dataset.m; renderTimeline(); } };
+  document.getElementById("editBtn").onclick = () => { editing = !editing; renderTimeline(); };
+  document.getElementById("tl").addEventListener("change", e => {
+    const id = e.target.dataset.off; if (!id) return; const c = Store.campaign(cid);
+    c.milestoneOffsets = c.milestoneOffsets || {}; (c.milestoneOffsets[tlMode] = c.milestoneOffsets[tlMode] || {})[id] = +e.target.value; Store.save(); renderTimeline();
+  });
+
+  // ---------- the host's mission file and debriefs ----------
+  function renderMission() {
+    const c = Store.campaign(cid), mf = AOC.MIZ.current(cid);
+    document.getElementById("mfLink").href = `mission-file.html?c=${encodeURIComponent(cid)}`;
+    document.getElementById("mfile").innerHTML = mf ? `<p class="small"><b>v${mf.v}</b> ${esc(mf.name)} · ${esc(zulu(new Date(mf.when)))} · ${mf.flights.length} BLUE flights · ${mf.red.length} RED units ·
+      ${AOC.MIZ.projection(mf.theatre) ? "coordinates calibrated" : `<span style="color:var(--warn)">${esc(mf.theatre)} not calibrated</span>`}${mf.notes ? `<br><span class="muted">${esc(mf.notes)}</span>` : ""}</p>
+      ${(() => { const r = AOC.TACAN.scrub(cid, mf); if (!r) return `<p class="small muted">TACAN scrub: not run (sent before the scrub existed).</p>`;
+        const n = r.counts, fresh = AOC.TACAN.scrubWithChanges(cid, mf, AOC.MIZ.files(cid).at(-2)).findings.filter(f => f.isNew && f.sev !== "info").length;
+        return `<p class="small">TACAN scrub: <a href="mission-file.html?c=${encodeURIComponent(cid)}">${r.tacans.length} TACAN · ${r.icls.length} ICLS</a> ·
+          <span style="${n.error ? "color:var(--danger, #e5484d);font-weight:600" : ""}">${n.error} error${n.error === 1 ? "" : "s"}</span> ·
+          <span style="${n.warn ? "color:var(--warn)" : ""}">${n.warn} warning${n.warn === 1 ? "" : "s"}</span>${fresh ? ` · ${fresh} new in v${mf.v}` : ""}</p>`; })()}
+      ${AOC.TDL && mf.tdl ? (() => { const fs = AOC.TDL.check(cid, { ...(Store.content(cid, "optasklink") || {}), miz: AOC.TDL.pull(mf) }), e = fs.filter(f => f.sev === "error").length, w = fs.filter(f => f.sev === "warn").length;
+        return `<p class="small">Datalinks: <a href="product.html?p=optasklink&c=${encodeURIComponent(cid)}">OPTASKLINK</a> · <span style="${e ? "color:var(--danger, #e5484d);font-weight:600" : ""}">${e} error${e === 1 ? "" : "s"}</span> · ${w} warning${w === 1 ? "" : "s"}</p>`; })() : ""}`
+      : `<p class="muted small">The host hasn't sent its draft .miz yet.</p>`;
+    const db = Object.entries(c.debriefs || {}).sort((a, b) => b[0] - a[0]);
+    document.getElementById("debriefs").innerHTML = db.length ? db.map(([day, d]) => `<p class="small"><b>ATO ${esc(AOC.atoId(day))}</b> — from ${esc(Store.group(d.by)?.name || d.by)} (${esc(d.user || "")}) ${esc(zulu(new Date(d.when)))} ·
+      ${d.misreps.filter(x => x.flown === "Yes").length}/${d.misreps.length} lines flown · ${d.bda.length} BDA · ${esc(d.progress || "")}${d.notes ? `<br><span class="muted">${esc(d.notes)}</span>` : ""}</p>`).join("")
+      : `<p class="muted small">None yet. The host enters it on their Debrief page after each mission.</p>`;
+  }
+
+  // ---------- what PUBLISH sends to DKS, in detail ----------
+  const table = (rows, cols) => rows.length ? `<div class="table-scroll"><table class="rt"><thead><tr>${cols.map(([, l]) => `<th>${esc(l)}</th>`).join("")}</tr></thead>
+    <tbody>${rows.map(r => `<tr>${cols.map(([k]) => `<td>${esc(r[k])}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : `<p class="muted small">None.</p>`;
+  function renderDks() {
+    const PK = AOC.PACKAGE, c = Store.campaign(cid), want = PK.wanted(c), ex = PK.dksExports(cid), ov = ex.overlay, ag = ex.agencies, kb = ex.kneeboard;
+    const since = l => l ? `last sent v${l.v} ${esc(zulu(new Date(l.when)))} by ${esc(l.by)}` : "never sent", chg = ag.changes;
+    const not = (pid, ready) => !want.includes(pid) ? ` · ${PRODUCTS[pid].code} not requested` : ready ? "" : ` · ${PRODUCTS[pid].code} not approved`;
+    document.getElementById("dks").innerHTML = `<div class="section-h">Overlay — ACO + theater map <span class="muted small">(${since(ov.last)}${not("aco", ov.ready)})</span></div>
+      <p class="small">${ov.measures.length} ACO measures · ${ov.shapes.length} map shapes · ${ov.points.length} points. <a href="map.html?c=${encodeURIComponent(cid)}">Theater map →</a></p>
+      ${table(ov.measures, [["name", "Measure"], ["type", "Type"], ["alt", "Alt"], ["time", "Time"]])}
+      <div class="section-h">Manage Agencies — Comm Plan <span class="muted small">(${since(ag.last)}${not("acp", ag.ready)})</span></div>
+      <p class="small">${chg == null ? `${ag.list.length} agencies; all go to DKS on the first export.` : chg.length ? `<span style="color:var(--warn)">${chg.length} change${chg.length > 1 ? "s" : ""} since the last export:</span> ` +
+        chg.map(x => `${x.kind} ${esc(x.channel)} ${esc(x.name)} ${esc(x.freq)}${x.was ? ` (was ${esc(x.was)})` : ""}`).join("; ") : "No changes since the last export — no need to re-send."}</p>
+      ${table(ag.list.map(a => ({ ...a, v: a.volatile ? "may change" : "" })), [["net", "Net"], ["channel", "Channel"], ["name", "Agency"], ["role", "Role"], ["freq", "Freq"], ["v", ""]])}
+      <div class="section-h">Kneeboards — SPINS Addendum A <span class="muted small">(${since(kb.last)}${not("spins", kb.ready)})</span></div>
+      <p class="small">${!want.includes("spins") ? "The host didn't ask for the SPINS." : !kb.ready ? "Approve the SPINS first." : !kb.spins ? "The SPINS go out with this PUBLISH; Addendum A follows them." : kb.changed ? `<span style="color:var(--warn)">Due: ${kb.last ? (kb.last.spins !== kb.spins ? `SPINS v${kb.spins} released since the last send (v${kb.last.spins})` : `the ATO has cycled since the last send`) : "never sent"}.</span>` : "Up to date — no need to re-send."}
+        AET tables and RAMRODs, one page per ATO from ATO ${esc(AOC.atoId(c.atoDay))}. <a href="product.html?p=spins&c=${encodeURIComponent(cid)}">SPINS →</a></p>`;
+  }
+
+  // ---------- the Discord post of the last PUBLISH, as the bot sends it to the host and every active group ----------
+  function discordDialog() {
+    const PK = AOC.PACKAGE, p = PK.discordPost(cid);
+    const back = document.createElement("div"); back.className = "modal-back";
+    const body = esc(p.content).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+    back.innerHTML = `<div class="panel modal" style="max-width:680px;max-height:calc(100vh - 32px);overflow:auto">
+      <div class="panel-head"><h2>Discord post · PUBLISH v${p.package}</h2><button class="btn sm" data-x>Close</button></div>
+      <p class="muted small" style="margin-top:0">Preview of what the CAOC bot posts to each group's registered channel: one message, one zip. The live post goes out through that integration.</p>
+      <div class="dpost"><span class="who">CAOC Tasking<small>BOT · ATO ${esc(p.ato || AOC.atoId(p.ato_day))}</small></span>
+        <div class="body">${body}</div>
+        <div class="att"><a href="#" data-zip>📦 ${esc(p.attachment.filename)}</a><div class="muted small">${p.attachment.documents.map(esc).join(" · ")}</div></div></div>
+      <p class="small" style="margin-top:10px">Posted to: ${p.recipients.map(r => `${esc(r.group)}${r.host ? " <b>(host)</b>" : ""}`).join(", ")}</p></div>`;
+    document.body.appendChild(back);
+    back.querySelector("[data-zip]").onclick = e => { e.preventDefault(); PK.downloadZip(cid).catch(err => toast(err.message)); };
+    back.querySelector("[data-x]").onclick = () => back.remove(); back.onclick = e => { if (e.target === back) back.remove(); };
+  }
+
   function render() {
     renderPublish();
+    renderTimeline();
     renderAtoLines();
+    renderMission();
+    renderDks();
     const c = Store.campaign(cid), db = Store.db;
     document.getElementById("opName").textContent = "OP " + c.opName;
     document.getElementById("meta").innerHTML = `

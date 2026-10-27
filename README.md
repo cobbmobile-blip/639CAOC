@@ -23,9 +23,8 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 | Page | Who | What |
 |---|---|---|
 | `login.html` | CAOC staff | Staff sign-in |
-| `index.html` | CAOC staff | Campaign dashboard: the one **PUBLISH** (see [PUBLISH and the pilot package](#publish-and-the-pilot-package)) and **Cycle to next ATO**, products, ATO line requests, groups. The Comm Plan, OPTASKLINK, JCEOI and IFF / SIF sit together as one **Comm / Datalink / IFF** group (built at the same sitting); the JCEOI is reached from there, not the top nav |
+| `index.html` | CAOC staff | Campaign dashboard, every panel full width: the one **PUBLISH** (see [PUBLISH and the pilot package](#publish-and-the-pilot-package)), **Cycle to next ATO**, products wanted and the **Discord post** preview of the last PUBLISH; the deadline timeline (campaign build / mission cycle, editable); products (tiles, battle rhythm, or a table with who approved and what's released); ATO line requests; host mission file; host debriefs; DKS export detail (Overlay, Agencies changes, kneeboards); groups; activity. The Comm Plan, OPTASKLINK, JCEOI and IFF / SIF sit together as one **Comm / Datalink / IFF** group (built at the same sitting); the JCEOI is reached from there, not the top nav |
 | `product.html?p=optasklink` | CAOC staff | OPTASKLINK: built automatically from the ATO and the host mission file — nothing to fill in but notes |
-| `rollup.html` | CAOC staff | CAOC rollup: deadline timeline (campaign build / mission cycle), product readiness, host mission file, host debriefs, DKS export detail (Overlay, Agencies changes, kneeboards) and the **Discord post** preview of the last PUBLISH. PUBLISH itself is on the Dashboard |
 | `product.html?p=<id>` | CAOC staff | Product builder + live preview (Planning Conference, CI, AOD, JIPTL, TDP, MAAP, ATO, ACO, SPINS & ROE, Comm Plan, OPTASKLINK, BDA). **Save** makes a product ready for the CFACC, who approves it there or in PUBLISH |
 | `tdp.html` | CAOC staff | TDP book: one target folder per JIPTL target, drafted from the nomination data; **Export imagery jobs** for the render tool; **Open target folder** |
 | `folder.html?t=<target>` | CAOC staff | AFLG-style printable target folder (see [Target folders](#target-folders-and-imagery)) |
@@ -60,7 +59,7 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 ## Campaign process
 
 The CAOC builds products only. The host unit builds and runs its own `.miz`, readiness, the mass brief and the mission.
-Default deadlines (editable per campaign on the rollup), T-0 = first mission:
+Default deadlines (editable per campaign on the Dashboard), T-0 = first mission:
 
 | T | Step | Owner |
 |---|---|---|
@@ -85,7 +84,7 @@ BDA + AOD T-6, JIPTL T-5.5, TDP T-5, MAAP T-4.5, commits T-4, ATO + tanker/JTAC 
 host `.miz` update T-24h.
 
 The ACO overlay is drawn in DKS on the theater map and is never written into the `.miz`. The Comm Plan agencies are
-persistent for the campaign; normally only tankers and JTACs change, and the rollup lists what changed since the last export. The **kneeboard** export sends SPINS Addendum A (AET tables and RAMRODs, one page per ATO) from the released SPINS; it is due again when the SPINS are re-released or the ATO cycles. **Cycle to next ATO** (Dashboard) moves the ATO day on and returns the daily products to work.
+persistent for the campaign; normally only tankers and JTACs change, and the Dashboard lists what changed since the last export. The **kneeboard** export sends SPINS Addendum A (AET tables and RAMRODs, one page per ATO) from the released SPINS; it is due again when the SPINS are re-released or the ATO cycles. **Cycle to next ATO** (Dashboard) moves the ATO day on and returns the daily products to work.
 
 ## PUBLISH and the pilot package
 
@@ -108,7 +107,7 @@ buttons; the PRCC's DKS buttons are the live rescue workflow and stay. IFF codes
 **Products wanted.** The campaign proposal asks which products the host wants (CI, AOD, ACO, SPINS & ROE, JIPTL, TDPs,
 Comm Plan, OPTASKLINK); TDPs bring the JIPTL with them. **The ATO is always produced**: it is how groups get and commit
 their mission lines, so the ATO line requests, commits and the Discord post work the same with nothing else ticked. A
-product the host didn't ask for shows as *Not requested* on the Dashboard, has no deadline on the Rollup, isn't released,
+product the host didn't ask for shows as *Not requested* on the Dashboard, has no deadline on the timeline, isn't released,
 isn't on Op Status and isn't in the pilot package; its DKS export is greyed out in PUBLISH. The CFACC or CFC can change
 the list on the Dashboard (**Products wanted → Change…**). Internal products (Planning Conference, MAAP, BDA) are always
 built. A campaign with no list (older ones) gets the full set.
@@ -162,7 +161,7 @@ submit and approve it (a note says when it changed).
   preset 1–9, all on the common net 10, originator IDs unique across the campaign). Voice callsigns are first + last
   letter, flight and member (VIPER 1 → VR11). A line keeps its numbers while its callsign and size are unchanged and
   nothing in the mission file collides; "Reassign every number" starts over.
-- **Checks** (product page, mission file page, rollup): every STN valid, unique across the whole network and not
+- **Checks** (product page, mission file page, Dashboard): every STN valid, unique across the whole network and not
   reserved; F-16C STNs unique across campaigns; F/A-18C channels consistent; every AWACS a donor on every F/A-18C;
   missing STNs listed once; SADL TNs and IDM IDs unique.
 
@@ -180,7 +179,7 @@ Every host `.miz` version is scrubbed for beacons (`js/tacan.js`). It reports on
 5. **Likely to fail** — no channel or mode, channel outside 1–126, ICLS outside 1–20, disabled task, beacon on a later
    waypoint, late-activated group, task pointing at a unit not in the group.
 
-Findings new since the previous version are marked; fixed ones are listed. The rollup shows the count. Tanker tracks
+Findings new since the previous version are marked; fixed ones are listed. The Dashboard shows the count. Tanker tracks
 have optional TACAN channel / X-Y / ident fields; SPINS has a Carriers & ships table (TACAN, ident, ICLS).
 
 ## JCEOI (frequency registers and standard net plan)

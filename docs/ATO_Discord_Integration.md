@@ -195,7 +195,7 @@ message; the same zip downloads from the Dashboard and from Op Status.
 
 `op_status` is the Op Status page; production should send its absolute URL. The prototype records the event in
 `db.discordOutbox` with the zip's name and contents list, not the zip (it is rebuilt from the released versions; the
-rollup's **Discord post** button shows the post and downloads the zip).
+Dashboard's **Discord post** button shows the post and downloads the zip).
 
 ## Not in the prototype yet
 

@@ -419,7 +419,7 @@ window.AOC_SEED = {
           {section: "Campaign basics",item: "Operation name, theater/map and era confirmed",done: true,notes: ""},
           {section: "Campaign basics",item: "First mission date (T-0), start time (Z) and event cadence",done: true,notes: ""},
           {section: "Campaign basics",item: "Number of events / ATO days and campaign end condition",done: true,notes: ""},
-          {section: "Campaign basics",item: "Planning timeline and deadlines agreed (see CAOC rollup)",done: true,notes: ""},
+          {section: "Campaign basics",item: "Planning timeline and deadlines agreed (see the Dashboard's deadline timeline)",done: true,notes: ""},
           {section: "People and channels",item: "Group JFACC and deputy confirmed as the CAOC's points of contact",done: true,notes: ""},
           {section: "People and channels",item: "CAOC leads named for each product (CFACC owns approval)",done: true,notes: ""},
           {section: "People and channels",item: "REDFOR commander (own / other group / CAOC-appointed / none)",done: true,notes: ""},

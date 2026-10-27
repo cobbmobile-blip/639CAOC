@@ -76,7 +76,7 @@ approval goes back to Draft and needs re-approval.
 The CAOC only BUILDS PRODUCTS. It does not play in the campaign, does not edit
 the host's .miz, and does not run readiness, the mass brief or the mission --
 those are the host unit's alone. Deadlines (days before T-0 = first mission)
-are on the CAOC rollup page (rollup.html) and are editable per campaign.
+are on the CAOC Dashboard (index.html) and are editable per campaign.
 
   1. Proposal (T-42). A group submits a campaign (campaign-submit.html); the
      CFC accepts, returns or declines it (campaign-review.html). Accepting
@@ -133,7 +133,7 @@ are on the CAOC rollup page (rollup.html) and are editable per campaign.
      BDA per JIPTL target (damage, re-attack), Blue losses, Red losses / new
      threats, campaign progress, Tacview link, notes. It seeds the CAOC's BDA
      rollup as a draft.
- 14. CAOC "Cycle to next mission" (rollup): ATO day + 1, next mission date,
+ 14. CAOC "Cycle to next ATO" (Dashboard): ATO day + 1, next mission date,
      AOD/JIPTL/TDP/MAAP/ATO/BDA back to draft. Mission cycle (weekly
      missions; about 4 days from one mission to the next PUBLISH), days
      before the next mission: debrief T-6.5, BDA + AOD T-6, JIPTL T-5.5,
@@ -332,7 +332,7 @@ PUBLISH (index.html, the CAOC Dashboard, due NLT T-72h) is one dialog:
 approve the products saved and ready (one tick each), release to the groups,
 the three DKS exports, and the Discord pilot package. Overlay is pre-ticked
 on its first export or when the ACO changed; Agencies only when the Comm Plan
-changed since the last export (the rollup lists added / changed / removed
+changed since the last export (the Dashboard lists added / changed / removed
 channels; tanker and JTAC channels are marked "may change"); Kneeboard when
 the SPINS were re-released or the ATO cycled since the last send. Each
 export is versioned per campaign. ATOs are designated by letters (day 1 =
@@ -451,7 +451,7 @@ If your integration reads any file by its old path, update it to OLD/...
 
 New root:
   login.html, index.html (staff dashboard), product.html (product builders),
-  rollup.html (PUBLISH), map.html (theater map), targeting.html (JIPTL
+  map.html (theater map), targeting.html (JIPTL
   nomination), tdp.html (TDP book), folder.html (target folder), maap.html,
   jceoi.html, prcc.html (personnel recovery), campaign-review.html,
   unit-login.html, unit.html (Op Status), isoprep.html (ISOPREP / EPA),
@@ -618,6 +618,9 @@ Requests from the 639 vCAOC lead, and what was built or decided:
     to DKS (no Overlay without the ACO, no Agencies without the Comm Plan, no
     kneeboard without the SPINS). The CFACC / CFC can change the list on the
     Dashboard.
+39. The rollup page was merged into the Dashboard (deadline timeline, host
+    mission file, debriefs, DKS export detail, Discord post preview); every
+    Dashboard panel is full width. There is no rollup.html.
 
 ================================================================================
  END
