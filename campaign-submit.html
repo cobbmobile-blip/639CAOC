@@ -122,7 +122,7 @@
     document.getElementById("steps").innerHTML = STEPS.map((s, i) =>
       `<li><button class="${stepState(i)}" data-step="${i}" ${i === step ? 'aria-current="step"' : ""}><span class="n">${stepState(i) === "done" ? "✓" : i + 1}</span>${esc(s.title)}</button></li>`).join("");
   }
-  document.getElementById("steps").addEventListener("click", e => { const b = e.target.closest("[data-step]"); if (b) { step = +b.dataset.step; renderAll(); } });
+  document.getElementById("steps").addEventListener("click", e => { const b = e.target.closest("[data-step]"); if (b && sub) { step = +b.dataset.step; renderAll(); } });
 
   function fieldHtml(f) {
     const v = sub.data[f.key], ro = editable() ? "" : "disabled";
@@ -203,7 +203,7 @@
     if (STEPS[step].id === "review") renderForm();
   });
   form.addEventListener("click", e => {
-    const b = e.target.closest("button"); if (!b) return;
+    const b = e.target.closest("button"); if (!b || !sub) return;
     if (b.dataset.step) { step = +b.dataset.step; renderAll(); return; }
     const key = b.dataset.add || b.dataset.del; if (!key) return;
     const f = STEPS[step].fields.find(x => x.key === key);
@@ -219,9 +219,11 @@
     dirty = false; renderNav(); renderMine();
     if (msg) toast(msg);
   }
-  document.getElementById("saveBtn").onclick = () => saveDraft();
-  document.getElementById("back").onclick = () => { if (step > 0) { if (editable() && dirty) saveDraft(null); step--; renderAll(); } };
+  // the editor's buttons do nothing until a proposal is open (the editor is hidden until then)
+  document.getElementById("saveBtn").onclick = () => { if (sub) saveDraft(); };
+  document.getElementById("back").onclick = () => { if (sub && step > 0) { if (editable() && dirty) saveDraft(null); step--; renderAll(); } };
   document.getElementById("next").onclick = () => {
+    if (!sub) return;
     if (step < STEPS.length - 1) { if (editable() && dirty) saveDraft(null); step++; renderAll(); window.scrollTo({ top: document.getElementById("editor").offsetTop - 70 }); return; }
     const { missing, warnings } = validate(sub.data);
     if (missing.length || warnings.length) { toast("Fix the items listed above first"); renderForm(); return; }

@@ -150,6 +150,29 @@
       area = "Cycle";
       await t("Cycle moves to the next ATO and puts the daily products back in work", () => { const d0 = +c().atoDay; PK.cycle(CID, new Date(Date.now() + 7 * 864e5).toISOString());
         ok(+c().atoDay === d0 + 1, "ATO day"); ok(PK.DAILY.filter(p => Store.content(CID, p) != null).every(p => Store.status(CID, p) === "draft"), "daily products not back to draft"); });
+      area = "Pages";
+      // the real page in a hidden frame, on this run's data copy (app.js reads the parent's AOC_DB_KEY)
+      const page = async (src, fn) => {
+        const f = document.createElement("iframe"); f.style.cssText = "position:absolute;left:-9999px;width:1100px;height:700px"; document.body.appendChild(f);
+        try { await new Promise((res, rej) => { f.onload = res; f.onerror = rej; f.src = src; });
+          const w = f.contentWindow, errs = []; w.addEventListener("error", e => errs.push(e.message)); return await fn(w, errs); }
+        finally { f.remove(); }
+      };
+      await t("Proposal form: Next, Back and Save with no proposal open do nothing; a new proposal steps forward", async () => {
+        const g = Store.db.groups.find(x => x.status === "active"), was = sessionStorage.getItem("aoc.unitSession");
+        sessionStorage.setItem("aoc.unitSession", JSON.stringify({ id: g.id }));
+        try {
+          await page("campaign-submit.html", (w, errs) => {
+            const $ = id => w.document.getElementById(id);
+            ok(/campaign-submit/.test(w.location.pathname), `sent to ${w.location.pathname}`);
+            ["next", "back", "saveBtn"].forEach(id => $(id).click());
+            ok(!errs.length, errs.join("; "));
+            $("newBtn").click(); $("next").click();
+            ok(!errs.length, errs.join("; "));
+            ok(w.document.querySelector('#steps [aria-current="step"]')?.dataset.step === "1", "Next didn't move to step 2");
+          });
+        } finally { if (was == null) sessionStorage.removeItem("aoc.unitSession"); else sessionStorage.setItem("aoc.unitSession", was); }
+      });
     } finally { restore(); }
     render();
   }

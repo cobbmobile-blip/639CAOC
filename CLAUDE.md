@@ -20,7 +20,7 @@ software. DKS integration is being built by a separate developer.
 
 Run: `python -m http.server 8765` at the repo root, open `http://localhost:8765/login.html`.
 **After every change, open `tests.html` and get ALL PASSED** (end-to-end run on its own data copy, `window.AOC_DB_KEY =
-"aoc.db.test"`; the site's data is never touched). Add a test there for every new check or flow.
+"aoc.db.test"`; the site's data is never touched; pages it loads in a frame use the same copy). Add a test there for every new check or flow.
 Demo staff: ATLAS (CFC), OVERLORD (CFACC), SPARTAN, CHALICE, WIZARD, DARKSTAR, GUARDIAN (PRCC) — password `aoc-demo`.
 Demo groups: viper (JFACC group for OP IRON TRIDENT), hornet, eagle, hawg, knights, tomcat, harrier, mistral,
 thunder, keepers, ridge, support, rqs55 (55th RQS, MH-60L CSAR helicopters) — code `unit-demo`.

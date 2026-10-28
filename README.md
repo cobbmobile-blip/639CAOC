@@ -21,7 +21,8 @@ then browse to http://localhost:8765/login.html. (The theater map and target nom
 **Test run:** open http://localhost:8765/tests.html after every change. It runs the CAOC process end to end on its own
 fresh copy of the demo data (the site's data is never touched) and the sample `.miz` files: parsers, every product's
 render, ATO line post and commit, the host `.miz` change log (upload, post, acknowledge, a slow tanker fixed), the
-PUBLISH check list, PUBLISH (approve, release, DKS, the pilot package zip), the go/no-go and Cycle. **Also check .miz
+PUBLISH check list, PUBLISH (approve, release, DKS, the pilot package zip), the go/no-go and Cycle, and real pages
+loaded in a hidden frame (the proposal form's buttons). **Also check .miz
 files…** runs the change log on any mission files you pick (against an empty scratch campaign).
 
 ## Pages
