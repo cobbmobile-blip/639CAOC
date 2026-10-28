@@ -95,7 +95,6 @@
     nb.href = `${P.page.href}?c=${encodeURIComponent(cid)}`; nb.textContent = `${P.page.label} →`; nb.classList.remove("hidden");
   }
   // Products with a comm matrix need the full width (their DKS export goes out with PUBLISH on the Dashboard)
-  if (P.fields.some(f => f.type === "matrix")) document.querySelector(".builder").style.gridTemplateColumns = "minmax(0, 1fr)";
 
   // working copy of the product data
   let data = structuredClone(Store.content(cid, pid) || {});

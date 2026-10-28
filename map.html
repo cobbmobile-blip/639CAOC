@@ -8,10 +8,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
 <link rel="stylesheet" href="css/styles.css">
 <style>
-  .maplay { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; }
-  @media (max-width: 1000px) { .maplay { grid-template-columns: 1fr; } }
+  /* the map, then the Map items list below it, both full width */
+  .maplay { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
   #map { height: calc(100vh - 230px); min-height: 460px; border-radius: var(--radius); border: 1px solid var(--line); }
-  .side { max-height: calc(100vh - 230px); overflow: auto; }
   .tools { display: flex; flex-wrap: wrap; gap: 6px; }
   .tools button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
   .item { border-top: 1px solid var(--line); padding: 8px 0; display: grid; gap: 6px; }
@@ -569,10 +568,8 @@
 
   // ---------- side list ----------
   function select(id) {
+    // the page never scrolls on a map click (the map must not jump while you work); the item is highlighted in the list below
     selected = id; renderList(); showHandles();
-    // scroll only the side panel, never the page (the map must not jump while you work)
-    const el = document.querySelector(`[data-item="${id}"]`), side = document.querySelector(".side");
-    if (el) { const d = el.getBoundingClientRect().top - side.getBoundingClientRect().top; if (d < 0 || d > side.clientHeight - 60) side.scrollTop += d - 40; }
   }
   // edit handles (track ends, AR leg end) only appear on the selected item
   function showHandles() {
