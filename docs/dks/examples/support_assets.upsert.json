@@ -13,14 +13,15 @@
     {
       "provenance": {
         "sourceType": "caoc",
-        "sourceId": "map:m4",
-        "version": "ACO v1",
+        "sourceId": "line:8401",
+        "version": "ATO AH v3",
         "locked": true
       },
       "kind": "tanker",
-      "name": "AR TRACK ALPHA",
+      "role": "BOOM",
       "callsign": "TEXACO 1",
       "aircraft": "KC-135",
+      "line": "8401",
       "freq": "305.000",
       "band": "UHF",
       "tacan": {
@@ -28,51 +29,50 @@
         "mode": "Y",
         "ident": "TEX"
       },
+      "station": "aco:AR TRACK ALPHA",
       "altLoFt": 22000,
       "altHiFt": 24000,
       "speedKcas": 300,
-      "track": {
-        "arcp": {
-          "lat": 41.75,
-          "lng": 42.7
-        },
-        "heading": 280,
-        "lengthNm": 50,
-        "widthNm": 20
-      },
-      "line": "8401",
+      "onStation": "0630Z",
       "notes": "BOOM — BLUE 1"
     },
     {
       "provenance": {
         "sourceType": "caoc",
-        "sourceId": "map:m5",
-        "version": "ACO v1",
+        "sourceId": "line:8403",
+        "version": "ATO AH v3",
         "locked": true
       },
       "kind": "awacs",
-      "name": "ORBIT WEST",
+      "role": "AWACS",
       "callsign": "DARKSTAR",
       "aircraft": "E-3A",
+      "line": "8403",
       "freq": "295.000",
       "band": "UHF",
+      "station": "map:m5",
       "altLoFt": 29000,
       "altHiFt": 31000,
-      "track": {
-        "widthNm": 15,
-        "points": [
-          {
-            "lat": 41.22,
-            "lng": 41.9
-          },
-          {
-            "lat": 41.12,
-            "lng": 42.45
-          }
-        ]
+      "onStation": "0600Z"
+    },
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "ship:CVN_71",
+        "version": "SPINS v4",
+        "locked": true
       },
-      "line": "8403",
-      "notes": "E-3 orbit — keep 60 NM behind the FLOT"
+      "kind": "carrier",
+      "role": "CARRIER",
+      "callsign": "CVN-71 Theodore Roosevelt",
+      "hull": "CVN_71",
+      "tacan": {
+        "channel": 71,
+        "mode": "X",
+        "ident": "TDR"
+      },
+      "icls": 11,
+      "notes": "Link 4 / ACLS on 336.000"
     }
   ]
 }

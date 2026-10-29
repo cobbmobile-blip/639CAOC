@@ -20,8 +20,8 @@ site and in the Discord pilot package.
 ```
 CAOC builds the campaign ──PUBLISH (NLT T-72h)──▶ DKS campaign pre-filled (locked):
                                                     campaign, turn, agencies, airspace,
-                                                    support assets, points, targets/JIPTL,
-                                                    kneeboard (Addendum A)
+                                                    support assets (units), points,
+                                                    targets/JIPTL, packages, kneeboard
 CAOC posts ATO line ──▶ Discord ──Commit──▶ CAOC site (first commit wins)
                                               └──flight.create──▶ DKS flight in the current turn
                                                                    (CAOC fields locked)
@@ -91,31 +91,39 @@ One item per Comm Plan channel that has a frequency. Key: `acp:<channel>`. Examp
 | `volatile` (true for tanker / JTAC channels) | none (CAOC-side warning only) |
 
 ### 4.4 `airspace.upsert`: the ACO, with PUBLISH when the ACO changed
-Key: `aco:<name>` (ACO measure) or `map:<id>` (theater map shape). Example:
+Every ACO measure and theater-map shape, **including AR tracks and AWACS / HVAA orbits** (the airspace a support asset
+flies, not the asset). Key: `aco:<name>` (ACO measure) or `map:<id>` (theater map shape). Example:
 [`airspace.upsert.json`](examples/airspace.upsert.json). **Locked.** Never written into the `.miz`.
 
 | CAOC field | DKS field |
 |---|---|
 | `name` (`CAP KNIFE`) | graphic `name` (**seen**) |
-| `type` (`CAP`, `Kill Box`, `ROZ`, `FLOT`, `FSCL`, `MRR` …) | graphic `kind` (**seen**: `airspace_boundary`); keep `type` in `description` until DKS has kinds (Q7) |
+| `type` (`CAP`, `Kill Box`, `ROZ`, `FLOT`, `FSCL`, `MRR`, `AR Track`, `HVAA Orbit` …) | graphic `kind` (**seen**: `airspace_boundary`); keep `type` in `description` until DKS has kinds (Q7) |
+| `track { arcp, heading, lengthNm, widthNm }` (AR tracks) | `points` (the leg); the rest in `description` (**guess**) |
 | `geometry { shape: area\|circle\|line, points[], radiusNm }` | `shape`, `points[{lat,lng}]`, `radiusNm` (**seen**) |
 | `alt`, `altLoFt`, `altHiFt`, `time`, `ctrl` | `description` (**guess**; DKS has no fields for these yet, Q7) |
 | `color` (CAOC colour name) | `color` hex (**seen**); the CAOC sends both |
 
-### 4.5 `support_assets.upsert`: tanker tracks and AWACS orbits, with PUBLISH
-Key: `map:<id>`. Example: [`support_assets.upsert.json`](examples/support_assets.upsert.json). **Locked.**
+### 4.5 `support_assets.upsert`: the tanker, AWACS and carrier UNITS, with PUBLISH
+The support assets themselves: each tanker (one item per unit, with its boom / drogue role), each AWACS, each carrier.
+Their tracks and orbits are airspace (§4.4); each asset names the station it flies with `station` (that airspace's
+`sourceId`). Key: `line:<msn>` for an ATO line (tanker, AWACS), `ship:<hull>` for a carrier. Example:
+[`support_assets.upsert.json`](examples/support_assets.upsert.json). **Locked.**
 
 | CAOC field | DKS field |
 |---|---|
-| `kind` (`tanker` \| `awacs`) | asset `type` (**seen**: `tanker`) |
-| `callsign` (`TEXACO 1`) | `callsign` (**seen**) |
-| `aircraft` (`KC-135`) | `variant` / `aircraftType` (**seen**) |
-| `freq` | `frequency` (**seen**) |
+| `kind` (`tanker` \| `awacs` \| `carrier`) | overlay support asset `type` (**seen**: `tanker`, `awacs`, `carrier`) |
+| `role` (`BOOM` \| `DROGUE` \| `MPRS` \| `AWACS`) | `supportAssets[].role` (**seen**: `BOOM`, `DROGUE`, `AWACS`) |
+| `callsign` (`TEXACO 1`; a carrier's name) | `callsign` (**seen**) |
+| `aircraft` (`KC-135`) or `hull` (`CVN_71`) | `variant` / `aircraftType` (**seen**) |
+| `line` (ATO mission number) | none (in `description`) |
+| `freq`, `band` | `frequency` (**seen**) |
 | `tacan { channel, mode, ident }` | `tacan` string, e.g. `"41Y"` (**seen**) |
-| `altLoFt`, `altHiFt` | `altitude` (**seen**, one value; the CAOC sends the band) |
+| `icls` (carriers) | none yet (**guess**, Q8) |
+| `station` (`aco:AR TRACK ALPHA`, `map:m5`) | link to the airspace graphic (**guess**); DKS `trackPoints` come from the asset's `.miz` route |
+| `altLoFt`, `altHiFt` (planned orbit band) | `altitude` (**seen**, one value; the CAOC sends the band) |
 | `speedKcas` (300; KC-130 100) | `speed` (**seen**, unit unclear, Q8) |
-| `track { arcp, heading, lengthNm, widthNm, points[] }` | `trackPoints` (**seen**) |
-| `line` (ATO mission number flying it) | none |
+| `onStation` (`0630Z`) | none (in `description`) |
 
 ### 4.6 `points.upsert`: navigation, spider and destination points, with PUBLISH
 Key: `map:<id>`. Example: [`points.upsert.json`](examples/points.upsert.json). DKS preset points (**seen**: `name`,
@@ -152,6 +160,21 @@ Key: `bda:<targetId>/<ato_day>`. Example: [`assessments.upsert.json`](examples/a
 One page per ATO from the current one, a week ahead. Key: `kneeboard:addendum-a/<ato>`. Example:
 [`kneeboard.upsert.json`](examples/kneeboard.upsert.json). **Locked.** Each page comes as data (`aet`, `ramrod`) and
 as a rendered image (`pageUrl`, PNG), because DKS squadron documents are page images (**seen**: `AET-101.png`).
+
+### 4.11 `packages.upsert`: supported assets, the package each flight belongs to, with PUBLISH (proposed)
+The package composition from the MAAP: which ATO lines fly together, in which role, against which targets, at which
+push and TOT, and which support assets serve them. **Only the composition goes**; the MAAP document stays internal.
+Key: `package:<name>`. Example: [`packages.upsert.json`](examples/packages.upsert.json). **Locked.** DKS has packages of
+flights (**seen**) but no "supported assets" object was found (Q17).
+
+| CAOC field | DKS field |
+|---|---|
+| `name` (`A`) | package name (**seen**) |
+| `push`, `tot` | none (in `description`), or the package timeline (**guess**) |
+| `targets[]` (JIPTL ids) | the targets of §4.7 |
+| `lines[] { msn, callsign, role, packageRole }` (`packageRole`: strike, SEAD, escort, tanker …) | the package's flights (**seen**) |
+| `support[] { sourceId }` (support assets serving the package) | `supportAssets` (**seen**) or a supported-assets link (Q17) |
+| `notes` | `description` |
 
 ### 4.10 `flight.create` / `flight.update` / `flight.remove`: on commit, CAOC change, release or cancel
 Key: `line:<msn>`. Examples: [`flight.create.json`](examples/flight.create.json),
@@ -211,7 +234,7 @@ next `.upsert` or `flight.update`). DKS never applies the change itself.
 | When | What | Message |
 |---|---|---|
 | Campaign accepted | DKS campaign created | `campaign.upsert` |
-| PUBLISH, NLT T-72h | full pre-fill | `campaign`, `turn`, `agencies`, `airspace`, `support_assets`, `points`, `targets`, `kneeboard` `.upsert` |
+| PUBLISH, NLT T-72h | full pre-fill | `campaign`, `turn`, `agencies`, `airspace`, `support_assets`, `points`, `targets`, `packages`, `kneeboard` `.upsert` |
 | Squadron commits (any time) | flight created | `flight.create` |
 | Planner edits a flight | CAOC told | `flight.changed` → `flights.readback` |
 | **T-3h, automatic** | final ATO from DKS, posted to Discord and Op Status | read → `flights.readback` |

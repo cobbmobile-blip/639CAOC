@@ -538,9 +538,13 @@ G. Suggested mapping (from a read-only look at DKS as a signed-in user,
                      shape "area" | "circle", points [{lat, lng}],
                      radiusNm, color, brushStyle; altitudes / times in the
                      description until DKS has fields for them
-  Tanker track /  -> support asset: type ("tanker" / AWACS), callsign,
-  AWACS orbit        variant, frequency, tacan ("41Y"), altitude, speed,
-                     trackPoints
+  Tanker / AWACS  -> support asset (the UNIT, one per tanker): role (BOOM /
+  unit, carrier      DROGUE / AWACS), callsign, variant, frequency, tacan
+                     ("41Y"), altitude, speed, and the station it flies
+  AR track / AWACS-> airspace graphic (the track or orbit, not the asset)
+  orbit
+  MAAP package    -> supported assets: package name, push / TOT, lines by
+                     role, targets, the support assets serving it
   Map points      -> preset points: name, latitude, longitude, elevation
   JIPTL target    -> campaign target: targetNumber, name, category,
                      latitude, longitude, elevationFeet, priority,
@@ -696,6 +700,10 @@ New root:
  21. Units: DKS stores some values as text (TACAN "41Y", frequency
      "257.750", altitude "22000") -- are the formats fixed? Which fields
      can take altitudes / times for airspace?
+ 22. Supported assets: does DKS have, or want, a supported-assets object
+     (the flights a tanker, AWACS or escort supports, by package)? Support
+     assets are the tanker / AWACS / carrier UNITS; their tracks and orbits
+     go as airspace. Package composition comes from the MAAP (packages).
 
 --------------------------------------------------------------------------------
 9. CONVERSATION LOG (CONDENSED, IN ORDER)

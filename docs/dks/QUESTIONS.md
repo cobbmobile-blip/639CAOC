@@ -12,7 +12,7 @@ Answer under each question (or open a PR against this file). `CONTRACT.md` refer
 | Q5 | Squadrons | Can one DKS campaign hold flights from several squadrons of different groups (designs have a `coalitionId`)? If not, should the CAOC create one DKS campaign per squadron, each pre-filled the same? | open |
 | Q6 | Flights | Can the CAOC create a flight in a campaign's current turn with members' Mode 3, STN and SADL filled, and get the DKS flight id back? | open |
 | Q7 | Airspace | Can battlefield graphics take an ACO type (CAP, kill box, ROZ, FLOT, FSCL, MRR …), altitude limits and active times as fields? Until they can, the CAOC puts them in `description`. | open |
-| Q8 | Support assets | Units for support asset `speed` and `altitude`: KCAS, TAS or ground speed? A single altitude, or can it take a band (FL220–FL240)? The CAOC plans tankers at 300 KCAS (KC-130 100). | open |
+| Q8 | Support assets | Units for support asset `speed` and `altitude`: KCAS, TAS or ground speed? A single altitude, or can it take a band (FL220–FL240)? The CAOC plans tankers at 300 KCAS (KC-130 100). Where should a carrier's ICLS channel go? Can an asset link to the airspace it flies (`station`)? | open |
 | Q9 | Read-back | Can the CAOC read a turn's flights with every planned field (`flights.readback`)? Can DKS push `flight.changed` (webhook) when a planner edits a flight, so the CAOC doesn't poll? | open |
 | Q10 | Flight fields | Where should the CAOC's mission number, package and vul (TOT) go on a DKS flight? On `flight.remove`, should a flight with planning in it be deleted or marked inactive? | open |
 | Q11 | Kneeboards | SPINS Addendum A: does DKS want the page data (`aet`, `ramrod`), the rendered PNG, or both? Which kneeboard section? | open |
@@ -21,3 +21,4 @@ Answer under each question (or open a PR against this file). `CONTRACT.md` refer
 | Q14 | Assign Target | When `targets.upsert` lists `assignedLines`, can DKS show the target (and its DPIs) already assigned in that flight's "Assign Target"? (Brief section 4.7.) | open |
 | Q15 | Target numbers | DKS `targetNumber` is an integer; CAOC target ids are `T10001`. Is sending 10001 with the name prefixed "T10001" acceptable? | open |
 | Q16 | Personnel recovery | Unchanged from `docs/PR_DKS_Integration.md`: can DKS Debrief send `pr.ejection` (seat / parachute position, player name), and load a `pr.csar_route` as spider points? | open |
+| Q17 | Supported assets | Does DKS have, or want, a "supported assets" object: the flights a tanker, AWACS or escort supports, by package? If so, should `packages.upsert` (package name, push / TOT, lines by role, targets, support assets) feed it, or the DKS package itself? | open |

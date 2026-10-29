@@ -1,0 +1,78 @@
+{
+  "message": "packages.upsert",
+  "message_id": "caoc-iron-trident-packages.upsert-0012",
+  "sent_at": "2026-10-19T03:00:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "package:A",
+        "version": "MAAP v1",
+        "locked": true
+      },
+      "name": "A",
+      "push": "0650Z",
+      "tot": "0720Z",
+      "targets": [
+        "T10001",
+        "T10002",
+        "T10004",
+        "T10005"
+      ],
+      "lines": [
+        {
+          "msn": "8101",
+          "callsign": "VIPER 1",
+          "role": "SEAD",
+          "packageRole": "sead"
+        },
+        {
+          "msn": "8104",
+          "callsign": "KNIGHT 1",
+          "role": "DEAD",
+          "packageRole": "sead"
+        },
+        {
+          "msn": "8102",
+          "callsign": "DUDE 1",
+          "role": "INT",
+          "packageRole": "strike"
+        },
+        {
+          "msn": "8601",
+          "callsign": "RUNNER 1",
+          "role": "Strike",
+          "packageRole": "strike"
+        },
+        {
+          "msn": "8103",
+          "callsign": "SPRINGFIELD 1",
+          "role": "Escort",
+          "packageRole": "escort"
+        },
+        {
+          "msn": "8105",
+          "callsign": "EAGLE 1",
+          "role": "OCA",
+          "packageRole": "sweep"
+        }
+      ],
+      "support": [
+        {
+          "sourceId": "line:8401"
+        },
+        {
+          "sourceId": "line:8403"
+        }
+      ],
+      "notes": "SEAD/DEAD opens the corridor for the strikers"
+    }
+  ]
+}

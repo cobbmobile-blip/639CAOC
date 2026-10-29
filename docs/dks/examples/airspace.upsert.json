@@ -65,7 +65,46 @@
       "time": "0600Z–2200Z",
       "ctrl": "DARKSTAR",
       "color": "BLUE",
-      "colorHex": "#2f6fdb"
+      "colorHex": "#2f6fdb",
+      "track": {
+        "arcp": {
+          "lat": 41.75,
+          "lng": 42.7
+        },
+        "heading": 280,
+        "lengthNm": 50,
+        "widthNm": 20
+      }
+    },
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "map:m5",
+        "version": "ACO v1",
+        "locked": true
+      },
+      "name": "ORBIT WEST",
+      "type": "HVAA Orbit",
+      "geometry": {
+        "shape": "line",
+        "points": [
+          {
+            "lat": 41.22,
+            "lng": 41.9
+          },
+          {
+            "lat": 41.12,
+            "lng": 42.45
+          }
+        ]
+      },
+      "alt": "FL290–FL310",
+      "altLoFt": 29000,
+      "altHiFt": 31000,
+      "ctrl": "DARKSTAR",
+      "color": "PURPLE",
+      "colorHex": "#8e44ad",
+      "notes": "E-3 orbit — keep 60 NM behind the FLOT; width 15 NM"
     }
   ]
 }
