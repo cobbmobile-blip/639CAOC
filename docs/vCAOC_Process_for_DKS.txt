@@ -1,7 +1,7 @@
 ================================================================================
  639 vCAOC WEBSITE -- PROCESS AND DKS INTEGRATION BRIEF
  Prepared for the Digital Kneeboard Simulator (DKS) developer
- Date: 20 Oct 2026 (updated 26 Oct 2026)
+ Date: 20 Oct 2026 (updated 28 Oct 2026)
  Repo: https://github.com/cobbmobile-blip/639CAOC  (branch: main)
 ================================================================================
 
@@ -18,6 +18,7 @@ CONTENTS
        4.6 Campaign package PUBLISH -> DKS
        4.7 ATO line target -> DKS "Assign Target"  ** required **
        4.8 Personnel recovery: DKS Debrief ejections -> PRCC; CSAR route -> DKS
+       4.9 The CAOC and DKS as layers: integration contract (PROPOSED)
   5. Data formats (fields you will receive)
   6. Repo layout and paths (files moved!)
   7. Prototype limits / what a real backend needs
@@ -408,6 +409,149 @@ mission/flight id) are open -- see question 9 in section 8.
   Planned follow-ups from DKS: pr.position_update, pr.status (picked up,
   captured ...).
 
+4.9 THE CAOC AND DKS AS LAYERS: INTEGRATION CONTRACT   ** PROPOSED **
+---------------------------------------------------------------------
+This section sets how the two systems work together. Where 4.3-4.7 say
+otherwise, this section wins; their payloads stay as the CAOC's internal
+record until the formats below are agreed.
+
+A. Roles
+  - The CAOC assists the JFACC with MISSION MANAGEMENT: it builds the
+    missions and the ATO lines, shares them with external squadrons, and
+    owns the base documents (ACO, ACP, JCEOI, IFF / SIF plan, JIPTL, TDPs,
+    SPINS, ROE, Commander's Intent).
+  - DKS is where flights do MISSION PLANNING. It is the flights' main
+    interface; the CAOC documents are the defining guide, and the CAOC
+    pre-fills the DKS campaign so crews have the data at once.
+  - The SPINS, ROE, CI and the other base documents do NOT go to DKS. Crews
+    read them outside the mission (Op Status, the Discord pilot package).
+    The one exception is SPINS ADDENDUM A -- the AET table and the RAMROD
+    for each ATO -- which goes to the DKS kneeboards (kneeboard.update).
+
+B. Who owns which data (one owner per field)
+  THEATER LAYER (lasts across campaigns)          owner: CAOC, LOCKED in DKS
+    ACP agencies and frequencies (the comm plan is built for the theater
+    and kept in perpetuity), JCEOI nets, permanent airspace.
+  CAMPAIGN / ATO LAYER                            owner: CAOC, LOCKED in DKS
+    ATO line: mission number, mission type, target (JIPTL number) or area,
+    package, TOT / vul window, tanker plan; IFF / SIF codes (Mode 1, 2,
+    3/A); Link 16 STNs, SADL TNs, IDM; ACO measures; tanker tracks and
+    orbits (TACAN, frequency, altitude); bullseye and code words; JIPTL
+    targets, DMPIs and DPIs; BDA.
+  FLIGHT LAYER                                    owner: the squadron, in DKS
+    Pilots and seats, flight callsign as flown, tail numbers, loadout,
+    route and waypoints, push and TOT times inside the vul, timeline,
+    DTC / CMDS, intraflight frequency, squadron-local nets.
+
+C. CAOC data keeps its own names
+  The CAOC's records are real-world correct and are never renamed or cut
+  down to fit DKS. A translator on the CAOC side builds the DKS shape at
+  export time: it maps fields, converts units and coordinates (CAOC keeps
+  DDM / MGRS; DKS gets decimal lat / lng), and puts anything DKS has no
+  field for in a description / notes field. Fixes for DKS quirks live in
+  the translator, never in the CAOC data.
+
+D. Every value the CAOC sends is tagged
+  Each object carries where it came from and which release:
+    sourceType: "caoc"   sourceId: "<stable CAOC id>"   version: "ACP v4"
+  e.g. sourceId "acp:WHITE 3", "aco:AR TRACK ALPHA", "jiptl:T10001",
+  "line:8115". (DKS already has sourceType / sourceId on threats and
+  DMPIs.) The tag makes every create idempotent -- sending the same
+  sourceId again updates, never duplicates -- and lets either side tell
+  whether a value still matches the CAOC's documents.
+
+E. The data flow
+  1. CAOC builds the campaign: ATO lines, ACO, ACP, JCEOI / IFF, JIPTL.
+  2. PUBLISH (NLT T-72h) PRE-FILLS the DKS campaign:
+       ACP      -> campaign agencies (Manage Agencies), locked
+       ACO      -> airspace graphics, tanker tracks / AWACS orbits as
+                   support assets, points; locked
+       JIPTL    -> campaign targets and the turn's JIPTL, with the TDP
+                   DMPIs / DPIs; locked
+       ATO      -> the turn (designator "ATO AA" ...) and its vul window
+       Addendum A -> DKS kneeboards (AET table + RAMROD per ATO)
+  3. The CAOC posts each human ATO line to Discord (4.3, unchanged).
+  4. A squadron presses COMMIT. The Discord bot reports the commit to the
+     CAOC site (first commit wins, as now).
+  5. THE CAOC CREATES THE FLIGHT IN DKS: in the campaign's current turn,
+     with the CAOC-owned fields filled and locked (mission number, type,
+     target / area and its DMPIs, vul window, tanker plan, IFF codes and
+     STNs per member, the agencies), tagged sourceId "line:<msn>". The
+     site stores the DKS flight id on the ATO line. If DKS cannot be
+     reached the line shows "waiting for DKS" and the site retries; the
+     tag means a retry never makes a second flight. A released or
+     cancelled line removes (or marks inactive) its DKS flight.
+  6. The squadron plans the flight in DKS (the flight layer).
+  7. READ-BACK: the CAOC reads the campaign's flights from DKS -- every
+     field DKS will give (pilots, callsigns, tails, aircraft, loadout,
+     route, push / TOT ...) -- and adds them to the ATO line, alongside
+     the CAOC fields that never go to DKS. Ideally DKS notifies the CAOC
+     when a flight changes (a webhook); otherwise the CAOC reads on a
+     schedule and at the final update.
+  8. FINAL ATO, AUTOMATIC AT T-3h: the site reads every flight from DKS,
+     builds the final ATO and posts it to Discord and Op Status with no
+     one pressing a button, so players on mission night have the planners'
+     latest additions. If DKS cannot be read, the CAOC's latest ATO goes
+     out with a note saying so.
+  9. A flight a planner adds after the host built the final .miz (T-24h)
+     shows on the host's .miz change log as a required ADD and is posted to
+     the host's Discord channel.
+
+F. Keeping DKS in line with the documents
+  1. LOCK (needs DKS): CAOC-tagged values are read-only for planners, shown
+     with their source ("per JCEOI v2", "per ACP v4"). DKS already locks
+     theater overlays and lets each flight section inherit from the
+     package or go custom; the ask is one more level above the package:
+     CAOC.
+  2. RE-ASSERT (CAOC side): every PUBLISH, and the T-3h final update,
+     sends every CAOC-owned value again; a stray edit lives at most until
+     the next send.
+  3. DRIFT REPORT (needs read access): where a CAOC-owned value in DKS
+     differs from the CAOC's (an IFF code, an agency frequency), the CAOC
+     value goes on the ATO, the difference goes on the CAOC Dashboard, and
+     the squadron's Discord channel is told, e.g. "RAIDER 3 Mode 3 is
+     4127; the JCEOI says 4122."
+  4. VERSION STAMPS: every value and kneeboard page shows the CAOC release
+     it came from, so a mismatch is visible at the brief.
+  5. CHANGE REQUESTS: a planner who needs a different code or frequency
+     asks the CAOC (a "request a change" action on a locked value in DKS,
+     or a Discord command). The CAOC changes the JCEOI / ACP and
+     republishes, so every squadron and every document changes together.
+     The SPINS direct: "CAOC-assigned IFF / SIF codes, STNs and
+     frequencies will not be changed. Changes will be requested from the
+     CAOC."
+
+G. Suggested mapping (from a read-only look at DKS as a signed-in user,
+   28 Oct 2026 -- to be confirmed by the DKS developer)
+  ACP channel     -> campaign agency: name = role (e.g. "ASOC"),
+                     shortname = callsign ("CHAOS"), description = channel
+                     ("PURPLE 1"), frequency, frequencies by band (UHF /
+                     VHF / FM)
+  ACO measure     -> airspace graphic: kind "airspace_boundary", name,
+                     shape "area" | "circle", points [{lat, lng}],
+                     radiusNm, color, brushStyle; altitudes / times in the
+                     description until DKS has fields for them
+  Tanker track /  -> support asset: type ("tanker" / AWACS), callsign,
+  AWACS orbit        variant, frequency, tacan ("41Y"), altitude, speed,
+                     trackPoints
+  Map points      -> preset points: name, latitude, longitude, elevation
+  JIPTL target    -> campaign target: targetNumber, name, category,
+                     latitude, longitude, elevationFeet, priority,
+                     listStatus, desiredEffect, effectDetail,
+                     restrictionNote, objective (the CI key task); the
+                     turn's JIPTL entry: rank, aboveCutLine, isTst
+  TDP DMPI / DPIs -> theater DMPI with DPIs: lat, lng, elevation,
+                     description, weaponeeringNotes, assigned flight
+  BDA             -> the target's assessment: physical, functional,
+                     confidence, recommendation, summary
+  ATO day         -> campaign turn: number, atoDayCode ("ATO AA"),
+                     windowStart, windowEnd, guidance
+  ATO line        -> package flight: callsign, aircraft, mission type;
+                     members: callsign, stn, mode3, sadl (from the CAOC
+                     plan, locked)
+  Addendum A      -> kneeboard page(s) as images / PDF (squadron docs are
+                     page images today)
+
 --------------------------------------------------------------------------------
 5. DATA FORMATS (FIELDS YOU WILL RECEIVE)
 --------------------------------------------------------------------------------
@@ -515,8 +659,36 @@ New root:
  11. Kneeboards (section 4.6, kneeboard.update): which DKS kneeboard section
      should SPINS Addendum A go to, and does DKS want the page data (AET
      table cells, RAMROD) or the rendered page (html)?
- 12. Pilot package: would DKS rather receive the same zip PUBLISH posts to
-     Discord (printable HTML pages per document) for its kneeboards?
+ 12. (Answered: no. The pilot package -- SPINS, ROE, CI ... -- is read
+     outside the mission and does not go to DKS; only SPINS Addendum A
+     goes to the kneeboards. See 4.9 A.)
+ Integration contract (section 4.9):
+ 13. Partner API: can the CAOC create and update DKS campaign objects
+     (turns, agencies, airspace graphics, support assets, targets / JIPTL,
+     DMPIs, flights, kneeboard pages) through an API, and how does it
+     authenticate (boards carry an importPartnerId)? Is there a sandbox?
+ 14. Tags: will DKS keep sourceType / sourceId / version on every object
+     the CAOC sends and treat a repeat sourceId as an update (idempotent)?
+ 15. Locking: can CAOC-tagged values be read-only for planners -- an
+     inheritance level above the package ("CAOC") -- shown with their
+     version, with a "request a change" action?
+ 16. Flights: can the CAOC create a flight in a campaign's current turn,
+     with members' STN / Mode 3 / SADL filled, and remove or deactivate
+     it? What ids come back?
+ 17. Read-back: can the CAOC read a campaign's flights with every planned
+     field (pilots, callsigns, tails, aircraft, loadout, route, push /
+     TOT)? Can DKS notify the CAOC when a flight changes (webhook)?
+ 18. Squadrons: can one DKS campaign take flights from several squadrons
+     (designs have a coalitionId), or is it one campaign per squadron?
+ 19. Discord: DKS campaigns post their own Discord events (FRAGO issued,
+     turn published). Should those stay off for CAOC campaigns, since the
+     CAOC posts the ATO and the final update?
+ 20. .miz: DKS regenerates a .miz per turn. Could that file replace the
+     host's manual updates for late DKS additions, or should the host
+     keep building the .miz?
+ 21. Units: DKS stores some values as text (TACAN "41Y", frequency
+     "257.750", altitude "22000") -- are the formats fixed? Which fields
+     can take altitudes / times for airspace?
 
 --------------------------------------------------------------------------------
 9. CONVERSATION LOG (CONDENSED, IN ORDER)
@@ -624,8 +796,9 @@ Requests from the 639 vCAOC lead, and what was built or decided:
 40. Host .miz change log: from the host's .miz, the ATO and the CAOC products,
     a list of ADD (ATO lines not in the .miz), SET (CAOC values that live in
     the .miz: tanker / carrier TACAN and ICLS, AI support radios), FIX (the
-    scrub, .miz datalinks, tanker airspeed 300 +/- 5 KCAS (KC-130 100), JIPTL targets not
-    in the .miz, start time after the first TOT) and REMOVE items, with the
+    scrub, .miz datalinks, tanker airspeed 300 +/- 5 KCAS (KC-130 100),
+    JIPTL targets not in the .miz, start time after the first TOT) and
+    REMOVE items, with the
     checks that passed. Goes to the host's Discord after each .miz upload and
     with PUBLISH; items close when the next upload passes. Cockpit / DKS items
     (radio presets, STNs, IFF) are never on it. The ATO takes tanker
@@ -636,6 +809,15 @@ Requests from the 639 vCAOC lead, and what was built or decided:
     need a "reviewed" tick. T-24h go/no-go on the host's .miz: NO-GO while
     change-log items are open or no .miz came after PUBLISH. tests.html runs
     the whole process end to end after every change.
+
+42. The CAOC and DKS as layers (section 4.9, proposed): the CAOC manages the
+    mission and owns the base documents; DKS is where flights plan. The
+    CAOC pre-fills the DKS campaign (ACP, ACO, JIPTL, Addendum A) with
+    locked, tagged values and never renames its own data to fit DKS. A
+    committed ATO line becomes a DKS flight created by the CAOC; the CAOC
+    reads every planned field back onto the ATO; the final ATO goes out
+    automatically at T-3h. SPINS, ROE and CI stay out of DKS. Drift is
+    held by locking, re-sending, a drift report and change requests.
 
 ================================================================================
  END

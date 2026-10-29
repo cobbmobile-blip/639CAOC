@@ -200,6 +200,11 @@ seed content does not reach a browser that already saved data.
 - **TACAN scrub** reports only (the CAOC never edits the .miz). Planned values: tanker tracks on the theater map
   (`tacanCh`, `tacanMode`, `tacanCs`) and the SPINS `naval` table. Map TACANs come from the JCEOI DCS beacon list.
   Check 6 flags TACAN 1X / ICLS 1 (DCS defaults).
+- **The CAOC and DKS are layers** (brief section 4.9, proposed): the CAOC manages the mission and owns the base
+  documents and the theater / campaign data (locked in DKS); DKS is the flights' planning interface (the flight layer).
+  Never rename or cut CAOC data to fit DKS: a translator builds DKS shapes at export, with `sourceType: "caoc"`,
+  `sourceId` and version tags. SPINS / ROE / CI never go to DKS (only SPINS Addendum A, to kneeboards). Committed
+  lines become DKS flights created by the CAOC; the CAOC reads planned fields back; the final ATO posts at T-3h.
 - **PUBLISH check list** (`PACKAGE.preflight`): cross-product checks before release. Errors block the dialog's PUBLISH
   (INT off the JIPTL, SCAR with no area, AR track missing from ACO / map, TOT outside the period, IFF / datalink errors,
   empty ATO); warnings need a "reviewed" tick (area not on the ACO, grouped per area; tanker / AWACS with no frequency;
