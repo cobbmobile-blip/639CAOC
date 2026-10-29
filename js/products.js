@@ -375,7 +375,7 @@
         return `<h2>1.2 COMMAND AND CONTROL</h2>${kv([["TACON", t.ok ? `${t.by === TACON[0] ? `JFACC, delegated to C2: ${t.who}` : t.by === TACON[1] ? "JFACC (retained)" : "JFACC, delegated to the CAOC SODO"} — all ATO ${window.AOC.atoId(ctx.campaign.atoDay)} missions` : "NOT DEFINED — delegated to C2, but the ATO has no AWACS / C2 line and no C2 callsign is set"]])}
           <p>All ATO missions will check in with the controlling authority and take re-tasking, re-roles, commit and abort direction from it.</p>`; })()}
       <h2>2. RULES OF ENGAGEMENT</h2><p>Per the OP ${esc(ctx.campaign.opName)} ROE${d.version ? ` ${esc(d.version)}` : ""}, published with these SPINS. Default weapons control status: ${esc((d.wcs || "Weapons Tight").toUpperCase())}.</p>
-      <h2>3. COMMUNICATION</h2><h2>3.1 CHECK-IN</h2>
+      <h2>3. COMMUNICATION</h2><p>${SPINS_NO_CHANGE}</p><h2>3.1 CHECK-IN</h2>
       <p>All flights will check in with the controlling authority${taconOf(d, ctx).ok && taconOf(d, ctx).by === TACON[0] ? ` (${esc(taconOf(d, ctx).who.split(" ")[0])})` : ""} in MNPOPCA format: Mission number; Number and type of aircraft; Position from a known reference; Ordnance carried; Playtime; Capabilities; Abort code (when required for terminal control).</p>
       ${d.checkin ? `<p>${esc(d.checkin)}</p>` : ""}
       <h2>3.2 CODE WORDS</h2><p>Code words will be used on clear frequencies.</p>${table([["type", "TYPE"], ["word", "CODE WORD"], ["meaning", "MEANING"]],
@@ -555,6 +555,8 @@
     render: (d, ctx) => `${spinsDoc(d, ctx)}<div class="pagebreak"></div>${authDoc(d, ctx)}<div class="pagebreak"></div>${roeDoc(d, ctx)}`
   };
 
+  // CAOC-assigned values stay as published (in DKS and in the cockpit); changes come from the CAOC (DKS brief 4.9 F)
+  const SPINS_NO_CHANGE = "CAOC-assigned IFF/SIF codes, STNs and frequencies (ATO, JCEOI and Comm Plan) will not be changed. Changes will be requested from the CAOC.";
   // theater IFF rules (e.g. NTTR) from the JCEOI IFF plan, when the page has it
   const iffRules = ctx => window.AOC.IFF ? window.AOC.IFF.theaterRules(window.AOC.JCEOI?.theaterKey(ctx.campaign.theater)) : [];
   // the campaign's IFF plan for the Comm Plan document: how Mode 3/A follows Mode 1, and the Mode 1 table

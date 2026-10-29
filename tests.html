@@ -80,6 +80,11 @@
         const ctx = { campaign: c(), user: { callsign: "TEST", role: "CFACC" }, approval: null, group: g => Store.group(g) };
         (P.docs || [{ render: P.render }]).forEach(x => { if (!x.render) return; const h = x.render(data, ctx); ok(typeof h === "string" && h.length > 50, "empty document"); });
       });
+      await t("SPINS direct that CAOC-assigned codes, STNs and frequencies are not changed", () => {
+        const P = PRODUCTS.spins, ctx = { campaign: c(), user: { callsign: "TEST", role: "CFACC" }, approval: null, group: g => Store.group(g) };
+        const h = (P.docs || [{ render: P.render }]).map(x => x.render?.(Store.content(CID, "spins"), ctx) || "").join("");
+        ok(/STNs and frequencies \(ATO, JCEOI and Comm Plan\) will not be changed\. Changes will be requested from the CAOC\./.test(h), "line missing");
+      });
       await t("Products wanted: the ATO is always produced", () => { const was = c().productsWanted; PK.setWanted(CID, []); ok(PK.wanted(c()).join() === "ato", PK.wanted(c()).join());
         PK.setWanted(CID, ["tdp"]); ok(PK.wanted(c()).includes("jiptl"), "TDPs bring the JIPTL"); if (was === undefined) delete c().productsWanted; else c().productsWanted = was; });
 
