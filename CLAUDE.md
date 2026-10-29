@@ -203,7 +203,8 @@ seed content does not reach a browser that already saved data.
 - **The CAOC and DKS are layers** (brief section 4.9, proposed): the CAOC manages the mission and owns the base
   documents and the theater / campaign data (locked in DKS); DKS is the flights' planning interface (the flight layer).
   Never rename or cut CAOC data to fit DKS: a translator builds DKS shapes at export, with `sourceType: "caoc"`,
-  `sourceId` and version tags. SPINS / ROE / CI never go to DKS (only SPINS Addendum A, to kneeboards). Committed
+  `sourceId` and version tags (contract, schema and examples in `docs/dks/`; keep them in step with any DKS export
+  change and run `python docs/dks/validate.py`). SPINS / ROE / CI never go to DKS (only SPINS Addendum A, to kneeboards). Committed
   lines become DKS flights created by the CAOC; the CAOC reads planned fields back; the final ATO posts at T-3h.
 - **PUBLISH check list** (`PACKAGE.preflight`): cross-product checks before release. Errors block the dialog's PUBLISH
   (INT off the JIPTL, SCAR with no area, AR track missing from ACO / map, TOT outside the period, IFF / datalink errors,

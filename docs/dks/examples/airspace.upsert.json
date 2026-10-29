@@ -1,0 +1,71 @@
+{
+  "message": "airspace.upsert",
+  "message_id": "caoc-iron-trident-airspace.upsert-0004",
+  "sent_at": "2026-10-19T03:00:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "aco:CAP KNIFE",
+        "version": "ACO v1",
+        "locked": true
+      },
+      "name": "CAP KNIFE",
+      "type": "CAP",
+      "geometry": {
+        "shape": "circle",
+        "points": [
+          {
+            "lat": 42.16667,
+            "lng": 41.66667
+          }
+        ],
+        "radiusNm": 15
+      },
+      "alt": "FL200–FL300",
+      "altLoFt": 20000,
+      "altHiFt": 30000,
+      "time": "0600Z–1800Z",
+      "ctrl": "DARKSTAR",
+      "color": "BLUE",
+      "colorHex": "#2f6fdb"
+    },
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "aco:AR TRACK ALPHA",
+        "version": "ACO v1",
+        "locked": true
+      },
+      "name": "AR TRACK ALPHA",
+      "type": "AR Track",
+      "geometry": {
+        "shape": "line",
+        "points": [
+          {
+            "lat": 41.91667,
+            "lng": 42.08333
+          },
+          {
+            "lat": 41.83333,
+            "lng": 42.58333
+          }
+        ]
+      },
+      "alt": "FL220–FL240",
+      "altLoFt": 22000,
+      "altHiFt": 24000,
+      "time": "0600Z–2200Z",
+      "ctrl": "DARKSTAR",
+      "color": "BLUE",
+      "colorHex": "#2f6fdb"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "message": "turn.upsert",
+  "message_id": "caoc-iron-trident-turn.upsert-0002",
+  "sent_at": "2026-10-19T03:00:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "turn:iron-trident/8",
+        "version": "ATO AH v3",
+        "locked": true
+      },
+      "ato_day": 8,
+      "ato": "AH",
+      "atoDayCode": "ATO AH",
+      "period": "0600Z–0559Z",
+      "windowStart": "2026-10-19T06:00:00Z",
+      "windowEnd": "2026-10-20T05:59:00Z",
+      "guidance": "Priority: SEAD/DEAD against the SA-10 and SA-11 covering Kutaisi and Senaki (key task 1)."
+    }
+  ]
+}

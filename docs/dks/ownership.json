@@ -1,0 +1,47 @@
+{
+  "$comment": "Who owns each piece of data between the 639 vCAOC and DKS. owner=caoc: the CAOC is the source, DKS shows it and must not let planners change it (locked). owner=squadron: planned in DKS, the CAOC reads it back. owner=caoc_only: never sent to DKS. dks: the DKS object/field it lands in (seen = observed in DKS 28 Oct 2026, guess = to confirm). See CONTRACT.md.",
+  "version": "2026-10-28",
+  "layers": {
+    "theater": "lasts across campaigns in a theater",
+    "campaign": "one campaign / ATO cycle",
+    "flight": "one flight, planned by its squadron in DKS"
+  },
+  "data": [
+    { "id": "acp.agencies", "layer": "theater", "owner": "caoc", "locked": true, "caoc": "Comm Plan (product acp) channels: net, channel, role, callsign, freq", "message": "agencies.upsert", "dks": "campaign agencies: name, shortname, description, frequency, frequencies (seen)" },
+    { "id": "jceoi.nets", "layer": "theater", "owner": "caoc", "locked": true, "caoc": "JCEOI standard net plan", "message": "agencies.upsert", "dks": "campaign agencies (seen)" },
+    { "id": "airspace.permanent", "layer": "theater", "owner": "caoc", "locked": true, "caoc": "theater map permanent shapes", "message": "airspace.upsert", "dks": "theater overlay / battlefield graphics (seen)" },
+
+    { "id": "campaign.identity", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "opName, theater, dday", "message": "campaign.upsert", "dks": "campaign name, theater, startDate (seen)" },
+    { "id": "campaign.objectives", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "Commander's Intent key tasks", "message": "campaign.upsert", "dks": "campaign objectives (seen)" },
+    { "id": "campaign.bullseye", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "SPINS bullseye (from the host .miz BLUE bullseye) and its code word", "message": "campaign.upsert", "dks": "preset point (guess)" },
+    { "id": "turn", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "ATO day, designator (AA ...), period, AOD guidance", "message": "turn.upsert", "dks": "campaign turn: number, atoDayCode, windowStart, windowEnd, guidance (seen)" },
+    { "id": "aco.measures", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "ACO measures (CAP, kill box, ROZ, AR track ...) and theater map shapes", "message": "airspace.upsert", "dks": "battlefield graphics: kind, name, shape, points, radiusNm, color (seen)" },
+    { "id": "aco.support_assets", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "tanker tracks and AWACS orbits: callsign, aircraft, freq, TACAN, altitudes, speed, track", "message": "support_assets.upsert", "dks": "support assets: type, callsign, variant, frequency, tacan, altitude, speed, trackPoints (seen)" },
+    { "id": "aco.points", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "theater map NAV / SPIDER / DEST points", "message": "points.upsert", "dks": "preset points: name, latitude, longitude, elevation (seen)" },
+    { "id": "jiptl.targets", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "JIPTL rows: id, name, category, loc, effect, grade, key task, rank", "message": "targets.upsert", "dks": "campaign targets + turn JIPTL entries (seen)" },
+    { "id": "tdp.aimpoints", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "target folder DMPI (reference) and DPIs with weapons", "message": "targets.upsert", "dks": "theater DMPI with dpis (seen)" },
+    { "id": "bda", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "BDA from the host debrief: status, reattack, notes", "message": "assessments.upsert", "dks": "target lastAssessment (seen)" },
+    { "id": "spins.addendum_a", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "SPINS Addendum A: AET table and RAMROD per ATO", "message": "kneeboard.upsert", "dks": "squadron docs / kneeboard pages as images (seen)" },
+
+    { "id": "line.mission", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "ATO line: msn, role, package, target or area, vul (TOT), tanker", "message": "flight.create", "dks": "flight missionType; rest guess" },
+    { "id": "line.squadron", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "the group that committed (Discord, first commit wins)", "message": "flight.create", "dks": "flight squadron / flownBySquadronId (seen)" },
+    { "id": "line.aircraft", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "airframe and number of aircraft", "message": "flight.create", "dks": "flight aircraft, members (seen)" },
+    { "id": "line.callsign", "layer": "campaign", "owner": "caoc", "locked": false, "caoc": "callsign when the CAOC assigned one; TBD means the squadron sets it", "message": "flight.create", "dks": "flight callsign (seen)", "note": "locked once the CAOC sets it; squadron-owned while TBD" },
+    { "id": "line.iff", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "IFF/SIF per member: Mode 1, Mode 2, Mode 3/A (JCEOI IFF plan)", "message": "flight.create", "dks": "member mode3 (seen)" },
+    { "id": "line.datalink", "layer": "campaign", "owner": "caoc", "locked": true, "caoc": "OPTASKLINK per member: Link 16 STN, SADL TN, IDM", "message": "flight.create", "dks": "member stn, sadl (seen)" },
+
+    { "id": "flight.crew", "layer": "flight", "owner": "squadron", "locked": false, "caoc": "read back onto the ATO", "message": "flights.readback", "dks": "members: callsign, pilot, seat (seen)" },
+    { "id": "flight.tails", "layer": "flight", "owner": "squadron", "locked": false, "caoc": "read back onto the ATO", "message": "flights.readback", "dks": "tailNumber (seen)" },
+    { "id": "flight.loadout", "layer": "flight", "owner": "squadron", "locked": false, "caoc": "read back onto the ATO", "message": "flights.readback", "dks": "loadout (seen, presets section loadout)" },
+    { "id": "flight.route", "layer": "flight", "owner": "squadron", "locked": false, "caoc": "read back onto the ATO", "message": "flights.readback", "dks": "flight plan waypoints (seen)" },
+    { "id": "flight.timing", "layer": "flight", "owner": "squadron", "locked": false, "caoc": "push and TOT inside the CAOC vul; read back", "message": "flights.readback", "dks": "timeline (seen)" },
+    { "id": "flight.dtc", "layer": "flight", "owner": "squadron", "locked": false, "caoc": "not read back", "message": null, "dks": "DTC / CMDS (seen)" },
+    { "id": "flight.local_nets", "layer": "flight", "owner": "squadron", "locked": false, "caoc": "not read back", "message": null, "dks": "flight comm plan, custom (seen)" },
+
+    { "id": "spins", "layer": "campaign", "owner": "caoc_only", "locked": null, "caoc": "SPINS (all but Addendum A)", "message": null, "dks": null },
+    { "id": "roe", "layer": "campaign", "owner": "caoc_only", "locked": null, "caoc": "ROE", "message": null, "dks": null },
+    { "id": "ci", "layer": "campaign", "owner": "caoc_only", "locked": null, "caoc": "Commander's Intent document (its key tasks do go, as objectives)", "message": null, "dks": null },
+    { "id": "aod_maap_pcon", "layer": "campaign", "owner": "caoc_only", "locked": null, "caoc": "AOD, MAAP, Planning Conference (internal)", "message": null, "dks": null },
+    { "id": "tdp.folder_text", "layer": "campaign", "owner": "caoc_only", "locked": null, "caoc": "target folder narrative and imagery (pilot package)", "message": null, "dks": null }
+  ]
+}

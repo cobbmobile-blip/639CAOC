@@ -1,0 +1,27 @@
+{
+  "message": "assessments.upsert",
+  "message_id": "caoc-iron-trident-assessments.upsert-0008",
+  "sent_at": "2026-10-19T03:00:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AG",
+  "ato_day": 7,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "bda:T10002/7",
+        "version": "BDA v1",
+        "locked": true
+      },
+      "targetId": "T10002",
+      "ato_day": 7,
+      "status": "Moderate damage",
+      "reattack": "Yes",
+      "notes": ""
+    }
+  ]
+}

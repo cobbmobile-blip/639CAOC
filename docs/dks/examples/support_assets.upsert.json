@@ -1,0 +1,78 @@
+{
+  "message": "support_assets.upsert",
+  "message_id": "caoc-iron-trident-support_assets.upsert-0005",
+  "sent_at": "2026-10-19T03:00:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "map:m4",
+        "version": "ACO v1",
+        "locked": true
+      },
+      "kind": "tanker",
+      "name": "AR TRACK ALPHA",
+      "callsign": "TEXACO 1",
+      "aircraft": "KC-135",
+      "freq": "305.000",
+      "band": "UHF",
+      "tacan": {
+        "channel": 41,
+        "mode": "Y",
+        "ident": "TEX"
+      },
+      "altLoFt": 22000,
+      "altHiFt": 24000,
+      "speedKcas": 300,
+      "track": {
+        "arcp": {
+          "lat": 41.75,
+          "lng": 42.7
+        },
+        "heading": 280,
+        "lengthNm": 50,
+        "widthNm": 20
+      },
+      "line": "8401",
+      "notes": "BOOM — BLUE 1"
+    },
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "map:m5",
+        "version": "ACO v1",
+        "locked": true
+      },
+      "kind": "awacs",
+      "name": "ORBIT WEST",
+      "callsign": "DARKSTAR",
+      "aircraft": "E-3A",
+      "freq": "295.000",
+      "band": "UHF",
+      "altLoFt": 29000,
+      "altHiFt": 31000,
+      "track": {
+        "widthNm": 15,
+        "points": [
+          {
+            "lat": 41.22,
+            "lng": 41.9
+          },
+          {
+            "lat": 41.12,
+            "lng": 42.45
+          }
+        ]
+      },
+      "line": "8403",
+      "notes": "E-3 orbit — keep 60 NM behind the FLOT"
+    }
+  ]
+}

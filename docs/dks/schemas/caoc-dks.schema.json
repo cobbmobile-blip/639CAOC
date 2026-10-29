@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cobbmobile-blip/639CAOC/docs/dks/schemas/caoc-dks.schema.json",
+  "title": "CAOC <-> DKS integration messages",
+  "description": "Every message between the 639 vCAOC and DKS. Pick the definition by the envelope's `message`. CAOC field names are canonical; see CONTRACT.md for each field's DKS destination. Extra properties are allowed so either side can add fields without breaking the other.",
+  "oneOf": [
+    { "$ref": "#/$defs/campaign.upsert" },
+    { "$ref": "#/$defs/turn.upsert" },
+    { "$ref": "#/$defs/agencies.upsert" },
+    { "$ref": "#/$defs/airspace.upsert" },
+    { "$ref": "#/$defs/support_assets.upsert" },
+    { "$ref": "#/$defs/points.upsert" },
+    { "$ref": "#/$defs/targets.upsert" },
+    { "$ref": "#/$defs/assessments.upsert" },
+    { "$ref": "#/$defs/kneeboard.upsert" },
+    { "$ref": "#/$defs/flight.create" },
+    { "$ref": "#/$defs/flight.update" },
+    { "$ref": "#/$defs/flight.remove" },
+    { "$ref": "#/$defs/flights.readback" },
+    { "$ref": "#/$defs/change.request" }
+  ],
+  "$defs": {
+    "envelope": {
+      "type": "object",
+      "required": ["message", "message_id", "sent_at", "source", "campaign"],
+      "properties": {
+        "message": { "type": "string" },
+        "message_id": { "type": "string", "description": "Unique per send; drop repeats." },
+        "sent_at": { "type": "string", "format": "date-time" },
+        "source": { "enum": ["caoc", "dks"] },
+        "campaign": {
+          "type": "object", "required": ["caoc_id"],
+          "properties": { "caoc_id": { "type": "string" }, "dks_id": { "type": ["string", "null"] } }
+        },
+        "ato": { "type": "string", "pattern": "^[A-Z]{2}$", "description": "ATO designator: AA = day 1, AB = day 2 ..." },
+        "ato_day": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["sourceType", "sourceId", "version", "locked"],
+      "properties": {
+        "sourceType": { "const": "caoc" },
+        "sourceId": { "type": "string", "description": "Stable key, e.g. acp:WHITE 3, aco:CAP KNIFE, map:m4, jiptl:T10001, dpi:T10004/A, line:8115. A repeat sourceId updates." },
+        "version": { "type": "string", "description": "CAOC release, e.g. ACP v4. Shown next to locked values." },
+        "locked": { "type": "boolean", "description": "true: read-only for planners in DKS." }
+      }
+    },
+    "item": { "type": "object", "required": ["provenance"], "properties": { "provenance": { "$ref": "#/$defs/provenance" } } },
+    "latlng": { "type": "object", "required": ["lat", "lng"], "properties": { "lat": { "type": "number", "minimum": -90, "maximum": 90 }, "lng": { "type": "number", "minimum": -180, "maximum": 180 } } },
+    "freq": { "type": "string", "pattern": "^[0-9]{2,3}\\.[0-9]{3}$", "description": "MHz, three decimals" },
+    "band": { "enum": ["UHF", "VHF", "FM", "HF"] },
+    "tacan": {
+      "type": "object", "required": ["channel", "mode"],
+      "properties": { "channel": { "type": "integer", "minimum": 1, "maximum": 126 }, "mode": { "enum": ["X", "Y"] }, "ident": { "type": "string" } }
+    },
+    "geometry": {
+      "type": "object", "required": ["shape", "points"],
+      "properties": {
+        "shape": { "enum": ["area", "circle", "line", "point"] },
+        "points": { "type": "array", "items": { "$ref": "#/$defs/latlng" }, "minItems": 1 },
+        "radiusNm": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+
+    "campaign.upsert": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "properties": {
+          "message": { "const": "campaign.upsert" },
+          "items": { "type": "array", "minItems": 1, "maxItems": 1, "items": { "allOf": [{ "$ref": "#/$defs/item" }, {
+            "required": ["opName", "theater"],
+            "properties": {
+              "opName": { "type": "string" }, "theater": { "type": "string" }, "dday": { "type": "string", "format": "date" },
+              "keyTasks": { "type": "array", "items": { "type": "object", "required": ["n", "text"], "properties": { "n": { "type": "integer" }, "text": { "type": "string" } } } },
+              "bullseye": { "allOf": [{ "$ref": "#/$defs/latlng" }, { "properties": { "codeWord": { "type": "string" } } }] },
+              "squadrons": { "type": "array", "items": { "type": "object", "required": ["group_id", "name"], "properties": { "group_id": { "type": "string" }, "name": { "type": "string" }, "airframes": { "type": "string" } } } }
+            } }] } }
+        } }]
+    },
+    "turn.upsert": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "required": ["ato", "ato_day"],
+        "properties": {
+          "message": { "const": "turn.upsert" },
+          "items": { "type": "array", "minItems": 1, "maxItems": 1, "items": { "allOf": [{ "$ref": "#/$defs/item" }, {
+            "required": ["ato_day", "ato", "windowStart", "windowEnd"],
+            "properties": {
+              "ato_day": { "type": "integer" }, "ato": { "type": "string" }, "atoDayCode": { "type": "string" }, "period": { "type": "string" },
+              "windowStart": { "type": "string", "format": "date-time" }, "windowEnd": { "type": "string", "format": "date-time" }, "guidance": { "type": "string" }
+            } }] } }
+        } }]
+    },
+    "agencies.upsert": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "properties": {
+          "message": { "const": "agencies.upsert" },
+          "items": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/item" }, {
+            "required": ["channel", "role", "freq", "band"],
+            "properties": {
+              "net": { "type": "string" }, "channel": { "type": "string" }, "role": { "type": "string" }, "callsign": { "type": "string" },
+              "freq": { "$ref": "#/$defs/freq" }, "band": { "$ref": "#/$defs/band" }, "volatile": { "type": "boolean" }
+            } }] } }
+        } }]
+    },
+    "airspace.upsert": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "properties": {
+          "message": { "const": "airspace.upsert" },
+          "items": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/item" }, {
+            "required": ["name", "type", "geometry"],
+            "properties": {
+              "name": { "type": "string" }, "type": { "type": "string", "description": "CAP, AR Track, Kill Box, ROZ, FLOT, FSCL, MRR, ARTY ROZ ..." },
+              "geometry": { "$ref": "#/$defs/geometry" }, "alt": { "type": "string" }, "altLoFt": { "type": ["integer", "null"] }, "altHiFt": { "type": ["integer", "null"] },
+              "time": { "type": "string" }, "ctrl": { "type": "string" }, "color": { "type": "string" }, "colorHex": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "notes": { "type": "string" }
+            } }] } }
+        } }]
+    },
+    "support_assets.upsert": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "properties": {
+          "message": { "const": "support_assets.upsert" },
+          "items": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/item" }, {
+            "required": ["kind", "name", "callsign", "freq"],
+            "properties": {
+              "kind": { "enum": ["tanker", "awacs"] }, "name": { "type": "string" }, "callsign": { "type": "string" }, "aircraft": { "type": "string" },
+              "freq": { "$ref": "#/$defs/freq" }, "band": { "$ref": "#/$defs/band" }, "tacan": { "$ref": "#/$defs/tacan" },
+              "altLoFt": { "type": "integer" }, "altHiFt": { "type": "integer" }, "speedKcas": { "type": "integer" },
+              "track": { "type": "object", "properties": { "arcp": { "$ref": "#/$defs/latlng" }, "heading": { "type": "integer" }, "lengthNm": { "type": "number" }, "widthNm": { "type": "number" }, "points": { "type": "array", "items": { "$ref": "#/$defs/latlng" } } } },
+              "line": { "type": "string" }, "notes": { "type": "string" }
+            } }] } }
+        } }]
+    },
+    "points.upsert": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "properties": {
+          "message": { "const": "points.upsert" },
+          "items": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/item" }, { "$ref": "#/$defs/latlng" }, {
+            "required": ["kind", "name"],
+            "properties": { "kind": { "enum": ["NAV", "SPIDER", "DEST", "THREAT"] }, "name": { "type": "string" }, "elevFt": { "type": "integer" }, "notes": { "type": "string" } }
+          }] } }
+        } }]
+    },
+    "targets.upsert": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "properties": {
+          "message": { "const": "targets.upsert" },
+          "items": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/item" }, { "$ref": "#/$defs/latlng" }, {
+            "required": ["targetId", "name", "rank", "effect"],
+            "properties": {
+              "targetId": { "type": "string", "pattern": "^T[0-9]+$" }, "targetNumber": { "type": "integer" }, "name": { "type": "string" }, "category": { "type": "string" },
+              "mgrs": { "type": "string" }, "elevFt": { "type": ["integer", "null"] }, "rank": { "type": "integer", "minimum": 1 }, "aboveCutLine": { "type": "boolean" },
+              "grade": { "type": "string" }, "keyTask": { "type": "object", "properties": { "n": { "type": "integer" }, "text": { "type": "string" } } },
+              "effect": { "type": "string" }, "effectDetail": { "type": "string" }, "restriction": { "type": "string" }, "listStatus": { "enum": ["jtl", "rtl", "retired"] },
+              "dmpi": { "$ref": "#/$defs/latlng" },
+              "dpis": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/latlng" }, { "required": ["dpiId"], "properties": {
+                "dpiId": { "type": "string" }, "desc": { "type": "string" }, "elevFt": { "type": ["integer", "null"] }, "weapon": { "type": "string" }, "provenance": { "$ref": "#/$defs/provenance" } } }] } },
+              "assignedLines": { "type": "array", "items": { "type": "object", "required": ["msn"], "properties": { "msn": { "type": "string" }, "callsign": { "type": "string" } } } }
+            } }] } }
+        } }]
+    },
+    "assessments.upsert": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "properties": {
+          "message": { "const": "assessments.upsert" },
+          "items": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/item" }, {
+            "required": ["targetId", "ato_day", "status", "reattack"],
+            "properties": { "targetId": { "type": "string" }, "ato_day": { "type": "integer" }, "status": { "type": "string" }, "reattack": { "enum": ["Yes", "No"] }, "notes": { "type": "string" } }
+          }] } }
+        } }]
+    },
+    "kneeboard.upsert": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "properties": {
+          "message": { "const": "kneeboard.upsert" },
+          "items": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/item" }, {
+            "required": ["section", "ato", "effective", "aet", "ramrod"],
+            "properties": {
+              "section": { "const": "SPINS Addendum A" }, "ato": { "type": "string" }, "ato_day": { "type": "integer" }, "effective": { "type": "string", "format": "date-time" },
+              "spinsVersion": { "type": "string" }, "ramrod": { "type": "string", "minLength": 10, "maxLength": 10 },
+              "aet": { "type": "object", "required": ["rows", "cols", "cells"], "properties": { "rows": { "type": "string" }, "cols": { "type": "string" }, "cells": { "type": "array", "items": { "type": "string" } } } },
+              "pageUrl": { "type": "string", "description": "Rendered page, PNG" }, "pageFormat": { "enum": ["png", "pdf"] }
+            } }] } }
+        } }]
+    },
+    "member": {
+      "type": "object", "required": ["seat"],
+      "properties": {
+        "seat": { "type": "string", "description": "1-1, 1-2 ..." }, "callsign": { "type": "string" }, "pilot": { "type": "string" },
+        "mode1": { "type": "string", "pattern": "^[0-7][0-3]$" }, "mode2": { "type": "string" }, "mode3": { "type": "string", "pattern": "^[0-7]{4}$" },
+        "stn": { "type": "string", "pattern": "^[0-7]{5}$" }, "sadlTn": { "type": "string", "pattern": "^[0-7]{4}$" }, "idm": { "type": "object" }
+      }
+    },
+    "flight.create": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "required": ["ato", "ato_day"],
+        "properties": {
+          "message": { "const": "flight.create" },
+          "items": { "type": "array", "minItems": 1, "maxItems": 1, "items": { "allOf": [{ "$ref": "#/$defs/item" }, {
+            "required": ["msn", "role", "aircraft", "num", "squadron", "members"],
+            "properties": {
+              "msn": { "type": "string" }, "role": { "type": "string" }, "package": { "type": "string" }, "aircraft": { "type": "string" }, "num": { "type": "integer", "minimum": 1 },
+              "callsign": { "type": "string" }, "vul": { "type": "string" }, "target": { "type": "string" }, "area": { "type": "string" }, "tanker": { "type": "string" },
+              "squadron": { "type": "object", "required": ["group_id", "name"], "properties": { "group_id": { "type": "string" }, "name": { "type": "string" } } },
+              "members": { "type": "array", "items": { "$ref": "#/$defs/member" } }
+            } }] } }
+        } }]
+    },
+    "flight.update": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "properties": {
+          "message": { "const": "flight.update" },
+          "items": { "type": "array", "minItems": 1, "items": { "allOf": [{ "$ref": "#/$defs/item" }, { "required": ["dks_flight_id", "changes"], "properties": { "dks_flight_id": { "type": ["string", "null"] }, "changes": { "type": "object" } } }] } }
+        } }]
+    },
+    "flight.remove": {
+      "allOf": [{ "$ref": "#/$defs/envelope" }, {
+        "properties": {
+          "message": { "const": "flight.remove" },
+          "items": { "type": "array", "minItems": 1, "items": { "allOf": [{ "$ref": "#/$defs/item" }, { "required": ["dks_flight_id", "reason"], "properties": { "dks_flight_id": { "type": ["string", "null"] }, "reason": { "enum": ["released", "cancelled"] } } }] } }
+        } }]
+    },
+    "flights.readback": {
+      "type": "object",
+      "required": ["message", "message_id", "sent_at", "source", "campaign", "flights"],
+      "properties": {
+        "message": { "const": "flights.readback" }, "message_id": { "type": "string" }, "sent_at": { "type": "string", "format": "date-time" }, "source": { "const": "dks" },
+        "campaign": { "$ref": "#/$defs/envelope/properties/campaign" }, "ato": { "type": "string" }, "trigger": { "enum": ["flight.changed", "read", "final"] },
+        "flights": { "type": "array", "items": { "type": "object", "required": ["dks_flight_id", "sourceId", "updatedAt"], "properties": {
+          "dks_flight_id": { "type": "string" }, "sourceId": { "type": "string" }, "callsign": { "type": "string" }, "aircraft": { "type": "string" },
+          "tailNumbers": { "type": "array", "items": { "type": "string" } }, "members": { "type": "array", "items": { "$ref": "#/$defs/member" } },
+          "loadout": { "type": "array", "items": { "type": "object" } },
+          "route": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/latlng" }, { "properties": { "n": { "type": "integer" }, "name": { "type": "string" }, "altFt": { "type": "integer" }, "tot": { "type": "string" } } }] } },
+          "push": { "type": "string" }, "tot": { "type": "string" }, "updatedAt": { "type": "string", "format": "date-time" }, "version": { "type": "integer" }
+        } } }
+      }
+    },
+    "change.request": {
+      "type": "object",
+      "required": ["message", "message_id", "sent_at", "source", "campaign", "sourceId", "field", "current", "requested", "reason", "by"],
+      "properties": {
+        "message": { "const": "change.request" }, "message_id": { "type": "string" }, "sent_at": { "type": "string", "format": "date-time" }, "source": { "const": "dks" },
+        "campaign": { "$ref": "#/$defs/envelope/properties/campaign" }, "sourceId": { "type": "string" }, "field": { "type": "string" },
+        "current": {}, "requested": {}, "reason": { "type": "string" },
+        "by": { "type": "object", "required": ["squadron", "user"], "properties": { "squadron": { "type": "string" }, "user": { "type": "string" } } }
+      }
+    }
+  }
+}

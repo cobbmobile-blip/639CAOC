@@ -1,0 +1,80 @@
+{
+  "$comment": "Illustrative: what DKS would send back. Nothing has been read from DKS yet.",
+  "message": "flights.readback",
+  "message_id": "dks-readback-0001",
+  "sent_at": "2026-10-20T03:00:00Z",
+  "source": "dks",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": "dks-campaign-id"
+  },
+  "ato": "AH",
+  "trigger": "final",
+  "flights": [
+    {
+      "dks_flight_id": "dks-flight-id-returned-on-create",
+      "sourceId": "line:8115",
+      "callsign": "KNIGHT 5",
+      "aircraft": "F-16C",
+      "tailNumbers": [
+        "90-0812",
+        "90-0820"
+      ],
+      "members": [
+        {
+          "seat": "1-1",
+          "callsign": "KNIGHT 5-1",
+          "pilot": "HAMMER",
+          "mode3": "3031",
+          "stn": "01431"
+        },
+        {
+          "seat": "1-2",
+          "callsign": "KNIGHT 5-2",
+          "pilot": "SPOOK",
+          "mode3": "3032",
+          "stn": "01432"
+        }
+      ],
+      "loadout": [
+        {
+          "station": "3",
+          "type": "AGM-88C HARM"
+        },
+        {
+          "station": "7",
+          "type": "AGM-88C HARM"
+        }
+      ],
+      "route": [
+        {
+          "n": 1,
+          "name": "KUTAISI",
+          "lat": 42.17654,
+          "lng": 42.48262,
+          "altFt": 150
+        },
+        {
+          "n": 2,
+          "name": "PUSH",
+          "lat": 42.05,
+          "lng": 42.4,
+          "altFt": 22000,
+          "tot": "1048Z"
+        },
+        {
+          "n": 3,
+          "name": "TGT AREA",
+          "lat": 42.28,
+          "lng": 42.58,
+          "altFt": 22000,
+          "tot": "1058Z"
+        }
+      ],
+      "push": "1048Z",
+      "tot": "1058Z",
+      "updatedAt": "2026-10-20T02:41:09Z",
+      "version": 14
+    }
+  ]
+}

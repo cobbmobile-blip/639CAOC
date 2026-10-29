@@ -1,0 +1,60 @@
+{
+  "message": "campaign.upsert",
+  "message_id": "caoc-iron-trident-campaign.upsert-0001",
+  "sent_at": "2026-10-19T03:00:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "campaign:iron-trident",
+        "version": "CI v1",
+        "locked": true
+      },
+      "opName": "IRON TRIDENT",
+      "theater": "Caucasus",
+      "dday": "2026-10-12",
+      "keyTasks": [
+        {
+          "n": 1,
+          "text": "Neutralise SA-10 and SA-11 sites covering Kutaisi and Senaki"
+        },
+        {
+          "n": 2,
+          "text": "Establish 24-hour DCA over Batumi and Kobuleti"
+        },
+        {
+          "n": 3,
+          "text": "Interdict Red LOCs through the Rikoti Pass"
+        },
+        {
+          "n": 4,
+          "text": "Provide on-call CAS to Task Force BLUE in AO HAMMER"
+        }
+      ],
+      "bullseye": {
+        "lat": 42.17757,
+        "lng": 42.48058,
+        "codeWord": "SAPPORO"
+      },
+      "squadrons": [
+        {
+          "group_id": "g1",
+          "name": "Viper Ops Group",
+          "airframes": "F-16C"
+        },
+        {
+          "group_id": "g7",
+          "name": "Black Knights vFS",
+          "airframes": "F-16C"
+        }
+      ]
+    }
+  ]
+}

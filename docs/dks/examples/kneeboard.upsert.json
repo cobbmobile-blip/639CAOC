@@ -1,0 +1,49 @@
+{
+  "message": "kneeboard.upsert",
+  "message_id": "caoc-iron-trident-kneeboard.upsert-0009",
+  "sent_at": "2026-10-19T03:00:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "kneeboard:addendum-a/AH",
+        "version": "SPINS v4",
+        "locked": true
+      },
+      "section": "SPINS Addendum A",
+      "ato": "AH",
+      "ato_day": 8,
+      "effective": "2026-10-19T03:00:00Z",
+      "spinsVersion": "SPINS v4",
+      "ramrod": "SUBJECTING",
+      "aet": {
+        "rows": "ABCDEFGHIJKLM",
+        "cols": "NOPQRSTUVWXYZ",
+        "cells": [
+          "XHTSZTLAAMBZN",
+          "BPZELZPMWDMNH",
+          "NPNHQQRQEVQCV",
+          "ZVBUPOTOUCZWY",
+          "QQDHXRJLISTYD",
+          "FFHSRLPVFAUIX",
+          "UJMHZRFDDKUUT",
+          "PITMGSFKBFVHI",
+          "JLHGAQNCJRWRL",
+          "TTLRYCMZYDSIJ",
+          "CNDUXNDYLCUUR",
+          "MDXCIAWJTEDQP",
+          "DPTRFPORXWBCX"
+        ]
+      },
+      "pageUrl": "https://example.invalid/caoc/iron-trident/addendum-a/AH.png",
+      "pageFormat": "png"
+    }
+  ]
+}

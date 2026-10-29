@@ -415,6 +415,13 @@ This section sets how the two systems work together. Where 4.3-4.7 say
 otherwise, this section wins; their payloads stay as the CAOC's internal
 record until the formats below are agreed.
 
+FOR BUILDING IT (and for an AI assistant working on DKS): docs/dks/ holds
+the same contract in structured form -- README.md (start here),
+CONTRACT.md (every message: direction, trigger, key, CAOC field -> DKS
+field), ownership.json (who owns each field), schemas/caoc-dks.schema.json
+(JSON Schema), examples/ (one payload per message, demo values) and
+QUESTIONS.md (Q1-Q16, answer in place).
+
 A. Roles
   - The CAOC assists the JFACC with MISSION MANAGEMENT: it builds the
     missions and the ATO lines, shares them with external squadrons, and

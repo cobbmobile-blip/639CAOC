@@ -1,0 +1,112 @@
+{
+  "message": "targets.upsert",
+  "message_id": "caoc-iron-trident-targets.upsert-0007",
+  "sent_at": "2026-10-19T03:00:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "jiptl:T10001",
+        "version": "JIPTL v1",
+        "locked": true
+      },
+      "targetId": "T10001",
+      "targetNumber": 10001,
+      "name": "SA-10 Battery KUTAISI EAST",
+      "category": "SAM (long range)",
+      "lat": 42.28738,
+      "lng": 42.58873,
+      "mgrs": "38T LM 012 845",
+      "elevFt": null,
+      "rank": 1,
+      "aboveCutLine": true,
+      "grade": "A",
+      "keyTask": {
+        "n": 1,
+        "text": "Neutralise SA-10 and SA-11 sites covering Kutaisi and Senaki"
+      },
+      "effect": "Destroy",
+      "listStatus": "jtl",
+      "assignedLines": [
+        {
+          "msn": "8101",
+          "callsign": "VIPER 1"
+        }
+      ]
+    },
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "jiptl:T10004",
+        "version": "JIPTL v1",
+        "locked": true
+      },
+      "targetId": "T10004",
+      "targetNumber": 10004,
+      "name": "Road Bridge LIMA (Rioni)",
+      "category": "LOC — Bridge",
+      "lat": 42.19033,
+      "lng": 42.66017,
+      "mgrs": "38T LM 102 811",
+      "elevFt": 112,
+      "rank": 4,
+      "aboveCutLine": true,
+      "grade": "B",
+      "keyTask": {
+        "n": 3,
+        "text": "Interdict Red LOCs through the Rikoti Pass"
+      },
+      "effect": "Deny",
+      "effectDetail": "Deny use of the bridge to Red vehicle traffic for 72+ hours.",
+      "restriction": "CDE 3",
+      "listStatus": "jtl",
+      "dmpi": {
+        "lat": 42.19033,
+        "lng": 42.66017
+      },
+      "dpis": [
+        {
+          "dpiId": "A",
+          "desc": "West abutment / span 1 joint",
+          "lat": 42.1903,
+          "lng": 42.6592,
+          "elevFt": 112,
+          "weapon": "GBU-31(V)3",
+          "provenance": {
+            "sourceType": "caoc",
+            "sourceId": "dpi:T10004/A",
+            "version": "TDP v1",
+            "locked": true
+          }
+        },
+        {
+          "dpiId": "B",
+          "desc": "Centre pier",
+          "lat": 42.19035,
+          "lng": 42.66018,
+          "elevFt": 112,
+          "weapon": "GBU-31(V)3",
+          "provenance": {
+            "sourceType": "caoc",
+            "sourceId": "dpi:T10004/B",
+            "version": "TDP v1",
+            "locked": true
+          }
+        }
+      ],
+      "assignedLines": [
+        {
+          "msn": "8102",
+          "callsign": "DUDE 1"
+        }
+      ]
+    }
+  ]
+}

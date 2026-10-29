@@ -1,0 +1,50 @@
+{
+  "$comment": "STNs are illustrative: the demo campaign's OPTASKLINK has no assignments yet. Mode 1 / Mode 3 are the demo's real codes for line 8115; the committed squadron is hypothetical (the line is open in the demo).",
+  "message": "flight.create",
+  "message_id": "caoc-iron-trident-flight.create-0010",
+  "sent_at": "2026-10-19T21:14:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "line:8115",
+        "version": "ATO AH v3",
+        "locked": true
+      },
+      "msn": "8115",
+      "role": "SEAD",
+      "package": "B",
+      "aircraft": "F-16C",
+      "num": 2,
+      "callsign": "TBD",
+      "vul": "1058Z",
+      "area": "Pkg B",
+      "tanker": "TEXACO 1",
+      "squadron": {
+        "group_id": "g7",
+        "name": "Black Knights vFS"
+      },
+      "members": [
+        {
+          "seat": "1-1",
+          "mode1": "30",
+          "mode3": "3031",
+          "stn": "01431"
+        },
+        {
+          "seat": "1-2",
+          "mode1": "30",
+          "mode3": "3032",
+          "stn": "01432"
+        }
+      ]
+    }
+  ]
+}

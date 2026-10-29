@@ -1,0 +1,24 @@
+{
+  "message": "flight.remove",
+  "message_id": "caoc-iron-trident-flight.remove-0011",
+  "sent_at": "2026-10-20T01:02:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "line:8115",
+        "version": "ATO AH v3",
+        "locked": true
+      },
+      "dks_flight_id": "dks-flight-id-returned-on-create",
+      "reason": "released"
+    }
+  ]
+}

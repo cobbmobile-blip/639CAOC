@@ -1,0 +1,74 @@
+{
+  "message": "agencies.upsert",
+  "message_id": "caoc-iron-trident-agencies.upsert-0003",
+  "sent_at": "2026-10-19T03:00:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "acp:WHITE 1",
+        "version": "ACP v1",
+        "locked": true
+      },
+      "net": "TAC ADMIN",
+      "channel": "WHITE 1",
+      "role": "TAC COORD",
+      "callsign": "RAZOR",
+      "freq": "290.050",
+      "band": "UHF",
+      "volatile": false
+    },
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "acp:WHITE 2",
+        "version": "ACP v1",
+        "locked": true
+      },
+      "net": "TAC ADMIN",
+      "channel": "WHITE 2",
+      "role": "TAC ADMIN",
+      "callsign": "",
+      "freq": "292.500",
+      "band": "UHF",
+      "volatile": false
+    },
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "acp:WHITE 3",
+        "version": "ACP v1",
+        "locked": true
+      },
+      "net": "TAC ADMIN",
+      "channel": "WHITE 3",
+      "role": "C2 / AWACS",
+      "callsign": "DARKSTAR",
+      "freq": "295.000",
+      "band": "UHF",
+      "volatile": false
+    },
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "acp:BLUE 1",
+        "version": "ACP v1",
+        "locked": true
+      },
+      "net": "TANKERS",
+      "channel": "BLUE 1",
+      "role": "BOOM 1",
+      "callsign": "",
+      "freq": "305.000",
+      "band": "UHF",
+      "volatile": true
+    }
+  ]
+}

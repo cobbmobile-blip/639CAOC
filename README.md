@@ -468,6 +468,8 @@ theater-map tracks and orbits off the plan, tankers without a frequency.
 - `js/jceoi.js`, `js/jceoi-data.js` — JCEOI registers, net plan, IFF and TDL data (built by `tools/jceoi`)
 - `js/iff.js`, `js/tdl.js`, `js/tacan.js`, `js/package.js` — IFF / SIF plan and checks, OPTASKLINK, TACAN / ICLS scrub, group pack and DKS exports
 - `tests.html` — the test run (its own data copy: `window.AOC_DB_KEY`)
+- `docs/dks/` — the CAOC ↔ DKS integration contract for the DKS developer (and his AI assistant): contract, field
+  ownership, JSON Schema, example payloads, questions; `python docs/dks/validate.py` checks the examples
 - `js/mizlog.js` — the host's `.miz` change log (ADD / SET / FIX / REMOVE, checks passed) and its Discord post
 - `tools/target-render/` — offline target-folder imagery (Blender pipeline, DCS chart JOG); `img/targets/` holds its output
 - `samples/iron_trident_redfor.csv` — sample Coalition Parser export for the demo campaign

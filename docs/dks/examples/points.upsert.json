@@ -1,0 +1,29 @@
+{
+  "message": "points.upsert",
+  "message_id": "caoc-iron-trident-points.upsert-0006",
+  "sent_at": "2026-10-19T03:00:00Z",
+  "source": "caoc",
+  "campaign": {
+    "caoc_id": "iron-trident",
+    "dks_id": null
+  },
+  "ato": "AH",
+  "ato_day": 8,
+  "$comment": "Illustrative: the demo theater map has no NAV / SPIDER points yet.",
+  "items": [
+    {
+      "provenance": {
+        "sourceType": "caoc",
+        "sourceId": "map:p1",
+        "version": "ACO v1",
+        "locked": true
+      },
+      "kind": "SPIDER",
+      "name": "SP ALPHA",
+      "lat": 41.95,
+      "lng": 42.3,
+      "elevFt": 420,
+      "notes": "CSAR route point"
+    }
+  ]
+}
