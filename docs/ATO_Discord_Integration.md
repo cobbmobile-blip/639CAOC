@@ -10,9 +10,10 @@ bot needs. Names below are proposals — adjust to match the bot that's already 
    (player slots become **Human** lines, other flights **AI**) or with the Create an ATO line form.
 2. Each **Human** line starts as a `draft`: not on the ATO, nothing posted. The host can **Edit** or **Remove** it.
    When it is right the host presses **Post to Discord** (or "Post all drafts"); the line becomes `open`, goes on the
-   ATO, and the site emits **`ato_line.open`** to the bot with the list of recipient groups: every *active registered
-   group* whose registered airframes include the line's airframe. **AI** lines go straight onto the ATO; nothing is
-   posted. Nothing reaches Discord until the host posts it.
+   ATO, and the site emits **`ato_line.open`** to the bot with the list of recipient groups: every *active (or
+   on-probation) registered group* whose registered airframes include the line's airframe **and whose RTM lists the
+   line's mission type**. **AI** lines go straight onto the ATO; nothing is posted. Nothing reaches Discord until the
+   host posts it.
 3. The bot posts the line to each recipient group's channel with a **Commit** button.
 4. A member of a recipient group presses **Commit** → the bot calls the site's **commit** endpoint.
    **First commit wins.** The site marks the line `committed`, sets that group as the tasked unit on the ATO,
@@ -37,9 +38,10 @@ emits a fresh `ato_line.open` (same `line_id`) so the bot re-enables Commit.
   "ato_day": 8,
   "ato": "AH",
   "msn": "8601",
+  "kind": "flight",
   "airframe": "F-15E",
   "aircraft": 4,
-  "mission": "Strike",
+  "mission": "INT",
   "crew": "Human",
   "tot": "0722Z",
   "target": "T10005",
@@ -86,7 +88,7 @@ Either way the site emits `ato_line.request_decided` and the bot tells the reque
   "ato_day": 8,
   "ato": "AH",
   "requested_by": { "group_id": "g2", "group": "Hornet Bay vCVW", "user": "Rhino" },
-  "airframe": "F/A-18C", "aircraft": "2", "mission": "SEAD", "crew": "Human", "tot": "1100Z", "target": "T10001",
+  "airframe": "F/A-18C", "aircraft": "2", "mission": "SEAD/DEAD", "crew": "Human", "tot": "1100Z", "target": "T10001",
   "pkg": "B", "callsign": "SPRINGFIELD 3", "base": "CVN-71", "commit_by": null, "notes": "Extra SEAD pair for Pkg B",
   "recipients": [ { "group_id": "g1", "group": "Viper Ops Group", "host": true } ],
   "components": [
@@ -156,6 +158,16 @@ status (open | committed | ai | cancelled), postedAt, committedBy, committedAt, 
 Lines carry the airframe name groups register with (`F-15E`, `F/A-18C`, `A-10C II`, `AH-64D` …). `.miz` unit types
 are mapped to those names (`F-15ESE` → `F-15E`, `FA-18C_hornet` → `F/A-18C`, `A-10C_2` → `A-10C II` …) in
 `DCS_AIRFRAMES` in `js/ato.js`. Matching ignores spaces, dashes and slashes.
+
+## Controller positions (C2, JTAC, ATC)
+
+C2, JTAC and ATC squadrons get ATO lines exactly like flying units: the same `ato_line.open` post with a **Commit**
+button, the same first-commit-wins `commit`. The line's `airframe` is the **position** (`C2`, `JTAC`, `ATC`), its
+`mission` the controller role (C2: `GCI`, `AWACS ABM`, `TAC C2`; JTAC: `JTAC`; ATC: `Tower`, `Approach`, `Ground`),
+`aircraft` the number of controllers, and `kind` is `"position"` (`"flight"` for everything else) so the bot can word
+the post ("1× JTAC controller, AO HAMMER, 0800–1400Z"). Controller squadrons register their positions as airframes
+and list the roles in their RTM. Positions have no IFF / SIF, datalink or `.miz` group, and no DKS flight yet (DKS has
+no place for them: `docs/dks/QUESTIONS.md` Q18).
 
 ## PUBLISH product post (`package.posted`)
 
@@ -230,7 +242,7 @@ An **Acknowledge** button on the post should call back with `{ "campaign_id", "l
 ## Lines the PRCC requests
 
 The PRCC (`prcc.html`) requests rescue-force lines through the same `ato_line.open` event. They have `source: "PRCC"`,
-`package: "CSAR"`, a target such as `"PR-001 survivor"`, mission types including `RESCORT`, `SARCAP`, `CSAR`, `SEAD`, and
+`package: "CSAR"`, a target such as `"PR-001 survivor"`, mission types `CSAR` (the Sandy and the rescue helicopters), `DCA` (SARCAP), `SEAD/DEAD`, and
 `requested_by: { "group_id": "", "jfacc": "<callsign> (PRCC)" }` — no requesting group. The airframe is one an active
 group flies (e.g. MH-60L → the 55th RQS); commits work as for any line. Human rescue lines need the same first-commit-wins
 handling; AI lines (HC-130 King, AWACS, ISR, tanker) are not posted.

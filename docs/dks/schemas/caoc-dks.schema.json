@@ -1426,19 +1426,22 @@
                               "type": "string"
                             },
                             "role": {
-                              "type": "string"
+                              "type": "string",
+                              "description": "The ATO mission set: DCA, OCA, SEAD/DEAD, INT, XINT, CAS, XCAS, SCAR, CSAR, Airlift (AI: AR, AEW, ISR)"
                             },
                             "packageRole": {
                               "enum": [
-                                "strike",
+                                "int",
                                 "sead",
-                                "escort",
-                                "sweep",
+                                "oca",
+                                "dca",
+                                "cas",
+                                "scar",
                                 "tanker",
                                 "awacs",
-                                "jammer",
                                 "other"
-                              ]
+                              ],
+                              "description": "The line's part in the package (INT / XINT, SEAD/DEAD, OCA escort or sweep ...)"
                             }
                           }
                         }

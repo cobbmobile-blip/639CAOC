@@ -32,6 +32,8 @@
 
   // fill the IFF codes of lines that have none, or whose Mode 3/A doesn't start with their Mode 1 (all = reassign every line)
   function assign(cid, missions, { all = false } = {}) {
+    // controller positions (C2, JTAC, ATC) have no transponder
+    missions = missions.filter(m => !window.AOC.ATO?.isPosition(m.type));
     const c = Store.campaign(cid), s = settings(cid);
     missions.forEach(m => { if (all || !m.m1) { const v = mode1For(m.role, c.atoDay, s.rotateMode1); if (v) m.m1 = v; } });
     const keep = missions.filter(m => !all && fits(m)), used = new Set(keep.map(m => slotOf(m.m3)));
@@ -53,6 +55,7 @@
 
   // ---------- checks ----------
   function check(cid, missions, theater) {
+    missions = missions.filter(m => !window.AOC.ATO?.isPosition(m.type));   // controller positions have no transponder
     const out = [], add = (sev, msn, text) => out.push({ sev, msn, text });
     const seen = {};
     missions.forEach(m => {

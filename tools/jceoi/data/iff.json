@@ -8,18 +8,90 @@
     "AFMAN 13-212V1 NTTR Add A §3.1.3, Att 16": "https://static.e-publishing.af.mil/production/1/nellisafb/publication/afi13-212v1_accsup_nttrsup_add_a/afman13-212v1_nttr_add_a.pdf"
   },
   "reserved": [
-    { "from": "0000", "to": "0000", "use": "Never assigned (ICAO)", "src": "ICAO practice (secondary)", "conf": "public" },
-    { "from": "1200", "to": "1200", "use": "VFR (US)", "src": "FAA AIM 4-1-20", "conf": "official" },
-    { "from": "1202", "to": "1202", "use": "VFR gliders (US)", "src": "FAA AIM 4-1-20", "conf": "official" },
-    { "from": "1255", "to": "1255", "use": "Firefighting aircraft (US)", "src": "FAA AIM 4-1-20", "conf": "official" },
-    { "from": "1277", "to": "1277", "use": "VFR search and rescue (US)", "src": "FAA AIM 4-1-20", "conf": "official" },
-    { "from": "2000", "to": "2000", "use": "Entering SSR airspace without an assigned code (ICAO)", "src": "ICAO practice (secondary)", "conf": "public" },
-    { "from": "4000", "to": "4000", "use": "Military in restricted / warning areas when no other code is assigned (US)", "src": "FAA AIM 4-1-20", "conf": "official" },
-    { "from": "7000", "to": "7000", "use": "VFR (ICAO regions)", "src": "ICAO practice (secondary)", "conf": "public" },
-    { "from": "7400", "to": "7400", "use": "Unmanned aircraft lost link", "src": "ICAO practice (secondary)", "conf": "public" },
-    { "from": "7500", "to": "7500", "use": "Unlawful interference (hijack)", "src": "FAA AIM 4-1-20", "conf": "official" },
-    { "from": "7600", "to": "7677", "use": "Lost communications series (special indicators)", "src": "FAA AIM 4-1-20", "conf": "official" },
-    { "from": "7700", "to": "7777", "use": "Emergency series (special indicators); 7777 never used by civil aircraft", "src": "FAA AIM 4-1-20", "conf": "official" }
+    {
+      "from": "0000",
+      "to": "0000",
+      "use": "Never assigned (ICAO)",
+      "src": "ICAO practice (secondary)",
+      "conf": "public"
+    },
+    {
+      "from": "1200",
+      "to": "1200",
+      "use": "VFR (US)",
+      "src": "FAA AIM 4-1-20",
+      "conf": "official"
+    },
+    {
+      "from": "1202",
+      "to": "1202",
+      "use": "VFR gliders (US)",
+      "src": "FAA AIM 4-1-20",
+      "conf": "official"
+    },
+    {
+      "from": "1255",
+      "to": "1255",
+      "use": "Firefighting aircraft (US)",
+      "src": "FAA AIM 4-1-20",
+      "conf": "official"
+    },
+    {
+      "from": "1277",
+      "to": "1277",
+      "use": "VFR search and rescue (US)",
+      "src": "FAA AIM 4-1-20",
+      "conf": "official"
+    },
+    {
+      "from": "2000",
+      "to": "2000",
+      "use": "Entering SSR airspace without an assigned code (ICAO)",
+      "src": "ICAO practice (secondary)",
+      "conf": "public"
+    },
+    {
+      "from": "4000",
+      "to": "4000",
+      "use": "Military in restricted / warning areas when no other code is assigned (US)",
+      "src": "FAA AIM 4-1-20",
+      "conf": "official"
+    },
+    {
+      "from": "7000",
+      "to": "7000",
+      "use": "VFR (ICAO regions)",
+      "src": "ICAO practice (secondary)",
+      "conf": "public"
+    },
+    {
+      "from": "7400",
+      "to": "7400",
+      "use": "Unmanned aircraft lost link",
+      "src": "ICAO practice (secondary)",
+      "conf": "public"
+    },
+    {
+      "from": "7500",
+      "to": "7500",
+      "use": "Unlawful interference (hijack)",
+      "src": "FAA AIM 4-1-20",
+      "conf": "official"
+    },
+    {
+      "from": "7600",
+      "to": "7677",
+      "use": "Lost communications series (special indicators)",
+      "src": "FAA AIM 4-1-20",
+      "conf": "official"
+    },
+    {
+      "from": "7700",
+      "to": "7777",
+      "use": "Emergency series (special indicators); 7777 never used by civil aircraft",
+      "src": "FAA AIM 4-1-20",
+      "conf": "official"
+    }
   ],
   "mode3": {
     "_note": "A line's Mode 3/A block is its Mode 1 code: SEAD (Mode 1 30) flies 3011-3017, 3021-3027 and so on. Slot C of block BB covers BBC1-BBC7; the flight lead squawks BBC1 and the last member of a non-standard flight squawks BBC1 + (n - 1), as in NELLISAFBI 11-250 §4.3.2 (lead 6411, #4 6414); all others squawk standby. Slot 0 is never used, so nothing ends in 00. A slot holding any reserved code is skipped (block 12 loses 120, 125 and 127). When a block is full the line takes a spare Mode 1 code of the same family, and its block. Mode 3/A starts with Mode 1 because the F-16C sends its first two code wheels as Mode 1.",
@@ -30,13 +102,160 @@
   "mode1": {
     "_note": "First digit = mission family, second digit (0-3) = sub-role. Optional daily rotation adds the ATO day to the second digit (mod 4).",
     "families": [
-      { "digit": 1, "family": "Counter-air", "codes": [["10", "DCA"], ["11", "OCA"], ["12", "Escort"], ["13", "Spare counter-air"]] },
-      { "digit": 2, "family": "Strike / air interdiction", "codes": [["20", "Strike"], ["21", "AI"], ["22", "Spare strike"], ["23", "Spare strike"]] },
-      { "digit": 3, "family": "SEAD / DEAD", "codes": [["30", "SEAD"], ["31", "DEAD"], ["32", "Spare SEAD"], ["33", "Spare SEAD"]] },
-      { "digit": 4, "family": "CAS / FAC(A)", "codes": [["40", "CAS"], ["41", "SCAR"], ["42", "FAC(A)"], ["43", "Spare CAS"]] },
-      { "digit": 5, "family": "Air refuelling", "codes": [["50", "AR"], ["51", "Spare AR"], ["52", "Spare AR"], ["53", "Spare AR"]] },
-      { "digit": 6, "family": "C2 / ISR / AEW", "codes": [["60", "AEW"], ["61", "ISR"], ["62", "Spare C2"], ["63", "Spare C2"]] },
-      { "digit": 7, "family": "Rescue / airlift", "codes": [["70", "CSAR"], ["71", "Airlift"], ["72", "Spare"], ["73", "Spare"]] }
+      {
+        "digit": 1,
+        "family": "Counter-air",
+        "codes": [
+          [
+            "10",
+            "DCA"
+          ],
+          [
+            "11",
+            "OCA"
+          ],
+          [
+            "12",
+            "Spare counter-air"
+          ],
+          [
+            "13",
+            "Spare counter-air"
+          ]
+        ]
+      },
+      {
+        "digit": 2,
+        "family": "Interdiction",
+        "codes": [
+          [
+            "20",
+            "INT"
+          ],
+          [
+            "21",
+            "XINT"
+          ],
+          [
+            "22",
+            "Spare interdiction"
+          ],
+          [
+            "23",
+            "Spare interdiction"
+          ]
+        ]
+      },
+      {
+        "digit": 3,
+        "family": "SEAD / DEAD",
+        "codes": [
+          [
+            "30",
+            "SEAD/DEAD"
+          ],
+          [
+            "31",
+            "Spare SEAD"
+          ],
+          [
+            "32",
+            "Spare SEAD"
+          ],
+          [
+            "33",
+            "Spare SEAD"
+          ]
+        ]
+      },
+      {
+        "digit": 4,
+        "family": "CAS / SCAR",
+        "codes": [
+          [
+            "40",
+            "CAS"
+          ],
+          [
+            "41",
+            "SCAR"
+          ],
+          [
+            "42",
+            "XCAS"
+          ],
+          [
+            "43",
+            "Spare CAS"
+          ]
+        ]
+      },
+      {
+        "digit": 5,
+        "family": "Air refuelling",
+        "codes": [
+          [
+            "50",
+            "AR"
+          ],
+          [
+            "51",
+            "Spare AR"
+          ],
+          [
+            "52",
+            "Spare AR"
+          ],
+          [
+            "53",
+            "Spare AR"
+          ]
+        ]
+      },
+      {
+        "digit": 6,
+        "family": "C2 / ISR / AEW",
+        "codes": [
+          [
+            "60",
+            "AEW"
+          ],
+          [
+            "61",
+            "ISR"
+          ],
+          [
+            "62",
+            "Spare C2"
+          ],
+          [
+            "63",
+            "Spare C2"
+          ]
+        ]
+      },
+      {
+        "digit": 7,
+        "family": "Rescue / airlift",
+        "codes": [
+          [
+            "70",
+            "CSAR"
+          ],
+          [
+            "71",
+            "Airlift"
+          ],
+          [
+            "72",
+            "Spare"
+          ],
+          [
+            "73",
+            "Spare"
+          ]
+        ]
+      }
     ]
   },
   "mode2": {

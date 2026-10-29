@@ -31,20 +31,40 @@ window.AOC_SEED = {
   // Participating groups. DEMO ONLY: unit portal sign-in uses `login` + access code "unit-demo".
   // All groups here are fictional. Products are released to a whole group, never to single flights.
   groups: [
-    { id: "g1", name: "Viper Ops Group", airframes: "F-16C", contact: "Sabre", members: 18, tz: "US East", status: "active", login: "viper", code: "unit-demo" },
-    { id: "g2", name: "Hornet Bay vCVW", airframes: "F/A-18C", contact: "Rhino", members: 26, tz: "US West", status: "active", login: "hornet", code: "unit-demo" },
-    { id: "g3", name: "Strike Eagle Det", airframes: "F-15E", contact: "Dude", members: 9, tz: "UK", status: "active", login: "eagle", code: "unit-demo" },
-    { id: "g4", name: "Warthog Close Air", airframes: "A-10C II", contact: "Hawg", members: 12, tz: "US Central", status: "active", login: "hawg", code: "unit-demo" },
-    { id: "g5", name: "Rotary Wing Det", airframes: "AH-64D, UH-1H", contact: "Gunfighter", members: 7, tz: "Germany", status: "pending", login: "rotary", code: "unit-demo" },
-    { id: "g7", name: "Black Knights vFS", airframes: "F-16C", contact: "Lancer", members: 14, tz: "Netherlands", status: "active", login: "knights", code: "unit-demo" },
-    { id: "g8", name: "Tomcat Heritage Sqn", airframes: "F-14B", contact: "Rogue", members: 11, tz: "US East", status: "active", login: "tomcat", code: "unit-demo" },
-    { id: "g9", name: "Ridgerunner Det", airframes: "F-15E", contact: "Runner", members: 6, tz: "US Central", status: "active", login: "ridge", code: "unit-demo" },
-    { id: "g10", name: "Harrier Assault Det", airframes: "AV-8B", contact: "Beast", members: 8, tz: "Australia", status: "active", login: "harrier", code: "unit-demo" },
-    { id: "g11", name: "Escadron Virtuel Mistral", airframes: "M-2000C", contact: "Mistral", members: 10, tz: "France", status: "active", login: "mistral", code: "unit-demo" },
-    { id: "g12", name: "Thunder Apache Co.", airframes: "AH-64D", contact: "Thunder", members: 9, tz: "UK", status: "active", login: "thunder", code: "unit-demo" },
-    { id: "g13", name: "Eagle Keepers", airframes: "F-15C", contact: "Keeper", members: 13, tz: "Canada", status: "active", login: "keepers", code: "unit-demo" },
+    { id: "g1", name: "Viper Ops Group", airframes: "F-16C", contact: "Sabre", members: 18, tz: "US East", status: "active", login: "viper", code: "unit-demo",
+      lno: { callsign: "SABRE", discord: "sabre" }, rtm: {"F-16C": ["DCA", "OCA", "SEAD/DEAD", "INT", "XINT", "CAS", "XCAS", "SCAR"]} },
+    { id: "g2", name: "Hornet Bay vCVW", airframes: "F/A-18C", contact: "Rhino", members: 26, tz: "US West", status: "active", login: "hornet", code: "unit-demo",
+      lno: { callsign: "RHINO", discord: "rhino" }, rtm: {"F/A-18C": ["DCA", "OCA", "SEAD/DEAD", "INT", "XINT", "CAS", "XCAS"]} },
+    { id: "g3", name: "Strike Eagle Det", airframes: "F-15E", contact: "Dude", members: 9, tz: "UK", status: "active", login: "eagle", code: "unit-demo",
+      lno: { callsign: "DUDE", discord: "dude" }, rtm: {"F-15E": ["INT", "XINT", "DCA", "SCAR"]} },
+    { id: "g4", name: "Warthog Close Air", airframes: "A-10C II", contact: "Hawg", members: 12, tz: "US Central", status: "active", login: "hawg", code: "unit-demo",
+      lno: { callsign: "HAWG", discord: "hawg" }, rtm: {"A-10C II": ["CAS", "XCAS", "SCAR", "INT", "CSAR", "DCA"]} },
+    { id: "g5", name: "Rotary Wing Det", airframes: "AH-64D, UH-1H", contact: "Gunfighter", members: 7, tz: "Germany", status: "pending", login: "rotary", code: "unit-demo",
+      lno: { callsign: "GUNFIGHTER", discord: "gunfighter" }, rtm: {"AH-64D": ["CAS", "XCAS", "SCAR"], "UH-1H": ["CSAR", "Airlift"]} },
+    { id: "g7", name: "Black Knights vFS", airframes: "F-16C", contact: "Lancer", members: 14, tz: "Netherlands", status: "active", login: "knights", code: "unit-demo",
+      lno: { callsign: "LANCER", discord: "lancer" }, rtm: {"F-16C": ["DCA", "OCA", "SEAD/DEAD", "INT", "XINT"]} },
+    { id: "g8", name: "Tomcat Heritage Sqn", airframes: "F-14B", contact: "Rogue", members: 11, tz: "US East", status: "active", login: "tomcat", code: "unit-demo",
+      lno: { callsign: "ROGUE", discord: "rogue" }, rtm: {"F-14B": ["DCA", "OCA"]} },
+    { id: "g9", name: "Ridgerunner Det", airframes: "F-15E", contact: "Runner", members: 6, tz: "US Central", status: "probation", login: "ridge", code: "unit-demo",
+      lno: { callsign: "RUNNER", discord: "runner" }, rtm: {"F-15E": ["INT"]} },
+    { id: "g10", name: "Harrier Assault Det", airframes: "AV-8B", contact: "Beast", members: 8, tz: "Australia", status: "active", login: "harrier", code: "unit-demo",
+      lno: { callsign: "BEAST", discord: "beast" }, rtm: {"AV-8B": ["CAS", "XCAS", "INT"]} },
+    { id: "g11", name: "Escadron Virtuel Mistral", airframes: "M-2000C", contact: "Mistral", members: 10, tz: "France", status: "active", login: "mistral", code: "unit-demo",
+      lno: { callsign: "MISTRAL", discord: "mistral" }, rtm: {"M-2000C": ["DCA", "OCA"]} },
+    { id: "g12", name: "Thunder Apache Co.", airframes: "AH-64D", contact: "Thunder", members: 9, tz: "UK", status: "active", login: "thunder", code: "unit-demo",
+      lno: { callsign: "THUNDER", discord: "thunder" }, rtm: {"AH-64D": ["CAS", "XCAS", "SCAR", "CSAR"]} },
+    { id: "g13", name: "Eagle Keepers", airframes: "F-15C", contact: "Keeper", members: 13, tz: "Canada", status: "active", login: "keepers", code: "unit-demo",
+      lno: { callsign: "KEEPER", discord: "keeper" }, rtm: {"F-15C": ["DCA", "OCA"]} },
     // primary CSAR helicopter unit: the UH-60L mod flown as the MH-60L (the PRCC requests rescue lines in it)
-    { id: "g14", name: "55th RQS", airframes: "MH-60L", contact: "Jolly", members: 10, tz: "US Central", status: "active", login: "rqs55", code: "unit-demo" }
+    { id: "g14", name: "55th RQS", airframes: "MH-60L", contact: "Jolly", members: 10, tz: "US Central", status: "active", login: "rqs55", code: "unit-demo",
+      lno: { callsign: "JOLLY", discord: "jolly" }, rtm: {"MH-60L": ["CSAR", "Airlift"]} },
+    // controller squadrons: their "airframes" are positions (C2, JTAC, ATC); ATO lines for them post and commit like flights
+    { id: "g15", name: "Overwatch C2 Sqn", airframes: "C2", contact: "Keyboard", members: 6, tz: "US East", status: "active", login: "overwatch", code: "unit-demo",
+      lno: { callsign: "KEYBOARD", discord: "keyboard" }, rtm: {"C2": ["GCI", "AWACS ABM", "TAC C2"]} },
+    { id: "g16", name: "Magnum JTAC Det", airframes: "JTAC", contact: "Magnum", members: 5, tz: "UK", status: "active", login: "magnum", code: "unit-demo",
+      lno: { callsign: "MAGNUM", discord: "magnum" }, rtm: {"JTAC": ["JTAC"]} },
+    { id: "g17", name: "Kutaisi Tower ATC", airframes: "ATC", contact: "Copper", members: 4, tz: "US Central", status: "active", login: "tower", code: "unit-demo",
+      lno: { callsign: "COPPER", discord: "copper" }, rtm: {"ATC": ["Tower", "Approach", "Ground"]} }
   ],
 
   campaigns: [
@@ -64,7 +84,7 @@ window.AOC_SEED = {
         misreps: [{ msn: "7101", callsign: "VIPER 1", target: "T10002", flown: "Yes", result: "Hit — damaged", remarks: "" }, { msn: "7102", callsign: "DUDE 1", target: "T10003", flown: "Yes", result: "Hit — destroyed", remarks: "" },
           { msn: "7103", callsign: "SPRINGFIELD 3", target: "T10005", flown: "No — aborted", result: "", remarks: "Weather" }],
         bda: [{ target: "T10002", status: "Moderate damage", reattack: "Yes", notes: "" }, { target: "T10003", status: "Destroyed", reattack: "No", notes: "TGP video" }], losses: [] } },
-      groups: ["g1", "g2", "g3", "g4", "g7", "g8", "g10", "g11", "g12", "g13", "g9", "g14"], // g9 joined by committing to line 8601; g14 the CSAR helos
+      groups: ["g1", "g2", "g3", "g4", "g7", "g8", "g10", "g11", "g12", "g13", "g9", "g14", "g15"], // g9 joined by committing to line 8601; g14 the CSAR helos; g15 the GCI
       status: { pcon: "approved", ci: "published", aod: "published", jiptl: "approved", tdp: "draft", maap: "approved", ato: "published", aco: "review", spins: "published", acp: "published", bda: "draft" },
       // seed release history (version + time) for products already published
       releases: {
@@ -104,8 +124,18 @@ window.AOC_SEED = {
   // ATO lines requested by a campaign's Group JFACC; Human lines are posted on Discord to every registered group
   // flying that airframe and filled by the first unit to press Commit (see docs/ATO_Discord_Integration.md)
   atoLines: [
-    { id: "L8115", cid: "iron-trident", msn: "8115", airframe: "F-16C", num: 2, role: "SEAD", crew: "Human", tot: "1058Z", target: "Pkg B", pkg: "B", callsign: "", base: "", notes: "", commitBy: "211800Z OCT 26",
+    { id: "L8115", cid: "iron-trident", msn: "8115", airframe: "F-16C", num: 2, role: "SEAD/DEAD", crew: "Human", tot: "1058Z", target: "Pkg B", pkg: "B", callsign: "", base: "", notes: "", commitBy: "211800Z OCT 26",
       source: "Request form", mizGroup: "", requestedBy: "g1", requestedByUser: "SABRE", requestedAt: "2026-10-19T20:00:00Z", recipients: ["g1", "g7"],
+      status: "open", postedAt: "2026-10-19T20:00:05Z", committedBy: "", committedAt: "", committedByUser: "" },
+    // controller positions: the GCI committed by the C2 squadron; the JTAC and the tower still open
+    { id: "L8701", cid: "iron-trident", msn: "8701", airframe: "C2", num: 1, role: "GCI", crew: "Human", tot: "0600–1800Z", target: "AO", pkg: "", callsign: "KEYBOARD", base: "", notes: "LotATC GCI for the whole ATO period", commitBy: "211800Z OCT 26",
+      source: "Request form", mizGroup: "", requestedBy: "g1", requestedByUser: "SABRE", requestedAt: "2026-10-19T20:00:00Z", recipients: ["g15"],
+      status: "committed", postedAt: "2026-10-19T20:00:05Z", committedBy: "g15", committedAt: "2026-10-19T21:10:00Z", committedByUser: "KEYBOARD" },
+    { id: "L8702", cid: "iron-trident", msn: "8702", airframe: "JTAC", num: 1, role: "JTAC", crew: "Human", tot: "0800–1400Z", target: "AO HAMMER", pkg: "", callsign: "MAGNUM", base: "", notes: "Ground JTAC for the CAS lines in AO HAMMER", commitBy: "211800Z OCT 26",
+      source: "Request form", mizGroup: "", requestedBy: "g1", requestedByUser: "SABRE", requestedAt: "2026-10-19T20:00:00Z", recipients: ["g16"],
+      status: "open", postedAt: "2026-10-19T20:00:05Z", committedBy: "", committedAt: "", committedByUser: "" },
+    { id: "L8703", cid: "iron-trident", msn: "8703", airframe: "ATC", num: 1, role: "Tower", crew: "Human", tot: "0530–1830Z", target: "Kutaisi", pkg: "", callsign: "", base: "", notes: "Kutaisi tower and ground", commitBy: "211800Z OCT 26",
+      source: "Request form", mizGroup: "", requestedBy: "g1", requestedByUser: "SABRE", requestedAt: "2026-10-19T20:00:00Z", recipients: ["g17"],
       status: "open", postedAt: "2026-10-19T20:00:05Z", committedBy: "", committedAt: "", committedByUser: "" },
     { id: "L8203", cid: "iron-trident", msn: "8203", airframe: "F-14B", num: 2, role: "DCA", crew: "Human", tot: "1400–1800Z", target: "CAP KNIFE", pkg: "", callsign: "", base: "", notes: "", commitBy: "211800Z OCT 26",
       source: "Request form", mizGroup: "", requestedBy: "g1", requestedByUser: "SABRE", requestedAt: "2026-10-19T20:00:00Z", recipients: ["g8"],
@@ -113,7 +143,7 @@ window.AOC_SEED = {
     { id: "L8305", cid: "iron-trident", msn: "8305", airframe: "A-10C II", num: 2, role: "CAS", crew: "Human", tot: "1400Z", target: "AO HAMMER", pkg: "", callsign: "", base: "", notes: "", commitBy: "211800Z OCT 26",
       source: "Request form", mizGroup: "", requestedBy: "g1", requestedByUser: "SABRE", requestedAt: "2026-10-19T20:00:00Z", recipients: ["g4"],
       status: "open", postedAt: "2026-10-19T20:00:05Z", committedBy: "", committedAt: "", committedByUser: "" },
-    { id: "L8601", cid: "iron-trident", msn: "8601", airframe: "F-15E", num: 4, role: "Strike", crew: "Human", tot: "0722Z", target: "T10005", pkg: "A", callsign: "RUNNER 1", base: "", notes: "", commitBy: "211800Z OCT 26",
+    { id: "L8601", cid: "iron-trident", msn: "8601", airframe: "F-15E", num: 4, role: "INT", crew: "Human", tot: "0722Z", target: "T10005", pkg: "A", callsign: "RUNNER 1", base: "", notes: "", commitBy: "211800Z OCT 26",
       source: "iron_trident_viper.miz", mizGroup: "Pkg A Strike Eagles", requestedBy: "g1", requestedByUser: "SABRE", requestedAt: "2026-10-19T20:00:00Z", recipients: ["g3", "g9"],
       status: "committed", postedAt: "2026-10-19T20:00:05Z", committedBy: "g9", committedAt: "2026-10-20T01:12:00Z", committedByUser: "RUNNER" },
     { id: "L8602", cid: "iron-trident", msn: "8602", airframe: "KC-135 MPRS", num: 1, role: "AR", crew: "AI", tot: "0630Z", target: "AR TRACK ALPHA", pkg: "", callsign: "SHELL 1", base: "", notes: "", commitBy: "211800Z OCT 26",
@@ -124,7 +154,8 @@ window.AOC_SEED = {
   // groups dropped from the seed: saved browsers remove them too and their ATO lines become AI lines
   retiredGroups: ["g6"],
   // mission sets renamed: saved ATOs, ATO lines and AODs follow (AI was air interdiction, now INT, so it is not read as AI crew)
-  renamedMissions: { AI: "INT" },
+  // mission sets renamed in saved data (ATO lines, missions, AOD, RTMs); SEAD and DEAD are one set, OCA covers escort
+  renamedMissions: { AI: "INT", Strike: "INT", SEAD: "SEAD/DEAD", DEAD: "SEAD/DEAD", Escort: "OCA", RESCORT: "CSAR", SARCAP: "DCA" },
   // example text the seed has since rewritten: a saved product still holding the old text takes the new (edited text is kept)
   supersededText: [
     { pid: "spins", key: "checkin", old: "Check in on YELLOW 1 (HOWDY) when airborne: callsign, mission number, number and type, playtime. Refer to channels by Comm Plan matrix ID on the net, e.g. “push BLUE 1”." },
@@ -476,16 +507,16 @@ window.AOC_SEED = {
         period: "200600Z OCT 26 – 210559Z OCT 26",
         // Lines with an empty group are open for volunteers
         missions: [
-          { msn: "8101", pkg: "A", group: "g1", callsign: "VIPER 1", type: "F-16C", num: "4", role: "SEAD", tot: "0715Z", target: "T10001", tanker: "TEXACO 1" },
+          { msn: "8101", pkg: "A", group: "g1", callsign: "VIPER 1", type: "F-16C", num: "4", role: "SEAD/DEAD", tot: "0715Z", target: "T10001", tanker: "TEXACO 1" },
           { msn: "8102", pkg: "A", group: "g3", callsign: "DUDE 1", type: "F-15E", num: "2", role: "INT", tot: "0720Z", target: "T10004", tanker: "TEXACO 1" },
-          { msn: "8103", pkg: "A", group: "g2", callsign: "SPRINGFIELD 1", type: "F/A-18C", num: "4", role: "Escort", tot: "0710Z", target: "Pkg A", tanker: "ARCO 1" },
-          { msn: "8104", pkg: "A", group: "g7", callsign: "KNIGHT 1", type: "F-16C", num: "4", role: "DEAD", tot: "0718Z", target: "T10002", tanker: "TEXACO 2" },
+          { msn: "8103", pkg: "A", group: "g2", callsign: "SPRINGFIELD 1", type: "F/A-18C", num: "4", role: "OCA", tot: "0710Z", target: "Pkg A", tanker: "ARCO 1" },
+          { msn: "8104", pkg: "A", group: "g7", callsign: "KNIGHT 1", type: "F-16C", num: "4", role: "SEAD/DEAD", tot: "0718Z", target: "T10002", tanker: "TEXACO 2" },
           { msn: "8105", pkg: "A", group: "g13", callsign: "EAGLE 1", type: "F-15C", num: "4", role: "OCA", tot: "0705Z", target: "Pkg A sweep", tanker: "TEXACO 2" },
-          { msn: "8111", pkg: "B", group: "g11", callsign: "MISTRAL 1", type: "M-2000C", num: "2", role: "Escort", tot: "1055Z", target: "Pkg B", tanker: "—" },
+          { msn: "8111", pkg: "B", group: "g11", callsign: "MISTRAL 1", type: "M-2000C", num: "2", role: "OCA", tot: "1055Z", target: "Pkg B", tanker: "—" },
           { msn: "8112", pkg: "B", group: "g10", callsign: "BEAST 1", type: "AV-8B", num: "2", role: "INT", tot: "1100Z", target: "T10005", tanker: "ARCO 1" },
           { msn: "8113", pkg: "B", group: "g3", callsign: "DUDE 3", type: "F-15E", num: "2", role: "INT", tot: "1102Z", target: "T10005", tanker: "TEXACO 1" },
-          { msn: "8114", pkg: "B", group: "g1", callsign: "VIPER 5", type: "F-16C", num: "2", role: "SEAD", tot: "1058Z", target: "Pkg B", tanker: "TEXACO 1" },
-          { msn: "8115", pkg: "B", group: "", callsign: "TBD", type: "F-16C", num: "2", crew: "Human", role: "SEAD", tot: "1058Z", target: "Pkg B", tanker: "TEXACO 1", lineId: "L8115" },
+          { msn: "8114", pkg: "B", group: "g1", callsign: "VIPER 5", type: "F-16C", num: "2", role: "SEAD/DEAD", tot: "1058Z", target: "Pkg B", tanker: "TEXACO 1" },
+          { msn: "8115", pkg: "B", group: "", callsign: "TBD", type: "F-16C", num: "2", crew: "Human", role: "SEAD/DEAD", tot: "1058Z", target: "Pkg B", tanker: "TEXACO 1", lineId: "L8115" },
           { msn: "8201", pkg: "—", group: "g8", callsign: "ROGUE 1", type: "F-14B", num: "2", role: "DCA", tot: "0600–1000Z", target: "CAP KNIFE", tanker: "ARCO 1" },
           { msn: "8202", pkg: "—", group: "g13", callsign: "EAGLE 5", type: "F-15C", num: "2", role: "DCA", tot: "1000–1400Z", target: "CAP KNIFE", tanker: "TEXACO 2" },
           { msn: "8203", pkg: "—", group: "", callsign: "TBD", type: "F-14B", num: "2", crew: "Human", role: "DCA", tot: "1400–1800Z", target: "CAP KNIFE", tanker: "TEXACO 2", lineId: "L8203" },
@@ -497,8 +528,11 @@ window.AOC_SEED = {
           { msn: "8401", pkg: "—", group: "", callsign: "TEXACO 1", type: "KC-135", num: "1", crew: "AI", role: "AR", tot: "0630Z", target: "AR TRACK ALPHA", tanker: "—" },
           { msn: "8402", pkg: "—", group: "", callsign: "ARCO 1", type: "KC-135 MPRS", num: "1", crew: "AI", role: "AR", tot: "0630Z", target: "AR TRACK BRAVO", tanker: "—" },
           { msn: "8403", pkg: "—", group: "", callsign: "DARKSTAR", type: "E-3A", num: "1", crew: "AI", role: "AEW", tot: "0600Z", target: "Orbit WEST", tanker: "—" },
+          { msn: "8701", pkg: "—", group: "g15", callsign: "KEYBOARD", type: "C2", num: "1", crew: "Human", role: "GCI", tot: "0600–1800Z", target: "AO", tanker: "—", lineId: "L8701" },
+          { msn: "8702", pkg: "—", group: "", callsign: "MAGNUM", type: "JTAC", num: "1", crew: "Human", role: "JTAC", tot: "0800–1400Z", target: "AO HAMMER", tanker: "—", lineId: "L8702" },
+          { msn: "8703", pkg: "—", group: "", callsign: "TBD", type: "ATC", num: "1", crew: "Human", role: "Tower", tot: "0530–1830Z", target: "Kutaisi", tanker: "—", lineId: "L8703" },
           // requested by the JFACC from the sponsor .miz: a committed F-15E 4-ship and an AI tanker
-          { msn: "8601", pkg: "A", group: "g9", callsign: "RUNNER 1", type: "F-15E", num: "4", crew: "Human", role: "Strike", tot: "0722Z", target: "T10005", tanker: "TEXACO 1", lineId: "L8601" },
+          { msn: "8601", pkg: "A", group: "g9", callsign: "RUNNER 1", type: "F-15E", num: "4", crew: "Human", role: "INT", tot: "0722Z", target: "T10005", tanker: "TEXACO 1", lineId: "L8601" },
           { msn: "8602", pkg: "—", group: "", callsign: "SHELL 1", type: "KC-135 MPRS", num: "1", crew: "AI", role: "AR", tot: "0630Z", target: "AR TRACK ALPHA", tanker: "—", lineId: "L8602" }
         ]
       },

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual AOC — Squadrons</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .rtm { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .rtm label { display: flex; gap: 6px; align-items: center; font-size: 13px; margin: 0; text-transform: none; letter-spacing: 0; color: var(--text); }
+  .rtm input { width: auto; }
+  .sq { border-top: 1px solid var(--line); padding: 10px 0; }
+  .sq:first-child { border-top: 0; }
+  .roles { font: 12px var(--mono); color: var(--muted); }
+  .st { font: 600 11px var(--mono); text-transform: uppercase; padding: 1px 8px; border: 1px solid; border-radius: 999px; }
+  .st.pending { color: var(--warn); } .st.probation { color: var(--info); } .st.active { color: var(--ok); } .st.removed { color: var(--muted); }
+</style>
+</head>
+<body>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>if (!AOC.UnitAuth.group() && !AOC.Auth.user()) { location.replace("unit-login.html"); throw new Error("auth required"); }</script>
+<script src="js/products.js"></script>
+<script src="js/ato.js"></script>
+
+<main class="wrap">
+  <div class="panel-head" style="margin-bottom:12px">
+    <div><h1 id="title">Squadrons</h1>
+      <div class="muted small" id="sub"></div></div>
+  </div>
+  <div id="page"></div>
+</main>
+
+<script>
+  // Squadron Expectations v0.2 (CAOC Standards): a squadron's RTM (mission types per airframe), its LNO, and its standing
+  // with the Board -- Pending (Board vote, the CFACC presides, the CFC breaks ties), On probation (three uneventful
+  // missions, counted from the hosts' debriefs), Active (LNO on the Board), Removed. ATO lines go only to squadrons whose
+  // RTM lists the line's airframe and mission type.
+  const { Store, Auth, UnitAuth, esc, toast, zulu } = AOC, ATO = AOC.ATO;
+  const me = UnitAuth.group(), staff = me ? null : Auth.user(), board = staff && ["CFACC", "CFC"].includes(staff.role);
+  AOC.renderChrome(me ? { unit: true } : {});
+  // controller squadrons (C2, JTAC, ATC) list their positions as "airframes"; their RTM roles are the controller roles
+  const airframesOf = g => String(g.airframes || "").split(/[,;]| and /).map(s => s.trim()).filter(Boolean);
+  const st = g => `<span class="st ${esc(g.status)}">${esc(ATO.SQN_STATUS[g.status] || g.status)}</span>`;
+  const rtmText = g => airframesOf(g).map(a => `${esc(a)}: ${ATO.rtmFor(g, a).length ? esc(ATO.rtmFor(g, a).join(", ")) : '<span style="color:var(--warn)">none listed</span>'}`).join(" · ");
+
+  // the Squadron Expectations that apply: flying squadrons, rotary wing (FARP), controller squadrons (C2 / JTAC / ATC control)
+  function seList(g) {
+    const af = airframesOf(g), pos = af.filter(ATO.isPosition), fly = af.filter(a => !ATO.isPosition(a));
+    return ["the RTM", "product understanding", ...(fly.length ? ["support usage", "DKS and SRS"] : []), ...(pos.length && !fly.length ? ["SRS and controller tools"] : []),
+      "CAOC-assigned values used as published", "mission participation", ...(/AH-64|UH-1|MH-60|CH-47|Mi-|Ka-/i.test(g.airframes) ? ["FARP operations"] : []),
+      ...pos.map(p => `${p} control`)].join(", ");
+  }
+
+  // ---------- a unit: its own squadron ----------
+  function renderUnit() {
+    const g = Store.group(me.id), n = ATO.uneventful(g.id), flown = ATO.missionsFlown(g.id);
+    document.getElementById("title").textContent = `Squadron · ${g.name}`;
+    document.getElementById("sub").textContent = "Your RTM and LNO, as the Board, mission makers and controllers see them. ATO lines are posted to you only for the airframes and mission types your RTM lists.";
+    document.getElementById("page").innerHTML = `
+      <section class="panel"><div class="panel-head"><h2>Standing</h2>${st(g)}</div>
+        <p class="small" style="margin:0">${g.status === "pending" ? "Waiting for the Board's vote. Your LNO meets the Board (voice or text) first."
+          : g.status === "probation" ? `On probation: <b>${n} of 3</b> uneventful missions. After the third your squadron is Active and your LNO takes a Board seat.`
+          : g.status === "active" ? `Active${g.boardSeat ? "; your LNO holds a Board seat" : ""}.` : "Removed. Rejoining needs a new invitation and Board approval."}</p>
+        ${flown.length ? `<p class="small muted">Missions flown: ${flown.map(m => `OP ${esc(m.op)} ATO ${esc(AOC.atoId(m.day))} ${m.uneventful ? "✓" : m.flagged ? "(flagged)" : "(not all lines flown)"}`).join(" · ")}</p>` : ""}</section>
+      <section class="panel"><div class="panel-head"><h2>LNO (liaison officer)</h2></div>
+        <div class="row2"><div class="field"><label>LNO callsign</label><input id="lnoCs" value="${esc(g.lno?.callsign || "")}"></div>
+          <div class="field"><label>LNO Discord</label><input id="lnoDc" value="${esc(g.lno?.discord || "")}"></div></div>
+        <p class="muted small" style="margin:0">The CAOC's point of contact for your squadron and your Board member. Commits your squadron to ATO lines.</p></section>
+      <section class="panel"><div class="panel-head"><h2>RTM (readiness training memorandum)</h2></div>
+        <p class="small" style="margin-top:0">Tick the mission types your squadron can fly to a reasonable level of cohesion, effectiveness and realism, for each airframe. Amend it any time.</p>
+        ${airframesOf(g).map(a => `<div class="section-h">${esc(a)}</div><div class="rtm">${ATO.rolesFor(a).map(r => `<label><input type="checkbox" data-a="${esc(a)}" value="${esc(r)}" ${ATO.rtmFor(g, a).includes(r) ? "checked" : ""}> ${esc(r)}</label>`).join("")}</div>`).join("")}</section>
+      <section class="panel"><div class="panel-head"><h2>Squadron Expectations</h2></div>
+        <label class="check-row"><input type="checkbox" id="ackSe" ${g.ackSe ? "checked" : ""}> Our squadron meets the CAOC Squadron Expectations (v0.2): ${seList(g)}.</label>
+        <div class="toolbar" style="justify-content:flex-end;margin-top:10px"><button class="btn primary" id="save">Save</button></div></section>`;
+    document.getElementById("save").onclick = () => {
+      const rtm = {}; airframesOf(g).forEach(a => { rtm[a] = [...document.querySelectorAll(`[data-a="${CSS.escape(a)}"]:checked`)].map(x => x.value); });
+      g.rtm = rtm; g.lno = { callsign: document.getElementById("lnoCs").value.trim().toUpperCase(), discord: document.getElementById("lnoDc").value.trim() };
+      g.ackSe = document.getElementById("ackSe").checked; Store.save();
+      Store.log("_squadrons", `${g.name} updated its RTM / LNO`, g.name); toast("Saved"); renderUnit();
+    };
+  }
+
+  // ---------- staff: every squadron, by standing; the CFACC / CFC record the Board's decisions ----------
+  function renderStaff() {
+    document.getElementById("sub").textContent = "Every registered squadron and its standing with the Board. The Board of squadron LNOs votes on new squadrons and removals; the CFACC presides and records the result here; the CFC votes only to break a tie.";
+    const groups = Store.db.groups, by = s => groups.filter(g => g.status === s);
+    const actions = g => !board ? "" : `<div class="toolbar" style="margin-top:6px"><input data-note="${g.id}" placeholder="Board note (vote, remediation)" style="flex:1;min-width:200px">
+      ${g.status === "pending" ? `<button class="btn sm primary" data-set="${g.id}:probation">Board approved → Probation</button><button class="btn sm" data-set="${g.id}:removed">Board declined</button>` : ""}
+      ${g.status === "probation" || g.status === "active" ? `<button class="btn sm" data-set="${g.id}:removed">Board voted to remove</button>` : ""}
+      ${g.status === "removed" ? `<button class="btn sm" data-set="${g.id}:pending">Re-invited → Pending</button>` : ""}</div>`;
+    const row = g => { const n = ATO.uneventful(g.id), fl = ATO.missionsFlown(g.id);
+      return `<div class="sq"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>${esc(g.name)}</b>${st(g)}${g.boardSeat ? '<span class="muted small">Board seat</span>' : ""}
+          <span class="muted small">${esc(g.airframes)} · LNO ${esc(g.lno?.callsign || g.contact || "—")}${g.lno?.discord ? ` (${esc(g.lno.discord)})` : ""} · ${g.ackSe ? "SE v0.2 acknowledged" : '<span style="color:var(--warn)">SE v0.2 not acknowledged</span>'}</span></div>
+        <div class="roles">RTM — ${rtmText(g)}</div>
+        ${g.status === "probation" ? `<div class="small">Uneventful missions: <b>${n} of 3</b>${fl.length ? " · " + fl.map(m => `OP ${esc(m.op)} ATO ${esc(AOC.atoId(m.day))} ${m.flown ? "" : "(not all flown)"}${board && m.flown ? ` <button class="btn sm ghost" data-flag="${g.id}|${esc(m.key)}">${m.flagged ? "unflag" : "flag as eventful"}</button>` : ""}`).join(" · ") : " · none flown yet"}</div>` : ""}
+        ${(g.board || []).length ? `<div class="muted small">Board: ${g.board.slice(0, 3).map(b => `${esc(zulu(new Date(b.when)))} ${esc(ATO.SQN_STATUS[b.to] || b.to)}${b.note ? ` — ${esc(b.note)}` : ""}`).join(" · ")}</div>` : ""}
+        ${actions(g)}</div>`; };
+    const sec = (s, h, empty) => `<section class="panel"><div class="panel-head"><h2>${h}</h2><span class="muted small">${by(s).length}</span></div>${by(s).map(row).join("") || `<p class="muted small" style="margin:0">${empty}</p>`}</section>`;
+    document.getElementById("page").innerHTML = sec("pending", "Pending Board vote", "No squadron is waiting for a vote.") + sec("probation", "On probation", "No squadron is on probation.")
+      + sec("active", "Active", "No active squadrons.") + sec("removed", "Removed", "None.")
+      + `<p class="muted small">${board ? "" : "Only the CFACC (who presides over the Board) or the CFC record Board decisions. "}A squadron on probation becomes Active automatically after three uneventful missions (from the hosts' debriefs).</p>`;
+  }
+  document.getElementById("page").addEventListener("click", e => {
+    const set = e.target.dataset.set, flag = e.target.dataset.flag;
+    if (set) { const [gid, to] = set.split(":"), note = document.querySelector(`[data-note="${gid}"]`)?.value.trim();
+      ATO.setStatus(gid, to, note, staff?.callsign); toast(`${Store.group(gid).name}: ${ATO.SQN_STATUS[to]}`); render(); }
+    if (flag) { const [gid, key] = flag.split("|"), g = Store.group(gid); g.flagged = g.flagged || [];
+      g.flagged = g.flagged.includes(key) ? g.flagged.filter(k => k !== key) : [...g.flagged, key]; Store.save(); ATO.promote(gid); render(); }
+  });
+  function render() { Store.db.groups.filter(g => g.status === "probation").forEach(g => ATO.promote(g.id)); me ? renderUnit() : renderStaff(); }
+  render();
+</script>
+</body>
+</html>

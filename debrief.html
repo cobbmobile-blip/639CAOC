@@ -19,6 +19,7 @@
 </script>
 <script src="js/products.js"></script>
 <script src="js/pr.js"></script>
+<script src="js/ato.js"></script>
 
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:12px">
@@ -100,6 +101,7 @@
     c.debriefs = c.debriefs || {};
     c.debriefs[day] = { ...structuredClone(d), by: me.id, user: c.jfacc?.callsign || me.contact, when: new Date().toISOString() };
     Store.save();
+    Store.db.groups.filter(g => g.status === "probation").forEach(g => AOC.ATO?.promote(g.id));
     const bda = Store.content(cid, "bda") || {};
     Store.setContent(cid, "bda", { ...bda, atoDay: day,
       misreps: d.misreps.filter(r => r.flown).map(r => { const m = missions.find(x => x.msn === r.msn) || {};

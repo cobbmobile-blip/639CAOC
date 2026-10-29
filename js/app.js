@@ -53,6 +53,8 @@
     seed.groups.forEach(sg => {
       const g = d.groups.find(x => x.id === sg.id);
       if (g && !g.login) { g.login = sg.login; g.code = sg.code; }
+      if (g && !g.rtm && sg.rtm) g.rtm = structuredClone(sg.rtm);
+      if (g && !g.lno && sg.lno) g.lno = structuredClone(sg.lno);
     });
     // groups dropped from the seed: off the register and campaigns, their ATO lines flown by AI
     (seed.retiredGroups || []).forEach(gid => {
@@ -72,7 +74,8 @@
     }));
     // mission sets renamed: ATO lines, ATO missions and AOD apportionment / tasks, in the working copy and every released version
     Object.entries(seed.renamedMissions || {}).forEach(([from, to]) => {
-      const word = new RegExp(`\\b${from}\\b`, "g");
+      // a whole word, and not part of a combined set ("SEAD" in "SEAD/DEAD"), so it renames once
+      const word = new RegExp(`(?<![\\w/])${from}(?![\\w/])`, "g");
       (d.atoLines || []).forEach(l => { if (l.role === from) l.role = to; });
       d.campaigns.forEach(c => ["ato", "aod"].forEach(pid => {
         [d.content[c.id]?.[pid], c.shared?.[pid]?.data, ...(c.shared?.[pid]?.history || []).map(h => h.data)].forEach(x => {
@@ -81,7 +84,10 @@
           (x?.objectives || []).forEach(o => { if (o.tasks) o.tasks = o.tasks.replace(word, to); });
         });
       }));
+      (d.groups || []).forEach(g => Object.keys(g.rtm || {}).forEach(a => { g.rtm[a] = [...new Set(g.rtm[a].map(r => r === from ? to : r))]; }));
     });
+    // roles no DCS module flies are not in any squadron's RTM
+    (d.groups || []).forEach(g => Object.keys(g.rtm || {}).forEach(a => { g.rtm[a] = g.rtm[a].filter(r => !["AR", "AEW", "ISR"].includes(r)); }));
   }
   // Seeded "published" products get a shared snapshot so the unit portal has something to show
   function ensureShared(d) {
@@ -287,8 +293,8 @@
     bar.innerHTML = `
       <a class="brand" href="${unit ? "unit.html" : "index.html"}">${LOGO}<span>VIRTUAL AOC<small>${opts.unit ? "OP STATUS · UNIT PORTAL" : "COMBINED AIR OPERATIONS CENTER"}</small></span></a>
       <nav class="topnav">${(unit
-        ? [["unit.html", "Op Status"], ["isoprep.html", "ISOPREP / EPA"], ["grg.html", "GRGs"], ...(load().campaigns.some(c => c.jfacc?.group === unit.id) ? [["mission-file.html", "Mission file"], ["ato-request.html", "ATO requests"], ["debrief.html", "Debrief"]] : []), ["campaign-submit.html", "Submit a campaign"]]
-        : u ? [["index.html", "Dashboard"], ["prcc.html", "PRCC" + ((load().prIncidents || []).some(i => i.status === "open") ? " ●" : "")], ["unit.html", "Op Status"], ["campaign-review.html", "Proposals" + (pending ? ` (${pending})` : "")]] : [])
+        ? [["unit.html", "Op Status"], ["squadron.html", "Squadron (RTM)"], ["isoprep.html", "ISOPREP / EPA"], ["grg.html", "GRGs"], ...(load().campaigns.some(c => c.jfacc?.group === unit.id) ? [["mission-file.html", "Mission file"], ["ato-request.html", "ATO requests"], ["debrief.html", "Debrief"]] : []), ["campaign-submit.html", "Submit a campaign (C4)"]]
+        : u ? [["index.html", "Dashboard"], ["prcc.html", "PRCC" + ((load().prIncidents || []).some(i => i.status === "open") ? " ●" : "")], ["unit.html", "Op Status"], ["squadron.html", "Squadrons" + (load().groups.some(g => g.status === "pending") ? " ●" : "")], ["campaign-review.html", "Proposals" + (pending ? ` (${pending})` : "")]] : [])
         .map(([href, label]) => `<a href="${href}" ${location.pathname.endsWith(href) ? 'aria-current="page"' : ""}>${label}</a>`).join("")}</nav>
       <span class="spacer"></span>
       <span class="zulu" id="zulu"></span>

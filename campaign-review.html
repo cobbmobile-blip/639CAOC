@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Virtual AOC — Campaign Proposals</title>
+<title>Virtual AOC — Campaign Proposals (C4)</title>
 <link rel="stylesheet" href="css/styles.css">
 <style>
   .rev { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; align-items: start; }
@@ -22,7 +22,7 @@
 
 <main class="wrap">
   <div class="panel-head" style="margin-bottom:16px">
-    <div><a href="index.html" class="small">← Dashboard</a><h1 style="margin-top:4px">Campaign proposals</h1>
+    <div><a href="index.html" class="small">← Dashboard</a><h1 style="margin-top:4px">Campaign proposals (C4)</h1>
       <div class="muted small">Proposals submitted by sponsoring groups. The CFC decides; accepting one creates the campaign, drafts its Commander's Intent, and sets the CFACC's deliverables list.</div></div>
   </div>
   <div class="rev">
@@ -64,9 +64,8 @@
     const g = Store.group(s.gid), [label, cls] = STATUS[s.status];
     const { warnings } = validate(s.data);
     const redFlag = s.data.redCmdr === "Request a CAOC-appointed REDFOR commander";
-    el.innerHTML = `<div class="panel-head"><div><h2>OP ${esc(s.data.opName)}</h2><div class="muted small">${esc(g?.name)} · JFACC ${esc(s.data.leadCallsign)} (${esc(s.data.leadDiscord)})${s.data.jfaccChosen ? ` · ${esc(s.data.jfaccChosen.toLowerCase())}` : ""}</div></div>
+    el.innerHTML = `<div class="panel-head"><div><h2>OP ${esc(s.data.opName)}</h2><div class="muted small">${esc(g?.name)} · JFACC ${esc(s.data.leadCallsign)} (${esc(s.data.leadDiscord)})</div></div>
         <span class="badge ${cls}">${label}</span></div>
-      ${(s.data.jfaccChosen || "").startsWith("Interim") ? `<div class="comment" style="border-color:var(--info)"><b>Note:</b> the group's JFACC is interim — confirm the elected JFACC before the first event.</div>` : ""}
       ${redFlag ? `<div class="comment" style="border-color:var(--info)"><b>Action:</b> sponsor requests a CAOC-appointed REDFOR commander. Appoint one before accepting.</div>` : ""}
       ${warnings.map(w => `<div class="comment">${esc(w)}</div>`).join("")}
       ${(s.comments || []).map(c => `<div class="comment"><b>${esc(c.by)}</b> <span class="muted small">${zulu(new Date(c.when))} · ${esc(c.action)}</span><br>${esc(c.text)}</div>`).join("")}
@@ -95,9 +94,15 @@
     d.campaigns.push({ id, opName: p.opName.toUpperCase(), theater: p.theater, phase: "Phase 0 — Planning", dday: p.start, atoDay: 0,
       atoPeriod: "TBD", nextEvent: p.start && p.sessionTime ? `${p.start}T${p.sessionTime.replace(/\D/g, "").padEnd(4, "0").replace(/(\d\d)(\d\d)/, "$1:$2")}:00Z` : undefined,
       groups: [s.gid], status: { ci: "draft" }, proposal: s.id, productsWanted: wantedIds(p.products),
-      jfacc: { callsign: p.leadCallsign, group: s.gid, discord: p.leadDiscord, deputy: p.backup } });
+      jfacc: { callsign: p.leadCallsign, group: s.gid, discord: p.leadDiscord, deputy: p.backup },
+      mods: p.mods || "", support: { atc: p.atcPlayers || "" }, hostProducts: p.hostProducts || [] });
+    // the CAOC creates the campaign in DKS when it accepts the C4 (docs/dks/CONTRACT.md 4.1); the prototype queues the message
+    d.dksOutbox = d.dksOutbox || [];
+    d.dksOutbox.unshift({ when: new Date().toISOString(), event: "campaign.upsert", payload: { message: "campaign.upsert", source: "caoc", campaign: { caoc_id: id, dks_id: null },
+      items: [{ provenance: { sourceType: "caoc", sourceId: `campaign:${id}`, version: "C4", locked: true }, opName: p.opName.toUpperCase(), theater: p.theater, dday: p.start,
+        keyTasks: (p.keytasks || []).filter(Boolean).map((t, i) => ({ n: i + 1, text: t })), squadrons: [{ group_id: s.gid, name: Store.group(s.gid)?.name || s.gid }] }] } });
     d.content[id] = { ci: { commander: `${p.leadCallsign} (JFACC, ${Store.group(s.gid)?.name || "sponsor"})`, purpose: p.purpose, method: p.method, endstate: p.endstate,
-      keytasks: (p.keytasks || []).filter(Boolean), constraints: p.constraints, restraints: p.restraints, risk: p.risk } };
+      keytasks: (p.keytasks || []).filter(Boolean), constraints: p.constraints, restraints: p.restraints } };
     Store.save();
     return id;
   }

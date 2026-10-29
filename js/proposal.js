@@ -1,4 +1,6 @@
-// Campaign proposal: the questions a sponsoring group answers when submitting a campaign to the CAOC.
+// The Campaign Creation Checklist (C4): the questions a Mission Maker (the host squadron) answers when submitting a campaign
+// to the CAOC. It matches the CAOC Mission Maker Expectations (CAOC Standards, v0.2): the host's own server and its
+// standards, named ATC players, products the CAOC builds vs the host supplies, mods for the ATO.
 // Shared by the submission wizard (campaign-submit.html) and staff review (campaign-review.html).
 (function () {
   const { esc } = window.AOC;
@@ -6,17 +8,23 @@
   const isPvP = d => d.mode && d.mode !== "PvE";
   const namedRed = d => ["Our group provides one", "Another group provides one"].includes(d.redCmdr);
 
+  const SERVER_STANDARDS = ["DCS server on the current DCS version", "SRS server on the current SRS version",
+    "Tacview server-side live telemetry enabled (for DKS)", "Capacity for 100% of the requested slots"];
+  // products the CAOC can build (Products wanted) and what the host supplies otherwise
+  const HOST_ALWAYS = ["Road to War brief", "Terminal procedures (arrivals, departures, patterns)"];
+  const HOST_OPTIONS = [...HOST_ALWAYS, "Coordination Card with contracts", "ACO (if not requested from the CAOC)",
+    "Comm Card (if the Comm Plan is not requested)", "Mission-level target list with ALR / CDE (if the JIPTL is not requested)"];
   const STEPS = [
-    { id: "sponsor", title: "Sponsor & JFACC", desc: "Who is submitting the campaign, and who your group's JFACC is.", fields: [
+    { id: "sponsor", title: "Host & JFACC", desc: "The Mission Maker (host squadron) submitting the campaign, and its Group JFACC.", fields: [
       // The group's JFACC runs the campaign and is the CAOC's single POC (distinct from the CAOC's own CFACC)
       { key: "leadCallsign", label: "Group JFACC callsign", type: "text", required: true, half: true,
         hint: "Elected by your group to manage the campaign. The JFACC is the CAOC's single point of contact." },
       { key: "leadDiscord", label: "JFACC Discord handle", type: "text", required: true, half: true },
-      { key: "jfaccChosen", label: "How was the JFACC chosen?", type: "select", half: true,
-        options: ["Elected by the group", "Appointed by group leadership", "Interim — election pending"] },
       { key: "backup", label: "Deputy JFACC / backup POC", type: "text", half: true, hint: "Covers when the JFACC is unavailable." },
       { key: "tz", label: "Primary time zone", type: "text", hint: "e.g. US East, UK, Australia" },
-      { key: "serverHost", label: "Who hosts the DCS server?", type: "select", required: true, options: ["Sponsor group", "CAOC", "Another group", "Not decided"] },
+      // MME: the host runs the campaign on its own server, to these standards
+      { key: "server", label: "Your server (the host squadron's own)", type: "checks", required: true, options: SERVER_STANDARDS,
+        hint: "The Mission Maker Expectations require all four." },
       { key: "infra", label: "Server, SRS and Discord details", type: "textarea", hint: "Share passwords separately, never here." }
     ]},
     { id: "overview", title: "Overview", desc: "The scenario at a glance.", fields: [
@@ -46,8 +54,7 @@
       { key: "endstate", label: "Desired end state", type: "textarea", required: true },
       { key: "keytasks", label: "Key tasks", type: "list" },
       { key: "constraints", label: "Constraints (must do)", type: "textarea" },
-      { key: "restraints", label: "Restraints (must not do)", type: "textarea" },
-      { key: "risk", label: "Acceptable risk", type: "textarea" }
+      { key: "restraints", label: "Restraints (must not do)", type: "textarea" }
     ]},
     { id: "outcome", title: "Win / Loss", desc: "Measurable conditions the CAOC can track.", fields: [
       { key: "blueWin", label: "Blue wins when…", type: "textarea", required: true, hint: "e.g. capture airfields X and Y, destroy 80% of the IADS by event 8" },
@@ -70,6 +77,7 @@
       { key: "blueOob", label: "Blue order of battle", type: "textarea", hint: "Squadrons, bases, carrier" },
       { key: "support", label: "Support assets wanted", type: "checks", options: ["AWACS / GCI", "Tankers", "JTAC", "CSAR", "Airlift"] },
       { key: "supportBy", label: "Support flown by", type: "select", half: true, options: ["AI", "Players", "Mixed"] },
+      { key: "atcPlayers", label: "ATC player(s)", type: "text", required: true, half: true, hint: "Callsigns. At least one, scheduled for every mission." },
       { key: "threat", label: "Red threat level", type: "select", half: true, options: ["Low", "Medium", "High", "Very high"] },
       { key: "redOob", label: "Red order of battle / IADS", type: "textarea" },
       { key: "slots", label: "Player slots wanted", type: "table", columns: [
@@ -81,22 +89,24 @@
     { id: "rules", title: "Rules & Server", desc: "Realism and technical requirements.", fields: [
       { key: "realism", label: "Realism settings", type: "checks", options: ["Labels off", "F10 map: own aircraft only", "External views off", "Padlock off", "Easy comms off"] },
       { key: "respawn", label: "Respawn rules", type: "text" },
-      { key: "mods", label: "Required mods", type: "text" },
+      { key: "mods", label: "Required mods", type: "text", required: true, hint: "Kept current on your server. The CAOC prints them on the ATO. \"None\" if none." },
       { key: "weapons", label: "Weapon / era restrictions", type: "text" },
       { key: "comms", label: "Comms", type: "checks", options: ["SRS required", "LotATC GCI", "Discord voice for briefings"] }
     ]},
-    { id: "support", title: "CAOC Support", desc: "What you want the CAOC to provide.", fields: [
-      { key: "products", label: "Products wanted", type: "checks",
+    { id: "support", title: "Products", desc: "You are primary for every product. Tick what the CAOC builds; you supply the rest to the vCAOC standard.", fields: [
+      { key: "products", label: "Products wanted from the CAOC", type: "checks",
         options: ["Commander's Intent", "AOD", "ACO", "SPINS & ROE", "JIPTL", "TDPs", "Comm Plan", "OPTASKLINK"],
-        hint: "The ATO is always produced: it is how groups get and commit their mission lines. Tick what else you want the CAOC to build." },
+        hint: "The ATO is always produced by the CAOC: it is how squadrons get and commit their mission lines." },
+      { key: "hostProducts", label: "Products you supply", type: "checks", options: HOST_OPTIONS,
+        hint: "The Road to War brief and terminal procedures always come from you." },
       { key: "leadTime", label: "Lead time needed before each event", type: "text", half: true },
-      { key: "build", label: "Who builds the .miz files?", type: "select", options: ["Sponsor group", "CAOC", "Shared"] },
       { key: "attachments", label: "Attachments / links", type: "textarea", hint: "Links to a draft .miz, maps, OOB spreadsheet. File upload comes later." }
     ]},
     { id: "review", title: "Review & Submit", desc: "Check the proposal, then submit it to the CAOC.", fields: [
       { key: "ackConduct", label: "Our group agrees to the CAOC code of conduct", type: "check", required: true },
       { key: "ackReport", label: "We will report results after each event (MISREPs / Tacview)", type: "check", required: true },
-      { key: "ackTasking", label: "We accept the CAOC as tasking authority for this campaign", type: "check", required: true }
+      { key: "ackTasking", label: "We accept the CAOC as tasking authority for this campaign", type: "check", required: true },
+      { key: "ackMme", label: "We meet the CAOC Mission Maker Expectations (v0.2) for the whole campaign: our own server, the products, a C2 and an ATC player each mission, the .miz deadlines and debriefs", type: "check", required: true }
     ]}
   ];
 
@@ -112,6 +122,13 @@
     const warnings = [];
     if (d.mode === "PvP" && (d.redCmdr || "").startsWith("None")) warnings.push("PvP campaigns need a REDFOR commander — provide one or request a CAOC-appointed one.");
     if (+d.minPlayers && +d.maxPlayers && +d.minPlayers > +d.maxPlayers) warnings.push("Minimum players is higher than maximum.");
+    const srv = d.server || [], want = d.products || [], host = d.hostProducts || [];
+    if (srv.length && SERVER_STANDARDS.some(x => !srv.includes(x))) warnings.push(`Your server must meet every standard: ${SERVER_STANDARDS.filter(x => !srv.includes(x)).join("; ")}.`);
+    HOST_ALWAYS.filter(x => !host.includes(x)).forEach(x => warnings.push(`${x}: always supplied by the host. Tick it under Products you supply.`));
+    // every base product comes from the CAOC or from the host -- nothing falls between
+    [["ACO", "ACO (if not requested from the CAOC)"], ["Comm Plan", "Comm Card (if the Comm Plan is not requested)"],
+     ["JIPTL", "Mission-level target list with ALR / CDE (if the JIPTL is not requested)"]]
+      .filter(([caoc, h]) => !want.includes(caoc) && !host.includes(h)).forEach(([caoc]) => warnings.push(`${caoc}: request it from the CAOC or supply it yourself.`));
     return { missing, warnings };
   }
 
@@ -121,10 +138,10 @@
     const para = (h, t) => empty(t) ? "" : `<h2>${esc(h)}</h2><p>${esc(t)}</p>`;
     const slots = (d.slots || []).filter(r => r.role || r.airframe);
     return `<div class="cls">UNCLASSIFIED // EXERCISE</div>
-      <h1>CAMPAIGN PROPOSAL</h1>
+      <h1>CAMPAIGN CREATION CHECKLIST (C4)</h1>
       <div class="sub">OPERATION ${esc((d.opName || "UNNAMED").toUpperCase())}<br>Submitted by ${esc(group?.name || "—")}</div>
-      <h2>1. SPONSOR & JFACC</h2>${kv([["Group JFACC", d.leadCallsign], ["JFACC Discord", d.leadDiscord], ["JFACC chosen", d.jfaccChosen],
-        ["Deputy JFACC", d.backup], ["Time zone", d.tz], ["Server host", d.serverHost]])}
+      <h2>1. SPONSOR & JFACC</h2>${kv([["Group JFACC", d.leadCallsign], ["JFACC Discord", d.leadDiscord],
+        ["Deputy JFACC", d.backup], ["Time zone", d.tz], ["Server (host's own)", d.server || (d.serverHost ? `Host: ${d.serverHost}` : "")]])}
       ${para("Infrastructure", d.infra)}
       <h2>2. OVERVIEW</h2>${kv([["Theater", d.theater], ["Era", d.era], ["Style", d.style], ["Framework", d.framework]])}
       ${para("Scenario", d.scenario)}
@@ -133,19 +150,19 @@
       ${isPvP(d) ? para("Red objectives", d.redIntent) : ""}
       <h2>4. COMMANDER'S INTENT</h2>${para("Purpose", d.purpose)}${para("Method", d.method)}${para("End state", d.endstate)}
       ${(d.keytasks || []).filter(Boolean).length ? `<h2>Key tasks</h2><ol>${d.keytasks.filter(Boolean).map(t => `<li>${esc(t)}</li>`).join("")}</ol>` : ""}
-      ${para("Constraints", d.constraints)}${para("Restraints", d.restraints)}${para("Acceptable risk", d.risk)}
+      ${para("Constraints", d.constraints)}${para("Restraints", d.restraints)}
       <h2>5. WIN / LOSS CONDITIONS</h2>${para("Blue wins when", d.blueWin)}${para("Blue loses when", d.blueLoss)}${para("Time limit / draw", d.draw)}
       ${kv([["Attrition", d.attrition], ["Results recorded by", d.results]])}
       <h2>6. SCHEDULE</h2>${kv([["First event", d.start], ["Events", d.events], ["Cadence", d.cadence], ["Start time", d.sessionTime],
         ["Session length", d.sessionLength], ["Campaign time", d.timeMap], ["Blackout dates", d.blackout]])}
-      <h2>7. FORCES & PARTICIPATION</h2>${para("Blue OOB", d.blueOob)}${kv([["Support", d.support], ["Support flown by", d.supportBy], ["Threat level", d.threat]])}
+      <h2>7. FORCES & PARTICIPATION</h2>${para("Blue OOB", d.blueOob)}${kv([["Support", d.support], ["Support flown by", d.supportBy], ["ATC player(s)", d.atcPlayers], ["Threat level", d.threat]])}
       ${para("Red OOB / IADS", d.redOob)}
       ${slots.length ? `<table><thead><tr><th>ROLE</th><th>AIRFRAME</th><th>SLOTS</th></tr></thead><tbody>${slots.map(r => `<tr><td>${esc(r.role)}</td><td>${esc(r.airframe)}</td><td>${esc(r.n)}</td></tr>`).join("")}</tbody></table>` : ""}
       ${kv([["Players", d.minPlayers || d.maxPlayers ? `${d.minPlayers || "?"}–${d.maxPlayers || "?"}` : ""], ["Open to groups", d.openToGroups]])}
       <h2>8. RULES & SERVER</h2>${kv([["Realism", d.realism], ["Respawns", d.respawn], ["Mods", d.mods], ["Weapon limits", d.weapons], ["Comms", d.comms]])}
-      <h2>9. CAOC SUPPORT</h2>${kv([["Products", d.products], ["Lead time", d.leadTime], ["DKS support", d.dks], ["Mission build", d.build]])}
+      <h2>9. PRODUCTS</h2>${kv([["From the CAOC", ["ATO", ...(d.products || [])]], ["Supplied by the host", d.hostProducts], ["Lead time", d.leadTime], ["Mission build", d.build || "Host"]])}
       ${para("Attachments", d.attachments)}
-      <h2>10. ACKNOWLEDGEMENTS</h2>${kv([["Code of conduct", d.ackConduct ? "Agreed" : "Not yet"], ["Results reporting", d.ackReport ? "Agreed" : "Not yet"], ["CAOC tasking authority", d.ackTasking ? "Agreed" : "Not yet"]])}
+      <h2>10. ACKNOWLEDGEMENTS</h2>${kv([["Code of conduct", d.ackConduct ? "Agreed" : "Not yet"], ["Results reporting", d.ackReport ? "Agreed" : "Not yet"], ["CAOC tasking authority", d.ackTasking ? "Agreed" : "Not yet"], ["Mission Maker Expectations v0.2", d.ackMme ? "Agreed" : "Not yet"]])}
       <div class="cls bottom">UNCLASSIFIED // EXERCISE</div>`;
   }
 
@@ -154,5 +171,5 @@
     accepted: ["Accepted", "published"], declined: ["Declined", "none"]
   };
 
-  window.AOC.PROPOSAL = { STEPS, validate, render, visible, STATUS };
+  window.AOC.PROPOSAL = { STEPS, validate, render, visible, STATUS, SERVER_STANDARDS, HOST_ALWAYS, HOST_OPTIONS };
 })();

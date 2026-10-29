@@ -132,7 +132,7 @@
   // same airframe -- the ATO takes tanker callsigns from the .miz, so a different callsign there is not a change
   function matchFlights(cid, mf) {
     const ato = Store.content(cid, "ato") || {}, lines = window.AOC.ATO?.lines(cid) || [], flights = mf?.flights || [];
-    const used = new Set(), rows = (ato.missions || []).filter(m => m.msn).map(m => ({ m, line: m.lineId ? lines.find(l => l.id === m.lineId) : lines.find(l => l.msn === m.msn && l.status !== "cancelled") }));
+    const used = new Set(), rows = (ato.missions || []).filter(m => m.msn && !window.AOC.ATO?.isPosition(m.type)).map(m => ({ m, line: m.lineId ? lines.find(l => l.id === m.lineId) : lines.find(l => l.msn === m.msn && l.status !== "cancelled") }));
     const take = f => { if (f) used.add(f.group); return f; };
     rows.forEach(r => { const g = r.line?.mizGroup; if (g) { r.f = take(flights.find(f => f.group === g && !used.has(f.group))); if (r.f) r.by = "group"; } });
     rows.filter(r => !r.f).forEach(r => { r.f = take(flights.find(f => !used.has(f.group) && r.m.callsign && r.m.callsign !== "TBD" && sameCallsign(r.m.callsign, f.callsign) && norm(f.airframe) === norm(r.m.type))); if (r.f) r.by = "callsign"; });

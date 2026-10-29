@@ -41,14 +41,15 @@ files…** runs the change log on any mission files you pick (against an empty s
 | `jceoi.html` | CAOC staff | JCEOI: standard Blue net plan (the Comm Plan matrix, clear in every theater), Nevada (NTTR) plan, IFF / SIF, clear-channel pool, frequency check, `.xlsx` export. The per-theater registers are used for every check but not shown |
 | `map.html` | CAOC staff | Theater map from the ACO: nav/spider/dest points, threats with DCS range rings, FLOT, FSCL, MRR, AR tracks, HVAA orbits, artillery ROZ |
 | `targeting.html` | CAOC staff | Target nomination (from the JIPTL): REDFOR order of battle → JIPTL scored by the Commander's Intent key tasks, ported from the JIPTL pipeline |
-| `campaign-review.html` | CAOC staff (CFC decides) | Campaign proposal review queue |
+| `campaign-review.html` | CAOC staff (CFC decides) | Campaign proposals (C4) review queue; accepting one creates the campaign here and queues it for DKS |
+| `squadron.html` | Groups (own squadron) / CAOC staff (all) | Squadron standing with the Board (Pending, On probation, Active, Removed), LNO, RTM per airframe, Squadron Expectations acknowledgement; the CFACC / CFC record Board decisions |
 | `unit-login.html` | Participating groups | Group sign-in |
 | `unit.html` | Groups (staff can observe) | Op Status: product board, distribution matrix, ATO lines, group pack and **pilot package (zip)** download. A participating squadron can **Request a line** from the host (same questions as Create an ATO Line) and follow its approval; the host JFACC group sees its lines filling and the requests waiting for it |
 | `isoprep.html` | Groups (staff can read) | ISOPREP / EPA: each pilot's ISOPREP (4 authentication statements, a 4-digit number, description) and an evasion plan per ATO line, read by the PRCC |
 | `mission-file.html` | Host unit (staff can read) | Host mission file intake: upload the draft `.miz` (and every new version); BLUE flights → ATO requests, REDFOR → target nomination; per-theater coordinate calibration; TACAN / ICLS scrub; the **.miz change log** (the host acknowledges it here) |
 | `debrief.html` | Host unit (campaign's JFACC group) | Post-mission debrief: lines flown, BDA, losses, progress — feeds the CAOC's next cycle |
 | `ato-request.html` | Campaign's Group JFACC / LNO (the host) | ATO lines: **Create an ATO line** from the group's `.miz` (player slots → Human, rest → AI) or the form; Human lines are saved as drafts (Edit, Remove) and go out only when the host presses **Post to Discord**. **Line requests from squadrons** with Approve / Deny (deny takes a reason); an approved request goes on the ATO assigned to that squadron |
-| `campaign-submit.html` | Groups | Campaign proposal wizard (JFACC, intent, win/loss, REDFOR, schedule…) |
+| `campaign-submit.html` | Groups (the Mission Maker) | The **Campaign Creation Checklist (C4)**: JFACC, intent, win/loss, REDFOR, schedule, forces with named ATC players, the host's server standards, mods, products from the CAOC vs supplied by the host, the Mission Maker Expectations acknowledgement |
 
 ## Demo accounts (prototype only)
 
@@ -58,10 +59,44 @@ files…** runs the change log on any mission files you pick (against an empty s
 
 ## Roles
 
-- **CFC** — manages the CAOC, decides on campaign proposals, can assist the CFACC.
-- **CFACC** — makes sure every deliverable is built and approved; approves (on the product page or in PUBLISH) and publishes.
-- **Group JFACC** — elected by the sponsoring group; manages the campaign and is the CAOC's single POC.
+The CAOC Standards (Squadron Expectations and Mission Maker Expectations, v0.2) define these; the site follows them.
+
+- **CFC** — commands the CAOC; approves campaigns by accepting the C4; votes on the Board only to break a tie.
+- **CFACC** — makes sure every deliverable is built and approved; approves (on the product page or in PUBLISH) and
+  publishes; presides over the Board and records its decisions (`squadron.html`).
+- **The Board** — one seat per active squadron's LNO; votes on new squadrons and removals.
+- **LNO** — a squadron's liaison and Board member; the CAOC's point of contact for the squadron; commits it to ATO lines.
+- **Mission Maker (host)** — the squadron hosting a campaign on its own server; **primary for every product**. The CAOC
+  builds the products ticked under Products wanted; the host supplies the rest. The ATO always goes through the CAOC.
+- **Group JFACC** — elected by the host squadron; manages the campaign and is the CAOC's single POC.
 - **PRCC** — the personnel recovery coordination cell: works each ejection DKS reports and builds the CSAR task force.
+
+## Squadrons: RTM, standing and the Board
+
+Each squadron keeps an **RTM** (readiness training memorandum): the mission types it can fly, per airframe, on
+`squadron.html`. **ATO lines are posted only to squadrons whose RTM lists the line's airframe and mission type**
+(`ATO.recipients(airframe, role)`), and only to squadrons that are **Active** or **On probation**. A squadron joins
+**Pending** (Board vote); the CFACC records the vote and it goes **On probation**; after **three uneventful missions**
+(debriefed ATO days where every line it flew for was flown, none flagged) it becomes **Active** and its LNO takes a Board
+seat automatically. A Board removal vote makes it **Removed**. Every decision is kept with its note.
+
+## Mission sets
+
+Human ATO lines (and squadrons' RTMs) use these mission sets: **DCA, OCA, SEAD/DEAD, INT, XINT, CAS, XCAS, SCAR, CSAR,
+Airlift** (`ATO.ROLES`). OCA covers escort and sweep; SEAD and DEAD are one set; pre-planned attack is INT against a
+JIPTL target and on-call is XINT (there is no "Strike"). **AR, AEW and ISR are AI only** (`ATO.AI_ROLES`): no DCS
+module flies them, so a line with one of them is always an AI line. Each set has its own IFF Mode 1 code (DCA 10, OCA 11,
+INT 20, XINT 21, SEAD/DEAD 30, CAS 40, SCAR 41, XCAS 42, AR 50, AEW 60, ISR 61, CSAR 70, Airlift 71). Saved data with the
+old names (Strike, SEAD, DEAD, Escort, RESCORT, SARCAP) is renamed once on load.
+
+## Controller positions (C2, JTAC, ATC)
+
+C2, JTAC and ATC squadrons take ATO lines like flying units: the host requests a line for a **position** (`C2`, `JTAC`,
+`ATC`) with its controller role (GCI, AWACS ABM, TAC C2; JTAC; Tower, Approach, Ground), it posts to Discord for the
+controller squadrons whose RTM lists that role, and the first commit wins. A position is never an aircraft: no IFF /
+SIF codes, no datalink, no `.miz` change-log ADD, no DKS flight (DKS has no place for them yet). The ATO prints each as
+a USMTF `CONTROLA` entry with its Comm Plan channel; the PUBLISH check list warns when a JTAC's AO is not on the ACO or a
+C2 / JTAC line has no Comm Plan channel.
 
 ## Campaign process
 
@@ -136,7 +171,7 @@ The JCEOI carries an IFF code plan (`tools/jceoi/data/iff.json`, checked by the 
   7700 series, 7777 (FAA AIM 4-1-20, ICAO practice). A slot holding any of them is skipped (block 12 loses 120, 125, 127).
 - **Mode 3/A starts with the line's Mode 1 code**: SEAD (Mode 1 30) flies 3011–3017, 3021–3027 … Each ATO line takes
   a slot of its Mode 1 block: the lead squawks BBC1, the last member of a non-standard flight BBC1 + (n − 1), others
-  standby (the NELLISAFBI 11-250 §4.3.2 pattern). A full block spills into the family's spare Mode 1 code (Escort 12 →
+  standby (the NELLISAFBI 11-250 §4.3.2 pattern). A full block spills into the family's spare Mode 1 code (OCA 11 →
   13). Why: the F-16C's IFF panel shares its four code wheels, and SRS sends the first two as Mode 1, so Mode 1 has to
   be the first two digits of Mode 3/A. Campaigns use the same blocks; they never fly together. The build checks every
   Mode 1 code keeps at least three clear slots.
@@ -312,7 +347,8 @@ lines plus what the site already holds, so staff type nothing extra:
 - Mission sets: **INT** (pre-planned interdiction against a JIPTL target) and **XINT** (on-call interdiction); **CAS**
   (fragged to a known movement to contact) and **XCAS** (on-call, holding until needed); **SCAR** against an ACO area. There
   is no "AI" mission set: AI means AI-crewed lines. Saved ATOs, ATO lines and AODs renamed AI → INT on load.
-- Mission types include **RESCORT** (Sandy) and **SARCAP** for the rescue force.
+- The rescue force's lines use the standard mission sets: the Sandy (RESCORT, on-scene commander) flies **CSAR**, the
+  air cover (SARCAP / RESCAP) **DCA**, the SAM escort **SEAD/DEAD**.
 - General instructions are not part of the ATO; they belong in the SPINS.
 
 ## SPINS & ROE

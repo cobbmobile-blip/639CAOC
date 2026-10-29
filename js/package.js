@@ -117,6 +117,13 @@
     const missing = {};
     missions.forEach(m => {
       const t = String(m.target || "").trim(), id = `${m.msn} ${m.callsign && m.callsign !== "TBD" ? m.callsign : m.type}`;
+      if (A.ATO?.isPosition(m.type)) {
+        if (m.role === "JTAC" && t && t !== "—" && !areas.has(nrm(t))) ((missing[`warn|${nrm(t)}`] = missing[`warn|${nrm(t)}`] || { sev: "warn", t, ids: [] }).ids.push(m.msn));
+        const need = m.role === "JTAC" ? /JTAC|FAC/ : ["GCI", "AWACS ABM"].includes(m.role) ? /AWACS|GCI|\bC2\b|AIC/ : m.role === "TAC C2" ? /ASOC|CRC|TAC C2/ : null;
+        if (need && want.includes("acp") && !chans.some(ch => ch.freq && need.test(String(ch.role || "").toUpperCase())))
+          add("warn", `ATO ${id} (${m.role}) has no ${m.role === "JTAC" ? "JTAC" : "C2"} channel in the Comm Plan.`, link("acp"));
+        return;
+      }
       // INT against the JIPTL, SCAR in an ACO area
       if (["INT", "SCAR"].includes(m.role)) { const why = A.targetIssue?.(cid, t, null, m.role); if (why) add("error", `ATO ${id}: ${why}.`, link("ato")); return; }
       const sev = ROLE_AREA[m.role];

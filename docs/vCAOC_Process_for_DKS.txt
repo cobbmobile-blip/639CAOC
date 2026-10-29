@@ -834,6 +834,28 @@ Requests from the 639 vCAOC lead, and what was built or decided:
     automatically at T-3h. SPINS, ROE and CI stay out of DKS. Drift is
     held by locking, re-sending, a drift report and change requests.
 
+43. CAOC Standards v0.2 (Squadron and Mission Maker Expectations) aligned
+    with the site. Campaigns: the C4 (Campaign Creation Checklist, the old
+    campaign proposal), approved by the CFC; the host is primary for every
+    product, on its own server (current DCS / SRS, Tacview live telemetry
+    for DKS, full slot capacity), with named ATC players; mods print
+    on the ATO; accepting the C4 queues the DKS campaign (campaign.upsert).
+    Squadrons: an RTM (mission types per airframe) and an LNO; the Board of
+    LNOs votes (CFACC presides, CFC tie-break); Pending -> Probation ->
+    Active after three uneventful missions; ATO lines post only to squadrons
+    whose RTM covers the airframe and mission type.
+
+44. Controller positions: C2, JTAC and ATC squadrons get ATO lines and
+    Discord posts like flying units (airframe C2 / JTAC / ATC, roles GCI,
+    AWACS ABM, TAC C2, JTAC, Tower, Approach, Ground; RTM-matched; first
+    commit wins). No IFF, datalink, .miz group or DKS flight; CONTROLA on
+    the ATO. DKS has no place for them yet (docs/dks/QUESTIONS.md Q18).
+
+45. Mission sets: DCA, OCA (escort and sweep), SEAD/DEAD (one set), INT,
+    XINT, CAS, XCAS, SCAR, CSAR, Airlift for human lines and RTMs. No
+    Strike (INT / XINT), no Escort, no RESCORT or SARCAP. AR, AEW and ISR are
+    AI only. Each set has its own IFF Mode 1 code; saved data is renamed.
+
 ================================================================================
  END
 ================================================================================

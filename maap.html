@@ -74,8 +74,8 @@
   let dirty = false;
 
   // which column of the package a line sits in, from its ATO role
-  const bucket = role => /SEAD|DEAD/i.test(role) ? "sead" : /Escort|OCA|Sweep/i.test(role) ? "escort" : /^AR$|Tanker/i.test(role) ? "tanker" : "strike";
-  const BUCKETS = [["strike", "Strike"], ["sead", "SEAD / DEAD"], ["escort", "Escort / sweep"], ["tanker", "Tanker"]];
+  const bucket = role => /SEAD|DEAD/i.test(role) ? "sead" : /OCA/i.test(role) ? "escort" : /^AR$|Tanker/i.test(role) ? "tanker" : "strike";
+  const BUCKETS = [["strike", "INT / XINT"], ["sead", "SEAD/DEAD"], ["escort", "OCA (escort, sweep)"], ["tanker", "Tanker"]];
   const STANDING = /DCA|CAS|AEW|ISR/i;
   const byMsn = msn => missions.find(m => m.msn === msn);
   const label = m => m ? `${m.msn} ${m.callsign || "TBD"} (${m.num}× ${m.type} ${m.role})` : "";
@@ -86,7 +86,7 @@
   maap.packages.forEach(p => { if (!p.lines) p.lines = BUCKETS.flatMap(([k]) => p[k] || []); });
 
   // ---------- package support (tankers, AWACS / GCI, TAC C2, JTAC): suggested from the ATO, theater map, ACO and comm plan ----------
-  const SUPPORT_ROLES = ["Tanker", "AWACS / GCI", "TAC C2", "JTAC / FAC(A)", "ISR", "CSAR / RESCORT", "Other"];
+  const SUPPORT_ROLES = ["Tanker", "AWACS / GCI", "TAC C2", "JTAC / FAC(A)", "ISR", "CSAR", "Other"];
   const shapes = Store.content(cid, "map")?.shapes || [], acoMeasures = Store.content(cid, "aco")?.measures || [];
   const comm = (() => { const m = Store.content(cid, "acp")?.matrix;
     return (m?.columns || []).flatMap(c => (c.cells || []).slice(0, m.rows).map((cell, i) => ({ id: `${c.color} ${i + 1}`, ...cell }))).filter(ch => ch.role || ch.callsign || ch.freq); })();

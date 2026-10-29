@@ -68,7 +68,7 @@
   sel.onchange = () => { cid = sel.value; miz = null; render(); };
 
   const camp = () => Store.campaign(cid);
-  const recipientsText = airframe => { const r = ATO.recipients(airframe);
+  const recipientsText = (airframe, role) => { const r = ATO.recipients(airframe, role);
     return r.length ? `Posts to ${r.length} registered group${r.length > 1 ? "s" : ""}: ${r.map(g => esc(g.name)).join(", ")}` : `<span style="color:var(--bad)">No registered group flies ${esc(airframe)} — nobody would get this post.</span>`; };
   const opt = (list, cur) => list.map(x => `<option ${x === cur ? "selected" : ""}>${esc(x)}</option>`).join("");
 
@@ -108,7 +108,7 @@
     const f = document.getElementById("reqForm");
     const upd = () => { const ti = AOC.targetIssue(cid, f.target.value, null, f.role.value);
       document.getElementById("reqFormRcpt").innerHTML = (ti ? `<span style="color:var(--warn)">! ${esc(ti)}</span><br>` : "") + (f.crew.value === "AI" ? "AI line — goes straight onto the ATO; your group builds it in the .miz. Nothing is posted."
-      : `Saved as a draft: check it in Your ATO lines, then <b>Post to Discord</b>. ${recipientsText(f.airframe.value)}`); };
+      : `Saved as a draft: check it in Your ATO lines, then <b>Post to Discord</b>. ${recipientsText(f.airframe.value, f.role.value)}`); };
     f.addEventListener("change", upd); f.target.addEventListener("input", upd); upd();
     f.onsubmit = e => {
       e.preventDefault();
@@ -158,7 +158,7 @@
         <td>${d ? "" : `<input type="checkbox" data-pick="${i}" ${fl.crew === "Human" ? "checked" : ""}>`}</td>
         <td><b>${esc(fl.group)}</b><div class="muted small">${esc(fl.callsign)}</div></td>
         <td>${esc(fl.airframe)}</td><td>${fl.num}</td><td><span class="crew ${fl.crew}">${fl.crew}</span></td>
-        <td>${d ? esc(d.role) : `<select data-f="role" data-i="${i}">${opt(ATO.ROLES, fl.role || "Strike")}</select>`}</td>
+        <td>${d ? esc(d.role) : `<select data-f="role" data-i="${i}">${opt([...ATO.ROLES, ...ATO.AI_ROLES], fl.role || (fl.crew === "AI" ? "" : "INT"))}</select>`}</td>
         <td>${d ? esc(d.tot) : `<input data-f="tot" data-i="${i}" placeholder="TOT" style="width:90px">`}</td>
         <td>${d ? esc(d.target) : `<input data-f="target" data-i="${i}" list="targets" placeholder="JIPTL #" style="width:90px">`}</td>
         <td class="muted">${d ? `<span class="st ${d.status}">${esc(d.msn)} ${ATO.STATUS[d.status][0].split(" —")[0]}</span>` : esc(fl.start)}</td></tr>`; }).join("")}
@@ -168,7 +168,7 @@
     document.getElementById("reqMiz").onclick = () => {
       const picks = [...el.querySelectorAll("[data-pick]:checked")].map(x => miz.flights[+x.dataset.pick]);
       if (!picks.length) { toast("Tick at least one flight"); return; }
-      const made = picks.map(fl => ATO.request(cid, { airframe: fl.airframe, num: fl.num, role: fl._role || fl.role || "Strike", crew: fl.crew,
+      const made = picks.map(fl => ATO.request(cid, { airframe: fl.airframe, num: fl.num, role: fl._role || fl.role || "INT", crew: fl.crew,
         tot: fl._tot, target: fl._target, callsign: fl.callsign, base: fl.start, source: miz.name, mizGroup: fl.group }, { gid: me.id, user: camp().jfacc.callsign }));
       toast(`${made.length} line${made.length > 1 ? "s" : ""} created — ${made.filter(l => l.status === "draft").length} draft${made.filter(l => l.status === "draft").length === 1 ? "" : "s"} to check and post`);
       renderMiz(); renderLines();
@@ -238,7 +238,7 @@
           </div>${l.notes ? `<div style="margin-top:6px;font-size:13px">${esc(l.notes)}</div>` : ""}
           ${l.status === "committed" ? `<div style="margin-top:8px;color:#57f287;font-weight:600">✓ Filled by ${esc(Store.group(l.committedBy)?.name)}</div>` : `<span class="cbtn">Commit</span>`}
         </div></div>
-      <div class="rcpt">${l.status === "draft" ? "Will post to" : "Posted to"}: ${(l.status === "draft" ? ATO.recipients(l.airframe).map(g => g.id) : l.recipients).map(g => esc(Store.group(g)?.name)).join(", ") || "nobody — no registered group flies this airframe"}</div>
+      <div class="rcpt">${l.status === "draft" ? "Will post to" : "Posted to"}: ${(l.status === "draft" ? ATO.recipients(l.airframe, l.role).map(g => g.id) : l.recipients).map(g => esc(Store.group(g)?.name)).join(", ") || "nobody — no registered group flies this airframe"}</div>
       ${l.status === "open" ? `<div class="sim"><b class="small">Demo:</b> <span class="muted small">stand in for a unit pressing Commit (the bot calls the same commit endpoint).</span>
         <div class="toolbar" style="margin-top:8px">${l.recipients.map(g => `<button class="btn sm" data-commit="${g}">Commit as ${esc(Store.group(g)?.name)}</button>`).join("")}</div></div>` : ""}
       <details style="margin-top:12px"><summary class="small">Payload sent to the bot</summary><pre class="json">${esc(JSON.stringify(p, null, 2))}</pre></details></div>`;

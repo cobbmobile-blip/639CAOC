@@ -196,13 +196,13 @@
   // ---------- recover: the CSAR force — retask an ATO line or request one (posted to Discord for a unit to commit) ----------
   const HELOS = /UH-1|Mi-8|CH-47|UH-60|HH-60|MH-60|Mi-24|SA342|Ka-27/i;
   const FORCES = [
-    { key: "rmc", label: "RESCORT — Sandy (on-scene commander)", role: "RESCORT", callsign: "SANDY 1", airframe: "A-10C II", alt: ["A-10C", "AH-64D", "AV-8B"], num: 2, need: "always",
-      fits: m => /RESCORT|CSAR|CAS/.test(m.role) && /A-10|AH-64|AV-8|Ka-50/.test(m.type) },
+    { key: "rmc", label: "RESCORT — Sandy (on-scene commander)", role: "CSAR", callsign: "SANDY 1", airframe: "A-10C II", alt: ["A-10C", "AH-64D", "AV-8B"], num: 2, need: "always",
+      fits: m => /CSAR|CAS/.test(m.role) && /A-10|AH-64|AV-8|Ka-50/.test(m.type) },
     { key: "rv", label: "Rescue vehicle (helicopter)", role: "CSAR", callsign: "JOLLY 1", airframe: "MH-60L", alt: ["UH-1H", "Mi-8"], num: 2, need: "always", fits: m => /CSAR|Airlift/.test(m.role) && HELOS.test(m.type) },
     // CH-47s fragged when the rescue needs lift beyond the MH-60s (several survivors, a long range or a recovery team)
     { key: "rv2", label: "Additional lift (CH-47F)", role: "CSAR", callsign: "JOLLY 3", airframe: "CH-47F", num: 1, need: "optional", fits: m => /CSAR|Airlift/.test(m.role) && /CH-47/.test(m.type) },
-    { key: "sarcap", label: "SARCAP / RESCAP (air cover)", role: "SARCAP", airframe: "F-16C", alt: ["F/A-18C", "F-15C", "F-14B", "M-2000C"], num: 2, need: "always", fits: m => /SARCAP|DCA|OCA|Escort/.test(m.role) },
-    { key: "sead", label: "SEAD", role: "SEAD", airframe: "F-16C", alt: ["F/A-18C"], num: 2, need: "threat", fits: m => /SEAD|DEAD/.test(m.role) },
+    { key: "sarcap", label: "SARCAP / RESCAP (air cover)", role: "DCA", airframe: "F-16C", alt: ["F/A-18C", "F-15C", "F-14B", "M-2000C"], num: 2, need: "always", fits: m => /DCA|OCA/.test(m.role) },
+    { key: "sead", label: "SEAD/DEAD", role: "SEAD/DEAD", airframe: "F-16C", alt: ["F/A-18C"], num: 2, need: "threat", fits: m => /SEAD|DEAD/.test(m.role) },
     { key: "king", label: "HC-130 King (AMC, helo refuelling)", role: "CSAR", callsign: "KING 1", airframe: "KC-130J", num: 1, crew: "AI", need: "optional", fits: m => /C-130/.test(m.type) },
     { key: "aew", label: "AWACS / GCI", role: "AEW", airframe: "E-3A", num: 1, crew: "AI", need: "always", fits: m => m.role === "AEW" },
     { key: "isr", label: "ISR (MQ-9)", role: "ISR", airframe: "MQ-9", num: 1, crew: "AI", need: "optional", fits: m => m.role === "ISR" },
@@ -227,7 +227,7 @@
     const f = FORCES.find(x => x.key === key), A = window.AOC.ATO;
     // a human line goes to the first airframe an active group actually flies, so the Discord post reaches someone
     dropOld(inc, key);
-    const airframe = f.crew === "AI" ? f.airframe : [f.airframe, ...(f.alt || [])].find(a => A.recipients(a).length) || f.airframe;
+    const airframe = f.crew === "AI" ? f.airframe : [f.airframe, ...(f.alt || [])].find(a => A.recipients(a, f.role).length) || f.airframe;
     const l = A.request(inc.cid, { airframe, num: f.num, role: f.role, crew: f.crew || "Human", callsign: f.callsign || "", target: `${inc.id} survivor`, pkg: "CSAR",
       notes: `${inc.id} personnel recovery — ${f.label}`, source: "PRCC" }, by);
     if (l.status === "draft") A.postLine(l.id);

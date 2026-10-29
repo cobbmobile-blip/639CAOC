@@ -28,6 +28,7 @@
 <script src="js/tacan.js"></script>
 <script src="js/tdl.js"></script>
 <script src="js/mizlog.js"></script>
+<script src="js/proposal.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <main class="wrap">
@@ -155,6 +156,110 @@
       area = "Cycle";
       await t("Cycle moves to the next ATO and puts the daily products back in work", () => { const d0 = +c().atoDay; PK.cycle(CID, new Date(Date.now() + 7 * 864e5).toISOString());
         ok(+c().atoDay === d0 + 1, "ATO day"); ok(PK.DAILY.filter(p => Store.content(CID, p) != null).every(p => Store.status(CID, p) === "draft"), "daily products not back to draft"); });
+      area = "Standards";
+      // the CAOC Standards v0.2 (Squadron and Mission Maker Expectations) and the site agree
+      await t("C4: the host's server must meet every standard; products can't fall between the CAOC and the host", () => {
+        const P = AOC.PROPOSAL, base = { server: [...P.SERVER_STANDARDS], products: ["ACO", "Comm Plan", "JIPTL"], hostProducts: [...P.HOST_ALWAYS] };
+        ok(!P.validate(base).warnings.length, P.validate(base).warnings.join(" | "));
+        const w = P.validate({ ...base, server: P.SERVER_STANDARDS.slice(0, 2), products: ["ACO"], hostProducts: [] }).warnings.join(" | ");
+        ok(/Tacview/.test(w) && /Road to War/.test(w) && /Comm Plan: request it/.test(w) && /JIPTL: request it/.test(w), w);
+        const keys = P.STEPS.flatMap(st => st.fields.map(f => f.key));
+        ok(P.STEPS.some(st => st.fields.some(f => f.key === "atcPlayers" && f.required)), "ATC players not required");
+        ok(!["jfaccChosen", "risk", "c2Players"].some(k => keys.includes(k)), "a removed C4 question is back");
+        ok(P.STEPS.at(-1).fields.some(f => f.key === "ackMme" && f.required), "no Mission Maker Expectations acknowledgement");
+      });
+      await t("ATO lines go only to squadrons whose RTM lists the airframe and mission type", () => {
+        const ids = (a, r) => ATO.recipients(a, r).map(g => g.id).sort().join();
+        ok(ids("F-16C", "SEAD/DEAD") === "g1,g7", `F-16C SEAD/DEAD: ${ids("F-16C", "SEAD/DEAD")}`);
+        ok(ids("F-16C", "CAS") === "g1", `F-16C CAS: ${ids("F-16C", "CAS")}`);
+        ok(!ATO.recipients("AH-64D", "CAS").some(g => g.id === "g5"), "a Pending squadron got a line");
+        ok(ATO.recipients("F-15E", "INT").some(g => g.id === "g9"), "a squadron on probation got no line");
+        const g = Store.group("g7"), keep = g.status; g.status = "removed"; const r = ids("F-16C", "SEAD/DEAD"); g.status = keep;
+        ok(r === "g1", `a Removed squadron got a line: ${r}`);
+      });
+      await t("Probation: three uneventful missions make a squadron Active with a Board seat", () => {
+        const c0 = c(), keep = structuredClone(c0.debriefs || {}), g = Store.group("g9");
+        const line = ATO.lines(CID).find(l => l.committedBy === "g9") || { msn: "8601" };
+        ok(g.status === "probation", `g9 is ${g.status}`);
+        [1, 2].forEach(day => { c0.debriefs[100 + day] = { misreps: [{ msn: line.msn, flown: "Yes" }] }; });
+        ok(!ATO.promote("g9") && ATO.uneventful("g9") >= 2, `promoted early (${ATO.uneventful("g9")})`);
+        c0.debriefs[103] = { misreps: [{ msn: line.msn, flown: "No — aborted" }] };
+        ok(!ATO.promote("g9"), "an aborted mission counted as uneventful");
+        c0.debriefs[104] = { misreps: [{ msn: line.msn, flown: "Yes" }] };
+        ok(ATO.promote("g9") && g.status === "active" && g.boardSeat, `not promoted (${ATO.uneventful("g9")} uneventful)`);
+        c0.debriefs = keep; g.status = "probation"; g.boardSeat = false; Store.save();
+      });
+      await t("Board decisions are recorded with a note", () => {
+        ATO.setStatus("g5", "probation", "Board 7-2, remediation: FARP comms", "OVERLORD"); const g = Store.group("g5");
+        ok(g.status === "probation" && g.board[0].note.includes("FARP") && g.board[0].from === "pending", JSON.stringify(g.board?.[0]));
+        ATO.setStatus("g5", "pending", "reset by test", "TEST");
+      });
+      await t("The ATO prints the mods the host listed on its C4", () => {
+        const keep = c().mods; c().mods = "A-4E Community Mod";
+        const ctx = { campaign: c(), user: { callsign: "TEST", role: "CFACC" }, approval: null, group: g => Store.group(g) };
+        const h = PRODUCTS.ato.render(Store.content(CID, "ato"), ctx); if (keep === undefined) delete c().mods; else c().mods = keep;
+        ok(/MODS REQUIRED:<\/b> A-4E Community Mod/.test(h) && /AMPN\/MODS REQUIRED: A-4E COMMUNITY MOD\/\//.test(h), "mods missing");
+      });
+
+      area = "Mission sets";
+      await t("Human mission sets: no Strike, SEAD and DEAD combined, escort is OCA; AR, AEW and ISR are AI only", () => {
+        ok(ATO.ROLES.join() === "DCA,OCA,SEAD/DEAD,INT,XINT,CAS,XCAS,SCAR,CSAR,Airlift", ATO.ROLES.join());
+        ok(ATO.AI_ROLES.join() === "AR,AEW,ISR", ATO.AI_ROLES.join());
+        const l = ATO.request(CID, { airframe: "KC-135", num: 1, role: "AR", crew: "Human", tot: "0700Z", target: "AR TRACK ALPHA" }, { gid: c().jfacc.group, user: "TEST" });
+        ok(l.crew === "AI" && l.status === "ai", `an AR line was ${l.crew} / ${l.status}`);
+        ok(!Store.content(CID, "ato").missions.some(m => ["Strike", "SEAD", "DEAD", "Escort", "RESCORT", "SARCAP"].includes(m.role)), "an old mission set is still on the ATO");
+        ok(Store.db.groups.every(g => Object.values(g.rtm || {}).flat().every(r => !["Strike", "SEAD", "DEAD", "Escort", "RESCORT", "SARCAP", "AR", "AEW", "ISR"].includes(r))), "an old or AI-only role in an RTM");
+      });
+      await t("Every mission set gets its own IFF Mode 1 code", () => {
+        const ms = ATO.ROLES.map((r, i) => ({ msn: String(9900 + i), role: r, type: "F-16C", num: "2" }));
+        AOC.IFF.assign(CID, ms, { all: true });
+        const m1 = ms.map(m => m.m1); ok(m1.every(Boolean) && new Set(m1).size === m1.length, ms.map(m => `${m.role}=${m.m1 || "none"}`).join(" "));
+      });
+      await t("Saved data with the old mission sets is renamed once, never twice", async () => {
+        // a page in a hidden frame loads the saved copy the way a browser would, running the migration
+        const loadIn = async () => { const f = document.createElement("iframe"); f.style.cssText = "position:absolute;left:-9999px"; document.body.appendChild(f);
+          await new Promise(r => { f.onload = r; f.src = "unit-login.html"; }); return f; };
+        const d = structuredClone(Store.db), l = d.atoLines.find(x => x.cid === CID), aod = d.content[CID].aod;
+        l.role = "DEAD"; d.groups[0].rtm = { "F-16C": ["SEAD", "DEAD", "Strike", "ISR"] }; if (aod?.objectives?.[0]) aod.objectives[0].tasks = "SEAD, DEAD and Strike";
+        const keep = localStorage.getItem("aoc.db.test"); localStorage.setItem("aoc.db.test", JSON.stringify(d));
+        try {
+          let f = await loadIn(); let D = f.contentWindow.AOC.Store.db;
+          const r1 = D.atoLines.find(x => x.id === l.id).role, rtm = D.groups[0].rtm["F-16C"].join(), t1 = D.content[CID].aod?.objectives?.[0]?.tasks;
+          f.contentWindow.AOC.Store.save(); f.remove();
+          f = await loadIn(); D = f.contentWindow.AOC.Store.db; const t2 = D.content[CID].aod?.objectives?.[0]?.tasks, r2 = D.atoLines.find(x => x.id === l.id).role; f.remove();
+          ok(r1 === "SEAD/DEAD" && r2 === "SEAD/DEAD", `role ${r1} then ${r2}`);
+          ok(rtm === "SEAD/DEAD,INT", `RTM ${rtm}`);
+          if (aod?.objectives?.[0]) ok(t1 === "SEAD/DEAD, SEAD/DEAD and INT" && t2 === t1, `tasks "${t1}" then "${t2}"`);
+        } finally { if (keep == null) localStorage.removeItem("aoc.db.test"); else localStorage.setItem("aoc.db.test", keep); }
+      });
+
+      area = "Positions";
+      // C2, JTAC and ATC squadrons get ATO lines and Discord posts like flying units; a position is never an aircraft
+      await t("Position lines post only to controller squadrons whose RTM lists the role", () => {
+        const ids = (a, r) => ATO.recipients(a, r).map(g => g.id).join();
+        ok(ids("C2", "GCI") === "g15" && ids("JTAC", "JTAC") === "g16" && ids("ATC", "Tower") === "g17", `${ids("C2", "GCI")} | ${ids("JTAC", "JTAC")} | ${ids("ATC", "Tower")}`);
+        ok(ATO.isPosition("JTAC") && !ATO.isPosition("F-16C") && ATO.rolesFor("C2").includes("GCI") && ATO.rolesFor("F-16C").includes("SEAD/DEAD"), "position roles");
+      });
+      await t("A JTAC line goes to Discord as a position and takes a JTAC squadron's commit only", () => {
+        const l = ATO.request(CID, { airframe: "JTAC", num: 1, role: "JTAC", crew: "Human", tot: "0900–1200Z", target: "AO HAMMER", callsign: "SPARTA" }, { gid: c().jfacc.group, user: "TEST" });
+        ATO.postLine(l.id); const e = Store.db.discordOutbox.find(x => x.payload?.line_id === l.id)?.payload;
+        ok(e && e.kind === "position" && e.recipients.map(r => r.group_id).join() === "g16", JSON.stringify(e && { kind: e.kind, r: e.recipients }));
+        ok(ATO.commit(l.id, "g1", "TEST").error === "airframe_mismatch", "a flying squadron committed to a JTAC line");
+        ok(ATO.commit(l.id, "g16", "TEST").ok !== false, "the JTAC squadron could not commit");
+      });
+      await t("Positions get no IFF codes, no .miz ADD and no IFF findings", () => {
+        const ms = structuredClone(Store.content(CID, "ato").missions); AOC.IFF.assign(CID, ms, { all: true });
+        ok(ms.filter(m => ATO.isPosition(m.type)).every(m => !m.m1 && !m.m3), "a position got IFF codes");
+        ok(!AOC.IFF.check(CID, ms, AOC.JCEOI?.theaterKey(c().theater)).some(f => /^87/.test(String(f.msn))), "IFF findings for a position");
+        ok(!L.build(CID).items.some(i => /^87\d\d /.test(i.text)), "a position is a .miz ADD");
+      });
+      await t("The ATO prints positions as CONTROLA entries, not aircraft", () => {
+        const ctx = { campaign: c(), user: { callsign: "TEST", role: "CFACC" }, approval: null, group: g => Store.group(g) };
+        const h = PRODUCTS.ato.render(Store.content(CID, "ato"), ctx);
+        ok(/CONTROLA\/GCI\/KEYBOARD\/PDESIG:/.test(h) && /CONTROLA\/JTAC\/MAGNUM\/PDESIG:/.test(h), "no CONTROLA entries");
+        ok(!/MSNACFT\/1\/JTAC/.test(h) && /controller position/.test(h), "a position printed as an aircraft");
+      });
+
       area = "Pages";
       // the real page in a hidden frame, on this run's data copy (app.js reads the parent's AOC_DB_KEY)
       const page = async (src, fn) => {

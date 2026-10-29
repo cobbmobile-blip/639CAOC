@@ -34,7 +34,8 @@
     ["Campaign basics", ["Operation name, theater/map and era confirmed", "First mission date (T-0), start time (Z) and event cadence",
       "Number of events / ATO days and campaign end condition", "Planning timeline and deadlines agreed (see the Dashboard's deadline timeline)"]],
     ["People and channels", ["Group JFACC and deputy confirmed as the CAOC's points of contact", "CAOC leads named for each product (CFACC owns approval)",
-      "REDFOR commander (own / other group / CAOC-appointed / none)", "Discord channels for planning, ATO line posts and debrief"]],
+      "REDFOR commander (own / other group / CAOC-appointed / none)", "Discord channels for planning, ATO line posts and debrief",
+      "C2 player(s) confirmed; ATC player(s) named on the C4 (at least one of each, every mission)"]],
     ["Intent and objectives", ["Commander's Intent draft reviewed (purpose, method, end state)", "Key tasks and their priority / weights for targeting",
       "Win, loss and draw conditions are measurable", "ROE posture and default weapons control status"]],
     ["Forces and ATO lines", ["BLUE order of battle, bases / carrier", "Which flights are Human (posted for commitment) vs AI",
@@ -49,7 +50,9 @@
       "Spare channels per net; airfield / ATC frequencies stay out of the comm plan", "Datalink / IFF conventions"]],
     ["SPINS inputs", ["Weapons restrictions", "Code words and authentication", "CSAR plan and divert fields"]],
     ["Mission file and products", ["Host .miz due date and version (CAOC extracts BLUE flights and REDFOR from it)",
-      "Mods / scripts required", "Products wanted (from the proposal; the ATO is always produced)", "Publish date and how the host receives the package"]]
+      "Host server meets the standards (current DCS and SRS, Tacview live telemetry for DKS, 100% of requested slots)",
+      "Mods / scripts required (printed on the ATO)", "Products wanted from the CAOC (the ATO is always produced) and products the host supplies (Road to War brief, terminal procedures ...)",
+      "Publish date and how the host receives the package"]]
   ];
   P.pcon = {
     code: "PCON", name: "Planning Conference", owner: "CFACC / host JFACC", stage: 1,
@@ -104,8 +107,8 @@
   // its JIPTL targets), then any objectives the JFACC adds by hand
   const VERB = [[/destroy|sink/i, "Destroy"], [/neutrali[sz]e|suppress/i, "Neutralise"], [/disrupt/i, "Disrupt"], [/deny/i, "Deny"], [/interdict|isolate|turn back/i, "Interdict"],
     [/attrit|degrade/i, "Attrit"], [/protect|defend|maintain|establish/i, "Protect"], [/support|provide|cas/i, "Support"]];
-  const MSN_FOR = [[/SAM|AAA|Early warning/, "SEAD/DEAD"], [/Airfield|Aircraft/, "OCA"], [/Infrastructure|Logistics|Ammo/, "INT"], [/Naval|anti-ship/, "Maritime strike"],
-    [/C2/, "Strike"], [/Armor|Ground|Dismounts|Artillery|Surface-to-surface/, "INT"]];
+  const MSN_FOR = [[/SAM|AAA|Early warning/, "SEAD/DEAD"], [/Airfield|Aircraft/, "OCA"], [/Infrastructure|Logistics|Ammo/, "INT"], [/Naval|anti-ship/, "INT"],
+    [/C2/, "INT"], [/Armor|Ground|Dismounts|Artillery|Surface-to-surface/, "INT"]];
   function aodObjectives(d, ctx) {
     const cid = ctx.campaign.id, rows = window.AOC.Store.content(cid, "jiptl")?.rows || [];
     const auto = window.AOC.keyTasks(cid).map(t => {
@@ -226,8 +229,8 @@
   // ATO in USMTF message format (after the AIR TASKING ORDER guide and the 510th vFS ATO example), built from the
   // ATO lines plus what the site already holds: JIPTL targets, theater-map tanker tracks, the AEW line, OPTASKLINK STNs.
   // Sets: TASKUNIT per unit; AMSNDAT / MSNACFT per line (MSNACFT ends STN / Mode 1 / Mode 2 / Mode 3 as 1xx, 2xxxx, 3xxxx).
-  const NET_OF = { SEAD: "sead", DEAD: "sead", Strike: "strike", INT: "strike", XINT: "strike", DCA: "dca", OCA: "dca", Escort: "dca", CAS: "cas", XCAS: "cas", SCAR: "scar", CSAR: "prcc", RESCORT: "rescort", SARCAP: "dca" };
-  const LEAD_ORDER = ["Strike", "INT", "DEAD", "SEAD", "CAS", "SCAR"];
+  const NET_OF = { "SEAD/DEAD": "sead", INT: "strike", XINT: "strike", DCA: "dca", OCA: "dca", CAS: "cas", XCAS: "cas", SCAR: "scar", CSAR: "prcc" };
+  const LEAD_ORDER = ["INT", "SEAD/DEAD", "CAS", "SCAR"];
   function atoMessage(d, ctx) {
     const S = window.AOC.Store, cid = ctx.campaign.id, rows = d.missions || [];
     const up = v => String(v ?? "").toUpperCase().trim(), dash = v => up(v) && up(v) !== "—" ? up(v) : "-";
@@ -247,11 +250,22 @@
     // package commander: the first striker in the package (strike, INT, DEAD, SEAD, CAS), else the lowest mission number
     const pkgLead = p => rows.filter(x => x.pkg === p).sort((x, y) => (LEAD_ORDER.indexOf(x.role) + 1 || 99) - (LEAD_ORDER.indexOf(y.role) + 1 || 99) || String(x.msn).localeCompare(String(y.msn)))[0];
     const [from, to] = String(d.period || "").split(/\s*[–-]\s*(?=\d)/);
+    const mods = modsOf(ctx.campaign);
+    const isPos = r => window.AOC.ATO?.isPosition(r.type);
     const out = [`OPER/OPERATION ${up(ctx.campaign.opName)}//`, `MSGID/ATO/639TH VCAOC/${window.AOC.atoId(d.atoDay)}//`, "AMPN/ALL TIMES ARE Z//",
+      ...(mods ? [`AMPN/MODS REQUIRED: ${up(mods)}//`] : []),
       to ? `TIMEFRAM/${up(from)}/TO:${up(to)}//` : `TIMEFRAM/${dash(d.period)}//`];
     [...new Set(rows.map(unit))].forEach(u => {
       out.push("", `TASKUNIT/${u}//`);
       rows.filter(r => unit(r) === u).forEach(r => {
+        if (isPos(r)) {
+          const kind = { GCI: "GCI", "AWACS ABM": "AWAC", "TAC C2": "CRC", JTAC: "JTAC", Tower: "TWR", Approach: "APP", Ground: "GND" }[r.role] || dash(r.role);
+          const ch = r.role === "JTAC" ? findChannel(mx, "jtac") : ["GCI", "AWACS ABM"].includes(r.role) ? findChannel(mx, "c2") : r.role === "TAC C2" ? findChannel(mx, "asoc") : null;
+          const [t1, t2] = times(r.tot);
+          out.push("", `CONTROLA/${kind}/${dash(r.callsign && r.callsign !== "TBD" ? up(r.callsign) : "")}/PDESIG:${desig(ch)}//`,
+            `AMSNLOC/${t1}/${t2}/${dash(r.target)}/-//`, `AMPN/MSN ${dash(r.msn)}: ${dash(r.num)} ${up(r.type)} ${up(r.role)} CONTROLLER${+r.num > 1 ? "S" : ""}//`);
+          return;
+        }
         const pkg = r.pkg && r.pkg !== "—" ? up(r.pkg) : "", stn = viper.find(v => v.msn === r.msn && v.lead)?.stn;
         out.push("", `AMSNDAT/N/${dash(r.msn)}/-/${pkg || "-"}/-/${dash(r.role)}/-/-/DEPLOC:-/ARRLOC:-//`,
           `MSNACFT/${dash(r.num)}/${dash(r.type)}/${cs(r.callsign)}/-/-/${stn || "-"}/${r.m1 ? `1${r.m1}` : "-"}/${r.m2 ? `2${r.m2.split(/[–-]/)[0]}` : "-"}/${r.m3 ? `3${r.m3}` : "-"}//`);
@@ -277,18 +291,19 @@
   // quick summary of the same ATO: human lines first, then AI. Crew = the line's own, else flown by a group = human
   // (unless the group is an AI support cell); open lines with no group are human lines waiting for a unit.
   function atoSummary(d, ctx) {
-    const rows = d.missions || [], n = rows.reduce((s, r) => s + (parseInt(r.num) || 0), 0);
+    const isPos = r => window.AOC.ATO?.isPosition(r.type);
+    const rows = d.missions || [], n = rows.filter(r => !isPos(r)).reduce((s, r) => s + (parseInt(r.num) || 0), 0), pos = rows.filter(isPos);
     const human = r => atoHuman(r, ctx.group);
     const pkgs = [...new Set(rows.map(r => r.pkg).filter(p => p && p !== "—"))].sort();
     const cols = [["msn", "MSN #"], ["callsign", "CALLSIGN", r => r.callsign || "TBD"], ["group", "UNIT", r => r.group ? ctx.group(r.group)?.name || r.group : human(r) ? "OPEN" : "AI"],
-      ["type", "ACFT", r => `${r.num || ""}x${r.type || ""}`], ["role", "MISSION"], ["pkg", "PKG", r => r.pkg && r.pkg !== "—" ? r.pkg : ""], ["tot", "TOT / ON-STA"], ["target", "TGT / AREA"],
+      ["type", "ACFT / POSITION", r => isPos(r) ? `${r.num || 1}× ${r.type} controller` : `${r.num || ""}x${r.type || ""}`], ["role", "MISSION"], ["pkg", "PKG", r => r.pkg && r.pkg !== "—" ? r.pkg : ""], ["tot", "TOT / ON-STA"], ["target", "TGT / AREA"],
       ["tanker", "TANKER", r => r.tanker && r.tanker !== "—" ? r.tanker : ""], ["m1", "M1"], ["m3", "M3"]];
     const h = rows.filter(human), ai = rows.filter(r => !human(r));
     // which key tasks this ATO's strike lines serve
     const A = window.AOC, byKt = {};
     rows.forEach(r => { const t = r.target && A.keyTaskOf(ctx.campaign.id, r.target); if (t) (byKt[t.n] = byKt[t.n] || { t, n: 0 }).n++; });
     const kts = Object.values(byKt).sort((a, b) => a.t.n - b.t.n);
-    return `<h2>SUMMARY</h2><p>ATO ${window.AOC.atoId(d.atoDay)}, ${esc(d.period)}: ${rows.length} missions, ${n} aircraft${pkgs.length ? `, packages ${pkgs.map(esc).join(", ")}` : ""}.</p>
+    return `<h2>SUMMARY</h2><p>ATO ${window.AOC.atoId(d.atoDay)}, ${esc(d.period)}: ${rows.length - pos.length} missions, ${n} aircraft${pos.length ? `, ${pos.length} controller position${pos.length > 1 ? "s" : ""} (${[...new Set(pos.map(r => r.type))].map(esc).join(", ")})` : ""}${pkgs.length ? `, packages ${pkgs.map(esc).join(", ")}` : ""}.</p>
       ${kts.length ? `<p>Key tasks served: ${kts.map(k => `${esc(A.keyTaskLabel(k.t))} (${k.n} line${k.n > 1 ? "s" : ""})`).join("; ")}.</p>` : ""}
       <h2>HUMAN (${h.length})</h2>${table(cols, h)}<h2>AI (${ai.length})</h2>${table(cols, ai)}`;
   }
@@ -303,7 +318,8 @@
     { key: "msn", label: "Msn #", w: 70 }, { key: "pkg", label: "Pkg", w: 50 },
     { key: "group", label: "Group", type: "groups" }, { key: "callsign", label: "Callsign" },
     { key: "type", label: "Acft", type: "acft", w: 110 },
-    { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD", "DEAD", "INT", "XINT", "CAS", "XCAS", "SCAR", "Escort", "Strike", "ISR", "AR", "AEW", "CSAR", "RESCORT", "SARCAP", "Airlift"] },
+    { key: "role", label: "Mission", type: "select", options: ["DCA", "OCA", "SEAD/DEAD", "INT", "XINT", "CAS", "XCAS", "SCAR", "CSAR", "Airlift", "AR", "AEW", "ISR",
+      "GCI", "AWACS ABM", "TAC C2", "JTAC", "Tower", "Approach", "Ground"] },
     { key: "tot", label: "TOT / On-sta", w: 90 }, { key: "target", label: "Target / Area", type: "jiptl" }];
   P.ato = {
     code: "ATO", name: "Air Tasking Order", owner: "Combat Plans", stage: 5,
@@ -319,6 +335,7 @@
       { key: "missions", label: "AI lines", type: "table", columns: ATO_COLS, show: (r, group) => !atoHuman(r, group), newRow: { crew: "AI" }, iffPanel: true }
     ],
     render: (d, ctx) => `${head("AIR TASKING ORDER", ctx, `ATO ${window.AOC.atoId(d.atoDay)}`)}
+      ${modsOf(ctx.campaign) ? `<p><b>MODS REQUIRED:</b> ${esc(modsOf(ctx.campaign))} — install before the mission.</p>` : ""}
       <pre class="msg">${esc(atoMessage(d, ctx))}</pre>
       ${atoSummary(d, ctx)}${sig(ctx)}`
   };
@@ -555,6 +572,8 @@
     render: (d, ctx) => `${spinsDoc(d, ctx)}<div class="pagebreak"></div>${authDoc(d, ctx)}<div class="pagebreak"></div>${roeDoc(d, ctx)}`
   };
 
+  // the mods the host listed on its C4 (the campaign keeps a copy when the C4 is accepted)
+  const modsOf = c => c?.mods ?? window.AOC.Store.submission?.(c?.proposal)?.data?.mods ?? "";
   // CAOC-assigned values stay as published (in DKS and in the cockpit); changes come from the CAOC (DKS brief 4.9 F)
   const SPINS_NO_CHANGE = "CAOC-assigned IFF/SIF codes, STNs and frequencies (ATO, JCEOI and Comm Plan) will not be changed. Changes will be requested from the CAOC.";
   // theater IFF rules (e.g. NTTR) from the JCEOI IFF plan, when the page has it

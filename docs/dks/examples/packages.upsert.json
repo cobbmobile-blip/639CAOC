@@ -30,38 +30,38 @@
         {
           "msn": "8101",
           "callsign": "VIPER 1",
-          "role": "SEAD",
+          "role": "SEAD/DEAD",
           "packageRole": "sead"
         },
         {
           "msn": "8104",
           "callsign": "KNIGHT 1",
-          "role": "DEAD",
+          "role": "SEAD/DEAD",
           "packageRole": "sead"
         },
         {
           "msn": "8102",
           "callsign": "DUDE 1",
           "role": "INT",
-          "packageRole": "strike"
+          "packageRole": "int"
         },
         {
           "msn": "8601",
           "callsign": "RUNNER 1",
-          "role": "Strike",
-          "packageRole": "strike"
+          "role": "INT",
+          "packageRole": "int"
         },
         {
           "msn": "8103",
           "callsign": "SPRINGFIELD 1",
-          "role": "Escort",
-          "packageRole": "escort"
+          "role": "OCA",
+          "packageRole": "oca"
         },
         {
           "msn": "8105",
           "callsign": "EAGLE 1",
           "role": "OCA",
-          "packageRole": "sweep"
+          "packageRole": "oca"
         }
       ],
       "support": [

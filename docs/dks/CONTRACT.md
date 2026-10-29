@@ -192,6 +192,10 @@ squadron has committed (Discord → CAOC). DKS returns its flight id, which the 
 | `members[] { seat, mode1, mode2, mode3, stn, sadlTn, idm }` | members `mode3`, `stn`, `sadl` (**seen**) |
 | `agencies` | the campaign agencies (§4.3) |
 
+**Controller positions** (C2, JTAC and ATC lines, `airframe` `C2` / `JTAC` / `ATC`) are committed like flights but
+are **not** sent as `flight.create`: DKS has no place for them yet (Q18). Until it does, they live on the CAOC ATO and
+in Discord only; their frequencies are already in the campaign agencies (§4.3).
+
 `flight.update` sends only changed CAOC fields. `flight.remove` (line released or cancelled) removes the flight, or
 marks it inactive if it has planning in it (Q10). If DKS is unreachable the CAOC queues the message and retries; the
 `sourceId` makes a retry safe.

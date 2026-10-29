@@ -62,8 +62,21 @@ seed content does not reach a browser that already saved data.
 
 ## Roles and workflow (decided — keep)
 
-- **CFC** manages the CAOC; decides on campaign proposals; may assist the CFACC (approve/publish).
-- **CFACC** makes sure every deliverable is built and approved; approves and publishes. Does **not** manage campaigns.
+- **CAOC Standards v0.2** (Squadron Expectations, Mission Maker Expectations; Word files in the working folder's
+  `CAOC Standards/`) and the site must say the same thing. Change one, change the other.
+- **CFC** manages the CAOC; **approves campaigns** (accepts the C4); breaks Board ties only; may assist the CFACC.
+- **CFACC** makes sure every deliverable is built and approved; approves and publishes; **presides over the Board**
+  (squadron approvals and removals, by LNO vote) and records its decisions on `squadron.html`. Does **not** manage campaigns.
+- **Squadrons**: status `pending` → `probation` (Board approved) → `active` (three uneventful missions, `ATO.promote`) or
+  `removed`. Lines post only to active / probation squadrons whose **RTM** (`group.rtm`, mission types per airframe)
+  covers the airframe and role (`ATO.recipients(airframe, role)`). No JFC role exists.
+- **Mission sets** (`ATO.ROLES`): DCA, OCA (includes escort / sweep), SEAD/DEAD (one set), INT, XINT, CAS, XCAS, SCAR,
+  CSAR, Airlift. No Strike (INT / XINT), no Escort (OCA), no RESCORT / SARCAP. AR, AEW, ISR are AI only (`ATO.AI_ROLES`;
+  `ATO.request` makes such a line AI). Mode 1 per set in `tools/jceoi/data/iff.json` (built into `js/jceoi-data.js`).
+  `renamedMissions` in the seed migrates saved data once (the rename regex skips combined sets like SEAD/DEAD).
+- **Controller positions** (`ATO.POSITIONS`: `C2`, `JTAC`, `ATC` as the line's airframe, with their own roles,
+  `ATO.rolesFor`): posted and committed like flights, but `ATO.isPosition(type)` lines are skipped by IFF, datalinks,
+  the `.miz` change log and DKS flight creation, and print as `CONTROLA` on the ATO.
 - **CAOC staff** build products; saving one makes it ready for the CFACC's approval.
 - **Group JFACC / LNO** is elected by the sponsoring group, manages the campaign, is the CAOC's single POC, and
   requests ATO lines.
@@ -71,7 +84,10 @@ seed content does not reach a browser that already saved data.
   save) → Approved → Published. Publishing freezes a versioned snapshot; groups only ever see released versions. Any
   saved edit needs re-approval. The CFACC approves on the product page or, per product, in the PUBLISH dialog.
 - **Products apply to a whole group**, never to individual flights.
-- **The CAOC only builds products.** It does not play in the campaign and never edits the host's `.miz`.
+- **The host (Mission Maker) is primary for every product**; the CAOC builds the ones ticked under Products wanted on
+  the C4 (the ATO always), the host supplies the rest. The C4 requires the host's own server and its standards, named
+  ATC players, mods (printed on the ATO) and the MME acknowledgement. The CAOC does not play in the campaign and
+  never edits the host's `.miz`.
   Readiness, the mass brief and running the mission are the **host unit's alone** — the site only shows their dates.
 - Process order: proposal → planning conference (PCON checklist) → host draft .miz + ATO line requests → CI → AOD →
   JIPTL → TDPs → MAAP → Human lines committed → **ACO + theater map** (after commits, before the ATO is final; airspace
@@ -178,8 +194,8 @@ seed content does not reach a browser that already saved data.
   number of the day, PR frequencies, contact, signals) are generated per campaign unless the SPINS set them. The CSAR
   force: RESCORT (OSC = the lead, Sandy 1), rescue helo (MH-60L, 55th RQS), optional CH-47F lift (no group yet), SARCAP,
   SEAD when a SAM ring covers the survivor, HC-130 King, AWACS, ISR, tanker. AMC defaults to the King, else the AWACS,
-  else the SARCAP lead. Requested human lines use an airframe an active group flies, or are flagged. ATO roles include
-  RESCORT and SARCAP. `.miz` types `UH-60L` / `UH-60L_DAP` (the UH-60L mod) read as MH-60L / MH-60L DAP.
+  else the SARCAP lead. Requested human lines use an airframe an active group flies, or are flagged. The Sandy line
+  flies CSAR, the SARCAP line DCA, the SAM escort SEAD/DEAD (no RESCORT or SARCAP mission sets). `.miz` types `UH-60L` / `UH-60L_DAP` (the UH-60L mod) read as MH-60L / MH-60L DAP.
 - **MAAP support lines**: each package's tankers, AWACS / GCI, TAC C2 and JTAC are suggested (only when needed) from the
   ATO, theater map, ACO and Comm Plan; planners edit, remove or add rows. The checks sit at the top, errors first.
 - **Layout**: every page stacks its panels full width; no side columns or asides.
